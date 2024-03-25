@@ -44,6 +44,7 @@ resourcestring
   ROSSLAPIFunctionNotPresent = 'OpenSSL API Function/Procedure %s not found in SSL Library';
   ROSUnrecognisedLibName = 'Unrecognised SSL Library name (%s)';
   ROSCertificateNotAddedToStore = 'Unable to add X.509 Certificate to cert store';
+  ROSUnsupported = 'Not Supported';
   //callback where strings
   RSOSSLAlert =  '%s Alert';
   RSOSSLReadAlert =  '%s Read Alert';
@@ -59,6 +60,9 @@ resourcestring
   RSOSSLHandshakeStart = 'Handshake Start';
   RSOSSLHandshakeDone =  'Handshake Done';
   RSOSSLProcLoadErrorHdr = 'The following functions were not loaded';
+  {IdSSLOpenSSLFIPS}
+  RSOSSLEVPDigestExError = 'EVP_DigestInit_ex error';
+  RSOSSLEVPDigestUpdateError = 'EVP_DigestUpdate error';
 
 implementation
 

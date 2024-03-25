@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -61,19 +63,19 @@ uses
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  COMP_CTX_new: function(meth: PCOMP_METHOD): PCOMP_CTX; cdecl = nil;
-  COMP_CTX_get_method: function(const ctx: PCOMP_CTX): PCOMP_METHOD; cdecl = nil;
-  COMP_CTX_get_type: function(const comp: PCOMP_CTX): TIdC_INT; cdecl = nil;
-  COMP_get_type: function(const meth: PCOMP_METHOD): TIdC_INT; cdecl = nil;
-  COMP_get_name: function(const meth: PCOMP_METHOD): PIdAnsiChar; cdecl = nil;
-  COMP_CTX_free: procedure(ctx: PCOMP_CTX); cdecl = nil;
+  COMP_CTX_new: function (meth: PCOMP_METHOD): PCOMP_CTX; cdecl = nil;
+  COMP_CTX_get_method: function (const ctx: PCOMP_CTX): PCOMP_METHOD; cdecl = nil;
+  COMP_CTX_get_type: function (const comp: PCOMP_CTX): TIdC_INT; cdecl = nil;
+  COMP_get_type: function (const meth: PCOMP_METHOD): TIdC_INT; cdecl = nil;
+  COMP_get_name: function (const meth: PCOMP_METHOD): PIdAnsiChar; cdecl = nil;
+  COMP_CTX_free: procedure (ctx: PCOMP_CTX); cdecl = nil;
 
-  COMP_compress_block: function(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT; cdecl = nil;
-  COMP_expand_block: function(ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT; cdecl = nil;
+  COMP_compress_block: function (ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT; cdecl = nil;
+  COMP_expand_block: function (ctx: PCOMP_CTX; out_: PByte; olen: TIdC_INT; in_: PByte; ilen: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  COMP_zlib: function: PCOMP_METHOD; cdecl = nil;
+  COMP_zlib: function : PCOMP_METHOD; cdecl = nil;
 
-  BIO_f_zlib: function: PBIO_METHOD; cdecl = nil;
+  BIO_f_zlib: function : PBIO_METHOD; cdecl = nil;
 
 {$ELSE}
   function COMP_CTX_new(meth: PCOMP_METHOD): PCOMP_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -94,12 +96,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

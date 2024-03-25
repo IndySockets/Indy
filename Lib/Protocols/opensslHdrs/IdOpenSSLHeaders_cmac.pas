@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -66,15 +68,15 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  CMAC_CTX_new: function: PCMAC_CTX; cdecl = nil;
-  CMAC_CTX_cleanup: procedure(ctx: PCMAC_CTX); cdecl = nil;
-  CMAC_CTX_free: procedure(ctx: PCMAC_CTX); cdecl = nil;
-  CMAC_CTX_get0_cipher_ctx: function(ctx: PCMAC_CTX): PEVP_CIPHER_CTX; cdecl = nil;
-  CMAC_CTX_copy: function(out_: PCMAC_CTX; const in_: PCMAC_CTX): TIdC_INT; cdecl = nil;
-  CMAC_Init: function(ctx: PCMAC_CTX; const key: Pointer; keylen: TIdC_SIZET; const cipher: PEVP_Cipher; impl: PENGINe): TIdC_INT; cdecl = nil;
-  CMAC_Update: function(ctx: PCMAC_CTX; const data: Pointer; dlen: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  CMAC_Final: function(ctx: PCMAC_CTX; out_: PByte; poutlen: PIdC_SIZET): TIdC_INT; cdecl = nil;
-  CMAC_resume: function(ctx: PCMAC_CTX): TIdC_INT; cdecl = nil;
+  CMAC_CTX_new: function : PCMAC_CTX; cdecl = nil;
+  CMAC_CTX_cleanup: procedure (ctx: PCMAC_CTX); cdecl = nil;
+  CMAC_CTX_free: procedure (ctx: PCMAC_CTX); cdecl = nil;
+  CMAC_CTX_get0_cipher_ctx: function (ctx: PCMAC_CTX): PEVP_CIPHER_CTX; cdecl = nil;
+  CMAC_CTX_copy: function (out_: PCMAC_CTX; const in_: PCMAC_CTX): TIdC_INT; cdecl = nil;
+  CMAC_Init: function (ctx: PCMAC_CTX; const key: Pointer; keylen: TIdC_SIZET; const cipher: PEVP_Cipher; impl: PENGINe): TIdC_INT; cdecl = nil;
+  CMAC_Update: function (ctx: PCMAC_CTX; const data: Pointer; dlen: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  CMAC_Final: function (ctx: PCMAC_CTX; out_: PByte; poutlen: PIdC_SIZET): TIdC_INT; cdecl = nil;
+  CMAC_resume: function (ctx: PCMAC_CTX): TIdC_INT; cdecl = nil;
 
 {$ELSE}
   function CMAC_CTX_new: PCMAC_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -91,12 +93,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -438,15 +440,15 @@ function X509_LOOKUP_load_file(ctx: PX509_LOOKUP; name: PIdAnsiChar; type_: TIdC
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
   {$EXTERNALSYM X509_STORE_CTX_get_app_data} {removed 1.0.0}
-  X509_STORE_set_depth: function(store: PX509_STORE; depth: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_STORE_set_depth: function (store: PX509_STORE; depth: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  X509_STORE_CTX_set_depth: procedure(ctx: PX509_STORE_CTX; depth: TIdC_INT); cdecl = nil;
+  X509_STORE_CTX_set_depth: procedure (ctx: PX509_STORE_CTX; depth: TIdC_INT); cdecl = nil;
 
   //# define X509_STORE_CTX_set_app_data(ctx,data) \
   //        X509_STORE_CTX_set_ex_data(ctx,0,data)
   //# define X509_STORE_CTX_get_app_data(ctx) \
   //        X509_STORE_CTX_get_ex_data(ctx,0)
-  X509_STORE_CTX_get_app_data: function(ctx: PX509_STORE_CTX): Pointer; cdecl = nil; {removed 1.0.0}
+  X509_STORE_CTX_get_app_data: function (ctx: PX509_STORE_CTX): Pointer; cdecl = nil; {removed 1.0.0}
   //
   //# define X509_LOOKUP_load_file(x,name,type) \
   //                X509_LOOKUP_ctrl((x),X509_L_FILE_LOAD,(name),(TIdC_LONG)(type),NULL)
@@ -461,99 +463,99 @@ var
   //                                             X509_NAME *name);
   //X509_OBJECT *X509_OBJECT_retrieve_match(STACK_OF(X509_OBJECT) *h,
   //                                        X509_OBJECT *x);
-  X509_OBJECT_up_ref_count: function(a: PX509_OBJECT): TIdC_INT; cdecl = nil;
-  X509_OBJECT_new: function: PX509_OBJECT; cdecl = nil; {introduced 1.1.0}
-  X509_OBJECT_free: procedure(a: PX509_OBJECT); cdecl = nil; {introduced 1.1.0}
-  X509_OBJECT_get_type: function(const a: PX509_OBJECT): X509_LOOKUP_TYPE; cdecl = nil; {introduced 1.1.0}
-  X509_OBJECT_get0_X509: function(const a: PX509_OBJECT): PX509; cdecl = nil; {introduced 1.1.0}
-  X509_OBJECT_set1_X509: function(a: PX509_OBJECT; obj: PX509): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_OBJECT_get0_X509_CRL: function(a: PX509_OBJECT): PX509_CRL; cdecl = nil; {introduced 1.1.0}
-  X509_OBJECT_set1_X509_CRL: function(a: PX509_OBJECT; obj: PX509_CRL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_new: function: PX509_STORE; cdecl = nil;
-  X509_STORE_free: procedure(v: PX509_STORE); cdecl = nil;
-  X509_STORE_lock: function(ctx: PX509_STORE): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_unlock: function(ctx: PX509_STORE): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_up_ref: function(v: PX509_STORE): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_OBJECT_up_ref_count: function (a: PX509_OBJECT): TIdC_INT; cdecl = nil;
+  X509_OBJECT_new: function : PX509_OBJECT; cdecl = nil; {introduced 1.1.0}
+  X509_OBJECT_free: procedure (a: PX509_OBJECT); cdecl = nil; {introduced 1.1.0}
+  X509_OBJECT_get_type: function (const a: PX509_OBJECT): X509_LOOKUP_TYPE; cdecl = nil; {introduced 1.1.0}
+  X509_OBJECT_get0_X509: function (const a: PX509_OBJECT): PX509; cdecl = nil; {introduced 1.1.0}
+  X509_OBJECT_set1_X509: function (a: PX509_OBJECT; obj: PX509): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_OBJECT_get0_X509_CRL: function (a: PX509_OBJECT): PX509_CRL; cdecl = nil; {introduced 1.1.0}
+  X509_OBJECT_set1_X509_CRL: function (a: PX509_OBJECT; obj: PX509_CRL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_new: function : PX509_STORE; cdecl = nil;
+  X509_STORE_free: procedure (v: PX509_STORE); cdecl = nil;
+  X509_STORE_lock: function (ctx: PX509_STORE): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_unlock: function (ctx: PX509_STORE): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_up_ref: function (v: PX509_STORE): TIdC_INT; cdecl = nil; {introduced 1.1.0}
   //STACK_OF(X509_OBJECT) *X509_STORE_get0_objects(X509_STORE *v);
 
   //STACK_OF(X509) *X509_STORE_CTX_get1_certs(X509_STORE_CTX *st, X509_NAME *nm);
   //STACK_OF(X509_CRL) *X509_STORE_CTX_get1_crls(X509_STORE_CTX *st, X509_NAME *nm);
-  X509_STORE_set_flags: function(ctx: PX509_STORE; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
-  X509_STORE_set_purpose: function(ctx: PX509_STORE; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_STORE_set_trust: function(ctx: PX509_STORE; trust: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_STORE_set1_param: function(ctx: PX509_STORE; pm: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
-  X509_STORE_get0_param: function(ctx: PX509_STORE): PX509_VERIFY_PARAM; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_flags: function (ctx: PX509_STORE; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
+  X509_STORE_set_purpose: function (ctx: PX509_STORE; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_STORE_set_trust: function (ctx: PX509_STORE; trust: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_STORE_set1_param: function (ctx: PX509_STORE; pm: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
+  X509_STORE_get0_param: function (ctx: PX509_STORE): PX509_VERIFY_PARAM; cdecl = nil; {introduced 1.1.0}
 
-  X509_STORE_set_verify: procedure(ctx: PX509_STORE; verify: X509_STORE_CTX_verify_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_verify: procedure (ctx: PX509_STORE; verify: X509_STORE_CTX_verify_fn); cdecl = nil; {introduced 1.1.0}
   //#define X509_STORE_set_verify_func(ctx, func) \
   //            X509_STORE_set_verify((ctx),(func))
-  X509_STORE_CTX_set_verify: procedure(ctx: PX509_STORE_CTX; verify: X509_STORE_CTX_verify_fn); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_verify: function(ctx: PX509_STORE): X509_STORE_CTX_verify_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_set_verify_cb: procedure(ctx: PX509_STORE; verify_cb: X509_STORE_CTX_verify_cb); cdecl = nil;
+  X509_STORE_CTX_set_verify: procedure (ctx: PX509_STORE_CTX; verify: X509_STORE_CTX_verify_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_verify: function (ctx: PX509_STORE): X509_STORE_CTX_verify_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_verify_cb: procedure (ctx: PX509_STORE; verify_cb: X509_STORE_CTX_verify_cb); cdecl = nil;
   //# define X509_STORE_set_verify_cb_func(ctx,func) \
   //            X509_STORE_set_verify_cb((ctx),(func))
-  X509_STORE_get_verify_cb: function(ctx: PX509_STORE): X509_STORE_CTX_verify_cb; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_set_get_issuer: procedure(ctx: PX509_STORE; get_issuer: X509_STORE_CTX_get_issuer_fn); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_get_issuer: function(ctx: PX509_STORE): X509_STORE_CTX_get_issuer_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_set_check_issued: procedure(ctx: PX509_STORE; check_issued: X509_STORE_CTX_check_issued_fn); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_check_issued: function(ctx: PX509_STORE): X509_STORE_CTX_check_issued_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_set_check_revocation: procedure(ctx: PX509_STORE; check_revocation: X509_STORE_CTX_check_revocation_fn); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_check_revocation: function(ctx: PX509_STORE): X509_STORE_CTX_check_revocation_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_set_get_crl: procedure(ctx: PX509_STORE; get_crl: X509_STORE_CTX_get_crl_fn); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_get_crl: function(ctx: PX509_STORE): X509_STORE_CTX_get_crl_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_set_check_crl: procedure(ctx: PX509_STORE; check_crl: X509_STORE_CTX_check_crl_fn); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_check_crl: function(ctx: PX509_STORE): X509_STORE_CTX_check_crl_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_set_cert_crl: procedure(ctx: PX509_STORE; cert_crl: X509_STORE_CTX_cert_crl_fn); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_cert_crl: function(ctx: PX509_STORE): X509_STORE_CTX_cert_crl_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_set_check_policy: procedure(ctx: PX509_STORE; check_policy: X509_STORE_CTX_check_policy_fn); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_check_policy: function(ctx: PX509_STORE): X509_STORE_CTX_check_policy_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_verify_cb: function (ctx: PX509_STORE): X509_STORE_CTX_verify_cb; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_get_issuer: procedure (ctx: PX509_STORE; get_issuer: X509_STORE_CTX_get_issuer_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_get_issuer: function (ctx: PX509_STORE): X509_STORE_CTX_get_issuer_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_check_issued: procedure (ctx: PX509_STORE; check_issued: X509_STORE_CTX_check_issued_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_check_issued: function (ctx: PX509_STORE): X509_STORE_CTX_check_issued_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_check_revocation: procedure (ctx: PX509_STORE; check_revocation: X509_STORE_CTX_check_revocation_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_check_revocation: function (ctx: PX509_STORE): X509_STORE_CTX_check_revocation_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_get_crl: procedure (ctx: PX509_STORE; get_crl: X509_STORE_CTX_get_crl_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_get_crl: function (ctx: PX509_STORE): X509_STORE_CTX_get_crl_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_check_crl: procedure (ctx: PX509_STORE; check_crl: X509_STORE_CTX_check_crl_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_check_crl: function (ctx: PX509_STORE): X509_STORE_CTX_check_crl_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_cert_crl: procedure (ctx: PX509_STORE; cert_crl: X509_STORE_CTX_cert_crl_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_cert_crl: function (ctx: PX509_STORE): X509_STORE_CTX_cert_crl_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_check_policy: procedure (ctx: PX509_STORE; check_policy: X509_STORE_CTX_check_policy_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_check_policy: function (ctx: PX509_STORE): X509_STORE_CTX_check_policy_fn; cdecl = nil; {introduced 1.1.0}
 //  procedure X509_STORE_set_lookup_certs(ctx: PX509_STORE; lookup_certs: X509_STORE_CTX_lookup_certs_fn);
 //  function X509_STORE_get_lookup_certs(ctx: PX509_STORE): X509_STORE_CTX_lookup_certs_fn;
 //  procedure X509_STORE_set_lookup_crls(ctx: PX509_STORE; lookup_crls: X509_STORE_CTX_lookup_crls_fn);
 //  #define X509_STORE_set_lookup_crls_cb(ctx, func) \
 //      X509_STORE_set_lookup_crls((ctx), (func))
 //  function X509_STORE_get_lookup_crls(ctx: PX509_STORE): X509_STORE_CTX_lookup_crls_fn;
-  X509_STORE_set_cleanup: procedure(ctx: PX509_STORE; cleanup: X509_STORE_CTX_cleanup_fn); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_cleanup: function(ctx: PX509_STORE): X509_STORE_CTX_cleanup_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_cleanup: procedure (ctx: PX509_STORE; cleanup: X509_STORE_CTX_cleanup_fn); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_cleanup: function (ctx: PX509_STORE): X509_STORE_CTX_cleanup_fn; cdecl = nil; {introduced 1.1.0}
 
   //#define X509_STORE_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_X509_STORE, l, p, newf, dupf, freef)
-  X509_STORE_set_ex_data: function(ctx: PX509_STORE; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_get_ex_data: function(ctx: PX509_STORE; idx: TIdC_INT): Pointer; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_set_ex_data: function (ctx: PX509_STORE; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_get_ex_data: function (ctx: PX509_STORE; idx: TIdC_INT): Pointer; cdecl = nil; {introduced 1.1.0}
 
-  X509_STORE_CTX_new: function: PX509_STORE_CTX; cdecl = nil;
+  X509_STORE_CTX_new: function : PX509_STORE_CTX; cdecl = nil;
 
-  X509_STORE_CTX_get1_issuer: function(issuer: PPX509; ctx: PX509_STORE_CTX; x: PX509): TIdC_INT; cdecl = nil;
+  X509_STORE_CTX_get1_issuer: function (issuer: PPX509; ctx: PX509_STORE_CTX; x: PX509): TIdC_INT; cdecl = nil;
 
-  X509_STORE_CTX_free: procedure(ctx: PX509_STORE_CTX); cdecl = nil;
+  X509_STORE_CTX_free: procedure (ctx: PX509_STORE_CTX); cdecl = nil;
 //  TIdC_INT X509_STORE_CTX_init(ctx: PX509_STORE_CTX; store: PX509_STORE; x509: PX509; chain: P STACK_OF(X509));
 //  procedure X509_STORE_CTX_set0_trusted_stack(ctx: PX509_STORE_CTX; sk: P STACK_OF(X509));
-  X509_STORE_CTX_cleanup: procedure(ctx: PX509_STORE_CTX); cdecl = nil;
+  X509_STORE_CTX_cleanup: procedure (ctx: PX509_STORE_CTX); cdecl = nil;
 
-  X509_STORE_CTX_get0_store: function(ctx: PX509_STORE_CTX): PX509_STORE; cdecl = nil;
-  X509_STORE_CTX_get0_cert: function(ctx: PX509_STORE_CTX): PX509; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get0_store: function (ctx: PX509_STORE_CTX): PX509_STORE; cdecl = nil;
+  X509_STORE_CTX_get0_cert: function (ctx: PX509_STORE_CTX): PX509; cdecl = nil; {introduced 1.1.0}
   //STACK_OF(X509)* X509_STORE_CTX_get0_untrusted(X509_STORE_CTX *ctx);
   //void X509_STORE_CTX_set0_untrusted(X509_STORE_CTX *ctx, STACK_OF(X509) *sk);
-  X509_STORE_CTX_set_verify_cb: procedure(ctx: PX509_STORE_CTX; verify: X509_STORE_CTX_verify_cb); cdecl = nil;
-  X509_STORE_CTX_get_verify_cb: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_verify_cb; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_verify: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_verify_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_get_issuer: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_get_issuer_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_check_issued: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_issued_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_check_revocation: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_revocation_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_get_crl: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_get_crl_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_check_crl: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_crl_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_cert_crl: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_cert_crl_fn; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_check_policy: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_policy_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_set_verify_cb: procedure (ctx: PX509_STORE_CTX; verify: X509_STORE_CTX_verify_cb); cdecl = nil;
+  X509_STORE_CTX_get_verify_cb: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_verify_cb; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_verify: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_verify_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_get_issuer: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_get_issuer_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_check_issued: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_check_issued_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_check_revocation: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_check_revocation_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_get_crl: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_get_crl_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_check_crl: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_check_crl_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_cert_crl: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_cert_crl_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_check_policy: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_check_policy_fn; cdecl = nil; {introduced 1.1.0}
 //  function X509_STORE_CTX_get_lookup_certs(ctx: PX509_STORE_CTX): X509_STORE_CTX_lookup_certs_fn;
 //  function X509_STORE_CTX_get_lookup_crls(ctx: PX509_STORE_CTX): X509_STORE_CTX_lookup_crls_fn;
-  X509_STORE_CTX_get_cleanup: function(ctx: PX509_STORE_CTX): X509_STORE_CTX_cleanup_fn; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_cleanup: function (ctx: PX509_STORE_CTX): X509_STORE_CTX_cleanup_fn; cdecl = nil; {introduced 1.1.0}
 
-  X509_STORE_add_lookup: function(v: PX509_STORE; m: PX509_LOOKUP_METHOD): PX509_LOOKUP; cdecl = nil;
-  X509_LOOKUP_hash_dir: function: PX509_LOOKUP_METHOD; cdecl = nil;
-  X509_LOOKUP_file: function: PX509_LOOKUP_METHOD; cdecl = nil;
+  X509_STORE_add_lookup: function (v: PX509_STORE; m: PX509_LOOKUP_METHOD): PX509_LOOKUP; cdecl = nil;
+  X509_LOOKUP_hash_dir: function : PX509_LOOKUP_METHOD; cdecl = nil;
+  X509_LOOKUP_file: function : PX509_LOOKUP_METHOD; cdecl = nil;
 
-  X509_LOOKUP_meth_new: function(const name: PIdAnsiChar): PX509_LOOKUP_METHOD; cdecl = nil; {introduced 1.1.0}
-  X509_LOOKUP_meth_free: procedure(method: PX509_LOOKUP_METHOD); cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_new: function (const name: PIdAnsiChar): PX509_LOOKUP_METHOD; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_free: procedure (method: PX509_LOOKUP_METHOD); cdecl = nil; {introduced 1.1.0}
 
   //TIdC_INT X509_LOOKUP_meth_set_new_item(X509_LOOKUP_METHOD *method,
   //                                  TIdC_INT (*new_item) (X509_LOOKUP *ctx));
@@ -575,137 +577,137 @@ var
   //TIdC_INT (*X509_LOOKUP_meth_get_shutdown(const X509_LOOKUP_METHOD* method))
   //    (X509_LOOKUP *ctx);
 
-  X509_LOOKUP_meth_set_ctrl: function(method: PX509_LOOKUP_METHOD; ctrl_fn: X509_LOOKUP_ctrl_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_LOOKUP_meth_get_ctrl: function(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_ctrl_fn; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_set_ctrl: function (method: PX509_LOOKUP_METHOD; ctrl_fn: X509_LOOKUP_ctrl_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_get_ctrl: function (const method: PX509_LOOKUP_METHOD): X509_LOOKUP_ctrl_fn; cdecl = nil; {introduced 1.1.0}
 
-  X509_LOOKUP_meth_set_get_by_subject: function(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_subject_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_LOOKUP_meth_get_get_by_subject: function(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_subject_fn; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_set_get_by_subject: function (method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_subject_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_get_get_by_subject: function (const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_subject_fn; cdecl = nil; {introduced 1.1.0}
 
-  X509_LOOKUP_meth_set_get_by_issuer_serial: function(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_issuer_serial_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_LOOKUP_meth_get_get_by_issuer_serial: function(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_issuer_serial_fn; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_set_get_by_issuer_serial: function (method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_issuer_serial_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_get_get_by_issuer_serial: function (const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_issuer_serial_fn; cdecl = nil; {introduced 1.1.0}
 
-  X509_LOOKUP_meth_set_get_by_fingerprint: function(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_fingerprint_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_LOOKUP_meth_get_get_by_fingerprint: function(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_fingerprint_fn; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_set_get_by_fingerprint: function (method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_fingerprint_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_get_get_by_fingerprint: function (const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_fingerprint_fn; cdecl = nil; {introduced 1.1.0}
 
-  X509_LOOKUP_meth_set_get_by_alias: function(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_alias_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_LOOKUP_meth_get_get_by_alias: function(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_alias_fn; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_set_get_by_alias: function (method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_alias_fn): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_meth_get_get_by_alias: function (const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_alias_fn; cdecl = nil; {introduced 1.1.0}
 
-  X509_STORE_add_cert: function(ctx: PX509_STORE; x: PX509): TIdC_INT; cdecl = nil;
-  X509_STORE_add_crl: function(ctx: PX509_STORE; x: PX509_CRL): TIdC_INT; cdecl = nil;
+  X509_STORE_add_cert: function (ctx: PX509_STORE; x: PX509): TIdC_INT; cdecl = nil;
+  X509_STORE_add_crl: function (ctx: PX509_STORE; x: PX509_CRL): TIdC_INT; cdecl = nil;
 
-  X509_STORE_CTX_get_by_subject: function(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_obj_by_subject: function(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME): PX509_OBJECT; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_by_subject: function (vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_obj_by_subject: function (vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME): PX509_OBJECT; cdecl = nil; {introduced 1.1.0}
 
-  X509_LOOKUP_ctrl: function(ctx: PX509_LOOKUP; cmd: TIdC_INT; const argc: PIdAnsiChar; argl: TIdC_LONG; ret: PPIdAnsiChar): TIdC_INT; cdecl = nil;
+  X509_LOOKUP_ctrl: function (ctx: PX509_LOOKUP; cmd: TIdC_INT; const argc: PIdAnsiChar; argl: TIdC_LONG; ret: PPIdAnsiChar): TIdC_INT; cdecl = nil;
 
-  X509_load_cert_file: function(ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_load_crl_file: function(ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_load_cert_crl_file: function(ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_load_cert_file: function (ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_load_crl_file: function (ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_load_cert_crl_file: function (ctx: PX509_LOOKUP; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  X509_LOOKUP_new: function(method: PX509_LOOKUP_METHOD): PX509_LOOKUP; cdecl = nil;
-  X509_LOOKUP_free: procedure(ctx: PX509_LOOKUP); cdecl = nil;
-  X509_LOOKUP_init: function(ctx: PX509_LOOKUP): TIdC_INT; cdecl = nil;
-  X509_LOOKUP_by_subject: function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT; cdecl = nil;
-  X509_LOOKUP_by_issuer_serial: function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT; cdecl = nil;
-  X509_LOOKUP_by_fingerprint: function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; const bytes: PByte; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT; cdecl = nil;
-  X509_LOOKUP_by_alias: function(ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; const str: PIdAnsiChar; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT; cdecl = nil;
-  X509_LOOKUP_set_method_data: function(ctx: PX509_LOOKUP; data: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_LOOKUP_get_method_data: function(const ctx: PX509_LOOKUP): Pointer; cdecl = nil; {introduced 1.1.0}
-  X509_LOOKUP_get_store: function(const ctx: PX509_LOOKUP): PX509_STORE; cdecl = nil; {introduced 1.1.0}
-  X509_LOOKUP_shutdown: function(ctx: PX509_LOOKUP): TIdC_INT; cdecl = nil;
+  X509_LOOKUP_new: function (method: PX509_LOOKUP_METHOD): PX509_LOOKUP; cdecl = nil;
+  X509_LOOKUP_free: procedure (ctx: PX509_LOOKUP); cdecl = nil;
+  X509_LOOKUP_init: function (ctx: PX509_LOOKUP): TIdC_INT; cdecl = nil;
+  X509_LOOKUP_by_subject: function (ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT; cdecl = nil;
+  X509_LOOKUP_by_issuer_serial: function (ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; name: PX509_NAME; serial: PASN1_INTEGER; ret: PX509_OBJECT): TIdC_INT; cdecl = nil;
+  X509_LOOKUP_by_fingerprint: function (ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; const bytes: PByte; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT; cdecl = nil;
+  X509_LOOKUP_by_alias: function (ctx: PX509_LOOKUP; type_: X509_LOOKUP_TYPE; const str: PIdAnsiChar; len: TIdC_INT; ret: PX509_OBJECT): TIdC_INT; cdecl = nil;
+  X509_LOOKUP_set_method_data: function (ctx: PX509_LOOKUP; data: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_get_method_data: function (const ctx: PX509_LOOKUP): Pointer; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_get_store: function (const ctx: PX509_LOOKUP): PX509_STORE; cdecl = nil; {introduced 1.1.0}
+  X509_LOOKUP_shutdown: function (ctx: PX509_LOOKUP): TIdC_INT; cdecl = nil;
 
-  X509_STORE_load_locations: function(ctx: PX509_STORE; const file_: PIdAnsiChar; const dir: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  X509_STORE_set_default_paths: function(ctx: PX509_STORE): TIdC_INT; cdecl = nil;
+  X509_STORE_load_locations: function (ctx: PX509_STORE; const file_: PIdAnsiChar; const dir: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  X509_STORE_set_default_paths: function (ctx: PX509_STORE): TIdC_INT; cdecl = nil;
 
   //#define X509_STORE_CTX_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_X509_STORE_CTX, l, p, newf, dupf, freef)
-  X509_STORE_CTX_set_ex_data: function(ctx: PX509_STORE_CTX; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
-  X509_STORE_CTX_get_ex_data: function(ctx: PX509_STORE_CTX; idx: TIdC_INT): Pointer; cdecl = nil;
-  X509_STORE_CTX_get_error: function(ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
-  X509_STORE_CTX_set_error: procedure(ctx: X509_STORE_CTX; s: TIdC_INT); cdecl = nil;
-  X509_STORE_CTX_get_error_depth: function(ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
-  X509_STORE_CTX_set_error_depth: procedure(ctx: PX509_STORE_CTX; depth: TIdC_INT); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get_current_cert: function(ctx: PX509_STORE_CTX): PX509; cdecl = nil;
-  X509_STORE_CTX_set_current_cert: procedure(ctx: PX509_STORE_CTX; x: PX509); cdecl = nil; {introduced 1.1.0}
-  X509_STORE_CTX_get0_current_issuer: function(ctx: PX509_STORE_CTX): PX509; cdecl = nil;
-  X509_STORE_CTX_get0_current_crl: function(ctx: PX509_STORE_CTX): PX509_CRL; cdecl = nil;
-  X509_STORE_CTX_get0_parent_ctx: function(ctx: PX509_STORE_CTX): PX509_STORE_CTX; cdecl = nil;
+  X509_STORE_CTX_set_ex_data: function (ctx: PX509_STORE_CTX; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
+  X509_STORE_CTX_get_ex_data: function (ctx: PX509_STORE_CTX; idx: TIdC_INT): Pointer; cdecl = nil;
+  X509_STORE_CTX_get_error: function (ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
+  X509_STORE_CTX_set_error: procedure (ctx: X509_STORE_CTX; s: TIdC_INT); cdecl = nil;
+  X509_STORE_CTX_get_error_depth: function (ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
+  X509_STORE_CTX_set_error_depth: procedure (ctx: PX509_STORE_CTX; depth: TIdC_INT); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get_current_cert: function (ctx: PX509_STORE_CTX): PX509; cdecl = nil;
+  X509_STORE_CTX_set_current_cert: procedure (ctx: PX509_STORE_CTX; x: PX509); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get0_current_issuer: function (ctx: PX509_STORE_CTX): PX509; cdecl = nil;
+  X509_STORE_CTX_get0_current_crl: function (ctx: PX509_STORE_CTX): PX509_CRL; cdecl = nil;
+  X509_STORE_CTX_get0_parent_ctx: function (ctx: PX509_STORE_CTX): PX509_STORE_CTX; cdecl = nil;
 //  STACK_OF(X509) *X509_STORE_CTX_get0_chain(X509_STORE_CTX *ctx);
 //  STACK_OF(X509) *X509_STORE_CTX_get1_chain(X509_STORE_CTX *ctx);
-  X509_STORE_CTX_set_cert: procedure(c: PX509_STORE_CTX; x: PX509); cdecl = nil;
+  X509_STORE_CTX_set_cert: procedure (c: PX509_STORE_CTX; x: PX509); cdecl = nil;
 //  void X509_STORE_CTX_set0_verified_chain(X509_STORE_CTX *c, STACK_OF(X509) *sk);
 //  void X509_STORE_CTX_set0_crls(X509_STORE_CTX *c, STACK_OF(X509_CRL) *sk);
-  X509_STORE_CTX_set_purpose: function(ctx: PX509_STORE_CTX; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_STORE_CTX_set_trust: function(ctx: PX509_STORE_CTX; trust: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_STORE_CTX_purpose_inherit: function(ctx: PX509_STORE_CTX; def_purpose: TIdC_INT; purpose: TIdC_INT; trust: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_STORE_CTX_set_flags: procedure(ctx: PX509_STORE_CTX; flags: TIdC_ULONG); cdecl = nil;
+  X509_STORE_CTX_set_purpose: function (ctx: PX509_STORE_CTX; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_STORE_CTX_set_trust: function (ctx: PX509_STORE_CTX; trust: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_STORE_CTX_purpose_inherit: function (ctx: PX509_STORE_CTX; def_purpose: TIdC_INT; purpose: TIdC_INT; trust: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_STORE_CTX_set_flags: procedure (ctx: PX509_STORE_CTX; flags: TIdC_ULONG); cdecl = nil;
 //  procedure X509_STORE_CTX_set_time(ctx: PX509_STORE_CTX; flags: TIdC_ULONG; t: TIdC_TIMET);
 
-  X509_STORE_CTX_get0_policy_tree: function(ctx: PX509_STORE_CTX): PX509_POLICY_TREE; cdecl = nil;
-  X509_STORE_CTX_get_explicit_policy: function(ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
-  X509_STORE_CTX_get_num_untrusted: function(ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_get0_policy_tree: function (ctx: PX509_STORE_CTX): PX509_POLICY_TREE; cdecl = nil;
+  X509_STORE_CTX_get_explicit_policy: function (ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
+  X509_STORE_CTX_get_num_untrusted: function (ctx: PX509_STORE_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  X509_STORE_CTX_get0_param: function(ctx: PX509_STORE_CTX): PX509_VERIFY_PARAM; cdecl = nil;
-  X509_STORE_CTX_set0_param: procedure(ctx: PX509_STORE_CTX; param: PX509_VERIFY_PARAM); cdecl = nil;
-  X509_STORE_CTX_set_default: function(ctx: PX509_STORE_CTX; const name: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  X509_STORE_CTX_get0_param: function (ctx: PX509_STORE_CTX): PX509_VERIFY_PARAM; cdecl = nil;
+  X509_STORE_CTX_set0_param: procedure (ctx: PX509_STORE_CTX; param: PX509_VERIFY_PARAM); cdecl = nil;
+  X509_STORE_CTX_set_default: function (ctx: PX509_STORE_CTX; const name: PIdAnsiChar): TIdC_INT; cdecl = nil;
 
   (*
    * Bridge opacity barrier between libcrypt and libssl, also needed to support
    * offline testing in test/danetest.c
    *)
-  X509_STORE_CTX_set0_dane: procedure(ctx: PX509_STORE_CTX; dane: PSSL_DANE); cdecl = nil; {introduced 1.1.0}
+  X509_STORE_CTX_set0_dane: procedure (ctx: PX509_STORE_CTX; dane: PSSL_DANE); cdecl = nil; {introduced 1.1.0}
 
   (* X509_VERIFY_PARAM functions *)
 
-  X509_VERIFY_PARAM_new: function: PX509_VERIFY_PARAM; cdecl = nil;
-  X509_VERIFY_PARAM_free: procedure(param: PX509_VERIFY_PARAM); cdecl = nil;
-  X509_VERIFY_PARAM_inherit: function(to_: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_set1: function(to_: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_set1_name: function(param: PX509_VERIFY_PARAM; const name: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_set_flags: function(param: PX509_VERIFY_PARAM; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_clear_flags: function(param: PX509_VERIFY_PARAM; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_get_flags: function(param: PX509_VERIFY_PARAM): TIdC_ULONG; cdecl = nil;
-  X509_VERIFY_PARAM_set_purpose: function(param: PX509_VERIFY_PARAM; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_set_trust: function(param: PX509_VERIFY_PARAM; trust: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_set_depth: procedure(param: PX509_VERIFY_PARAM; depth: TIdC_INT); cdecl = nil;
-  X509_VERIFY_PARAM_set_auth_level: procedure(param: PX509_VERIFY_PARAM; auth_level: TIdC_INT); cdecl = nil; {introduced 1.1.0}
+  X509_VERIFY_PARAM_new: function : PX509_VERIFY_PARAM; cdecl = nil;
+  X509_VERIFY_PARAM_free: procedure (param: PX509_VERIFY_PARAM); cdecl = nil;
+  X509_VERIFY_PARAM_inherit: function (to_: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_set1: function (to_: PX509_VERIFY_PARAM; const from: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_set1_name: function (param: PX509_VERIFY_PARAM; const name: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_set_flags: function (param: PX509_VERIFY_PARAM; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_clear_flags: function (param: PX509_VERIFY_PARAM; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_get_flags: function (param: PX509_VERIFY_PARAM): TIdC_ULONG; cdecl = nil;
+  X509_VERIFY_PARAM_set_purpose: function (param: PX509_VERIFY_PARAM; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_set_trust: function (param: PX509_VERIFY_PARAM; trust: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_set_depth: procedure (param: PX509_VERIFY_PARAM; depth: TIdC_INT); cdecl = nil;
+  X509_VERIFY_PARAM_set_auth_level: procedure (param: PX509_VERIFY_PARAM; auth_level: TIdC_INT); cdecl = nil; {introduced 1.1.0}
 //  function X509_VERIFY_PARAM_get_time(const param: PX509_VERIFY_PARAM): TIdC_TIMET;
 //  procedure X509_VERIFY_PARAM_set_time(param: PX509_VERIFY_PARAM; t: TIdC_TIMET);
-  X509_VERIFY_PARAM_add0_policy: function(param: PX509_VERIFY_PARAM; policy: PASN1_OBJECT): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_add0_policy: function (param: PX509_VERIFY_PARAM; policy: PASN1_OBJECT): TIdC_INT; cdecl = nil;
   //TIdC_INT X509_VERIFY_PARAM_set1_policies(X509_VERIFY_PARAM *param,
   //                                    STACK_OF(ASN1_OBJECT) *policies);
 
-  X509_VERIFY_PARAM_set_inh_flags: function(param: PX509_VERIFY_PARAM; flags: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_VERIFY_PARAM_get_inh_flags: function(const param: PX509_VERIFY_PARAM): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
+  X509_VERIFY_PARAM_set_inh_flags: function (param: PX509_VERIFY_PARAM; flags: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_VERIFY_PARAM_get_inh_flags: function (const param: PX509_VERIFY_PARAM): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
 
-  X509_VERIFY_PARAM_set1_host: function(param: PX509_VERIFY_PARAM; const name: PIdAnsiChar; namelen: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_add1_host: function(param: PX509_VERIFY_PARAM; const name: PIdAnsiChar; namelen: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_set_hostflags: procedure(param: PX509_VERIFY_PARAM; flags: TIdC_UINT); cdecl = nil;
-  X509_VERIFY_PARAM_get_hostflags: function(const param: PX509_VERIFY_PARAM): TIdC_UINT; cdecl = nil; {introduced 1.1.0}
-  X509_VERIFY_PARAM_get0_peername: function(v1: PX509_VERIFY_PARAM): PIdAnsiChar; cdecl = nil;
-  X509_VERIFY_PARAM_move_peername: procedure(v1: PX509_VERIFY_PARAM; v2: PX509_VERIFY_PARAM); cdecl = nil; {introduced 1.1.0}
-  X509_VERIFY_PARAM_set1_email: function(param: PX509_VERIFY_PARAM; const email: PIdAnsiChar; emaillen: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_set1_ip: function(param: PX509_VERIFY_PARAM; const ip: PByte; iplen: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_set1_ip_asc: function(param: PX509_VERIFY_PARAM; const ipasc: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_set1_host: function (param: PX509_VERIFY_PARAM; const name: PIdAnsiChar; namelen: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_add1_host: function (param: PX509_VERIFY_PARAM; const name: PIdAnsiChar; namelen: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_set_hostflags: procedure (param: PX509_VERIFY_PARAM; flags: TIdC_UINT); cdecl = nil;
+  X509_VERIFY_PARAM_get_hostflags: function (const param: PX509_VERIFY_PARAM): TIdC_UINT; cdecl = nil; {introduced 1.1.0}
+  X509_VERIFY_PARAM_get0_peername: function (v1: PX509_VERIFY_PARAM): PIdAnsiChar; cdecl = nil;
+  X509_VERIFY_PARAM_move_peername: procedure (v1: PX509_VERIFY_PARAM; v2: PX509_VERIFY_PARAM); cdecl = nil; {introduced 1.1.0}
+  X509_VERIFY_PARAM_set1_email: function (param: PX509_VERIFY_PARAM; const email: PIdAnsiChar; emaillen: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_set1_ip: function (param: PX509_VERIFY_PARAM; const ip: PByte; iplen: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_set1_ip_asc: function (param: PX509_VERIFY_PARAM; const ipasc: PIdAnsiChar): TIdC_INT; cdecl = nil;
 
-  X509_VERIFY_PARAM_get_depth: function(const param: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_get_auth_level: function(const param: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  X509_VERIFY_PARAM_get0_name: function(const param: PX509_VERIFY_PARAM): PIdAnsiChar; cdecl = nil;
+  X509_VERIFY_PARAM_get_depth: function (const param: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_get_auth_level: function (const param: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  X509_VERIFY_PARAM_get0_name: function (const param: PX509_VERIFY_PARAM): PIdAnsiChar; cdecl = nil;
 
-  X509_VERIFY_PARAM_add0_table: function(param: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_get_count: function: TIdC_INT; cdecl = nil;
-  X509_VERIFY_PARAM_get0: function(id: TIdC_INT): PX509_VERIFY_PARAM; cdecl = nil;
-  X509_VERIFY_PARAM_lookup: function(const name: PIdAnsiChar): X509_VERIFY_PARAM; cdecl = nil;
-  X509_VERIFY_PARAM_table_cleanup: procedure; cdecl = nil;
+  X509_VERIFY_PARAM_add0_table: function (param: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_get_count: function : TIdC_INT; cdecl = nil;
+  X509_VERIFY_PARAM_get0: function (id: TIdC_INT): PX509_VERIFY_PARAM; cdecl = nil;
+  X509_VERIFY_PARAM_lookup: function (const name: PIdAnsiChar): X509_VERIFY_PARAM; cdecl = nil;
+  X509_VERIFY_PARAM_table_cleanup: procedure ; cdecl = nil;
 
   //TIdC_INT X509_policy_check(X509_POLICY_TREE **ptree, TIdC_INT *pexplicit_policy,
   //                      STACK_OF(X509) *certs,
   //                      STACK_OF(ASN1_OBJECT) *policy_oids, TIdC_UINT flags);
 
-  X509_policy_tree_free: procedure(tree: PX509_POLICY_TREE); cdecl = nil;
+  X509_policy_tree_free: procedure (tree: PX509_POLICY_TREE); cdecl = nil;
 
-  X509_policy_tree_level_count: function(const tree: PX509_POLICY_TREE): TIdC_INT; cdecl = nil;
-  X509_policy_tree_get0_level: function(const tree: PX509_POLICY_TREE; i: TIdC_INT): PX509_POLICY_LEVEL; cdecl = nil;
+  X509_policy_tree_level_count: function (const tree: PX509_POLICY_TREE): TIdC_INT; cdecl = nil;
+  X509_policy_tree_get0_level: function (const tree: PX509_POLICY_TREE; i: TIdC_INT): PX509_POLICY_LEVEL; cdecl = nil;
 
   //STACK_OF(X509_POLICY_NODE) *X509_policy_tree_get0_policies(const
   //                                                           X509_POLICY_TREE
@@ -715,16 +717,16 @@ var
   //                                                                X509_POLICY_TREE
   //                                                                *tree);
 
-  X509_policy_level_node_count: function(level: PX509_POLICY_LEVEL): TIdC_INT; cdecl = nil;
+  X509_policy_level_node_count: function (level: PX509_POLICY_LEVEL): TIdC_INT; cdecl = nil;
 
-  X509_policy_level_get0_node: function(level: PX509_POLICY_LEVEL; i: TIdC_INT): PX509_POLICY_NODE; cdecl = nil;
+  X509_policy_level_get0_node: function (level: PX509_POLICY_LEVEL; i: TIdC_INT): PX509_POLICY_NODE; cdecl = nil;
 
-  X509_policy_node_get0_policy: function(const node: PX509_POLICY_NODE): PASN1_OBJECT; cdecl = nil;
+  X509_policy_node_get0_policy: function (const node: PX509_POLICY_NODE): PASN1_OBJECT; cdecl = nil;
 
   //STACK_OF(POLICYQUALINFO) *X509_policy_node_get0_qualifiers(const
   //                                                           X509_POLICY_NODE
   //                                                           *node);
-  X509_policy_node_get0_parent: function(const node: PX509_POLICY_NODE): PX509_POLICY_NODE; cdecl = nil;
+  X509_policy_node_get0_parent: function (const node: PX509_POLICY_NODE): PX509_POLICY_NODE; cdecl = nil;
 
 {$ELSE}
   function X509_STORE_set_depth(store: PX509_STORE; depth: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -1019,12 +1021,13 @@ function X509_STORE_CTX_get_app_data(ctx: PX509_STORE_CTX): Pointer; {removed 1.
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 const
   X509_OBJECT_new_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
@@ -1110,7 +1113,7 @@ end;
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 
-function _X509_STORE_CTX_get_app_data(ctx: PX509_STORE_CTX): Pointer; cdecl;
+function  _X509_STORE_CTX_get_app_data(ctx: PX509_STORE_CTX): Pointer; cdecl;
 begin
   Result := X509_STORE_CTX_get_ex_data(ctx,SSL_get_ex_data_X509_STORE_CTX_idx);
 end;
@@ -1147,17 +1150,17 @@ const
     get_by_alias: nil // * get_by_alias */
     );
 
-function FC_X509_LOOKUP_meth_new(const name: PIdAnsiChar): PX509_LOOKUP_METHOD; cdecl;
+function  FC_X509_LOOKUP_meth_new(const name: PIdAnsiChar): PX509_LOOKUP_METHOD; cdecl;
 begin
   Result := @Indy_x509_unicode_file_lookup;
 end;
 
-procedure FC_X509_LOOKUP_meth_free(method: PX509_LOOKUP_METHOD); cdecl;
+procedure  FC_X509_LOOKUP_meth_free(method: PX509_LOOKUP_METHOD); cdecl;
 begin
   //Do nothing
 end;
 
-function FC_X509_LOOKUP_meth_set_ctrl(method: PX509_LOOKUP_METHOD; ctrl_fn: X509_LOOKUP_ctrl_fn): TIdC_INT; cdecl;
+function  FC_X509_LOOKUP_meth_set_ctrl(method: PX509_LOOKUP_METHOD; ctrl_fn: X509_LOOKUP_ctrl_fn): TIdC_INT; cdecl;
 begin
   _PX509_LOOKUP_METHOD(method)^.ctrl := @ctrl_fn;
   Result := 1;
@@ -1182,440 +1185,440 @@ type
     store_ctx: PX509_STORE;
   end;
 
-function FC_X509_LOOKUP_get_store(const ctx: PX509_LOOKUP): PX509_STORE; cdecl;
+function  FC_X509_LOOKUP_get_store(const ctx: PX509_LOOKUP): PX509_STORE; cdecl;
 begin
   Result := _PX509_LOOKUP(ctx)^.store_ctx;
 end;
 
 {/forward_compatibility}
 {$WARN  NO_RETVAL OFF}
-function ERR_X509_STORE_CTX_get_app_data(ctx: PX509_STORE_CTX): Pointer; 
+function  ERR_X509_STORE_CTX_get_app_data(ctx: PX509_STORE_CTX): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_app_data');
 end;
 
 
-function ERR_X509_OBJECT_new: PX509_OBJECT; 
+function  ERR_X509_OBJECT_new: PX509_OBJECT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_OBJECT_new');
 end;
 
 
-procedure ERR_X509_OBJECT_free(a: PX509_OBJECT); 
+procedure  ERR_X509_OBJECT_free(a: PX509_OBJECT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_OBJECT_free');
 end;
 
 
-function ERR_X509_OBJECT_get_type(const a: PX509_OBJECT): X509_LOOKUP_TYPE; 
+function  ERR_X509_OBJECT_get_type(const a: PX509_OBJECT): X509_LOOKUP_TYPE; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_OBJECT_get_type');
 end;
 
 
-function ERR_X509_OBJECT_get0_X509(const a: PX509_OBJECT): PX509; 
+function  ERR_X509_OBJECT_get0_X509(const a: PX509_OBJECT): PX509; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_OBJECT_get0_X509');
 end;
 
 
-function ERR_X509_OBJECT_set1_X509(a: PX509_OBJECT; obj: PX509): TIdC_INT; 
+function  ERR_X509_OBJECT_set1_X509(a: PX509_OBJECT; obj: PX509): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_OBJECT_set1_X509');
 end;
 
 
-function ERR_X509_OBJECT_get0_X509_CRL(a: PX509_OBJECT): PX509_CRL; 
+function  ERR_X509_OBJECT_get0_X509_CRL(a: PX509_OBJECT): PX509_CRL; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_OBJECT_get0_X509_CRL');
 end;
 
 
-function ERR_X509_OBJECT_set1_X509_CRL(a: PX509_OBJECT; obj: PX509_CRL): TIdC_INT; 
+function  ERR_X509_OBJECT_set1_X509_CRL(a: PX509_OBJECT; obj: PX509_CRL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_OBJECT_set1_X509_CRL');
 end;
 
 
-function ERR_X509_STORE_lock(ctx: PX509_STORE): TIdC_INT; 
+function  ERR_X509_STORE_lock(ctx: PX509_STORE): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_lock');
 end;
 
 
-function ERR_X509_STORE_unlock(ctx: PX509_STORE): TIdC_INT; 
+function  ERR_X509_STORE_unlock(ctx: PX509_STORE): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_unlock');
 end;
 
 
-function ERR_X509_STORE_up_ref(v: PX509_STORE): TIdC_INT; 
+function  ERR_X509_STORE_up_ref(v: PX509_STORE): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_up_ref');
 end;
 
 
-function ERR_X509_STORE_get0_param(ctx: PX509_STORE): PX509_VERIFY_PARAM; 
+function  ERR_X509_STORE_get0_param(ctx: PX509_STORE): PX509_VERIFY_PARAM; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get0_param');
 end;
 
 
-procedure ERR_X509_STORE_set_verify(ctx: PX509_STORE; verify: X509_STORE_CTX_verify_fn); 
+procedure  ERR_X509_STORE_set_verify(ctx: PX509_STORE; verify: X509_STORE_CTX_verify_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_verify');
 end;
 
 
-procedure ERR_X509_STORE_CTX_set_verify(ctx: PX509_STORE_CTX; verify: X509_STORE_CTX_verify_fn); 
+procedure  ERR_X509_STORE_CTX_set_verify(ctx: PX509_STORE_CTX; verify: X509_STORE_CTX_verify_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_set_verify');
 end;
 
 
-function ERR_X509_STORE_get_verify(ctx: PX509_STORE): X509_STORE_CTX_verify_fn; 
+function  ERR_X509_STORE_get_verify(ctx: PX509_STORE): X509_STORE_CTX_verify_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_verify');
 end;
 
 
-function ERR_X509_STORE_get_verify_cb(ctx: PX509_STORE): X509_STORE_CTX_verify_cb; 
+function  ERR_X509_STORE_get_verify_cb(ctx: PX509_STORE): X509_STORE_CTX_verify_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_verify_cb');
 end;
 
 
-procedure ERR_X509_STORE_set_get_issuer(ctx: PX509_STORE; get_issuer: X509_STORE_CTX_get_issuer_fn); 
+procedure  ERR_X509_STORE_set_get_issuer(ctx: PX509_STORE; get_issuer: X509_STORE_CTX_get_issuer_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_get_issuer');
 end;
 
 
-function ERR_X509_STORE_get_get_issuer(ctx: PX509_STORE): X509_STORE_CTX_get_issuer_fn; 
+function  ERR_X509_STORE_get_get_issuer(ctx: PX509_STORE): X509_STORE_CTX_get_issuer_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_get_issuer');
 end;
 
 
-procedure ERR_X509_STORE_set_check_issued(ctx: PX509_STORE; check_issued: X509_STORE_CTX_check_issued_fn); 
+procedure  ERR_X509_STORE_set_check_issued(ctx: PX509_STORE; check_issued: X509_STORE_CTX_check_issued_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_check_issued');
 end;
 
 
-function ERR_X509_STORE_get_check_issued(ctx: PX509_STORE): X509_STORE_CTX_check_issued_fn; 
+function  ERR_X509_STORE_get_check_issued(ctx: PX509_STORE): X509_STORE_CTX_check_issued_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_check_issued');
 end;
 
 
-procedure ERR_X509_STORE_set_check_revocation(ctx: PX509_STORE; check_revocation: X509_STORE_CTX_check_revocation_fn); 
+procedure  ERR_X509_STORE_set_check_revocation(ctx: PX509_STORE; check_revocation: X509_STORE_CTX_check_revocation_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_check_revocation');
 end;
 
 
-function ERR_X509_STORE_get_check_revocation(ctx: PX509_STORE): X509_STORE_CTX_check_revocation_fn; 
+function  ERR_X509_STORE_get_check_revocation(ctx: PX509_STORE): X509_STORE_CTX_check_revocation_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_check_revocation');
 end;
 
 
-procedure ERR_X509_STORE_set_get_crl(ctx: PX509_STORE; get_crl: X509_STORE_CTX_get_crl_fn); 
+procedure  ERR_X509_STORE_set_get_crl(ctx: PX509_STORE; get_crl: X509_STORE_CTX_get_crl_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_get_crl');
 end;
 
 
-function ERR_X509_STORE_get_get_crl(ctx: PX509_STORE): X509_STORE_CTX_get_crl_fn; 
+function  ERR_X509_STORE_get_get_crl(ctx: PX509_STORE): X509_STORE_CTX_get_crl_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_get_crl');
 end;
 
 
-procedure ERR_X509_STORE_set_check_crl(ctx: PX509_STORE; check_crl: X509_STORE_CTX_check_crl_fn); 
+procedure  ERR_X509_STORE_set_check_crl(ctx: PX509_STORE; check_crl: X509_STORE_CTX_check_crl_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_check_crl');
 end;
 
 
-function ERR_X509_STORE_get_check_crl(ctx: PX509_STORE): X509_STORE_CTX_check_crl_fn; 
+function  ERR_X509_STORE_get_check_crl(ctx: PX509_STORE): X509_STORE_CTX_check_crl_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_check_crl');
 end;
 
 
-procedure ERR_X509_STORE_set_cert_crl(ctx: PX509_STORE; cert_crl: X509_STORE_CTX_cert_crl_fn); 
+procedure  ERR_X509_STORE_set_cert_crl(ctx: PX509_STORE; cert_crl: X509_STORE_CTX_cert_crl_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_cert_crl');
 end;
 
 
-function ERR_X509_STORE_get_cert_crl(ctx: PX509_STORE): X509_STORE_CTX_cert_crl_fn; 
+function  ERR_X509_STORE_get_cert_crl(ctx: PX509_STORE): X509_STORE_CTX_cert_crl_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_cert_crl');
 end;
 
 
-procedure ERR_X509_STORE_set_check_policy(ctx: PX509_STORE; check_policy: X509_STORE_CTX_check_policy_fn); 
+procedure  ERR_X509_STORE_set_check_policy(ctx: PX509_STORE; check_policy: X509_STORE_CTX_check_policy_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_check_policy');
 end;
 
 
-function ERR_X509_STORE_get_check_policy(ctx: PX509_STORE): X509_STORE_CTX_check_policy_fn; 
+function  ERR_X509_STORE_get_check_policy(ctx: PX509_STORE): X509_STORE_CTX_check_policy_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_check_policy');
 end;
 
 
-procedure ERR_X509_STORE_set_cleanup(ctx: PX509_STORE; cleanup: X509_STORE_CTX_cleanup_fn); 
+procedure  ERR_X509_STORE_set_cleanup(ctx: PX509_STORE; cleanup: X509_STORE_CTX_cleanup_fn); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_cleanup');
 end;
 
 
-function ERR_X509_STORE_get_cleanup(ctx: PX509_STORE): X509_STORE_CTX_cleanup_fn; 
+function  ERR_X509_STORE_get_cleanup(ctx: PX509_STORE): X509_STORE_CTX_cleanup_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_cleanup');
 end;
 
 
-function ERR_X509_STORE_set_ex_data(ctx: PX509_STORE; idx: TIdC_INT; data: Pointer): TIdC_INT; 
+function  ERR_X509_STORE_set_ex_data(ctx: PX509_STORE; idx: TIdC_INT; data: Pointer): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_set_ex_data');
 end;
 
 
-function ERR_X509_STORE_get_ex_data(ctx: PX509_STORE; idx: TIdC_INT): Pointer; 
+function  ERR_X509_STORE_get_ex_data(ctx: PX509_STORE; idx: TIdC_INT): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_get_ex_data');
 end;
 
 
-function ERR_X509_STORE_CTX_get0_cert(ctx: PX509_STORE_CTX): PX509; 
+function  ERR_X509_STORE_CTX_get0_cert(ctx: PX509_STORE_CTX): PX509; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get0_cert');
 end;
 
 
-function ERR_X509_STORE_CTX_get_verify_cb(ctx: PX509_STORE_CTX): X509_STORE_CTX_verify_cb; 
+function  ERR_X509_STORE_CTX_get_verify_cb(ctx: PX509_STORE_CTX): X509_STORE_CTX_verify_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_verify_cb');
 end;
 
 
-function ERR_X509_STORE_CTX_get_verify(ctx: PX509_STORE_CTX): X509_STORE_CTX_verify_fn; 
+function  ERR_X509_STORE_CTX_get_verify(ctx: PX509_STORE_CTX): X509_STORE_CTX_verify_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_verify');
 end;
 
 
-function ERR_X509_STORE_CTX_get_get_issuer(ctx: PX509_STORE_CTX): X509_STORE_CTX_get_issuer_fn; 
+function  ERR_X509_STORE_CTX_get_get_issuer(ctx: PX509_STORE_CTX): X509_STORE_CTX_get_issuer_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_get_issuer');
 end;
 
 
-function ERR_X509_STORE_CTX_get_check_issued(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_issued_fn; 
+function  ERR_X509_STORE_CTX_get_check_issued(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_issued_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_check_issued');
 end;
 
 
-function ERR_X509_STORE_CTX_get_check_revocation(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_revocation_fn; 
+function  ERR_X509_STORE_CTX_get_check_revocation(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_revocation_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_check_revocation');
 end;
 
 
-function ERR_X509_STORE_CTX_get_get_crl(ctx: PX509_STORE_CTX): X509_STORE_CTX_get_crl_fn; 
+function  ERR_X509_STORE_CTX_get_get_crl(ctx: PX509_STORE_CTX): X509_STORE_CTX_get_crl_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_get_crl');
 end;
 
 
-function ERR_X509_STORE_CTX_get_check_crl(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_crl_fn; 
+function  ERR_X509_STORE_CTX_get_check_crl(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_crl_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_check_crl');
 end;
 
 
-function ERR_X509_STORE_CTX_get_cert_crl(ctx: PX509_STORE_CTX): X509_STORE_CTX_cert_crl_fn; 
+function  ERR_X509_STORE_CTX_get_cert_crl(ctx: PX509_STORE_CTX): X509_STORE_CTX_cert_crl_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_cert_crl');
 end;
 
 
-function ERR_X509_STORE_CTX_get_check_policy(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_policy_fn; 
+function  ERR_X509_STORE_CTX_get_check_policy(ctx: PX509_STORE_CTX): X509_STORE_CTX_check_policy_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_check_policy');
 end;
 
 
-function ERR_X509_STORE_CTX_get_cleanup(ctx: PX509_STORE_CTX): X509_STORE_CTX_cleanup_fn; 
+function  ERR_X509_STORE_CTX_get_cleanup(ctx: PX509_STORE_CTX): X509_STORE_CTX_cleanup_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_cleanup');
 end;
 
 
-function ERR_X509_LOOKUP_meth_new(const name: PIdAnsiChar): PX509_LOOKUP_METHOD; 
+function  ERR_X509_LOOKUP_meth_new(const name: PIdAnsiChar): PX509_LOOKUP_METHOD; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_new');
 end;
 
 
-procedure ERR_X509_LOOKUP_meth_free(method: PX509_LOOKUP_METHOD); 
+procedure  ERR_X509_LOOKUP_meth_free(method: PX509_LOOKUP_METHOD); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_free');
 end;
 
 
-function ERR_X509_LOOKUP_meth_set_ctrl(method: PX509_LOOKUP_METHOD; ctrl_fn: X509_LOOKUP_ctrl_fn): TIdC_INT; 
+function  ERR_X509_LOOKUP_meth_set_ctrl(method: PX509_LOOKUP_METHOD; ctrl_fn: X509_LOOKUP_ctrl_fn): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_set_ctrl');
 end;
 
 
-function ERR_X509_LOOKUP_meth_get_ctrl(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_ctrl_fn; 
+function  ERR_X509_LOOKUP_meth_get_ctrl(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_ctrl_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_get_ctrl');
 end;
 
 
-function ERR_X509_LOOKUP_meth_set_get_by_subject(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_subject_fn): TIdC_INT; 
+function  ERR_X509_LOOKUP_meth_set_get_by_subject(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_subject_fn): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_set_get_by_subject');
 end;
 
 
-function ERR_X509_LOOKUP_meth_get_get_by_subject(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_subject_fn; 
+function  ERR_X509_LOOKUP_meth_get_get_by_subject(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_subject_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_get_get_by_subject');
 end;
 
 
-function ERR_X509_LOOKUP_meth_set_get_by_issuer_serial(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_issuer_serial_fn): TIdC_INT; 
+function  ERR_X509_LOOKUP_meth_set_get_by_issuer_serial(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_issuer_serial_fn): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_set_get_by_issuer_serial');
 end;
 
 
-function ERR_X509_LOOKUP_meth_get_get_by_issuer_serial(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_issuer_serial_fn; 
+function  ERR_X509_LOOKUP_meth_get_get_by_issuer_serial(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_issuer_serial_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_get_get_by_issuer_serial');
 end;
 
 
-function ERR_X509_LOOKUP_meth_set_get_by_fingerprint(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_fingerprint_fn): TIdC_INT; 
+function  ERR_X509_LOOKUP_meth_set_get_by_fingerprint(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_fingerprint_fn): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_set_get_by_fingerprint');
 end;
 
 
-function ERR_X509_LOOKUP_meth_get_get_by_fingerprint(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_fingerprint_fn; 
+function  ERR_X509_LOOKUP_meth_get_get_by_fingerprint(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_fingerprint_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_get_get_by_fingerprint');
 end;
 
 
-function ERR_X509_LOOKUP_meth_set_get_by_alias(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_alias_fn): TIdC_INT; 
+function  ERR_X509_LOOKUP_meth_set_get_by_alias(method: PX509_LOOKUP_METHOD; fn: X509_LOOKUP_get_by_alias_fn): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_set_get_by_alias');
 end;
 
 
-function ERR_X509_LOOKUP_meth_get_get_by_alias(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_alias_fn; 
+function  ERR_X509_LOOKUP_meth_get_get_by_alias(const method: PX509_LOOKUP_METHOD): X509_LOOKUP_get_by_alias_fn; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_meth_get_get_by_alias');
 end;
 
 
-function ERR_X509_STORE_CTX_get_by_subject(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT; 
+function  ERR_X509_STORE_CTX_get_by_subject(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME; ret: PX509_OBJECT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_by_subject');
 end;
 
 
-function ERR_X509_STORE_CTX_get_obj_by_subject(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME): PX509_OBJECT; 
+function  ERR_X509_STORE_CTX_get_obj_by_subject(vs: PX509_STORE_CTX; type_: X509_LOOKUP_TYPE; name: PX509_NAME): PX509_OBJECT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_obj_by_subject');
 end;
 
 
-function ERR_X509_LOOKUP_set_method_data(ctx: PX509_LOOKUP; data: Pointer): TIdC_INT; 
+function  ERR_X509_LOOKUP_set_method_data(ctx: PX509_LOOKUP; data: Pointer): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_set_method_data');
 end;
 
 
-function ERR_X509_LOOKUP_get_method_data(const ctx: PX509_LOOKUP): Pointer; 
+function  ERR_X509_LOOKUP_get_method_data(const ctx: PX509_LOOKUP): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_get_method_data');
 end;
 
 
-function ERR_X509_LOOKUP_get_store(const ctx: PX509_LOOKUP): PX509_STORE; 
+function  ERR_X509_LOOKUP_get_store(const ctx: PX509_LOOKUP): PX509_STORE; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_LOOKUP_get_store');
 end;
 
 
-procedure ERR_X509_STORE_CTX_set_error_depth(ctx: PX509_STORE_CTX; depth: TIdC_INT); 
+procedure  ERR_X509_STORE_CTX_set_error_depth(ctx: PX509_STORE_CTX; depth: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_set_error_depth');
 end;
 
 
-procedure ERR_X509_STORE_CTX_set_current_cert(ctx: PX509_STORE_CTX; x: PX509); 
+procedure  ERR_X509_STORE_CTX_set_current_cert(ctx: PX509_STORE_CTX; x: PX509); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_set_current_cert');
 end;
 
 
-function ERR_X509_STORE_CTX_get_num_untrusted(ctx: PX509_STORE_CTX): TIdC_INT; 
+function  ERR_X509_STORE_CTX_get_num_untrusted(ctx: PX509_STORE_CTX): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_get_num_untrusted');
 end;
 
 
-procedure ERR_X509_STORE_CTX_set0_dane(ctx: PX509_STORE_CTX; dane: PSSL_DANE); 
+procedure  ERR_X509_STORE_CTX_set0_dane(ctx: PX509_STORE_CTX; dane: PSSL_DANE); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_STORE_CTX_set0_dane');
 end;
 
 
-procedure ERR_X509_VERIFY_PARAM_set_auth_level(param: PX509_VERIFY_PARAM; auth_level: TIdC_INT); 
+procedure  ERR_X509_VERIFY_PARAM_set_auth_level(param: PX509_VERIFY_PARAM; auth_level: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_VERIFY_PARAM_set_auth_level');
 end;
 
 
-function ERR_X509_VERIFY_PARAM_set_inh_flags(param: PX509_VERIFY_PARAM; flags: TIdC_UINT32): TIdC_INT; 
+function  ERR_X509_VERIFY_PARAM_set_inh_flags(param: PX509_VERIFY_PARAM; flags: TIdC_UINT32): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_VERIFY_PARAM_set_inh_flags');
 end;
 
 
-function ERR_X509_VERIFY_PARAM_get_inh_flags(const param: PX509_VERIFY_PARAM): TIdC_UINT32; 
+function  ERR_X509_VERIFY_PARAM_get_inh_flags(const param: PX509_VERIFY_PARAM): TIdC_UINT32; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_VERIFY_PARAM_get_inh_flags');
 end;
 
 
-function ERR_X509_VERIFY_PARAM_get_hostflags(const param: PX509_VERIFY_PARAM): TIdC_UINT; 
+function  ERR_X509_VERIFY_PARAM_get_hostflags(const param: PX509_VERIFY_PARAM): TIdC_UINT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_VERIFY_PARAM_get_hostflags');
 end;
 
 
-procedure ERR_X509_VERIFY_PARAM_move_peername(v1: PX509_VERIFY_PARAM; v2: PX509_VERIFY_PARAM); 
+procedure  ERR_X509_VERIFY_PARAM_move_peername(v1: PX509_VERIFY_PARAM; v2: PX509_VERIFY_PARAM); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_VERIFY_PARAM_move_peername');
 end;
 
 
-function ERR_X509_VERIFY_PARAM_get_auth_level(const param: PX509_VERIFY_PARAM): TIdC_INT; 
+function  ERR_X509_VERIFY_PARAM_get_auth_level(const param: PX509_VERIFY_PARAM): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509_VERIFY_PARAM_get_auth_level');
 end;

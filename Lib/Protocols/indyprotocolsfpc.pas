@@ -198,6 +198,7 @@ uses
   IdSSLOpenSSLConsts,
   IdSSLOpenSSLExceptionHandlers,
   IdSSLOpenSSLLoader,
+  IdSSLOpenSSLFIPS,
   AllOpenSSLHeaders,
   IdServerInterceptLogBase,
   IdServerInterceptLogEvent,
@@ -232,7 +233,8 @@ uses
   IdWebDAV,
   IdWhoIsServer,
   IdWhois,
-  IdZLibCompressorBase;
+  IdZLibCompressorBase,
+  IdSSLOpenSSLFIPS;
 
 implementation
 

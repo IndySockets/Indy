@@ -423,8 +423,11 @@ cp "$SRCROOT"/Lib/Protocols/opensslHdrs/*.pas "$DESTDIR/runtime/protocols/openss
 cp "$SRCROOT/Lib/Protocols/IdSSLOpenSSLConsts.pas" "$DESTDIR/runtime/protocols"
 cp "$SRCROOT/Lib/Protocols/IdSSLOpenSSLLoader.pas" "$DESTDIR/runtime/protocols"
 cp "$SRCROOT/Lib/Protocols/IdSSLOpenSSL.pas" "$DESTDIR/runtime/protocols"
+cp "$SRCROOT/Lib/Protocols/IdSSLOpenSSLFIPS.pas" "$DESTDIR/runtime/protocols"
 cp "$SRCROOT/Lib/Protocols/IdSSLOpenSSLExceptionHandlers.pas" "$DESTDIR/runtime/protocols"
 cp "$SRCROOT/Lib/Protocols/IdResourceStringsOpenSSL.pas" "$DESTDIR/runtime/protocols"
 cp "$SRCROOT/Lib/Protocols/IdAuthenticationNTLM.pas" "$DESTDIR/runtime/protocols"
 cp "$SRCROOT/Lib/Protocols/IdNTLM.pas" "$DESTDIR/runtime/protocols"
+cp "$SRCROOT/Lib/Protocols/IdSSLOpenSSLFIPS.pas" "$DESTDIR/runtime/protocols"
+
 

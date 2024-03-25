@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -152,7 +154,7 @@ const
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  ERR_load_BIO_strings: function: TIdC_INT; cdecl = nil;
+  ERR_load_BIO_strings: function : TIdC_INT; cdecl = nil;
 
 {$ELSE}
   function ERR_load_BIO_strings: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -161,12 +163,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

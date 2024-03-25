@@ -814,7 +814,7 @@
         <Filename Value="../../../Lib/Protocols/opensslHdrs/IdOpenSSLHeaders_err.pas"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <CursorPos X="2" Y="8"/>
+        <CursorPos X="36" Y="14"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit>
@@ -1004,21 +1004,23 @@
       </Modes>
     </RunParams>
     <HistoryLists>
-      <List Name="LaunchingApplication" Type="File" Count="2">
-        <Item1 Value="C:\Windows\system32\cmd.exe \C ${TargetCmdLine}"/>
-        <Item2 Value="C:\Windows\system32\cmd.exe /C ${TargetCmdLine}"/>
+      <List Name="LaunchingApplication" Type="File" Count="3">
+        <Item2 Value="C:\Windows\system32\cmd.exe \C ${TargetCmdLine}"/>
+        <Item3 Value="C:\Windows\system32\cmd.exe /C ${TargetCmdLine}"/>
       </List>
-      <List Name="CommandLineParameters" Count="9">
-        <Item1 Value="-h"/>
-        <Item2 Value="../libs/3.2/x86_64 -L"/>
-        <Item3 Value="../libs/3.2/x86_64"/>
-        <Item4 Value="../libs/3.2/x86_64 -l /etc/ssl/certs"/>
-        <Item5 Value="../libs/3.0/x86_64"/>
-        <Item6 Value="..\libs\3.0\x86_64"/>
-        <Item7 Value="..\libs\3.2\x86_64"/>
-        <Item8 Value="../libs/1.0/x86_64"/>
-        <Item9 Value="..\libs\1.0\x86_64"/>
+      <List Name="CommandLineParameters" Count="11">
+        <Item2 Value="/usr/local/openssl-3.2.0/lib64 -L"/>
+        <Item3 Value="-h"/>
+        <Item4 Value="../libs/3.2/x86_64 -L"/>
+        <Item5 Value="../libs/3.2/x86_64"/>
+        <Item6 Value="../libs/3.2/x86_64 -l /etc/ssl/certs"/>
+        <Item7 Value="../libs/3.0/x86_64"/>
+        <Item8 Value="..\libs\3.0\x86_64"/>
+        <Item9 Value="..\libs\3.2\x86_64"/>
+        <Item10 Value="../libs/1.0/x86_64"/>
+        <Item11 Value="..\libs\1.0\x86_64"/>
       </List>
+      <List Name="WorkingDirectory" Type="File" Count="1"/>
     </HistoryLists>
   </ProjectSession>
   <Debugging>

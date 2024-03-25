@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -67,12 +69,12 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  BUF_MEM_new: function: PBUF_MEM; cdecl = nil;
-  BUF_MEM_new_ex: function(flags: TIdC_ULONG): PBUF_MEM; cdecl = nil;
-  BUF_MEM_free: procedure(a: PBUF_MEM); cdecl = nil;
-  BUF_MEM_grow: function(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET; cdecl = nil;
-  BUF_MEM_grow_clean: function(str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET; cdecl = nil;
-  BUF_reverse: procedure(out_: PByte; const in_: PByte; siz: TIdC_SIZET); cdecl = nil;
+  BUF_MEM_new: function : PBUF_MEM; cdecl = nil;
+  BUF_MEM_new_ex: function (flags: TIdC_ULONG): PBUF_MEM; cdecl = nil;
+  BUF_MEM_free: procedure (a: PBUF_MEM); cdecl = nil;
+  BUF_MEM_grow: function (str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET; cdecl = nil;
+  BUF_MEM_grow_clean: function (str: PBUF_MEM; len: TIdC_SIZET): TIdC_SIZET; cdecl = nil;
+  BUF_reverse: procedure (out_: PByte; const in_: PByte; siz: TIdC_SIZET); cdecl = nil;
 
 {$ELSE}
   function BUF_MEM_new: PBUF_MEM cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -86,12 +88,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

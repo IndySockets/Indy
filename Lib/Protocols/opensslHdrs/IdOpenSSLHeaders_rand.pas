@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -83,28 +85,28 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  RAND_set_rand_method: function(const meth: PRAND_METHOD): TIdC_INT; cdecl = nil;
-  RAND_get_rand_method: function: PRAND_METHOD; cdecl = nil;
-  RAND_set_rand_engine: function(engine: PENGINE): TIdC_INT; cdecl = nil;
+  RAND_set_rand_method: function (const meth: PRAND_METHOD): TIdC_INT; cdecl = nil;
+  RAND_get_rand_method: function : PRAND_METHOD; cdecl = nil;
+  RAND_set_rand_engine: function (engine: PENGINE): TIdC_INT; cdecl = nil;
 
-  RAND_OpenSSL: function: PRAND_METHOD; cdecl = nil;
+  RAND_OpenSSL: function : PRAND_METHOD; cdecl = nil;
 
-  RAND_bytes: function(buf: PByte; num: TIdC_INT): TIdC_INT; cdecl = nil;
-  RAND_priv_bytes: function(buf: PByte; num: TIdC_INT): TIdC_INT; cdecl = nil;
+  RAND_bytes: function (buf: PByte; num: TIdC_INT): TIdC_INT; cdecl = nil;
+  RAND_priv_bytes: function (buf: PByte; num: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  RAND_seed: procedure(const buf: Pointer; num: TIdC_INT); cdecl = nil;
-  RAND_keep_random_devices_open: procedure(keep: TIdC_INT); cdecl = nil;
+  RAND_seed: procedure (const buf: Pointer; num: TIdC_INT); cdecl = nil;
+  RAND_keep_random_devices_open: procedure (keep: TIdC_INT); cdecl = nil;
 
-  RAND_add: procedure(const buf: Pointer; num: TIdC_INT; randomness: TIdC_DOUBLE); cdecl = nil;
-  RAND_load_file: function(const file_: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT; cdecl = nil;
-  RAND_write_file: function(const file_: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  RAND_status: function: TIdC_INT; cdecl = nil;
+  RAND_add: procedure (const buf: Pointer; num: TIdC_INT; randomness: TIdC_DOUBLE); cdecl = nil;
+  RAND_load_file: function (const file_: PIdAnsiChar; max_bytes: TIdC_LONG): TIdC_INT; cdecl = nil;
+  RAND_write_file: function (const file_: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  RAND_status: function : TIdC_INT; cdecl = nil;
 
-  RAND_query_egd_bytes: function(const path: PIdAnsiChar; buf: PByte; bytes: TIdC_INT): TIdC_INT; cdecl = nil;
-  RAND_egd: function(const path: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  RAND_egd_bytes: function(const path: PIdAnsiChar; bytes: TIdC_INT): TIdC_INT; cdecl = nil;
+  RAND_query_egd_bytes: function (const path: PIdAnsiChar; buf: PByte; bytes: TIdC_INT): TIdC_INT; cdecl = nil;
+  RAND_egd: function (const path: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  RAND_egd_bytes: function (const path: PIdAnsiChar; bytes: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  RAND_poll: function: TIdC_INT; cdecl = nil;
+  RAND_poll: function : TIdC_INT; cdecl = nil;
 
 {$ELSE}
   function RAND_set_rand_method(const meth: PRAND_METHOD): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -134,12 +136,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -77,17 +79,17 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  BF_set_key: procedure(key: PBF_KEY; len: TIdC_INT; const data: PByte); cdecl = nil;
+  BF_set_key: procedure (key: PBF_KEY; len: TIdC_INT; const data: PByte); cdecl = nil;
 
-  BF_encrypt: procedure(data: PBF_LONG; const key: PBF_KEY); cdecl = nil;
-  BF_decrypt: procedure(data: PBF_LONG; const key: PBF_KEY); cdecl = nil;
+  BF_encrypt: procedure (data: PBF_LONG; const key: PBF_KEY); cdecl = nil;
+  BF_decrypt: procedure (data: PBF_LONG; const key: PBF_KEY); cdecl = nil;
 
-  BF_ecb_encrypt: procedure(const in_: PByte; out_: PByte; key: PBF_KEY; enc: TIdC_INT); cdecl = nil;
-  BF_cbc_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; enc: TIdC_INT); cdecl = nil;
-  BF_cfb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT; enc: TIdC_INT); cdecl = nil;
-  BF_ofb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT); cdecl = nil;
+  BF_ecb_encrypt: procedure (const in_: PByte; out_: PByte; key: PBF_KEY; enc: TIdC_INT); cdecl = nil;
+  BF_cbc_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; enc: TIdC_INT); cdecl = nil;
+  BF_cfb64_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT; enc: TIdC_INT); cdecl = nil;
+  BF_ofb64_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_LONG; schedule: PBF_KEY; ivec: PByte; num: PIdC_INT); cdecl = nil;
 
-  BF_options: function: PIdAnsiChar; cdecl = nil;
+  BF_options: function : PIdAnsiChar; cdecl = nil;
 
 {$ELSE}
   procedure BF_set_key(key: PBF_KEY; len: TIdC_INT; const data: PByte) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -106,12 +108,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

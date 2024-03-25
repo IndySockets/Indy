@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -74,11 +76,11 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  WHIRLPOOL_Init: function(c: PWHIRLPOOL_CTX): TIdC_INT; cdecl = nil;
-  WHIRLPOOL_Update: function(c: PWHIRLPOOL_CTX; inp: Pointer; bytes: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  WHIRLPOOL_BitUpdate: procedure(c: PWHIRLPOOL_CTX; inp: Pointer; bits: TIdC_SIZET); cdecl = nil;
-  WHIRLPOOL_Final: function(md: PByte; c: PWHIRLPOOL_CTX): TIdC_INT; cdecl = nil;
-  WHIRLPOOL: function(inp: Pointer; bytes: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
+  WHIRLPOOL_Init: function (c: PWHIRLPOOL_CTX): TIdC_INT; cdecl = nil;
+  WHIRLPOOL_Update: function (c: PWHIRLPOOL_CTX; inp: Pointer; bytes: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  WHIRLPOOL_BitUpdate: procedure (c: PWHIRLPOOL_CTX; inp: Pointer; bits: TIdC_SIZET); cdecl = nil;
+  WHIRLPOOL_Final: function (md: PByte; c: PWHIRLPOOL_CTX): TIdC_INT; cdecl = nil;
+  WHIRLPOOL: function (inp: Pointer; bytes: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
 
 {$ELSE}
   function WHIRLPOOL_Init(c: PWHIRLPOOL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -91,12 +93,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

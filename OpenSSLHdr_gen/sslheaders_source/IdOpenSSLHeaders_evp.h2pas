@@ -680,6 +680,11 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT; 
   //# define EVP_delete_cipher_alias(alias) OBJ_NAME_remove(alias;OBJ_NAME_TYPE_CIPHER_METH|OBJ_NAME_ALIAS);
   //# define EVP_delete_digest_alias(alias) OBJ_NAME_remove(alias;OBJ_NAME_TYPE_MD_METH|OBJ_NAME_ALIAS);
 
+  //void EVP_MD_CTX_init(EVP_MD_CTX *ctx);
+  //int EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx);
+  procedure EVP_MD_CTX_init(ctx : PEVP_MD_CTX); {removed 1.1.0}
+  function EVP_MD_CTX_cleanup(ctx : PEVP_MD_CTX): TIdC_INT; {removed 1.1.0}
+
   function EVP_MD_CTX_ctrl(ctx: PEVP_MD_CTX; cmd: TIdC_INT; p1: TIdC_INT; p2: Pointer): TIdC_INT; {introduced 1.1.0}
   function EVP_MD_CTX_new: PEVP_MD_CTX; {introduced 1.1.0}
   function EVP_MD_CTX_reset(ctx: PEVP_MD_CTX): TIdC_INT; {introduced 1.1.0}
@@ -693,12 +698,12 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT; 
   function EVP_MD_CTX_test_flags(const ctx: PEVP_MD_CTX; flags: TIdC_INT): TIdC_INT;
   function EVP_DigestInit_ex(ctx: PEVP_MD_CTX; const type_: PEVP_MD; impl: PENGINE): TIdC_INT;
   function EVP_DigestUpdate(ctx: PEVP_MD_CTX; const d: Pointer; cnt: TIdC_SIZET): TIdC_INT;
-  function EVP_DigestFinal_ex(ctx: PEVP_MD_CTX; md: PByte; s: PIdC_UINT): TIdC_INT;
+  function EVP_DigestFinal_ex(ctx: PEVP_MD_CTX; md: PByte; var s: TIdC_UINT): TIdC_INT;
   function EVP_Digest(const data: Pointer; count: TIdC_SIZET; md: PByte; size: PIdC_UINT; const type_: PEVP_MD; impl: PENGINE): TIdC_INT;
 
   function EVP_MD_CTX_copy(out_: PEVP_MD_CTX; const in_: PEVP_MD_CTX): TIdC_INT;
   function EVP_DigestInit(ctx: PEVP_MD_CTX; const type_: PEVP_MD): TIdC_INT;
-  function EVP_DigestFinal(ctx: PEVP_MD_CTX; md: PByte; s: PIdC_UINT): TIdC_INT;
+  function EVP_DigestFinal(ctx: PEVP_MD_CTX; md: PByte; var s: TIdC_UINT): TIdC_INT;
   function EVP_DigestFinalXOF(ctx: PEVP_MD_CTX; md: PByte; len: TIdC_SIZET): TIdC_INT; {introduced 1.1.0}
 
   function EVP_read_pw_string(buf: PIdAnsiChar; length: TIdC_INT; const prompt: PIdAnsiChar; verify: TIdC_INT): TIdC_INT;
@@ -779,7 +784,15 @@ function EVP_PKEY_assign_POLY1305(pkey: PEVP_PKEY; polykey: Pointer): TIdC_INT; 
 
   function EVP_md_null: PEVP_MD;
 
-  function EVP_md5: PEVP_MD;
+  {$IFNDEF OPENSSL_NO_MD2}
+  function EVP_md2: PEVP_MD; {removed 1.1.0 allow_nil}
+  {$ENDIF}
+  {$IFNDEF OPENSSL_NO_MD4}
+  function EVP_md4: PEVP_MD; {removed 1.1.0 allow_nil}
+  {$ENDIF}
+  {$IFNDEF OPENSSL_NO_MD5}
+  function EVP_md5: PEVP_MD; {removed 1.1.0 allow_nil}
+  {$ENDIF}
   function EVP_md5_sha1: PEVP_MD; {introduced 1.1.0}
 
   function EVP_sha1: PEVP_MD;
@@ -1335,5 +1348,42 @@ begin
   {define BIO_set_md(b,md)  BIO_ctrl(b,BIO_C_SET_MD,0,(char *)(md))}
   BIO_ctrl(v1,BIO_C_SET_MD,0,PIdAnsiChar(md));
 end;
+
+{forward_compatibility}
+function EVP_MD_CTX_new: PEVP_MD_CTX;
+begin
+  Result := AllocMem(SizeOf(EVP_MD_CTX));
+  EVP_MD_CTX_init(Result);
+end;
+
+procedure EVP_MD_CTX_free(ctx: PEVP_MD_CTX);
+begin
+  EVP_MD_CTX_cleanup(ctx);
+  FreeMem(ctx,SizeOf(EVP_MD_CTX));
+end;
+
+{/forward_compatibility}
+
+{$IFNDEF OPENSSL_NO_MD2}
+function EVP_md2: PEVP_MD;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(ROSUnsupported);
+end;
+{$ENDIF}
+
+{$IFNDEF OPENSSL_NO_MD4}
+function EVP_md4: PEVP_MD;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(ROSUnsupported);
+end;
+{$ENDIF}
+
+{$IFNDEF OPENSSL_NO_MD5}
+function EVP_md5: PEVP_MD;
+begin
+  EIdAPIFunctionNotPresent.RaiseException(ROSUnsupported);
+end;
+{$ENDIF}
+
 
 end.

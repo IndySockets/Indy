@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -1599,86 +1601,86 @@ var
   {$EXTERNALSYM TLSv1_2_method} {removed 1.1.0 allow_nil}		// TLSv1.2
   {$EXTERNALSYM TLSv1_2_server_method} {removed 1.1.0 allow_nil}	// TLSv1.2 
   {$EXTERNALSYM TLSv1_2_client_method} {removed 1.1.0 allow_nil}	// TLSv1.2
-  SSL_CTX_set_mode: function(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_clear_mode: function(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set_mode: function (ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_clear_mode: function (ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
 
-  SSL_CTX_sess_set_cache_size: function(ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_sess_get_cache_size: function(ctx: PSSL_CTX): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set_session_cache_mode: function(ctx: PSSL_CTX; m: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_get_session_cache_mode: function(ctx: PSSL_CTX): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_sess_set_cache_size: function (ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_sess_get_cache_size: function (ctx: PSSL_CTX): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set_session_cache_mode: function (ctx: PSSL_CTX; m: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_get_session_cache_mode: function (ctx: PSSL_CTX): TIdC_LONG; cdecl = nil; {removed 1.0.0}
 
-  SSL_clear_num_renegotiations: function(ssl: PSSL): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_total_renegotiations: function(ssl: PSSL): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set_tmp_dh: function(ctx: PSSL_CTX; dh: PDH): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set_tmp_ecdh: function(ctx: PSSL_CTX; ecdh: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set_dh_auto: function(ctx: PSSL_CTX; onoff: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set_dh_auto: function(s: PSSL; onoff: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set_tmp_dh: function(ssl: PSSL; dh: PDH): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set_tmp_ecdh: function(ssl: PSSL; ecdh: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_add_extra_chain_cert: function(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_get_extra_chain_certs: function(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_get_extra_chain_certs_only: function(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_clear_extra_chain_certs: function(ctx: PSSL_CTX): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set0_chain: function(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_chain: function(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_add0_chain_cert: function(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_add1_chain_cert: function(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_get0_chain_certs: function(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_clear_chain_certs: function(ctx: PSSL_CTX): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_build_cert_chain: function(ctx: PSSL_CTX; flags: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_select_current_cert: function(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set_current_cert: function(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set0_verify_cert_store: function(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_verify_cert_store: function(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set0_chain_cert_store: function(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_chain_cert_store: function(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set0_chain: function(s: PSSL; sk: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_chain: function(s: PSSL; sk: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_add0_chain_cert: function(s: PSSL; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_add1_chain_cert: function(s: PSSL; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get0_chain_certs: function(s: PSSL; px509: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_clear_chain_certs: function(s: PSSL): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_build_cert_chain: function(s: PSSL; flags: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_select_current_cert: function(s: PSSL; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set_current_cert: function(s: PSSL; op: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set0_verify_cert_store: function(s: PSSL; st: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_verify_cert_store: function(s: PSSL; st: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set0_chain_cert_store: function(s: PSSL; st: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_chain_cert_store: function(s: PSSL; st: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get1_groups: function(s: PSSL; glist: PIdC_INT): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_groups: function(ctx: PSSL_CTX; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_groups_list: function(ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_groups: function(s: PSSL; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_groups_list: function(s: PSSL; str: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get_shared_group: function(s: PSSL; n: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_sigalgs: function(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_sigalgs_list: function(ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_sigalgs: function(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_sigalgs_list: function(s: PSSL; str: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_client_sigalgs: function(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_client_sigalgs_list: function(ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_client_sigalgs: function(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_client_sigalgs_list: function(s: PSSL; str: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get0_certificate_types: function(s: PSSL; clist: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_CTX_set1_client_certificate_types: function(ctx: PSSL_CTX; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_set1_client_certificate_types: function(s: PSSL; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get_signature_nid: function(s: PSSL; pn: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get_peer_signature_nid: function(s: PSSL; pn: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get_peer_tmp_key: function(s: PSSL; pk: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get_tmp_key: function(s: PSSL; pk: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get0_raw_cipherlist: function(s: PSSL; plst: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
-  SSL_get0_ec_point_formats: function(s: PSSL; plst: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_clear_num_renegotiations: function (ssl: PSSL): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_total_renegotiations: function (ssl: PSSL): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set_tmp_dh: function (ctx: PSSL_CTX; dh: PDH): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set_tmp_ecdh: function (ctx: PSSL_CTX; ecdh: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set_dh_auto: function (ctx: PSSL_CTX; onoff: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set_dh_auto: function (s: PSSL; onoff: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set_tmp_dh: function (ssl: PSSL; dh: PDH): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set_tmp_ecdh: function (ssl: PSSL; ecdh: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_add_extra_chain_cert: function (ctx: PSSL_CTX; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_get_extra_chain_certs: function (ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_get_extra_chain_certs_only: function (ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_clear_extra_chain_certs: function (ctx: PSSL_CTX): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set0_chain: function (ctx: PSSL_CTX; sk: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_chain: function (ctx: PSSL_CTX; sk: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_add0_chain_cert: function (ctx: PSSL_CTX; x509: PX509): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_add1_chain_cert: function (ctx: PSSL_CTX; x509: PX509): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_get0_chain_certs: function (ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_clear_chain_certs: function (ctx: PSSL_CTX): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_build_cert_chain: function (ctx: PSSL_CTX; flags: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_select_current_cert: function (ctx: PSSL_CTX; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set_current_cert: function (ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set0_verify_cert_store: function (ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_verify_cert_store: function (ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set0_chain_cert_store: function (ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_chain_cert_store: function (ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set0_chain: function (s: PSSL; sk: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_chain: function (s: PSSL; sk: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_add0_chain_cert: function (s: PSSL; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_add1_chain_cert: function (s: PSSL; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get0_chain_certs: function (s: PSSL; px509: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_clear_chain_certs: function (s: PSSL): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_build_cert_chain: function (s: PSSL; flags: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_select_current_cert: function (s: PSSL; x509: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set_current_cert: function (s: PSSL; op: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set0_verify_cert_store: function (s: PSSL; st: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_verify_cert_store: function (s: PSSL; st: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set0_chain_cert_store: function (s: PSSL; st: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_chain_cert_store: function (s: PSSL; st: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get1_groups: function (s: PSSL; glist: PIdC_INT): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_groups: function (ctx: PSSL_CTX; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_groups_list: function (ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_groups: function (s: PSSL; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_groups_list: function (s: PSSL; str: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get_shared_group: function (s: PSSL; n: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_sigalgs: function (ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_sigalgs_list: function (ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_sigalgs: function (s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_sigalgs_list: function (s: PSSL; str: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_client_sigalgs: function (ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_client_sigalgs_list: function (ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_client_sigalgs: function (s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_client_sigalgs_list: function (s: PSSL; str: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get0_certificate_types: function (s: PSSL; clist: PByte): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_CTX_set1_client_certificate_types: function (ctx: PSSL_CTX; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set1_client_certificate_types: function (s: PSSL; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get_signature_nid: function (s: PSSL; pn: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get_peer_signature_nid: function (s: PSSL; pn: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get_peer_tmp_key: function (s: PSSL; pk: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get_tmp_key: function (s: PSSL; pk: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get0_raw_cipherlist: function (s: PSSL; plst: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_get0_ec_point_formats: function (s: PSSL; plst: Pointer): TIdC_LONG; cdecl = nil; {removed 1.0.0}
 
   //typedef TIdC_INT (*tls_session_secret_cb_fn)(s: PSSL, void *secret, TIdC_INT *secret_len,
   //                                        STACK_OF(SSL_CIPHER) *peer_ciphers,
   //                                        const SSL_CIPHER **cipher, void *arg);
 
-  SSL_CTX_get_options: function(const ctx: PSSL_CTX): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
-  SSL_get_options: function(const s: PSSL): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_clear_options: function(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
-  SSL_clear_options: function(s: PSSL; op: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_options: function(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
-  SSL_set_options: function(s: PSSL; op: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_get_options: function (const ctx: PSSL_CTX): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_get_options: function (const s: PSSL): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_clear_options: function (ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_clear_options: function (s: PSSL; op: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_options: function (ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_set_options: function (s: PSSL; op: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
 
   //# define SSL_CTX_set_mode(ctx,op) \
   //        SSL_CTX_ctrl((ctx),SSL_CTRL_MODE,(op),NULL)
@@ -1768,10 +1770,10 @@ var
   //# define SSL_CTX_sess_cache_full(ctx) \
   //        SSL_CTX_ctrl(ctx,SSL_CTRL_SESS_CACHE_FULL,0,NULL)
 
-  SSL_CTX_sess_set_new_cb: procedure(ctx: PSSL_CTX; new_session_cb: SSL_CTX_sess_new_cb); cdecl = nil;
-  SSL_CTX_sess_get_new_cb: function(ctx: PSSL_CTX): SSL_CTX_sess_new_cb; cdecl = nil;
-  SSL_CTX_sess_set_remove_cb: procedure(ctx: PSSL_CTX; remove_session_cb: SSL_CTX_sess_remove_cb); cdecl = nil;
-  SSL_CTX_sess_get_remove_cb: function(ctx: PSSL_CTX): SSL_CTX_sess_remove_cb; cdecl = nil;
+  SSL_CTX_sess_set_new_cb: procedure (ctx: PSSL_CTX; new_session_cb: SSL_CTX_sess_new_cb); cdecl = nil;
+  SSL_CTX_sess_get_new_cb: function (ctx: PSSL_CTX): SSL_CTX_sess_new_cb; cdecl = nil;
+  SSL_CTX_sess_set_remove_cb: procedure (ctx: PSSL_CTX; remove_session_cb: SSL_CTX_sess_remove_cb); cdecl = nil;
+  SSL_CTX_sess_get_remove_cb: function (ctx: PSSL_CTX): SSL_CTX_sess_remove_cb; cdecl = nil;
 
   //void SSL_CTX_sess_set_get_cb(ctx: PSSL_CTX,
   //                             SSL_SESSION *(*get_session_cb) (struct ssl_st
@@ -1782,38 +1784,38 @@ var
   //SSL_SESSION *(*SSL_CTX_sess_get_get_cb(ctx: PSSL_CTX)) (struct ssl_st *ssl,
   //                                                       const d: PByteata,
   //                                                       TIdC_INT len, TIdC_INT *copy);
-  SSL_CTX_set_info_callback: procedure(ctx: PSSL_CTX; cb: SSL_CTX_info_callback); cdecl = nil;
-  SSL_CTX_get_info_callback: function(ctx: PSSL_CTX): SSL_CTX_info_callback; cdecl = nil;
-  SSL_CTX_set_client_cert_cb: procedure(ctx: PSSL_CTX; client_cert_cb: SSL_CTX_client_cert_cb); cdecl = nil;
-  SSL_CTX_get_client_cert_cb: function(ctx: PSSL_CTX): SSL_CTX_client_cert_cb; cdecl = nil;
-  SSL_CTX_set_client_cert_engine: function(ctx: PSSL_CTX; e: PENGINE): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_info_callback: procedure (ctx: PSSL_CTX; cb: SSL_CTX_info_callback); cdecl = nil;
+  SSL_CTX_get_info_callback: function (ctx: PSSL_CTX): SSL_CTX_info_callback; cdecl = nil;
+  SSL_CTX_set_client_cert_cb: procedure (ctx: PSSL_CTX; client_cert_cb: SSL_CTX_client_cert_cb); cdecl = nil;
+  SSL_CTX_get_client_cert_cb: function (ctx: PSSL_CTX): SSL_CTX_client_cert_cb; cdecl = nil;
+  SSL_CTX_set_client_cert_engine: function (ctx: PSSL_CTX; e: PENGINE): TIdC_INT; cdecl = nil;
 
-  SSL_CTX_set_cookie_generate_cb: procedure(ctx: PSSL_CTX; app_gen_cookie_cb: SSL_CTX_cookie_verify_cb); cdecl = nil;
-  SSL_CTX_set_cookie_verify_cb: procedure(ctx: PSSL_CTX; app_verify_cookie_cb: SSL_CTX_set_cookie_verify_cb_app_verify_cookie_cb); cdecl = nil;
-  SSL_CTX_set_stateless_cookie_generate_cb: procedure(ctx: PSSL_CTX; gen_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_generate_cb_gen_stateless_cookie_cb); cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_stateless_cookie_verify_cb: procedure(ctx: PSSL_CTX; verify_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_verify_cb_verify_stateless_cookie_cb); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_cookie_generate_cb: procedure (ctx: PSSL_CTX; app_gen_cookie_cb: SSL_CTX_cookie_verify_cb); cdecl = nil;
+  SSL_CTX_set_cookie_verify_cb: procedure (ctx: PSSL_CTX; app_verify_cookie_cb: SSL_CTX_set_cookie_verify_cb_app_verify_cookie_cb); cdecl = nil;
+  SSL_CTX_set_stateless_cookie_generate_cb: procedure (ctx: PSSL_CTX; gen_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_generate_cb_gen_stateless_cookie_cb); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_stateless_cookie_verify_cb: procedure (ctx: PSSL_CTX; verify_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_verify_cb_verify_stateless_cookie_cb); cdecl = nil; {introduced 1.1.0}
 
   //__owur TIdC_INT SSL_CTX_set_alpn_protos(ctx: PSSL_CTX, const Byte *protos,
   //                                   TIdC_UINT protos_len);
   //__owur TIdC_INT SSL_set_alpn_protos(ssl: PSSL, const Byte *protos,
   //                               TIdC_UINT protos_len);
 
-  SSL_CTX_set_alpn_select_cb: procedure(ctx: PSSL_CTX; cb: SSL_CTX_alpn_select_cb_func; arg: Pointer); cdecl = nil;
-  SSL_get0_alpn_selected: procedure(const ssl: PSSL; const data: PPByte; len: PIdC_UINT); cdecl = nil;
-  SSL_CTX_set_psk_client_callback: procedure(ctx: PSSL_CTX; cb: SSL_psk_client_cb_func); cdecl = nil;
-  SSL_set_psk_client_callback: procedure(ssl: PSSL; cb: SSL_psk_client_cb_func); cdecl = nil;
-  SSL_CTX_set_psk_server_callback: procedure(ctx: PSSL_CTX; cb: SSL_psk_server_cb_func); cdecl = nil;
-  SSL_set_psk_server_callback: procedure(ssl: PSSL; cb: SSL_psk_server_cb_func); cdecl = nil;
+  SSL_CTX_set_alpn_select_cb: procedure (ctx: PSSL_CTX; cb: SSL_CTX_alpn_select_cb_func; arg: Pointer); cdecl = nil;
+  SSL_get0_alpn_selected: procedure (const ssl: PSSL; const data: PPByte; len: PIdC_UINT); cdecl = nil;
+  SSL_CTX_set_psk_client_callback: procedure (ctx: PSSL_CTX; cb: SSL_psk_client_cb_func); cdecl = nil;
+  SSL_set_psk_client_callback: procedure (ssl: PSSL; cb: SSL_psk_client_cb_func); cdecl = nil;
+  SSL_CTX_set_psk_server_callback: procedure (ctx: PSSL_CTX; cb: SSL_psk_server_cb_func); cdecl = nil;
+  SSL_set_psk_server_callback: procedure (ssl: PSSL; cb: SSL_psk_server_cb_func); cdecl = nil;
 
   //__owur TIdC_INT SSL_CTX_use_psk_identity_hint(ctx: PSSL_CTX, const PIdAnsiChar *identity_hint);
   //__owur TIdC_INT SSL_use_psk_identity_hint(s: PSSL, const PIdAnsiChar *identity_hint);
   //const PIdAnsiChar *SSL_get_psk_identity_hint(const s: PSSL);
   //const PIdAnsiChar *SSL_get_psk_identity(const s: PSSL);
 
-  SSL_set_psk_find_session_callback: procedure(s: PSSL; cb: SSL_psk_find_session_cb_func); cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_psk_find_session_callback: procedure(ctx: PSSL_CTX; cb: SSL_psk_find_session_cb_func); cdecl = nil; {introduced 1.1.0}
-  SSL_set_psk_use_session_callback: procedure(s: PSSL; cb: SSL_psk_use_session_cb_func); cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_psk_use_session_callback: procedure(ctx: PSSL_CTX; cb: SSL_psk_use_session_cb_func); cdecl = nil; {introduced 1.1.0}
+  SSL_set_psk_find_session_callback: procedure (s: PSSL; cb: SSL_psk_find_session_cb_func); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_psk_find_session_callback: procedure (ctx: PSSL_CTX; cb: SSL_psk_find_session_cb_func); cdecl = nil; {introduced 1.1.0}
+  SSL_set_psk_use_session_callback: procedure (s: PSSL; cb: SSL_psk_use_session_cb_func); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_psk_use_session_callback: procedure (ctx: PSSL_CTX; cb: SSL_psk_use_session_cb_func); cdecl = nil; {introduced 1.1.0}
 
   ///* Register callbacks to handle custom TLS Extensions for client or server. */
 
@@ -1861,20 +1863,20 @@ var
    * is intended for debugging use with tools like Wireshark. The cb function
    * should log line followed by a newline.
    *)
-  SSL_CTX_set_keylog_callback: procedure(ctx: PSSL_CTX; cb: SSL_CTX_keylog_cb_func); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_keylog_callback: procedure (ctx: PSSL_CTX; cb: SSL_CTX_keylog_cb_func); cdecl = nil; {introduced 1.1.0}
   (*
    * SSL_CTX_get_keylog_callback returns the callback configured by
    * SSL_CTX_set_keylog_callback.
    *)
-  SSL_CTX_get_keylog_callback: function(const ctx: PSSL_CTX): SSL_CTX_keylog_cb_func; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_max_early_data: function(ctx: PSSL_CTX; max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_get_max_early_data: function(const ctx: PSSL_CTX): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
-  SSL_set_max_early_data: function(s: PSSL; max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get_max_early_data: function(const s: PSSL): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_recv_max_early_data: function(ctx: PSSL_CTX; recv_max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_get_recv_max_early_data: function(const ctx: PSSL_CTX): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
-  SSL_set_recv_max_early_data: function(s: PSSL; recv_max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get_recv_max_early_data: function(const s: PSSL): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_get_keylog_callback: function (const ctx: PSSL_CTX): SSL_CTX_keylog_cb_func; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_max_early_data: function (ctx: PSSL_CTX; max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_get_max_early_data: function (const ctx: PSSL_CTX): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
+  SSL_set_max_early_data: function (s: PSSL; max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_max_early_data: function (const s: PSSL): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_recv_max_early_data: function (ctx: PSSL_CTX; recv_max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_get_recv_max_early_data: function (const ctx: PSSL_CTX): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
+  SSL_set_recv_max_early_data: function (s: PSSL; recv_max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_recv_max_early_data: function (const s: PSSL): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
 
   ///*
   // * These need to be after the above set of includes due to a compiler bug
@@ -1892,15 +1894,15 @@ var
   //# define SSL_CTX_get_app_data(ctx)       (SSL_CTX_get_ex_data(ctx,0))
   //# define SSL_CTX_set_app_data(ctx,arg)   (SSL_CTX_set_ex_data(ctx,0, \
   //                                                            (PIdAnsiChar *)(arg)))
-  SSL_get_app_data: function(const ssl: PSSL): Pointer ; cdecl = nil; {removed 1.0.0} 
-  SSL_set_app_data: function(ssl: PSSL; data: Pointer): TIdC_INT; cdecl = nil; {removed 1.0.0}
+  SSL_get_app_data: function (const ssl: PSSL): Pointer ; cdecl = nil; {removed 1.0.0} 
+  SSL_set_app_data: function (ssl: PSSL; data: Pointer): TIdC_INT; cdecl = nil; {removed 1.0.0}
 
   ///* Is the SSL_connection established? */
   //# define SSL_in_connect_init(a)          (SSL_in_init(a) && !SSL_is_server(a))
   //# define SSL_in_accept_init(a)           (SSL_in_init(a) && SSL_is_server(a))
-  SSL_in_init: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_in_before: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_is_init_finished: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_in_init: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_in_before: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_is_init_finished: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
   (*-
    * Obtain latest Finished message
@@ -1908,14 +1910,14 @@ var
    *   -- that we expected from peer (SSL_get_peer_finished).
    * Returns length (0 == no Finished so far), copies up to 'count' bytes.
    *)
-  SSL_get_finished: function(const s: PSSL; buf: Pointer; count: TIdC_SIZET): TIdC_SIZET; cdecl = nil;
-  SSL_get_peer_finished: function(const s: PSSL; buf: Pointer; count: TIdC_SIZET): TIdC_SIZET; cdecl = nil;
+  SSL_get_finished: function (const s: PSSL; buf: Pointer; count: TIdC_SIZET): TIdC_SIZET; cdecl = nil;
+  SSL_get_peer_finished: function (const s: PSSL; buf: Pointer; count: TIdC_SIZET): TIdC_SIZET; cdecl = nil;
 
   //# if OPENSSL_API_COMPAT < 0x10100000L
   //#  define OpenSSL_add_ssl_algorithms()   SSL_library_init()
   //#  define SSLeay_add_ssl_algorithms()    SSL_library_init()
   //# endif
-  SSLeay_add_ssl_algorithms: function: TIdC_INT; cdecl = nil; {removed 1.0.0}
+  SSLeay_add_ssl_algorithms: function : TIdC_INT; cdecl = nil; {removed 1.0.0}
 
   ///* More backward compatibility */
   //# define SSL_get_cipher(s) \
@@ -1963,237 +1965,237 @@ var
   //#  define SSL_set_tmp_rsa_callback(ssl, cb)        while(0) (cb)(NULL, 0, 0)
   //# endif
   //
-  BIO_f_ssl: function: PBIO_METHOD; cdecl = nil;
-  BIO_new_ssl: function(ctx: PSSL_CTX; client: TIdC_INT): PBIO; cdecl = nil;
-  BIO_new_ssl_connect: function(ctx: PSSL_CTX): PBIO; cdecl = nil;
-  BIO_new_buffer_ssl_connect: function(ctx: PSSL_CTX): PBIO; cdecl = nil;
-  BIO_ssl_copy_session_id: function(to_: PBIO; from: PBIO): TIdC_INT; cdecl = nil;
+  BIO_f_ssl: function : PBIO_METHOD; cdecl = nil;
+  BIO_new_ssl: function (ctx: PSSL_CTX; client: TIdC_INT): PBIO; cdecl = nil;
+  BIO_new_ssl_connect: function (ctx: PSSL_CTX): PBIO; cdecl = nil;
+  BIO_new_buffer_ssl_connect: function (ctx: PSSL_CTX): PBIO; cdecl = nil;
+  BIO_ssl_copy_session_id: function (to_: PBIO; from: PBIO): TIdC_INT; cdecl = nil;
 
-  SSL_CTX_set_cipher_list: function(v1: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  SSL_CTX_new: function(const meth: PSSL_METHOD): PSSL_CTX; cdecl = nil;
-  SSL_CTX_set_timeout: function(ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG; cdecl = nil;
-  SSL_CTX_get_timeout: function(const ctx: PSSL_CTX): TIdC_LONG; cdecl = nil;
-  SSL_CTX_get_cert_store: function(const v1: PSSL_CTX): PX509_STORE; cdecl = nil;
-  SSL_want: function(const s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_clear: function(s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_cipher_list: function (v1: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CTX_new: function (const meth: PSSL_METHOD): PSSL_CTX; cdecl = nil;
+  SSL_CTX_set_timeout: function (ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG; cdecl = nil;
+  SSL_CTX_get_timeout: function (const ctx: PSSL_CTX): TIdC_LONG; cdecl = nil;
+  SSL_CTX_get_cert_store: function (const v1: PSSL_CTX): PX509_STORE; cdecl = nil;
+  SSL_want: function (const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_clear: function (s: PSSL): TIdC_INT; cdecl = nil;
 
-  BIO_ssl_shutdown: procedure(ssl_bio: PBIO); cdecl = nil;
-  SSL_CTX_up_ref: function(ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_free: procedure(v1: PSSL_CTX); cdecl = nil;
-  SSL_CTX_set_cert_store: procedure(v1: PSSL_CTX; v2: PX509_STORE); cdecl = nil;
-  SSL_CTX_set1_cert_store: procedure(v1: PSSL_CTX; v2: PX509_STORE); cdecl = nil; {introduced 1.1.0}
+  BIO_ssl_shutdown: procedure (ssl_bio: PBIO); cdecl = nil;
+  SSL_CTX_up_ref: function (ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_free: procedure (v1: PSSL_CTX); cdecl = nil;
+  SSL_CTX_set_cert_store: procedure (v1: PSSL_CTX; v2: PX509_STORE); cdecl = nil;
+  SSL_CTX_set1_cert_store: procedure (v1: PSSL_CTX; v2: PX509_STORE); cdecl = nil; {introduced 1.1.0}
 
-  SSL_CTX_flush_sessions: procedure(ctx: PSSL_CTX; tm: TIdC_LONG); cdecl = nil;
+  SSL_CTX_flush_sessions: procedure (ctx: PSSL_CTX; tm: TIdC_LONG); cdecl = nil;
 
-  SSL_get_current_cipher: function(const s: PSSL): PSSL_CIPHER; cdecl = nil;
-  SSL_get_pending_cipher: function(const s: PSSL): PSSL_CIPHER; cdecl = nil; {introduced 1.1.0}
-  SSL_CIPHER_get_bits: function(const c: PSSL_CIPHER; var alg_bits: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_CIPHER_get_version: function(const c: PSSL_CIPHER): PIdAnsiChar; cdecl = nil;
-  SSL_CIPHER_get_name: function(const c: PSSL_CIPHER): PIdAnsiChar; cdecl = nil;
-  SSL_CIPHER_standard_name: function(const c: PSSL_CIPHER): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_cipher_name: function(const rfc_name: PIdAnsiChar): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
-  SSL_CIPHER_get_id: function(const c: PSSL_CIPHER): TIdC_UINT32; cdecl = nil;
-  SSL_CIPHER_get_protocol_id: function(const c: PSSL_CIPHER): TIdC_UINT16; cdecl = nil; {introduced 1.1.0}
-  SSL_CIPHER_get_kx_nid: function(const c: PSSL_CIPHER): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CIPHER_get_auth_nid: function(const c: PSSL_CIPHER): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CIPHER_get_handshake_digest: function(const c: PSSL_CIPHER): PEVP_MD; cdecl = nil; {introduced 1.1.0}
-  SSL_CIPHER_is_aead: function(const c: PSSL_CIPHER): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_current_cipher: function (const s: PSSL): PSSL_CIPHER; cdecl = nil;
+  SSL_get_pending_cipher: function (const s: PSSL): PSSL_CIPHER; cdecl = nil; {introduced 1.1.0}
+  SSL_CIPHER_get_bits: function (const c: PSSL_CIPHER; var alg_bits: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_CIPHER_get_version: function (const c: PSSL_CIPHER): PIdAnsiChar; cdecl = nil;
+  SSL_CIPHER_get_name: function (const c: PSSL_CIPHER): PIdAnsiChar; cdecl = nil;
+  SSL_CIPHER_standard_name: function (const c: PSSL_CIPHER): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_cipher_name: function (const rfc_name: PIdAnsiChar): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
+  SSL_CIPHER_get_id: function (const c: PSSL_CIPHER): TIdC_UINT32; cdecl = nil;
+  SSL_CIPHER_get_protocol_id: function (const c: PSSL_CIPHER): TIdC_UINT16; cdecl = nil; {introduced 1.1.0}
+  SSL_CIPHER_get_kx_nid: function (const c: PSSL_CIPHER): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CIPHER_get_auth_nid: function (const c: PSSL_CIPHER): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CIPHER_get_handshake_digest: function (const c: PSSL_CIPHER): PEVP_MD; cdecl = nil; {introduced 1.1.0}
+  SSL_CIPHER_is_aead: function (const c: PSSL_CIPHER): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_get_fd: function(const s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_get_rfd: function(const s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_get_wfd: function(const s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_get_cipher_list: function(const s: PSSL; n: TIdC_INT): PIdAnsiChar; cdecl = nil;
-  SSL_get_shared_ciphers: function(const s: PSSL; buf: PIdAnsiChar; size: TIdC_INT): PIdAnsiChar; cdecl = nil;
-  SSL_get_read_ahead: function(const s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_pending: function(const s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_has_pending: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_set_fd: function(s: PSSL; fd: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_set_rfd: function(s: PSSL; fd: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_set_wfd: function(s: PSSL; fd: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_set0_rbio: procedure(s: PSSL; rbio: PBIO); cdecl = nil; {introduced 1.1.0}
-  SSL_set0_wbio: procedure(s: PSSL; wbio: PBIO); cdecl = nil; {introduced 1.1.0}
-  SSL_set_bio: procedure(s: PSSL; rbio: PBIO; wbio: PBIO); cdecl = nil;
-  SSL_get_rbio: function(const s: PSSL): PBIO; cdecl = nil;
-  SSL_get_wbio: function(const s: PSSL): PBIO; cdecl = nil;
-  SSL_set_cipher_list: function(s: PSSL; const str: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  SSL_CTX_set_ciphersuites: function(ctx: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_set_ciphersuites: function(s: PSSL; const str: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get_verify_mode: function(const s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_get_verify_depth: function(const s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_get_verify_callback: function(const s: PSSL): SSL_verify_cb; cdecl = nil;
-  SSL_set_read_ahead: procedure(s: PSSL; yes: TIdC_INT); cdecl = nil;
-  SSL_set_verify: procedure(s: PSSL; mode: TIdC_INT; callback: SSL_verify_cb); cdecl = nil;
-  SSL_set_verify_depth: procedure(s: PSSL; depth: TIdC_INT); cdecl = nil;
+  SSL_get_fd: function (const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_get_rfd: function (const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_get_wfd: function (const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_get_cipher_list: function (const s: PSSL; n: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  SSL_get_shared_ciphers: function (const s: PSSL; buf: PIdAnsiChar; size: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  SSL_get_read_ahead: function (const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_pending: function (const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_has_pending: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_set_fd: function (s: PSSL; fd: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_set_rfd: function (s: PSSL; fd: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_set_wfd: function (s: PSSL; fd: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_set0_rbio: procedure (s: PSSL; rbio: PBIO); cdecl = nil; {introduced 1.1.0}
+  SSL_set0_wbio: procedure (s: PSSL; wbio: PBIO); cdecl = nil; {introduced 1.1.0}
+  SSL_set_bio: procedure (s: PSSL; rbio: PBIO; wbio: PBIO); cdecl = nil;
+  SSL_get_rbio: function (const s: PSSL): PBIO; cdecl = nil;
+  SSL_get_wbio: function (const s: PSSL): PBIO; cdecl = nil;
+  SSL_set_cipher_list: function (s: PSSL; const str: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_ciphersuites: function (ctx: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_set_ciphersuites: function (s: PSSL; const str: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_verify_mode: function (const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_get_verify_depth: function (const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_get_verify_callback: function (const s: PSSL): SSL_verify_cb; cdecl = nil;
+  SSL_set_read_ahead: procedure (s: PSSL; yes: TIdC_INT); cdecl = nil;
+  SSL_set_verify: procedure (s: PSSL; mode: TIdC_INT; callback: SSL_verify_cb); cdecl = nil;
+  SSL_set_verify_depth: procedure (s: PSSL; depth: TIdC_INT); cdecl = nil;
   //void SSL_set_cert_cb(s: PSSL, TIdC_INT (*cb) (ssl: PSSL, void *arg), void *arg);
 
-  SSL_use_RSAPrivateKey: function(ssl: PSSL; rsa: PRSA): TIdC_INT; cdecl = nil;
-  SSL_use_RSAPrivateKey_ASN1: function(ssl: PSSL; const d: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
-  SSL_use_PrivateKey: function(ssl: PSSL; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
-  SSL_use_PrivateKey_ASN1: function(pk: TIdC_INT; ssl: PSSL; const d: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
-  SSL_use_certificate: function(ssl: PSSL; x: PX509): TIdC_INT; cdecl = nil;
-  SSL_use_certificate_ASN1: function(ssl: PSSL; const d: PByte; len: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_use_RSAPrivateKey: function (ssl: PSSL; rsa: PRSA): TIdC_INT; cdecl = nil;
+  SSL_use_RSAPrivateKey_ASN1: function (ssl: PSSL; const d: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
+  SSL_use_PrivateKey: function (ssl: PSSL; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
+  SSL_use_PrivateKey_ASN1: function (pk: TIdC_INT; ssl: PSSL; const d: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
+  SSL_use_certificate: function (ssl: PSSL; x: PX509): TIdC_INT; cdecl = nil;
+  SSL_use_certificate_ASN1: function (ssl: PSSL; const d: PByte; len: TIdC_INT): TIdC_INT; cdecl = nil;
   //__owur TIdC_INT SSL_use_cert_and_key(ssl: PSSL, x509: PX509, EVP_PKEY *privatekey,
   //                                STACK_OF(X509) *chain, TIdC_INT override);
 
   (* Set serverinfo data for the current active cert. *)
-  SSL_CTX_use_serverinfo: function(ctx: PSSL_CTX; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  SSL_CTX_use_serverinfo_ex: function(ctx: PSSL_CTX; version: TIdC_UINT; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_use_serverinfo_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_serverinfo: function (ctx: PSSL_CTX; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_serverinfo_ex: function (ctx: PSSL_CTX; version: TIdC_UINT; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_use_serverinfo_file: function (ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT; cdecl = nil;
 
-  SSL_use_RSAPrivateKey_file: function(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_use_RSAPrivateKey_file: function (ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  SSL_use_PrivateKey_file: function(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_use_certificate_file: function(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_use_PrivateKey_file: function (ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_use_certificate_file: function (ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  SSL_CTX_use_RSAPrivateKey_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_RSAPrivateKey_file: function (ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  SSL_CTX_use_PrivateKey_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_CTX_use_certificate_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_PrivateKey_file: function (ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_certificate_file: function (ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
   (* PEM type *)
-  SSL_CTX_use_certificate_chain_file: function(ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  SSL_use_certificate_chain_file: function(ssl: PSSL; const file_: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_load_client_CA_file: function(const file_: PIdAnsiChar): PSTACK_OF_X509_NAME; cdecl = nil;
-  SSL_add_file_cert_subjects_to_stack: function(stackCAs: PSTACK_OF_X509_NAME; const file_: PIdAnsiChar):TIdC_INT; cdecl = nil;
-  SSL_add_dir_cert_subjects_to_stack: function(stackCAs: PSTACK_OF_X509_NAME; const dir_: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_certificate_chain_file: function (ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_use_certificate_chain_file: function (ssl: PSSL; const file_: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_load_client_CA_file: function (const file_: PIdAnsiChar): PSTACK_OF_X509_NAME; cdecl = nil;
+  SSL_add_file_cert_subjects_to_stack: function (stackCAs: PSTACK_OF_X509_NAME; const file_: PIdAnsiChar):TIdC_INT; cdecl = nil;
+  SSL_add_dir_cert_subjects_to_stack: function (stackCAs: PSTACK_OF_X509_NAME; const dir_: PIdAnsiChar): TIdC_INT; cdecl = nil;
 
   //# if OPENSSL_API_COMPAT < 0x10100000L
   //#  define SSL_load_error_strings() \
   //    OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS \
   //                     | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
   //# endif
-  SSL_load_error_strings: procedure; cdecl = nil; {removed 1.1.0}
+  SSL_load_error_strings: procedure ; cdecl = nil; {removed 1.1.0}
 
-  SSL_state_string: function(const s: PSSL): PIdAnsiChar; cdecl = nil;
-  SSL_rstate_string: function(const s: PSSL): PIdAnsiChar; cdecl = nil;
-  SSL_state_string_long: function(const s: PSSL): PIdAnsiChar; cdecl = nil;
-  SSL_rstate_string_long: function(const s: PSSL): PIdAnsiChar; cdecl = nil;
-  SSL_SESSION_get_time: function(const s: PSSL_SESSION): TIdC_LONG; cdecl = nil;
-  SSL_SESSION_set_time: function(s: PSSL_SESSION; t: TIdC_LONG): TIdC_LONG; cdecl = nil;
-  SSL_SESSION_get_timeout: function(const s: PSSL_SESSION): TIdC_LONG; cdecl = nil;
-  SSL_SESSION_set_timeout: function(s: PSSL_SESSION; t: TIdC_LONG): TIdC_LONG; cdecl = nil;
-  SSL_SESSION_get_protocol_version: function(const s: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_set_protocol_version: function(s: PSSL_SESSION; version: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_state_string: function (const s: PSSL): PIdAnsiChar; cdecl = nil;
+  SSL_rstate_string: function (const s: PSSL): PIdAnsiChar; cdecl = nil;
+  SSL_state_string_long: function (const s: PSSL): PIdAnsiChar; cdecl = nil;
+  SSL_rstate_string_long: function (const s: PSSL): PIdAnsiChar; cdecl = nil;
+  SSL_SESSION_get_time: function (const s: PSSL_SESSION): TIdC_LONG; cdecl = nil;
+  SSL_SESSION_set_time: function (s: PSSL_SESSION; t: TIdC_LONG): TIdC_LONG; cdecl = nil;
+  SSL_SESSION_get_timeout: function (const s: PSSL_SESSION): TIdC_LONG; cdecl = nil;
+  SSL_SESSION_set_timeout: function (s: PSSL_SESSION; t: TIdC_LONG): TIdC_LONG; cdecl = nil;
+  SSL_SESSION_get_protocol_version: function (const s: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_set_protocol_version: function (s: PSSL_SESSION; version: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_SESSION_get0_hostname: function(const s: PSSL_SESSION): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_set1_hostname: function(s: PSSL_SESSION; const hostname: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get0_alpn_selected: procedure(const s: PSSL_SESSION; const alpn: PPByte; len: PIdC_SIZET); cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_set1_alpn_selected: function(s: PSSL_SESSION; const alpn: PByte; len: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get0_cipher: function(const s: PSSL_SESSION): PSSL_CIPHER; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_set_cipher: function(s: PSSL_SESSION; const cipher: PSSL_CIPHER): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_has_ticket: function(const s: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get_ticket_lifetime_hint: function(const s: PSSL_SESSION): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get0_ticket: procedure(const s: PSSL_SESSION; const tick: PPByte; len: PIdC_SIZET); cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get_max_early_data: function(const s: PSSL_SESSION): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_set_max_early_data: function(s: PSSL_SESSION; max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_copy_session_id: function(to_: PSSL; const from: PSSL): TIdC_INT; cdecl = nil;
-  SSL_SESSION_get0_peer: function(s: PSSL_SESSION): PX509; cdecl = nil;
-  SSL_SESSION_set1_id_context: function(s: PSSL_SESSION; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT; cdecl = nil;
-  SSL_SESSION_set1_id: function(s: PSSL_SESSION; const sid: PByte; sid_len: TIdC_UINT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_is_resumable: function(const s: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get0_hostname: function (const s: PSSL_SESSION): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_set1_hostname: function (s: PSSL_SESSION; const hostname: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get0_alpn_selected: procedure (const s: PSSL_SESSION; const alpn: PPByte; len: PIdC_SIZET); cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_set1_alpn_selected: function (s: PSSL_SESSION; const alpn: PByte; len: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get0_cipher: function (const s: PSSL_SESSION): PSSL_CIPHER; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_set_cipher: function (s: PSSL_SESSION; const cipher: PSSL_CIPHER): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_has_ticket: function (const s: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get_ticket_lifetime_hint: function (const s: PSSL_SESSION): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get0_ticket: procedure (const s: PSSL_SESSION; const tick: PPByte; len: PIdC_SIZET); cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get_max_early_data: function (const s: PSSL_SESSION): TIdC_UINT32; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_set_max_early_data: function (s: PSSL_SESSION; max_early_data: TIdC_UINT32): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_copy_session_id: function (to_: PSSL; const from: PSSL): TIdC_INT; cdecl = nil;
+  SSL_SESSION_get0_peer: function (s: PSSL_SESSION): PX509; cdecl = nil;
+  SSL_SESSION_set1_id_context: function (s: PSSL_SESSION; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT; cdecl = nil;
+  SSL_SESSION_set1_id: function (s: PSSL_SESSION; const sid: PByte; sid_len: TIdC_UINT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_is_resumable: function (const s: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_SESSION_new: function: PSSL_SESSION; cdecl = nil;
-  SSL_SESSION_dup: function(src: PSSL_SESSION): PSSL_SESSION; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get_id: function(const s: PSSL_SESSION; len: PIdC_UINT): PByte; cdecl = nil;
-  SSL_SESSION_get0_id_context: function(const s: PSSL_SESSION; len: PIdC_UINT): PByte; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get_compress_id: function(const s: PSSL_SESSION): TIdC_UINT; cdecl = nil;
-  SSL_SESSION_print: function(fp: PBIO; const ses: PSSL_SESSION): TIdC_INT; cdecl = nil;
-  SSL_SESSION_print_keylog: function(bp: PBIO; const x: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_up_ref: function(ses: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_free: procedure(ses: PSSL_SESSION); cdecl = nil;
+  SSL_SESSION_new: function : PSSL_SESSION; cdecl = nil;
+  SSL_SESSION_dup: function (src: PSSL_SESSION): PSSL_SESSION; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get_id: function (const s: PSSL_SESSION; len: PIdC_UINT): PByte; cdecl = nil;
+  SSL_SESSION_get0_id_context: function (const s: PSSL_SESSION; len: PIdC_UINT): PByte; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get_compress_id: function (const s: PSSL_SESSION): TIdC_UINT; cdecl = nil;
+  SSL_SESSION_print: function (fp: PBIO; const ses: PSSL_SESSION): TIdC_INT; cdecl = nil;
+  SSL_SESSION_print_keylog: function (bp: PBIO; const x: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_up_ref: function (ses: PSSL_SESSION): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_free: procedure (ses: PSSL_SESSION); cdecl = nil;
   //__owur TIdC_INT i2d_SSL_SESSION(SSL_SESSION *in_, Byte **pp);
-  SSL_set_session: function(to_: PSSL; session: PSSL_SESSION): TIdC_INT; cdecl = nil;
-  SSL_CTX_add_session: function(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT; cdecl = nil;
-  SSL_CTX_remove_session: function(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT; cdecl = nil;
-  SSL_CTX_set_generate_session_id: function(ctx: PSSL_CTX; cb: GEN_SESSION_CB): TIdC_INT; cdecl = nil;
-  SSL_set_generate_session_id: function(s: PSSL; cb: GEN_SESSION_CB): TIdC_INT; cdecl = nil;
-  SSL_has_matching_session_id: function(const s: PSSL; const id: PByte; id_len: TIdC_UINT): TIdC_INT; cdecl = nil;
-  d2i_SSL_SESSION: function(a: PPSSL_SESSION; const pp: PPByte; length: TIdC_LONG): PSSL_SESSION; cdecl = nil;
+  SSL_set_session: function (to_: PSSL; session: PSSL_SESSION): TIdC_INT; cdecl = nil;
+  SSL_CTX_add_session: function (ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT; cdecl = nil;
+  SSL_CTX_remove_session: function (ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_generate_session_id: function (ctx: PSSL_CTX; cb: GEN_SESSION_CB): TIdC_INT; cdecl = nil;
+  SSL_set_generate_session_id: function (s: PSSL; cb: GEN_SESSION_CB): TIdC_INT; cdecl = nil;
+  SSL_has_matching_session_id: function (const s: PSSL; const id: PByte; id_len: TIdC_UINT): TIdC_INT; cdecl = nil;
+  d2i_SSL_SESSION: function (a: PPSSL_SESSION; const pp: PPByte; length: TIdC_LONG): PSSL_SESSION; cdecl = nil;
 
-  SSL_get_peer_certificate: function(const s: PSSL): PX509; cdecl = nil; {removed 3.0.0}
+  SSL_get_peer_certificate: function (const s: PSSL): PX509; cdecl = nil; {removed 3.0.0}
 
   //__owur STACK_OF(X509) *SSL_get_peer_cert_chain(const s: PSSL);
   //
-  SSL_CTX_get_verify_mode: function(const ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
-  SSL_CTX_get_verify_depth: function(const ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
-  SSL_CTX_get_verify_callback: function(const ctx: PSSL_CTX): SSL_verify_cb; cdecl = nil;
-  SSL_CTX_set_verify: procedure(ctx: PSSL_CTX; mode: TIdC_INT; callback: SSL_verify_cb); cdecl = nil;
-  SSL_CTX_set_verify_depth: procedure(ctx: PSSL_CTX; depth: TIdC_INT); cdecl = nil;
-  SSL_CTX_set_cert_verify_callback: procedure(ctx: PSSL_CTX; cb: SSL_CTX_set_cert_verify_callback_cb; arg: Pointer); cdecl = nil;
-  SSL_CTX_set_cert_cb: procedure(c: PSSL_CTX; cb: SSL_CTX_set_cert_cb_cb; arg: Pointer); cdecl = nil;
-  SSL_CTX_use_RSAPrivateKey: function(ctx: PSSL_CTX; rsa: PRSA): TIdC_INT; cdecl = nil;
-  SSL_CTX_use_RSAPrivateKey_ASN1: function(ctx: PSSL_CTX; const d: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
-  SSL_CTX_use_PrivateKey: function(ctx: PSSL_CTX; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
-  SSL_CTX_use_PrivateKey_ASN1: function(pk: TIdC_INT; ctx: PSSL_CTX; const d: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
-  SSL_CTX_use_certificate: function(ctx: PSSL_CTX; x: X509): TIdC_INT; cdecl = nil;
-  SSL_CTX_use_certificate_ASN1: function(ctx: PSSL_CTX; len: TIdC_INT; const d: PByte): TIdC_INT; cdecl = nil;
+  SSL_CTX_get_verify_mode: function (const ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
+  SSL_CTX_get_verify_depth: function (const ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
+  SSL_CTX_get_verify_callback: function (const ctx: PSSL_CTX): SSL_verify_cb; cdecl = nil;
+  SSL_CTX_set_verify: procedure (ctx: PSSL_CTX; mode: TIdC_INT; callback: SSL_verify_cb); cdecl = nil;
+  SSL_CTX_set_verify_depth: procedure (ctx: PSSL_CTX; depth: TIdC_INT); cdecl = nil;
+  SSL_CTX_set_cert_verify_callback: procedure (ctx: PSSL_CTX; cb: SSL_CTX_set_cert_verify_callback_cb; arg: Pointer); cdecl = nil;
+  SSL_CTX_set_cert_cb: procedure (c: PSSL_CTX; cb: SSL_CTX_set_cert_cb_cb; arg: Pointer); cdecl = nil;
+  SSL_CTX_use_RSAPrivateKey: function (ctx: PSSL_CTX; rsa: PRSA): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_RSAPrivateKey_ASN1: function (ctx: PSSL_CTX; const d: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_PrivateKey: function (ctx: PSSL_CTX; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_PrivateKey_ASN1: function (pk: TIdC_INT; ctx: PSSL_CTX; const d: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_certificate: function (ctx: PSSL_CTX; x: X509): TIdC_INT; cdecl = nil;
+  SSL_CTX_use_certificate_ASN1: function (ctx: PSSL_CTX; len: TIdC_INT; const d: PByte): TIdC_INT; cdecl = nil;
   //function TIdC_INT SSL_CTX_use_cert_and_key(ctx: PSSL_CTX; x509: PX509; EVP_PKEY *privatekey; STACK_OF(X509) *chain; TIdC_INT override);
 
-  SSL_CTX_set_default_passwd_cb: procedure(ctx: PSSL_CTX; cb: pem_password_cb); cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_default_passwd_cb_userdata: procedure(ctx: PSSL_CTX; u: Pointer); cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_get_default_passwd_cb: function(ctx: PSSL_CTX): pem_password_cb; cdecl = nil;  {introduced 1.1.0}
-  SSL_CTX_get_default_passwd_cb_userdata: function(ctx: PSSL_CTX): Pointer; cdecl = nil; {introduced 1.1.0}
-  SSL_set_default_passwd_cb: procedure(s: PSSL; cb: pem_password_cb); cdecl = nil; {introduced 1.1.0}
-  SSL_set_default_passwd_cb_userdata: procedure(s: PSSL; u: Pointer); cdecl = nil; {introduced 1.1.0}
-  SSL_get_default_passwd_cb: function(s: PSSL): pem_password_cb; cdecl = nil; {introduced 1.1.0}
-  SSL_get_default_passwd_cb_userdata: function(s: PSSL): Pointer; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_default_passwd_cb: procedure (ctx: PSSL_CTX; cb: pem_password_cb); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_default_passwd_cb_userdata: procedure (ctx: PSSL_CTX; u: Pointer); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_get_default_passwd_cb: function (ctx: PSSL_CTX): pem_password_cb; cdecl = nil;  {introduced 1.1.0}
+  SSL_CTX_get_default_passwd_cb_userdata: function (ctx: PSSL_CTX): Pointer; cdecl = nil; {introduced 1.1.0}
+  SSL_set_default_passwd_cb: procedure (s: PSSL; cb: pem_password_cb); cdecl = nil; {introduced 1.1.0}
+  SSL_set_default_passwd_cb_userdata: procedure (s: PSSL; u: Pointer); cdecl = nil; {introduced 1.1.0}
+  SSL_get_default_passwd_cb: function (s: PSSL): pem_password_cb; cdecl = nil; {introduced 1.1.0}
+  SSL_get_default_passwd_cb_userdata: function (s: PSSL): Pointer; cdecl = nil; {introduced 1.1.0}
 
-  SSL_CTX_check_private_key: function(const ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
-  SSL_check_private_key: function(const ctx: PSSL): TIdC_INT; cdecl = nil;
+  SSL_CTX_check_private_key: function (const ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
+  SSL_check_private_key: function (const ctx: PSSL): TIdC_INT; cdecl = nil;
 
-  SSL_CTX_set_session_id_context: function(ctx: PSSL_CTX; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_session_id_context: function (ctx: PSSL_CTX; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT; cdecl = nil;
 
-  SSL_new: function(ctx: PSSL_CTX): PSSL; cdecl = nil;
-  SSL_up_ref: function(s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_is_dtls: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_set_session_id_context: function(ssl: PSSL; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT; cdecl = nil;
+  SSL_new: function (ctx: PSSL_CTX): PSSL; cdecl = nil;
+  SSL_up_ref: function (s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_is_dtls: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_set_session_id_context: function (ssl: PSSL; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT; cdecl = nil;
 
-  SSL_CTX_set_purpose: function(ctx: PSSL_CTX; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_set_purpose: function(ssl: PSSL; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_CTX_set_trust: function(ctx: PSSL_CTX; trust: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_set_trust: function(ssl: PSSL; trust: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_purpose: function (ctx: PSSL_CTX; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_set_purpose: function (ssl: PSSL; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_trust: function (ctx: PSSL_CTX; trust: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_set_trust: function (ssl: PSSL; trust: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  SSL_set1_host: function(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_add1_host: function(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get0_peername: function(s: PSSL): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
-  SSL_set_hostflags: procedure(s: PSSL; flags: TIdC_UINT); cdecl = nil; {introduced 1.1.0}
+  SSL_set1_host: function (s: PSSL; const hostname: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_add1_host: function (s: PSSL; const hostname: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get0_peername: function (s: PSSL): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
+  SSL_set_hostflags: procedure (s: PSSL; flags: TIdC_UINT); cdecl = nil; {introduced 1.1.0}
 
-  SSL_CTX_dane_enable: function(ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_dane_mtype_set: function(ctx: PSSL_CTX; const md: PEVP_MD; mtype: TIdC_UINT8; ord: TIdC_UINT8): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_dane_enable: function(s: PSSL; const basedomain: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_dane_tlsa_add: function(s: PSSL; usage: TIdC_UINT8; selector: TIdC_UINT8; mtype: TIdC_UINT8; const data: PByte; dlen: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get0_dane_authority: function(s: PSSL; mcert: PPX509; mspki: PPEVP_PKEY): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get0_dane_tlsa: function(s: PSSL; usage: PIdC_UINT8; selector: PIdC_UINT8; mtype: PIdC_UINT8; const data: PPByte; dlen: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_dane_enable: function (ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_dane_mtype_set: function (ctx: PSSL_CTX; const md: PEVP_MD; mtype: TIdC_UINT8; ord: TIdC_UINT8): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_dane_enable: function (s: PSSL; const basedomain: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_dane_tlsa_add: function (s: PSSL; usage: TIdC_UINT8; selector: TIdC_UINT8; mtype: TIdC_UINT8; const data: PByte; dlen: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get0_dane_authority: function (s: PSSL; mcert: PPX509; mspki: PPEVP_PKEY): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get0_dane_tlsa: function (s: PSSL; usage: PIdC_UINT8; selector: PIdC_UINT8; mtype: PIdC_UINT8; const data: PPByte; dlen: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
   (*
    * Bridge opacity barrier between libcrypt and libssl, also needed to support
    * offline testing in test/danetest.c
    *)
-  SSL_get0_dane: function(ssl: PSSL): PSSL_DANE; cdecl = nil; {introduced 1.1.0}
+  SSL_get0_dane: function (ssl: PSSL): PSSL_DANE; cdecl = nil; {introduced 1.1.0}
 
   (*
    * DANE flags
    *)
-  SSL_CTX_dane_set_flags: function(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_dane_clear_flags: function(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
-  SSL_dane_set_flags: function(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
-  SSL_dane_clear_flags: function(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_dane_set_flags: function (ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_dane_clear_flags: function (ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_dane_set_flags: function (ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
+  SSL_dane_clear_flags: function (ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG; cdecl = nil; {introduced 1.1.0}
 
-  SSL_CTX_set1_param: function(ctx: PSSL_CTX; vpm: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
-  SSL_set1_param: function(ssl: PSSL; vpm: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
+  SSL_CTX_set1_param: function (ctx: PSSL_CTX; vpm: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
+  SSL_set1_param: function (ssl: PSSL; vpm: PX509_VERIFY_PARAM): TIdC_INT; cdecl = nil;
 
-  SSL_CTX_get0_param: function(ctx: PSSL_CTX): PX509_VERIFY_PARAM; cdecl = nil;
-  SSL_get0_param: function(ssl: PSSL): PX509_VERIFY_PARAM; cdecl = nil;
+  SSL_CTX_get0_param: function (ctx: PSSL_CTX): PX509_VERIFY_PARAM; cdecl = nil;
+  SSL_get0_param: function (ssl: PSSL): PX509_VERIFY_PARAM; cdecl = nil;
 
-  SSL_CTX_set_srp_username: function(ctx: PSSL_CTX; name: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  SSL_CTX_set_srp_password: function(ctx: PSSL_CTX; password: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  SSL_CTX_set_srp_strength: function(ctx: PSSL_CTX; strength: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_srp_username: function (ctx: PSSL_CTX; name: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_srp_password: function (ctx: PSSL_CTX; password: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_srp_strength: function (ctx: PSSL_CTX; strength: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  SSL_CTX_set_srp_client_pwd_callback: function(ctx: PSSL_CTX; cb: SSL_CTX_set_srp_client_pwd_callback_cb): TIdC_INT; cdecl = nil;
-  SSL_CTX_set_srp_verify_param_callback: function(ctx: PSSL_CTX; cb: SSL_CTX_set_srp_verify_param_callback_cb): TIdC_INT; cdecl = nil;
-  SSL_CTX_set_srp_username_callback: function(ctx: PSSL_CTX; cb: SSL_CTX_set_srp_username_callback_cb): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_srp_client_pwd_callback: function (ctx: PSSL_CTX; cb: SSL_CTX_set_srp_client_pwd_callback_cb): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_srp_verify_param_callback: function (ctx: PSSL_CTX; cb: SSL_CTX_set_srp_verify_param_callback_cb): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_srp_username_callback: function (ctx: PSSL_CTX; cb: SSL_CTX_set_srp_username_callback_cb): TIdC_INT; cdecl = nil;
 
-  SSL_CTX_set_srp_cb_arg: function(ctx: PSSL_CTX; arg: Pointer): TIdC_INT; cdecl = nil;
-  SSL_set_srp_server_param: function(s: PSSL; const N: PBIGNUm; const g: PBIGNUm; sa: PBIGNUm; v: PBIGNUm; info: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  SSL_set_srp_server_param_pw: function(s: PSSL; const user: PIdAnsiChar; const pass: PIdAnsiChar; const grp: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_srp_cb_arg: function (ctx: PSSL_CTX; arg: Pointer): TIdC_INT; cdecl = nil;
+  SSL_set_srp_server_param: function (s: PSSL; const N: PBIGNUm; const g: PBIGNUm; sa: PBIGNUm; v: PBIGNUm; info: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_set_srp_server_param_pw: function (s: PSSL; const user: PIdAnsiChar; const pass: PIdAnsiChar; const grp: PIdAnsiChar): TIdC_INT; cdecl = nil;
 
   //__owur BIGNUM *SSL_get_srp_g(s: PSSL);
   //__owur BIGNUM *SSL_get_srp_N(s: PSSL);
@@ -2204,54 +2206,54 @@ var
   ///*
   // * ClientHello callback and helpers.
   // */
-  SSL_CTX_set_client_hello_cb: procedure(c: PSSL_CTX; cb: SSL_client_hello_cb_fn; arg: Pointer); cdecl = nil; {introduced 1.1.0}
-  SSL_client_hello_isv2: function(s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_client_hello_get0_legacy_version: function(s: PSSL): TIdC_UINT; cdecl = nil; {introduced 1.1.0}
-  SSL_client_hello_get0_random: function(s: PSSL; const out_: PPByte): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
-  SSL_client_hello_get0_session_id: function(s: PSSL; const out_: PPByte): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
-  SSL_client_hello_get0_ciphers: function(s: PSSL; const out_: PPByte): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
-  SSL_client_hello_get0_compression_methods: function(s: PSSL; const out_: PPByte): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
-  SSL_client_hello_get1_extensions_present: function(s: PSSL; out_: PPIdC_INT; outlen: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_client_hello_get0_ext: function(s: PSSL; type_: TIdC_UINT; const out_: PPByte; outlen: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_certs_clear: procedure(s: PSSL); cdecl = nil;
-  SSL_free: procedure(ssl: PSSL); cdecl = nil;
+  SSL_CTX_set_client_hello_cb: procedure (c: PSSL_CTX; cb: SSL_client_hello_cb_fn; arg: Pointer); cdecl = nil; {introduced 1.1.0}
+  SSL_client_hello_isv2: function (s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_client_hello_get0_legacy_version: function (s: PSSL): TIdC_UINT; cdecl = nil; {introduced 1.1.0}
+  SSL_client_hello_get0_random: function (s: PSSL; const out_: PPByte): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  SSL_client_hello_get0_session_id: function (s: PSSL; const out_: PPByte): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  SSL_client_hello_get0_ciphers: function (s: PSSL; const out_: PPByte): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  SSL_client_hello_get0_compression_methods: function (s: PSSL; const out_: PPByte): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  SSL_client_hello_get1_extensions_present: function (s: PSSL; out_: PPIdC_INT; outlen: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_client_hello_get0_ext: function (s: PSSL; type_: TIdC_UINT; const out_: PPByte; outlen: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_certs_clear: procedure (s: PSSL); cdecl = nil;
+  SSL_free: procedure (ssl: PSSL); cdecl = nil;
 
   (*
    * Windows application developer has to include windows.h to use these.
    *)
-  SSL_waiting_for_async: function(s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get_all_async_fds: function(s: PSSL; fds: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get_changed_async_fds: function(s: PSSL; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_accept: function(ssl: PSSL): TIdC_INT; cdecl = nil;
-  SSL_stateless: function(s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_connect: function(ssl: PSSL): TIdC_INT; cdecl = nil;
-  SSL_read: function(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_read_ex: function(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_waiting_for_async: function (s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_all_async_fds: function (s: PSSL; fds: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_changed_async_fds: function (s: PSSL; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_accept: function (ssl: PSSL): TIdC_INT; cdecl = nil;
+  SSL_stateless: function (s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_connect: function (ssl: PSSL): TIdC_INT; cdecl = nil;
+  SSL_read: function (ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_read_ex: function (ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_read_early_data: function(s: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_peek: function(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_peek_ex: function(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_write: function(ssl: PSSL; const buf: Pointer; num: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_write_ex: function(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_write_early_data: function(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_callback_ctrl: function(v1: PSSL; v2: TIdC_INT; v3: SSL_callback_ctrl_v3): TIdC_LONG; cdecl = nil;
+  SSL_read_early_data: function (s: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_peek: function (ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_peek_ex: function (ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_write: function (ssl: PSSL; const buf: Pointer; num: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_write_ex: function (s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_write_early_data: function (s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_callback_ctrl: function (v1: PSSL; v2: TIdC_INT; v3: SSL_callback_ctrl_v3): TIdC_LONG; cdecl = nil;
 
-  SSL_ctrl: function(ssl: PSSL; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG; cdecl = nil;
-  SSL_CTX_ctrl: function(ctx: PSSL_CTX; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG; cdecl = nil;
-  SSL_CTX_callback_ctrl: function(v1: PSSL_CTX; v2: TIdC_INT; v3: SSL_CTX_callback_ctrl_v3): TIdC_LONG; cdecl = nil;
+  SSL_ctrl: function (ssl: PSSL; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG; cdecl = nil;
+  SSL_CTX_ctrl: function (ctx: PSSL_CTX; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG; cdecl = nil;
+  SSL_CTX_callback_ctrl: function (v1: PSSL_CTX; v2: TIdC_INT; v3: SSL_CTX_callback_ctrl_v3): TIdC_LONG; cdecl = nil;
 
-  SSL_get_early_data_status: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_early_data_status: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_get_error: function(const s: PSSL; ret_code: TIdC_INT): TIdC_INT; cdecl = nil;
-  SSL_get_version: function(const s: PSSL): PIdAnsiChar; cdecl = nil;
+  SSL_get_error: function (const s: PSSL; ret_code: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_get_version: function (const s: PSSL): PIdAnsiChar; cdecl = nil;
 
   (* This sets the 'default' SSL version that SSL_new() will create *)
-  SSL_CTX_set_ssl_version: function(ctx: PSSL_CTX; const meth: PSSL_METHOD): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_ssl_version: function (ctx: PSSL_CTX; const meth: PSSL_METHOD): TIdC_INT; cdecl = nil;
 
   ///* Negotiate highest available SSL/TLS version */
-  TLS_method: function: PSSL_METHOD; cdecl = nil; {introduced 1.1.0}
-  TLS_server_method: function: PSSL_METHOD; cdecl = nil; {introduced 1.1.0}
-  TLS_client_method: function: PSSL_METHOD; cdecl = nil; {introduced 1.1.0}
+  TLS_method: function : PSSL_METHOD; cdecl = nil; {introduced 1.1.0}
+  TLS_server_method: function : PSSL_METHOD; cdecl = nil; {introduced 1.1.0}
+  TLS_client_method: function : PSSL_METHOD; cdecl = nil; {introduced 1.1.0}
 
   //__owur const SSL_METHOD *DTLS_method(void); /* DTLS 1.0 and 1.2 */
   //__owur const SSL_METHOD *DTLS_server_method(void); /* DTLS 1.0 and 1.2 */
@@ -2265,24 +2267,24 @@ var
   //__owur STACK_OF(SSL_CIPHER) *SSL_get1_supported_ciphers(s: PSSL);
   //
   //__owur TIdC_INT SSL_do_handshake(s: PSSL);
-  SSL_key_update: function(s: PSSL; updatetype: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get_key_update_type: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_renegotiate: function(s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_renegotiate_abbreviated: function(s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_shutdown: function(s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_CTX_set_post_handshake_auth: procedure(ctx: PSSL_CTX; val: TIdC_INT); cdecl = nil; {introduced 1.1.0}
-  SSL_set_post_handshake_auth: procedure(s: PSSL; val: TIdC_INT); cdecl = nil; {introduced 1.1.0}
+  SSL_key_update: function (s: PSSL; updatetype: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_key_update_type: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_renegotiate: function (s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_renegotiate_abbreviated: function (s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_shutdown: function (s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_post_handshake_auth: procedure (ctx: PSSL_CTX; val: TIdC_INT); cdecl = nil; {introduced 1.1.0}
+  SSL_set_post_handshake_auth: procedure (s: PSSL; val: TIdC_INT); cdecl = nil; {introduced 1.1.0}
 
-  SSL_renegotiate_pending: function(const s: PSSL): TIdC_INT; cdecl = nil;
-  SSL_verify_client_post_handshake: function(s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_renegotiate_pending: function (const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_verify_client_post_handshake: function (s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_CTX_get_ssl_method: function(const ctx: PSSL_CTX): PSSL_METHOD; cdecl = nil;
-  SSL_get_ssl_method: function(const s: PSSL): PSSL_METHOD; cdecl = nil;
-  SSL_set_ssl_method: function(s: PSSL; const method: PSSL_METHOD): TIdC_INT; cdecl = nil;
-  SSL_alert_type_string_long: function(value: TIdC_INT): PIdAnsiChar; cdecl = nil;
-  SSL_alert_type_string: function(value: TIdC_INT): PIdAnsiChar; cdecl = nil;
-  SSL_alert_desc_string_long: function(value: TIdC_INT): PIdAnsiChar; cdecl = nil;
-  SSL_alert_desc_string: function(value: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  SSL_CTX_get_ssl_method: function (const ctx: PSSL_CTX): PSSL_METHOD; cdecl = nil;
+  SSL_get_ssl_method: function (const s: PSSL): PSSL_METHOD; cdecl = nil;
+  SSL_set_ssl_method: function (s: PSSL; const method: PSSL_METHOD): TIdC_INT; cdecl = nil;
+  SSL_alert_type_string_long: function (value: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  SSL_alert_type_string: function (value: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  SSL_alert_desc_string_long: function (value: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  SSL_alert_desc_string: function (value: TIdC_INT): PIdAnsiChar; cdecl = nil;
 
   //void SSL_set0_CA_list(s: PSSL, STACK_OF(X509_NAME) *name_list);
   //void SSL_CTX_set0_CA_list(ctx: PSSL_CTX, STACK_OF(X509_NAME) *name_list);
@@ -2297,81 +2299,81 @@ var
   //__owur STACK_OF(X509_NAME) *SSL_get_client_CA_list(const s: PSSL);
   //__owur STACK_OF(X509_NAME) *SSL_CTX_get_client_CA_list(const SSL_CTX *s);
 
-  SSL_CTX_set_client_CA_list: procedure(ctx: PSSL_CTX; name_list: PSTACK_OF_X509_NAME); cdecl = nil;
-  SSL_add_client_CA: function(ssl: PSSL; x: PX509): TIdC_INT; cdecl = nil;
-  SSL_CTX_add_client_CA: function(ctx: PSSL_CTX; x: PX509): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_client_CA_list: procedure (ctx: PSSL_CTX; name_list: PSTACK_OF_X509_NAME); cdecl = nil;
+  SSL_add_client_CA: function (ssl: PSSL; x: PX509): TIdC_INT; cdecl = nil;
+  SSL_CTX_add_client_CA: function (ctx: PSSL_CTX; x: PX509): TIdC_INT; cdecl = nil;
 
-  SSL_set_connect_state: procedure(s: PSSL); cdecl = nil;
-  SSL_set_accept_state: procedure(s: PSSL); cdecl = nil;
+  SSL_set_connect_state: procedure (s: PSSL); cdecl = nil;
+  SSL_set_accept_state: procedure (s: PSSL); cdecl = nil;
 
   //__owur TIdC_LONG SSL_get_default_timeout(const s: PSSL);
   //
   //# if OPENSSL_API_COMPAT < 0x10100000L
   //#  define SSL_library_init() OPENSSL_init_ssl(0, NULL)
   //# endif
-  SSL_library_init: function: TIdC_INT; cdecl = nil; {removed 1.1.0}
+  SSL_library_init: function : TIdC_INT; cdecl = nil; {removed 1.1.0}
 
   //__owur PIdAnsiChar *SSL_CIPHER_description(const SSL_CIPHER *, PIdAnsiChar *buf, TIdC_INT size);
   //__owur STACK_OF(X509_NAME) *SSL_dup_CA_list(const STACK_OF(X509_NAME) *sk);
-  SSL_CIPHER_description: function(cipher: PSSL_CIPHER; buf: PIdAnsiChar; size_ :TIdC_INT): PIdAnsiChar; cdecl = nil;
+  SSL_CIPHER_description: function (cipher: PSSL_CIPHER; buf: PIdAnsiChar; size_ :TIdC_INT): PIdAnsiChar; cdecl = nil;
 
-  SSL_dup: function(ssl: PSSL): PSSL; cdecl = nil;
+  SSL_dup: function (ssl: PSSL): PSSL; cdecl = nil;
 
-  SSL_get_certificate: function(const ssl: PSSL): PX509; cdecl = nil;
+  SSL_get_certificate: function (const ssl: PSSL): PX509; cdecl = nil;
   (*
    * EVP_PKEY
    *)
-  SSL_get_privatekey: function(const ssl: PSSL): PEVP_PKEY; cdecl = nil;
+  SSL_get_privatekey: function (const ssl: PSSL): PEVP_PKEY; cdecl = nil;
 
-  SSL_CTX_get0_certificate: function(const ctx: PSSL_CTX): PX509; cdecl = nil;
-  SSL_CTX_get0_privatekey: function(const ctx: PSSL_CTX): PEVP_PKEY; cdecl = nil;
+  SSL_CTX_get0_certificate: function (const ctx: PSSL_CTX): PX509; cdecl = nil;
+  SSL_CTX_get0_privatekey: function (const ctx: PSSL_CTX): PEVP_PKEY; cdecl = nil;
 
-  SSL_CTX_set_quiet_shutdown: procedure(ctx: PSSL_CTX; mode: TIdC_INT); cdecl = nil;
-  SSL_CTX_get_quiet_shutdown: function(const ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
-  SSL_set_quiet_shutdown: procedure(ssl: PSSL; mode: TIdC_INT); cdecl = nil;
-  SSL_get_quiet_shutdown: function(const ssl: PSSL): TIdC_INT; cdecl = nil;
-  SSL_set_shutdown: procedure(ssl: PSSL; mode: TIdC_INT); cdecl = nil;
-  SSL_get_shutdown: function(const ssl: PSSL): TIdC_INT; cdecl = nil;
-  SSL_version: function(const ssl: PSSL): TIdC_INT; cdecl = nil;
-  SSL_client_version: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_default_verify_paths: function(ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
-  SSL_CTX_set_default_verify_dir: function(ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_default_verify_file: function(ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_load_verify_locations: function(ctx: PSSL_CTX; const CAfile: PIdAnsiChar; const CApath: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_quiet_shutdown: procedure (ctx: PSSL_CTX; mode: TIdC_INT); cdecl = nil;
+  SSL_CTX_get_quiet_shutdown: function (const ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
+  SSL_set_quiet_shutdown: procedure (ssl: PSSL; mode: TIdC_INT); cdecl = nil;
+  SSL_get_quiet_shutdown: function (const ssl: PSSL): TIdC_INT; cdecl = nil;
+  SSL_set_shutdown: procedure (ssl: PSSL; mode: TIdC_INT); cdecl = nil;
+  SSL_get_shutdown: function (const ssl: PSSL): TIdC_INT; cdecl = nil;
+  SSL_version: function (const ssl: PSSL): TIdC_INT; cdecl = nil;
+  SSL_client_version: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_default_verify_paths: function (ctx: PSSL_CTX): TIdC_INT; cdecl = nil;
+  SSL_CTX_set_default_verify_dir: function (ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_default_verify_file: function (ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_load_verify_locations: function (ctx: PSSL_CTX; const CAfile: PIdAnsiChar; const CApath: PIdAnsiChar): TIdC_INT; cdecl = nil;
   //# define SSL_get0_session SSL_get_session/* just peek at pointer */
-  SSL_get_session: function(const ssl: PSSL): PSSL_SESSION; cdecl = nil;
+  SSL_get_session: function (const ssl: PSSL): PSSL_SESSION; cdecl = nil;
   (* obtain a reference count *)
-  SSL_get1_session: function(ssl: PSSL): PSSL_SESSION; cdecl = nil;
-  SSL_get_SSL_CTX: function(const ssl: PSSL): PSSL_CTX; cdecl = nil;
-  SSL_set_SSL_CTX: function(ssl: PSSL; ctx: PSSL_CTX): PSSL_CTX; cdecl = nil;
-  SSL_set_info_callback: procedure(ssl: PSSL; cb: SSL_info_callback); cdecl = nil;
-  SSL_get_info_callback: function(const ssl: PSSL): SSL_info_callback; cdecl = nil;
-  SSL_get_state: function(const ssl: PSSL): OSSL_HANDSHAKE_STATE; cdecl = nil; {introduced 1.1.0}
+  SSL_get1_session: function (ssl: PSSL): PSSL_SESSION; cdecl = nil;
+  SSL_get_SSL_CTX: function (const ssl: PSSL): PSSL_CTX; cdecl = nil;
+  SSL_set_SSL_CTX: function (ssl: PSSL; ctx: PSSL_CTX): PSSL_CTX; cdecl = nil;
+  SSL_set_info_callback: procedure (ssl: PSSL; cb: SSL_info_callback); cdecl = nil;
+  SSL_get_info_callback: function (const ssl: PSSL): SSL_info_callback; cdecl = nil;
+  SSL_get_state: function (const ssl: PSSL): OSSL_HANDSHAKE_STATE; cdecl = nil; {introduced 1.1.0}
 
-  SSL_set_verify_result: procedure(ssl: PSSL; v: TIdC_LONG); cdecl = nil;
-  SSL_get_verify_result: function(const ssl: PSSL): TIdC_LONG; cdecl = nil;
+  SSL_set_verify_result: procedure (ssl: PSSL; v: TIdC_LONG); cdecl = nil;
+  SSL_get_verify_result: function (const ssl: PSSL): TIdC_LONG; cdecl = nil;
   //__owur STACK_OF(X509) *SSL_get0_verified_chain(const s: PSSL);
 
-  SSL_get_client_random: function(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
-  SSL_get_server_random: function(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get_master_key: function(const sess: PSSL_SESSION; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_set1_master_key: function(sess: PSSL_SESSION; const in_: PByte; len: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get_max_fragment_length: function(const sess: PSSL_SESSION): TIdC_UINT8; cdecl = nil; {introduced 1.1.0}
+  SSL_get_client_random: function (const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  SSL_get_server_random: function (const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get_master_key: function (const sess: PSSL_SESSION; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_set1_master_key: function (sess: PSSL_SESSION; const in_: PByte; len: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get_max_fragment_length: function (const sess: PSSL_SESSION): TIdC_UINT8; cdecl = nil; {introduced 1.1.0}
 
   //#define SSL_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_SSL, l, p, newf, dupf, freef)
-  SSL_set_ex_data: function(ssl: PSSL; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
-  SSL_get_ex_data: function(const ssl: PSSL; idx: TIdC_INT): Pointer; cdecl = nil;
+  SSL_set_ex_data: function (ssl: PSSL; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
+  SSL_get_ex_data: function (const ssl: PSSL; idx: TIdC_INT): Pointer; cdecl = nil;
   //#define SSL_SESSION_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_SSL_SESSION, l, p, newf, dupf, freef)
-  SSL_SESSION_set_ex_data: function(ss: PSSL_SESSION; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
-  SSL_SESSION_get_ex_data: function(const ss: PSSL_SESSION; idx: TIdC_INT): Pointer; cdecl = nil;
+  SSL_SESSION_set_ex_data: function (ss: PSSL_SESSION; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
+  SSL_SESSION_get_ex_data: function (const ss: PSSL_SESSION; idx: TIdC_INT): Pointer; cdecl = nil;
   //#define SSL_CTX_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_SSL_CTX, l, p, newf, dupf, freef)
-  SSL_CTX_set_ex_data: function(ssl: PSSL_CTX; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
-  SSL_CTX_get_ex_data: function(const ssl: PSSL_CTX; idx: TIdC_INT): Pointer; cdecl = nil;
+  SSL_CTX_set_ex_data: function (ssl: PSSL_CTX; idx: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
+  SSL_CTX_get_ex_data: function (const ssl: PSSL_CTX; idx: TIdC_INT): Pointer; cdecl = nil;
 
-  SSL_get_ex_data_X509_STORE_CTX_idx: function: TIdC_INT; cdecl = nil;
+  SSL_get_ex_data_X509_STORE_CTX_idx: function : TIdC_INT; cdecl = nil;
 
   //# define SSL_CTX_get_default_read_ahead(ctx) SSL_CTX_get_read_ahead(ctx)
   //# define SSL_CTX_set_default_read_ahead(ctx,m) SSL_CTX_set_read_ahead(ctx,m)
@@ -2401,11 +2403,11 @@ var
   //# define SSL_set_max_pipelines(ssl,m) \
   //        SSL_ctrl(ssl,SSL_CTRL_SET_MAX_PIPELINES,m,NULL)
 
-  SSL_CTX_set_default_read_buffer_len: procedure(ctx: PSSL_CTX; len: TIdC_SIZET); cdecl = nil; {introduced 1.1.0}
-  SSL_set_default_read_buffer_len: procedure(s: PSSL; len: TIdC_SIZET); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_default_read_buffer_len: procedure (ctx: PSSL_CTX; len: TIdC_SIZET); cdecl = nil; {introduced 1.1.0}
+  SSL_set_default_read_buffer_len: procedure (s: PSSL; len: TIdC_SIZET); cdecl = nil; {introduced 1.1.0}
 
-  SSL_CTX_set_tmp_dh_callback: procedure(ctx: PSSL_CTX; dh: SSL_CTX_set_tmp_dh_callback_dh); cdecl = nil;
-  SSL_set_tmp_dh_callback: procedure(ssl: PSSL; dh: SSL_set_tmp_dh_callback_dh); cdecl = nil;
+  SSL_CTX_set_tmp_dh_callback: procedure (ctx: PSSL_CTX; dh: SSL_CTX_set_tmp_dh_callback_dh); cdecl = nil;
+  SSL_set_tmp_dh_callback: procedure (ssl: PSSL; dh: SSL_set_tmp_dh_callback_dh); cdecl = nil;
 
   //__owur const COMP_METHOD *SSL_get_current_compression(const s: PSSL);
   //__owur const COMP_METHOD *SSL_get_current_expansion(const s: PSSL);
@@ -2420,67 +2422,67 @@ var
   //# endif
   //__owur TIdC_INT SSL_COMP_add_compression_method(TIdC_INT id, COMP_METHOD *cm);
 
-  SSL_CIPHER_find: function(ssl: PSSL; const ptr: PByte): PSSL_CIPHER; cdecl = nil;
-  SSL_CIPHER_get_cipher_nid: function(const c: PSSL_CIPHEr): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CIPHER_get_digest_nid: function(const c: PSSL_CIPHEr): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CIPHER_find: function (ssl: PSSL; const ptr: PByte): PSSL_CIPHER; cdecl = nil;
+  SSL_CIPHER_get_cipher_nid: function (const c: PSSL_CIPHEr): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CIPHER_get_digest_nid: function (const c: PSSL_CIPHEr): TIdC_INT; cdecl = nil; {introduced 1.1.0}
   //TIdC_INT SSL_bytes_to_cipher_list(s: PSSL, const Byte *bytes, TIdC_SIZET len,
   //                             TIdC_INT isv2format, STACK_OF(SSL_CIPHER) **sk,
   //                             STACK_OF(SSL_CIPHER) **scsvs);
 
   (* TLS extensions functions *)
-  SSL_set_session_ticket_ext: function(s: PSSL; ext_data: Pointer; ext_len: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_set_session_ticket_ext: function (s: PSSL; ext_data: Pointer; ext_len: TIdC_INT): TIdC_INT; cdecl = nil;
   //
-  SSL_set_session_ticket_ext_cb: function(s: PSSL; cb: tls_session_ticket_ext_cb_fn; arg: Pointer): TIdC_INT; cdecl = nil;
+  SSL_set_session_ticket_ext_cb: function (s: PSSL; cb: tls_session_ticket_ext_cb_fn; arg: Pointer): TIdC_INT; cdecl = nil;
 
   ///* Pre-shared secret session resumption functions */
   //__owur TIdC_INT SSL_set_session_secret_cb(s: PSSL,
   //                                     tls_session_secret_cb_fn session_secret_cb,
   //                                     void *arg);
 
-  SSL_CTX_set_not_resumable_session_callback: procedure(ctx: PSSL_CTX; cb: SSL_CTX_set_not_resumable_session_callback_cb); cdecl = nil; {introduced 1.1.0}
-  SSL_set_not_resumable_session_callback: procedure(ssl: PSSL; cb: SSL_set_not_resumable_session_callback_cb); cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_record_padding_callback: procedure(ctx: PSSL_CTX; cb: SSL_CTX_set_record_padding_callback_cb); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_not_resumable_session_callback: procedure (ctx: PSSL_CTX; cb: SSL_CTX_set_not_resumable_session_callback_cb); cdecl = nil; {introduced 1.1.0}
+  SSL_set_not_resumable_session_callback: procedure (ssl: PSSL; cb: SSL_set_not_resumable_session_callback_cb); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_record_padding_callback: procedure (ctx: PSSL_CTX; cb: SSL_CTX_set_record_padding_callback_cb); cdecl = nil; {introduced 1.1.0}
 
-  SSL_CTX_set_record_padding_callback_arg: procedure(ctx: PSSL_CTX; arg: Pointer); cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_get_record_padding_callback_arg: function(const ctx: PSSL_CTX): Pointer; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_block_padding: function(ctx: PSSL_CTX; block_size: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_record_padding_callback_arg: procedure (ctx: PSSL_CTX; arg: Pointer); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_get_record_padding_callback_arg: function (const ctx: PSSL_CTX): Pointer; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_block_padding: function (ctx: PSSL_CTX; block_size: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_set_record_padding_callback: procedure(ssl: PSSL; cb: SSL_set_record_padding_callback_cb); cdecl = nil; {introduced 1.1.0}
+  SSL_set_record_padding_callback: procedure (ssl: PSSL; cb: SSL_set_record_padding_callback_cb); cdecl = nil; {introduced 1.1.0}
 
-  SSL_set_record_padding_callback_arg: procedure(ssl: PSSL; arg: Pointer); cdecl = nil; {introduced 1.1.0}
-  SSL_get_record_padding_callback_arg: function(const ssl: PSSL): Pointer; cdecl = nil; {introduced 1.1.0}
-  SSL_set_block_padding: function(ssl: PSSL; block_size: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_set_num_tickets: function(s: PSSL; num_tickets: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get_num_tickets: function(const s: PSSL): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_num_tickets: function(ctx: PSSL_CTX; num_tickets: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_get_num_tickets: function(const ctx: PSSL_CTX): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  SSL_set_record_padding_callback_arg: procedure (ssl: PSSL; arg: Pointer); cdecl = nil; {introduced 1.1.0}
+  SSL_get_record_padding_callback_arg: function (const ssl: PSSL): Pointer; cdecl = nil; {introduced 1.1.0}
+  SSL_set_block_padding: function (ssl: PSSL; block_size: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_set_num_tickets: function (s: PSSL; num_tickets: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_num_tickets: function (const s: PSSL): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_num_tickets: function (ctx: PSSL_CTX; num_tickets: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_get_num_tickets: function (const ctx: PSSL_CTX): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
 
   //# if OPENSSL_API_COMPAT < 0x10100000L
   //#  define SSL_cache_hit(s) SSL_session_reused(s)
   //# endif
 
-  SSL_session_reused: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_is_server: function(const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_session_reused: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_is_server: function (const s: PSSL): TIdC_INT; cdecl = nil;
 
-  SSL_CONF_CTX_new: function: PSSL_CONF_CTX; cdecl = nil;
-  SSL_CONF_CTX_finish: function(cctx: PSSL_CONF_CTX): TIdC_INT; cdecl = nil;
-  SSL_CONF_CTX_free: procedure(cctx: PSSL_CONF_CTX); cdecl = nil;
-  SSL_CONF_CTX_set_flags: function(cctx: PSSL_CONF_CTX; flags: TIdC_UINT): TIdC_UINT; cdecl = nil;
-  SSL_CONF_CTX_clear_flags: function(cctx: PSSL_CONF_CTX; flags: TIdC_UINT): TIdC_UINT; cdecl = nil;
-  SSL_CONF_CTX_set1_prefix: function(cctx: PSSL_CONF_CTX; const pre: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  SSL_CONF_cmd: function(cctx: PSSL_CONF_CTX; const cmd: PIdAnsiChar; const value: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  SSL_CONF_cmd_argv: function(cctx: PSSL_CONF_CTX; pargc: PIdC_INT; pargv: PPPIdAnsiChar): TIdC_INT; cdecl = nil;
-  SSL_CONF_cmd_value_type: function(cctx: PSSL_CONF_CTX; const cmd: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CONF_CTX_new: function : PSSL_CONF_CTX; cdecl = nil;
+  SSL_CONF_CTX_finish: function (cctx: PSSL_CONF_CTX): TIdC_INT; cdecl = nil;
+  SSL_CONF_CTX_free: procedure (cctx: PSSL_CONF_CTX); cdecl = nil;
+  SSL_CONF_CTX_set_flags: function (cctx: PSSL_CONF_CTX; flags: TIdC_UINT): TIdC_UINT; cdecl = nil;
+  SSL_CONF_CTX_clear_flags: function (cctx: PSSL_CONF_CTX; flags: TIdC_UINT): TIdC_UINT; cdecl = nil;
+  SSL_CONF_CTX_set1_prefix: function (cctx: PSSL_CONF_CTX; const pre: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CONF_cmd: function (cctx: PSSL_CONF_CTX; const cmd: PIdAnsiChar; const value: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CONF_cmd_argv: function (cctx: PSSL_CONF_CTX; pargc: PIdC_INT; pargv: PPPIdAnsiChar): TIdC_INT; cdecl = nil;
+  SSL_CONF_cmd_value_type: function (cctx: PSSL_CONF_CTX; const cmd: PIdAnsiChar): TIdC_INT; cdecl = nil;
 
-  SSL_CONF_CTX_set_ssl: procedure(cctx: PSSL_CONF_CTX; ssl: PSSL); cdecl = nil;
-  SSL_CONF_CTX_set_ssl_ctx: procedure(cctx: PSSL_CONF_CTX; ctx: PSSL_CTX); cdecl = nil;
-  SSL_add_ssl_module: procedure; cdecl = nil; {introduced 1.1.0}
-  SSL_config: function(s: PSSL; const name: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_config: function(ctx: PSSL_CTX; const name: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CONF_CTX_set_ssl: procedure (cctx: PSSL_CONF_CTX; ssl: PSSL); cdecl = nil;
+  SSL_CONF_CTX_set_ssl_ctx: procedure (cctx: PSSL_CONF_CTX; ctx: PSSL_CTX); cdecl = nil;
+  SSL_add_ssl_module: procedure ; cdecl = nil; {introduced 1.1.0}
+  SSL_config: function (s: PSSL; const name: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_config: function (ctx: PSSL_CTX; const name: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
 //  procedure SSL_trace(write_p: TIdC_INT; version: TIdC_INT; content_type: TIdC_INT; const buf: Pointer; len: TIdC_SIZET; ssl: PSSL; arg: Pointer);
 
-  DTLSv1_listen: function(s: PSSL; client: PBIO_ADDr): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DTLSv1_listen: function (s: PSSL; client: PBIO_ADDr): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
   //# ifndef OPENSSL_NO_CT
   //
@@ -2527,35 +2529,35 @@ var
   // * least one valid SCT, or else handshake termination will be requested.  The
   // * handshake may continue anyway if SSL_VERIFY_NONE is in_ effect.
   // */
-  SSL_enable_ct: function(s: PSSL; validation_mode: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_enable_ct: function(ctx: PSSL_CTX; validation_mode: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_enable_ct: function (s: PSSL; validation_mode: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_enable_ct: function (ctx: PSSL_CTX; validation_mode: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
   ///*
   // * Report whether a non-NULL callback is enabled.
   // */
-  SSL_ct_is_enabled: function(const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_ct_is_enabled: function(const ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_ct_is_enabled: function (const s: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_ct_is_enabled: function (const ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
   ///* Gets the SCTs received from a connection */
   //const STACK_OF(SCT) *SSL_get0_peer_scts(s: PSSL);
 
-  SSL_CTX_set_default_ctlog_list_file: function(ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_ctlog_list_file: function(ctx: PSSL_CTX; const path: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set0_ctlog_store: procedure(ctx: PSSL_CTX; logs: PCTLOG_STORE); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_default_ctlog_list_file: function (ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_ctlog_list_file: function (ctx: PSSL_CTX; const path: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set0_ctlog_store: procedure (ctx: PSSL_CTX; logs: PCTLOG_STORE); cdecl = nil; {introduced 1.1.0}
 
   // const CTLOG_STORE *SSL_CTX_get0_ctlog_store(const ctx: PSSL_CTX);
 
   // # endif /* OPENSSL_NO_CT */
 
-  SSL_set_security_level: procedure(s: PSSL; level: TIdC_INT); cdecl = nil; {introduced 1.1.0}
+  SSL_set_security_level: procedure (s: PSSL; level: TIdC_INT); cdecl = nil; {introduced 1.1.0}
 
   ////__owur TIdC_INT SSL_get_security_level(const s: PSSL);
-  SSL_set_security_callback: procedure(s: PSSL; cb: SSL_security_callback); cdecl = nil; {introduced 1.1.0}
-  SSL_get_security_callback: function(const s: PSSL): SSL_security_callback; cdecl = nil; {introduced 1.1.0}
-  SSL_set0_security_ex_data: procedure(s: PSSL; ex: Pointer); cdecl = nil; {introduced 1.1.0}
-  SSL_get0_security_ex_data: function(const s: PSSL): Pointer; cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_security_level: procedure(ctx: PSSL_CTX; level: TIdC_INT); cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_get_security_level: function(const ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_set_security_callback: procedure (s: PSSL; cb: SSL_security_callback); cdecl = nil; {introduced 1.1.0}
+  SSL_get_security_callback: function (const s: PSSL): SSL_security_callback; cdecl = nil; {introduced 1.1.0}
+  SSL_set0_security_ex_data: procedure (s: PSSL; ex: Pointer); cdecl = nil; {introduced 1.1.0}
+  SSL_get0_security_ex_data: function (const s: PSSL): Pointer; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_security_level: procedure (ctx: PSSL_CTX; level: TIdC_INT); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_get_security_level: function (const ctx: PSSL_CTX): TIdC_INT; cdecl = nil; {introduced 1.1.0}
   //void SSL_CTX_set_security_callback(ctx: PSSL_CTX,
   //                                   TIdC_INT (*cb) (const s: PSSL, const ctx: PSSL_CTX,
   //                                              TIdC_INT op, TIdC_INT bits, TIdC_INT nid,
@@ -2567,53 +2569,53 @@ var
   //                                                          void *other,
   //                                                          void *ex);
 
-  SSL_CTX_get0_security_ex_data: function(const ctx: PSSL_CTX): Pointer; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_get0_security_ex_data: function (const ctx: PSSL_CTX): Pointer; cdecl = nil; {introduced 1.1.0}
 
-  SSL_CTX_set0_security_ex_data: procedure(ctx: PSSL_CTX; ex: Pointer); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set0_security_ex_data: procedure (ctx: PSSL_CTX; ex: Pointer); cdecl = nil; {introduced 1.1.0}
 
-  OPENSSL_init_ssl: function(opts: TIdC_UINT64; const settings: POPENSSL_INIT_SETTINGS): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_init_ssl: function (opts: TIdC_UINT64; const settings: POPENSSL_INIT_SETTINGS): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
   //# ifndef OPENSSL_NO_UNIT_TEST
   //__owur const struct openssl_ssl_test_functions *SSL_test_functions(void);
   //# endif
 
-  SSL_free_buffers: function(ssl: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_alloc_buffers: function(ssl: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_free_buffers: function (ssl: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_alloc_buffers: function (ssl: PSSL): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_CTX_set_session_ticket_cb: function(ctx: PSSL_CTX; gen_cb: SSL_CTX_generate_session_ticket_fn; dec_cb: SSL_CTX_decrypt_session_ticket_fn; arg: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_session_ticket_cb: function (ctx: PSSL_CTX; gen_cb: SSL_CTX_generate_session_ticket_fn; dec_cb: SSL_CTX_decrypt_session_ticket_fn; arg: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_SESSION_set1_ticket_appdata: function(ss: PSSL_SESSION; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_SESSION_get0_ticket_appdata: function(ss: PSSL_SESSION; data: PPointer; len: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_set1_ticket_appdata: function (ss: PSSL_SESSION; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_SESSION_get0_ticket_appdata: function (ss: PSSL_SESSION; data: PPointer; len: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
   //extern const PIdAnsiChar SSL_version_str[];
 
-  DTLS_set_timer_cb: procedure(s: PSSL; cb: DTLS_timer_cb); cdecl = nil; {introduced 1.1.0}
-  SSL_CTX_set_allow_early_data_cb: procedure(ctx: PSSL_CTX; cb: SSL_allow_early_data_cb_fN; arg: Pointer); cdecl = nil; {introduced 1.1.0}
-  SSL_set_allow_early_data_cb: procedure(s: PSSL; cb: SSL_allow_early_data_cb_fN; arg: Pointer); cdecl = nil; {introduced 1.1.0}
+  DTLS_set_timer_cb: procedure (s: PSSL; cb: DTLS_timer_cb); cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_allow_early_data_cb: procedure (ctx: PSSL_CTX; cb: SSL_allow_early_data_cb_fN; arg: Pointer); cdecl = nil; {introduced 1.1.0}
+  SSL_set_allow_early_data_cb: procedure (s: PSSL; cb: SSL_allow_early_data_cb_fN; arg: Pointer); cdecl = nil; {introduced 1.1.0}
 
-  SSLv2_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv2
-  SSLv2_server_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv2
-  SSLv2_client_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv2
-  SSLv3_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3
-  SSLv3_server_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3
-  SSLv3_client_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3
-  SSLv23_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3 but can rollback to v2
-  SSLv23_server_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3 but can rollback to v2
-  SSLv23_client_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3 but can rollback to v2
-  TLSv1_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // TLSv1.0
-  TLSv1_server_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // TLSv1.0
-  TLSv1_client_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // TLSv1.0
-  TLSv1_1_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} //TLS1.1
-  TLSv1_1_server_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} //TLS1.1
-  TLSv1_1_client_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} //TLS1.1
-  TLSv1_2_method: function:  PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil}		// TLSv1.2
-  TLSv1_2_server_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil}	// TLSv1.2 
-  TLSv1_2_client_method: function: PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil}	// TLSv1.2
+  SSLv2_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv2
+  SSLv2_server_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv2
+  SSLv2_client_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv2
+  SSLv3_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3
+  SSLv3_server_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3
+  SSLv3_client_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3
+  SSLv23_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3 but can rollback to v2
+  SSLv23_server_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3 but can rollback to v2
+  SSLv23_client_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // SSLv3 but can rollback to v2
+  TLSv1_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // TLSv1.0
+  TLSv1_server_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // TLSv1.0
+  TLSv1_client_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} // TLSv1.0
+  TLSv1_1_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} //TLS1.1
+  TLSv1_1_server_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} //TLS1.1
+  TLSv1_1_client_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil} //TLS1.1
+  TLSv1_2_method: function :  PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil}		// TLSv1.2
+  TLSv1_2_server_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil}	// TLSv1.2 
+  TLSv1_2_client_method: function : PSSL_METHOD; cdecl = nil; {removed 1.1.0 allow_nil}	// TLSv1.2
 
   //X509 *SSL_get0_peer_certificate(const SSL *s);
-  SSL_get0_peer_certificate: function(const s: PSSL): PX509; cdecl = nil; {introduced 3.3.0}
+  SSL_get0_peer_certificate: function (const s: PSSL): PX509; cdecl = nil; {introduced 3.3.0}
   // X509 *SSL_get1_peer_certificate(const SSL *s);
-  SSL_get1_peer_certificate: function(const s: PSSL): PX509; cdecl = nil; {introduced 3.3.0}
+  SSL_get1_peer_certificate: function (const s: PSSL): PX509; cdecl = nil; {introduced 3.3.0}
 
 
 
@@ -3622,12 +3624,13 @@ function SSL_get0_ec_point_formats(s: PSSL; plst: Pointer): TIdC_LONG; {removed 
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 const
   SSL_CTX_get_options_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
@@ -4025,442 +4028,442 @@ end;
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 
 //#   define SSL_get_peer_certificate SSL_get1_peer_certificate
-function _SSL_get_peer_certificate(const s: PSSL): PX509; cdecl;
+function  _SSL_get_peer_certificate(const s: PSSL): PX509; cdecl;
 begin
   Result := SSL_get1_peer_certificate(s);
 end;
 
 
 //# define SSL_CTX_set_mode(ctx,op)      SSL_CTX_ctrl((ctx),SSL_CTRL_MODE,(op),NULL)
-function _SSL_CTX_set_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_set_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_MODE, op, nil);
 end;
 
 //# define SSL_CTX_clear_mode(ctx,op)   SSL_CTX_ctrl((ctx),SSL_CTRL_CLEAR_MODE,(op),NULL)
-function _SSL_CTX_clear_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_clear_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_CLEAR_MODE, op, nil);
 end;
 
 //# define SSL_CTX_sess_set_cache_size(ctx,t)         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_SESS_CACHE_SIZE,t,NULL)
-function _SSL_CTX_sess_set_cache_size(ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_sess_set_cache_size(ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_SESS_CACHE_SIZE, t, nil);
 end;
 
 //# define SSL_CTX_sess_get_cache_size(ctx)           SSL_CTX_ctrl(ctx,SSL_CTRL_GET_SESS_CACHE_SIZE,0,NULL)
-function _SSL_CTX_sess_get_cache_size(ctx: PSSL_CTX): TIdC_LONG; cdecl;
+function  _SSL_CTX_sess_get_cache_size(ctx: PSSL_CTX): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_GET_SESS_CACHE_SIZE, 0, nil);
 end;
 
 //# define SSL_CTX_set_session_cache_mode(ctx,m)      SSL_CTX_ctrl(ctx,SSL_CTRL_SET_SESS_CACHE_MODE,m,NULL)
-function _SSL_CTX_set_session_cache_mode(ctx: PSSL_CTX; m: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_set_session_cache_mode(ctx: PSSL_CTX; m: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_SESS_CACHE_MODE, m, nil);
 end;
 
 //# define SSL_CTX_get_session_cache_mode(ctx)        SSL_CTX_ctrl(ctx,SSL_CTRL_GET_SESS_CACHE_MODE,0,NULL)
-function _SSL_CTX_get_session_cache_mode(ctx: PSSL_CTX): TIdC_LONG; cdecl;
+function  _SSL_CTX_get_session_cache_mode(ctx: PSSL_CTX): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_GET_SESS_CACHE_MODE, 0, nil);
 end;
 
 //# define SSL_num_renegotiations(ssl)                       SSL_ctrl((ssl),SSL_CTRL_GET_NUM_RENEGOTIATIONS,0,NULL)
-function _SSL_num_renegotiations(ssl: PSSL): TIdC_LONG; cdecl;
+function  _SSL_num_renegotiations(ssl: PSSL): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(ssl, SSL_CTRL_GET_NUM_RENEGOTIATIONS, 0, nil);
 end;
 
 //# define SSL_clear_num_renegotiations(ssl)                 SSL_ctrl((ssl),SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS,0,NULL)
-function _SSL_clear_num_renegotiations(ssl: PSSL): TIdC_LONG; cdecl;
+function  _SSL_clear_num_renegotiations(ssl: PSSL): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(ssl, SSL_CTRL_CLEAR_NUM_RENEGOTIATIONS, 0, nil);
 end;
 
 //# define SSL_total_renegotiations(ssl)                     SSL_ctrl((ssl),SSL_CTRL_GET_TOTAL_RENEGOTIATIONS,0,NULL)
-function _SSL_total_renegotiations(ssl: PSSL): TIdC_LONG; cdecl;
+function  _SSL_total_renegotiations(ssl: PSSL): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(ssl, SSL_CTRL_GET_TOTAL_RENEGOTIATIONS, 0, nil);
 end;
 
 //# define SSL_CTX_set_tmp_dh(ctx,dh)                        SSL_CTX_ctrl(ctx,SSL_CTRL_SET_TMP_DH,0,(char *)(dh))
-function _SSL_CTX_set_tmp_dh(ctx: PSSL_CTX; dh: PDH): TIdC_LONG; cdecl;
+function  _SSL_CTX_set_tmp_dh(ctx: PSSL_CTX; dh: PDH): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_TMP_DH, 0, dh);
 end;
 
 //# define SSL_CTX_set_tmp_ecdh(ctx,ecdh)                    SSL_CTX_ctrl(ctx,SSL_CTRL_SET_TMP_ECDH,0,(char *)(ecdh))
-function _SSL_CTX_set_tmp_ecdh(ctx: PSSL_CTX; ecdh: PByte): TIdC_LONG; cdecl;
+function  _SSL_CTX_set_tmp_ecdh(ctx: PSSL_CTX; ecdh: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_TMP_ECDH, 0, ecdh);
 end;
 
 //# define SSL_CTX_set_dh_auto(ctx, onoff)                   SSL_CTX_ctrl(ctx,SSL_CTRL_SET_DH_AUTO,onoff,NULL)
-function _SSL_CTX_set_dh_auto(ctx: PSSL_CTX; onoff: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_set_dh_auto(ctx: PSSL_CTX; onoff: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_DH_AUTO, onoff, nil);
 end;
 
 //# define SSL_set_dh_auto(s, onoff)                         SSL_ctrl(s,SSL_CTRL_SET_DH_AUTO,onoff,NULL)
-function _SSL_set_dh_auto(s: PSSL; onoff: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_set_dh_auto(s: PSSL; onoff: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_DH_AUTO, onoff, nil);
 end;
 
 //# define SSL_set_tmp_dh(ssl,dh)                            SSL_ctrl(ssl,SSL_CTRL_SET_TMP_DH,0,(char *)(dh))
-function _SSL_set_tmp_dh(ssl: PSSL; dh: PDH): TIdC_LONG; cdecl;
+function  _SSL_set_tmp_dh(ssl: PSSL; dh: PDH): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(ssl, SSL_CTRL_SET_TMP_DH, 0, dh);
 end;
 
 //# define SSL_set_tmp_ecdh(ssl,ecdh)                        SSL_ctrl(ssl,SSL_CTRL_SET_TMP_ECDH,0,(char *)(ecdh))
-function _SSL_set_tmp_ecdh(ssl: PSSL; ecdh: PByte): TIdC_LONG; cdecl;
+function  _SSL_set_tmp_ecdh(ssl: PSSL; ecdh: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(ssl, SSL_CTRL_SET_TMP_ECDH, 0, ecdh);
 end;
 
 //# define SSL_CTX_add_extra_chain_cert(ctx,x509)            SSL_CTX_ctrl(ctx,SSL_CTRL_EXTRA_CHAIN_CERT,0,(char *)(x509))
-function _SSL_CTX_add_extra_chain_cert(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; cdecl;
+function  _SSL_CTX_add_extra_chain_cert(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_EXTRA_CHAIN_CERT, 0, x509);
 end;
 
 //# define SSL_CTX_get_extra_chain_certs(ctx,px509)          SSL_CTX_ctrl(ctx,SSL_CTRL_GET_EXTRA_CHAIN_CERTS,0,px509)
-function _SSL_CTX_get_extra_chain_certs(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl;
+function  _SSL_CTX_get_extra_chain_certs(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_GET_EXTRA_CHAIN_CERTS, 0, px509);
 end;
 
 //# define SSL_CTX_get_extra_chain_certs_only(ctx,px509)     SSL_CTX_ctrl(ctx,SSL_CTRL_GET_EXTRA_CHAIN_CERTS,1,px509)
-function _SSL_CTX_get_extra_chain_certs_only(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl;
+function  _SSL_CTX_get_extra_chain_certs_only(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_GET_EXTRA_CHAIN_CERTS, 1, px509);
 end;
 
 //# define SSL_CTX_clear_extra_chain_certs(ctx)              SSL_CTX_ctrl(ctx,SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS,0,NULL)
-function _SSL_CTX_clear_extra_chain_certs(ctx: PSSL_CTX): TIdC_LONG; cdecl;
+function  _SSL_CTX_clear_extra_chain_certs(ctx: PSSL_CTX): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_CLEAR_EXTRA_CHAIN_CERTS, 0, nil);
 end;
 
 //# define SSL_CTX_set0_chain(ctx,sk)                        SSL_CTX_ctrl(ctx,SSL_CTRL_CHAIN,0,(char *)(sk))
-function _SSL_CTX_set0_chain(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; cdecl;
+function  _SSL_CTX_set0_chain(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_CHAIN, 0, sk);
 end;
 
 //# define SSL_CTX_set1_chain(ctx,sk)                        SSL_CTX_ctrl(ctx,SSL_CTRL_CHAIN,1,(char *)(sk))
-function _SSL_CTX_set1_chain(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_chain(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_CHAIN, 1, sk);
 end;
 
 //# define SSL_CTX_add0_chain_cert(ctx,x509)                 SSL_CTX_ctrl(ctx,SSL_CTRL_CHAIN_CERT,0,(char *)(x509))
-function _SSL_CTX_add0_chain_cert(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; cdecl;
+function  _SSL_CTX_add0_chain_cert(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_CHAIN_CERT, 0, x509);
 end;
 
 //# define SSL_CTX_add1_chain_cert(ctx,x509)                 SSL_CTX_ctrl(ctx,SSL_CTRL_CHAIN_CERT,1,(char *)(x509))
-function _SSL_CTX_add1_chain_cert(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; cdecl;
+function  _SSL_CTX_add1_chain_cert(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_CHAIN_CERT, 1, x509);
 end;
 
 //# define SSL_CTX_get0_chain_certs(ctx,px509)               SSL_CTX_ctrl(ctx,SSL_CTRL_GET_CHAIN_CERTS,0,px509)
-function _SSL_CTX_get0_chain_certs(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl;
+function  _SSL_CTX_get0_chain_certs(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_GET_CHAIN_CERTS, 0, px509);
 end;
 
 //# define SSL_CTX_clear_chain_certs(ctx)                    SSL_CTX_set0_chain(ctx,NULL)
-function _SSL_CTX_clear_chain_certs(ctx: PSSL_CTX): TIdC_LONG; cdecl;
+function  _SSL_CTX_clear_chain_certs(ctx: PSSL_CTX): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_set0_chain(ctx, nil);
 end;
 
 //# define SSL_CTX_build_cert_chain(ctx, flags)              SSL_CTX_ctrl(ctx,SSL_CTRL_BUILD_CERT_CHAIN, flags, NULL)
-function _SSL_CTX_build_cert_chain(ctx: PSSL_CTX; flags: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_build_cert_chain(ctx: PSSL_CTX; flags: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_BUILD_CERT_CHAIN, flags, nil);
 end;
 
 //# define SSL_CTX_select_current_cert(ctx,x509)             SSL_CTX_ctrl(ctx,SSL_CTRL_SELECT_CURRENT_CERT,0,(char *)(x509))
-function _SSL_CTX_select_current_cert(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; cdecl;
+function  _SSL_CTX_select_current_cert(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SELECT_CURRENT_CERT, 0, x509);
 end;
 
 //# define SSL_CTX_set_current_cert(ctx, op)                 SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CURRENT_CERT, op, NULL)
-function _SSL_CTX_set_current_cert(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_set_current_cert(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_CURRENT_CERT, op, nil);
 end;
 
 //# define SSL_CTX_set0_verify_cert_store(ctx,st)            SSL_CTX_ctrl(ctx,SSL_CTRL_SET_VERIFY_CERT_STORE,0,(char *)(st))
-function _SSL_CTX_set0_verify_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl;
+function  _SSL_CTX_set0_verify_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_VERIFY_CERT_STORE, 0, st);
 end;
 
 //# define SSL_CTX_set1_verify_cert_store(ctx,st)            SSL_CTX_ctrl(ctx,SSL_CTRL_SET_VERIFY_CERT_STORE,1,(char *)(st))
-function _SSL_CTX_set1_verify_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_verify_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_VERIFY_CERT_STORE, 1, st);
 end;
 
 //# define SSL_CTX_set0_chain_cert_store(ctx,st)             SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CHAIN_CERT_STORE,0,(char *)(st))
-function _SSL_CTX_set0_chain_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl;
+function  _SSL_CTX_set0_chain_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_CHAIN_CERT_STORE, 0, st);
 end;
 
 //# define SSL_CTX_set1_chain_cert_store(ctx,st)             SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CHAIN_CERT_STORE,1,(char *)(st))
-function _SSL_CTX_set1_chain_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_chain_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_CHAIN_CERT_STORE, 1, st);
 end;
 
 //# define SSL_set0_chain(s,sk)                              SSL_ctrl(s,SSL_CTRL_CHAIN,0,(char *)(sk))
-function _SSL_set0_chain(s: PSSL; sk: PByte): TIdC_LONG; cdecl;
+function  _SSL_set0_chain(s: PSSL; sk: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_CHAIN, 0, sk);
 end;
 
 //# define SSL_set1_chain(s,sk)                              SSL_ctrl(s,SSL_CTRL_CHAIN,1,(char *)(sk))
-function _SSL_set1_chain(s: PSSL; sk: PByte): TIdC_LONG; cdecl;
+function  _SSL_set1_chain(s: PSSL; sk: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_CHAIN, 1, sk);
 end;
 
 //# define SSL_add0_chain_cert(s,x509)                       SSL_ctrl(s,SSL_CTRL_CHAIN_CERT,0,(char *)(x509))
-function _SSL_add0_chain_cert(s: PSSL; x509: PByte): TIdC_LONG; cdecl;
+function  _SSL_add0_chain_cert(s: PSSL; x509: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_CHAIN_CERT, 0, x509);
 end;
 
 //# define SSL_add1_chain_cert(s,x509)                       SSL_ctrl(s,SSL_CTRL_CHAIN_CERT,1,(char *)(x509))
-function _SSL_add1_chain_cert(s: PSSL; x509: PByte): TIdC_LONG; cdecl;
+function  _SSL_add1_chain_cert(s: PSSL; x509: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_CHAIN_CERT, 1, x509);
 end;
 
 //# define SSL_get0_chain_certs(s,px509)                     SSL_ctrl(s,SSL_CTRL_GET_CHAIN_CERTS,0,px509)
-function _SSL_get0_chain_certs(s: PSSL; px509: Pointer): TIdC_LONG; cdecl;
+function  _SSL_get0_chain_certs(s: PSSL; px509: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_CHAIN_CERTS, 0, px509);
 end;
 
 //# define SSL_clear_chain_certs(s)                          SSL_set0_chain(s,NULL)
-function _SSL_clear_chain_certs(s: PSSL): TIdC_LONG; cdecl;
+function  _SSL_clear_chain_certs(s: PSSL): TIdC_LONG; cdecl;
 begin
   Result := SSL_set0_chain(s, nil);
 end;
 
 //# define SSL_build_cert_chain(s, flags)                    SSL_ctrl(s,SSL_CTRL_BUILD_CERT_CHAIN, flags, NULL)
-function _SSL_build_cert_chain(s: PSSL; flags: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_build_cert_chain(s: PSSL; flags: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_BUILD_CERT_CHAIN, flags, nil);
 end;
 
 //# define SSL_select_current_cert(s,x509)                   SSL_ctrl(s,SSL_CTRL_SELECT_CURRENT_CERT,0,(char *)(x509))
-function _SSL_select_current_cert(s: PSSL; x509: PByte): TIdC_LONG; cdecl;
+function  _SSL_select_current_cert(s: PSSL; x509: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SELECT_CURRENT_CERT, 0, x509);
 end;
 
 //# define SSL_set_current_cert(s,op)                        SSL_ctrl(s,SSL_CTRL_SET_CURRENT_CERT, op, NULL)
-function _SSL_set_current_cert(s: PSSL; op: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_set_current_cert(s: PSSL; op: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_CURRENT_CERT, op, nil);
 end;
 
 //# define SSL_set0_verify_cert_store(s,st)                  SSL_ctrl(s,SSL_CTRL_SET_VERIFY_CERT_STORE,0,(char *)(st))
-function _SSL_set0_verify_cert_store(s: PSSL; st: PByte): TIdC_LONG; cdecl;
+function  _SSL_set0_verify_cert_store(s: PSSL; st: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_VERIFY_CERT_STORE, 0, st);
 end;
 
 //# define SSL_set1_verify_cert_store(s,st)                  SSL_ctrl(s,SSL_CTRL_SET_VERIFY_CERT_STORE,1,(char *)(st))
-function _SSL_set1_verify_cert_store(s: PSSL; st: PByte): TIdC_LONG; cdecl;
+function  _SSL_set1_verify_cert_store(s: PSSL; st: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_VERIFY_CERT_STORE, 1, st);
 end;
 
 //# define SSL_set0_chain_cert_store(s,st)                   SSL_ctrl(s,SSL_CTRL_SET_CHAIN_CERT_STORE,0,(char *)(st))
-function _SSL_set0_chain_cert_store(s: PSSL; st: PByte): TIdC_LONG; cdecl;
+function  _SSL_set0_chain_cert_store(s: PSSL; st: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_CHAIN_CERT_STORE, 0, st);
 end;
 
 //# define SSL_set1_chain_cert_store(s,st)                   SSL_ctrl(s,SSL_CTRL_SET_CHAIN_CERT_STORE,1,(char *)(st))
-function _SSL_set1_chain_cert_store(s: PSSL; st: PByte): TIdC_LONG; cdecl;
+function  _SSL_set1_chain_cert_store(s: PSSL; st: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_CHAIN_CERT_STORE, 1, st);
 end;
 
 //# define SSL_get1_groups(s, glist)                         SSL_ctrl(s,SSL_CTRL_GET_GROUPS,0,(TIdC_INT*)(glist))
-function _SSL_get1_groups(s: PSSL; glist: PIdC_INT): TIdC_LONG; cdecl;
+function  _SSL_get1_groups(s: PSSL; glist: PIdC_INT): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_GROUPS, 0, glist);
 end;
 
 //# define SSL_CTX_set1_groups(ctx, glist, glistlen)         SSL_CTX_ctrl(ctx,SSL_CTRL_SET_GROUPS,glistlen,(char *)(glist))
-function _SSL_CTX_set1_groups(ctx: PSSL_CTX; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_groups(ctx: PSSL_CTX; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_GROUPS, glistlen, glist);
 end;
 
 //# define SSL_CTX_set1_groups_list(ctx, s)                  SSL_CTX_ctrl(ctx,SSL_CTRL_SET_GROUPS_LIST,0,(char *)(s))
-function _SSL_CTX_set1_groups_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_groups_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_GROUPS_LIST, 0, s);
 end;
 
 //# define SSL_set1_groups(s, glist, glistlen)               SSL_ctrl(s,SSL_CTRL_SET_GROUPS,glistlen,(char *)(glist))
-function _SSL_set1_groups(s: PSSL; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_set1_groups(s: PSSL; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_GROUPS, glistlen, glist);
 end;
 
 //# define SSL_set1_groups_list(s, str)                      SSL_ctrl(s,SSL_CTRL_SET_GROUPS_LIST,0,(char *)(str))
-function _SSL_set1_groups_list(s: PSSL; str: PByte): TIdC_LONG; cdecl;
+function  _SSL_set1_groups_list(s: PSSL; str: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_GROUPS_LIST, 0, str);
 end;
 
 //# define SSL_get_shared_group(s, n)                        SSL_ctrl(s,SSL_CTRL_GET_SHARED_GROUP,n,NULL)
-function _SSL_get_shared_group(s: PSSL; n: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_get_shared_group(s: PSSL; n: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_SHARED_GROUP, n, nil);
 end;
 
 //# define SSL_CTX_set1_sigalgs(ctx, slist, slistlen)        SSL_CTX_ctrl(ctx,SSL_CTRL_SET_SIGALGS,slistlen,(TIdC_INT *)(slist))
-function _SSL_CTX_set1_sigalgs(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_sigalgs(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_SIGALGS, slistlen, slist);
 end;
 
 //# define SSL_CTX_set1_sigalgs_list(ctx, s)                 SSL_CTX_ctrl(ctx,SSL_CTRL_SET_SIGALGS_LIST,0,(char *)(s))
-function _SSL_CTX_set1_sigalgs_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_sigalgs_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_SIGALGS_LIST, 0, s);
 end;
 
 //# define SSL_set1_sigalgs(s, slist, slistlen)              SSL_ctrl(s,SSL_CTRL_SET_SIGALGS,slistlen,(TIdC_INT *)(slist))
-function _SSL_set1_sigalgs(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_set1_sigalgs(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_SIGALGS, slistlen, slist);
 end;
 
 //# define SSL_set1_sigalgs_list(s, str)                     SSL_ctrl(s,SSL_CTRL_SET_SIGALGS_LIST,0,(char *)(str))
-function _SSL_set1_sigalgs_list(s: PSSL; str: PByte): TIdC_LONG; cdecl;
+function  _SSL_set1_sigalgs_list(s: PSSL; str: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_SIGALGS_LIST, 0, str);
 end;
 
 //# define SSL_CTX_set1_client_sigalgs(ctx, slist, slistlen) SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CLIENT_SIGALGS,slistlen,(TIdC_INT *)(slist))
-function _SSL_CTX_set1_client_sigalgs(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_client_sigalgs(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_CLIENT_SIGALGS, slistlen, slist);
 end;
 
 //# define SSL_CTX_set1_client_sigalgs_list(ctx, s)          SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CLIENT_SIGALGS_LIST,0,(char *)(s))
-function _SSL_CTX_set1_client_sigalgs_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_client_sigalgs_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_CLIENT_SIGALGS_LIST, 0, s);
 end;
 
 //# define SSL_set1_client_sigalgs(s, slist, slistlen)       SSL_ctrl(s,SSL_CTRL_SET_CLIENT_SIGALGS,slistlen,(TIdC_INT *)(slist))
-function _SSL_set1_client_sigalgs(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_set1_client_sigalgs(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_CLIENT_SIGALGS, slistlen, slist);
 end;
 
 //# define SSL_set1_client_sigalgs_list(s, str)              SSL_ctrl(s,SSL_CTRL_SET_CLIENT_SIGALGS_LIST,0,(char *)(str))
-function _SSL_set1_client_sigalgs_list(s: PSSL; str: PByte): TIdC_LONG; cdecl;
+function  _SSL_set1_client_sigalgs_list(s: PSSL; str: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_CLIENT_SIGALGS_LIST, 0, str);
 end;
 
 //# define SSL_get0_certificate_types(s, clist)              SSL_ctrl(s, SSL_CTRL_GET_CLIENT_CERT_TYPES, 0, (char *)(clist))
-function _SSL_get0_certificate_types(s: PSSL; clist: PByte): TIdC_LONG; cdecl;
+function  _SSL_get0_certificate_types(s: PSSL; clist: PByte): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_CLIENT_CERT_TYPES, 0, clist);
 end;
 
 //# define SSL_CTX_set1_client_certificate_types(ctx, clist, clistlen)   SSL_CTX_ctrl(ctx,SSL_CTRL_SET_CLIENT_CERT_TYPES,clistlen, (char *)(clist))
-function _SSL_CTX_set1_client_certificate_types(ctx: PSSL_CTX; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_CTX_set1_client_certificate_types(ctx: PSSL_CTX; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_SET_CLIENT_CERT_TYPES, clistlen, clist);
 end;
 
 //# define SSL_set1_client_certificate_types(s, clist, clistlen)         SSL_ctrl(s,SSL_CTRL_SET_CLIENT_CERT_TYPES,clistlen,(char *)(clist))
-function _SSL_set1_client_certificate_types(s: PSSL; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; cdecl;
+function  _SSL_set1_client_certificate_types(s: PSSL; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_CLIENT_CERT_TYPES, clistlen, clist);
 end;
 
 //# define SSL_get_signature_nid(s, pn)                      SSL_ctrl(s,SSL_CTRL_GET_SIGNATURE_NID,0,pn)
-function _SSL_get_signature_nid(s: PSSL; pn: Pointer): TIdC_LONG; cdecl;
+function  _SSL_get_signature_nid(s: PSSL; pn: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_SIGNATURE_NID, 0, pn);
 end;
 
 //# define SSL_get_peer_signature_nid(s, pn)                 SSL_ctrl(s,SSL_CTRL_GET_PEER_SIGNATURE_NID,0,pn)
-function _SSL_get_peer_signature_nid(s: PSSL; pn: Pointer): TIdC_LONG; cdecl;
+function  _SSL_get_peer_signature_nid(s: PSSL; pn: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_PEER_SIGNATURE_NID, 0, pn);
 end;
 
 //# define SSL_get_peer_tmp_key(s, pk)                       SSL_ctrl(s,SSL_CTRL_GET_PEER_TMP_KEY,0,pk)
-function _SSL_get_peer_tmp_key(s: PSSL; pk: Pointer): TIdC_LONG; cdecl;
+function  _SSL_get_peer_tmp_key(s: PSSL; pk: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_PEER_TMP_KEY, 0, pk);
 end;
 
 //# define SSL_get_tmp_key(s, pk)                            SSL_ctrl(s,SSL_CTRL_GET_TMP_KEY,0,pk)
-function _SSL_get_tmp_key(s: PSSL; pk: Pointer): TIdC_LONG; cdecl;
+function  _SSL_get_tmp_key(s: PSSL; pk: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_TMP_KEY, 0, pk);
 end;
 
 //# define SSL_get0_raw_cipherlist(s, plst)                  SSL_ctrl(s,SSL_CTRL_GET_RAW_CIPHERLIST,0,plst)
-function _SSL_get0_raw_cipherlist(s: PSSL; plst: Pointer): TIdC_LONG; cdecl;
+function  _SSL_get0_raw_cipherlist(s: PSSL; plst: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_RAW_CIPHERLIST, 0, plst);
 end;
 
 //# define SSL_get0_ec_point_formats(s, plst)                SSL_ctrl(s,SSL_CTRL_GET_EC_POINT_FORMATS,0,plst)
-function _SSL_get0_ec_point_formats(s: PSSL; plst: Pointer): TIdC_LONG; cdecl;
+function  _SSL_get0_ec_point_formats(s: PSSL; plst: Pointer): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_GET_EC_POINT_FORMATS, 0, plst);
 end;
 
 
-function _SSL_get_app_data(const ssl: PSSL): Pointer ; cdecl;
+function  _SSL_get_app_data(const ssl: PSSL): Pointer ; cdecl;
 begin
   Result := SSL_get_ex_data(ssl,0);
 end;
 
-procedure _SSL_load_error_strings; cdecl; 
+procedure  _SSL_load_error_strings; cdecl; 
 begin
   OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS or OPENSSL_INIT_LOAD_CRYPTO_STRINGS,nil); 
 end;
 
-function _SSL_library_init: TIdC_INT; cdecl;
+function  _SSL_library_init: TIdC_INT; cdecl;
 begin
   Result := OPENSSL_init_ssl(0, nil);
 end;
 
-function _SSLeay_add_ssl_algorithms: TIdC_INT; cdecl;
+function  _SSLeay_add_ssl_algorithms: TIdC_INT; cdecl;
 begin
   Result := SSL_library_init;
 end;
 
-function _SSL_set_app_data(ssl: PSSL; data: Pointer): TIdC_INT; cdecl;
+function  _SSL_set_app_data(ssl: PSSL; data: Pointer): TIdC_INT; cdecl;
 begin
   Result := SSL_set_ex_data(ssl,0,data);
 end;
@@ -4694,22 +4697,22 @@ const
   SSL_CTRL_OPTIONS = 32;
   SSL_CTRL_CLEAR_OPTIONS = 77;
 
-function FC_SSL_CTX_get_default_passwd_cb(ctx: PSSL_CTX): pem_password_cb; cdecl;
+function  FC_SSL_CTX_get_default_passwd_cb(ctx: PSSL_CTX): pem_password_cb; cdecl;
 begin
   Result := _PSSL_CTX(ctx)^.default_passwd_callback;
 end;
 
-function FC_SSL_CTX_get_default_passwd_cb_userdata(ctx: PSSL_CTX): Pointer; cdecl;
+function  FC_SSL_CTX_get_default_passwd_cb_userdata(ctx: PSSL_CTX): Pointer; cdecl;
 begin
   Result := _PSSL_CTX(ctx)^.default_passwd_callback_userdata;
 end;
 
-procedure FC_SSL_CTX_set_default_passwd_cb(ctx: PSSL_CTX; cb: pem_password_cb); cdecl;
+procedure  FC_SSL_CTX_set_default_passwd_cb(ctx: PSSL_CTX; cb: pem_password_cb); cdecl;
 begin
   _PSSL_CTX(ctx)^.default_passwd_callback := cb;
 end;
 
-procedure FC_SSL_CTX_set_default_passwd_cb_userdata(ctx: PSSL_CTX; u: Pointer); cdecl;
+procedure  FC_SSL_CTX_set_default_passwd_cb_userdata(ctx: PSSL_CTX; u: Pointer); cdecl;
 begin
   _PSSL_CTX(ctx)^.default_passwd_callback_userdata := u;
 end;
@@ -4717,22 +4720,22 @@ end;
 //* Note: SSL[_CTX]_set_{options,mode} use |= op on the previous value,
 // * they cannot be used to clear bits. */
 
-function FC_SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG; cdecl;
+function  FC_SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_LONG):TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_OPTIONS, op, nil);
 end;
 
-function FC_SSL_CTX_clear_options(ctx : PSSL_CTX; op : TIdC_LONG):TIdC_LONG; cdecl;
+function  FC_SSL_CTX_clear_options(ctx : PSSL_CTX; op : TIdC_LONG):TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx,SSL_CTRL_CLEAR_OPTIONS,op,nil);
 end;
 
-function FC_SSL_CTX_get_options(ctx: PSSL_CTX) : TIdC_LONG; cdecl;
+function  FC_SSL_CTX_get_options(ctx: PSSL_CTX) : TIdC_LONG; cdecl;
 begin
   Result := SSL_CTX_ctrl(ctx, SSL_CTRL_OPTIONS,0,nil);
 end;
 
-function FC_SSL_CTX_get_cert_store(const ctx: PSSL_CTX): PX509_STORE; cdecl;
+function  FC_SSL_CTX_get_cert_store(const ctx: PSSL_CTX): PX509_STORE; cdecl;
 begin
   Result :=  _PSSL_CTX(ctx)^.cert_store;
 end;
@@ -4812,12 +4815,12 @@ type
 {$endif}
   end;
 
-function FC_SSL_SESSION_get_protocol_version(const s: PSSL_SESSION): TIdC_INT; cdecl;
+function  FC_SSL_SESSION_get_protocol_version(const s: PSSL_SESSION): TIdC_INT; cdecl;
 begin
   Result := _PSSL_SESSION(s).ssl_version;
 end;
 
-function FC_OPENSSL_init_ssl(opts: TIdC_UINT64; const settings: POPENSSL_INIT_SETTINGS): TIdC_INT; cdecl;
+function  FC_OPENSSL_init_ssl(opts: TIdC_UINT64; const settings: POPENSSL_INIT_SETTINGS): TIdC_INT; cdecl;
 begin
   if opts and OPENSSL_INIT_LOAD_SSL_STRINGS <> 0 then
     SSL_load_error_strings;
@@ -4827,1471 +4830,1471 @@ end;
 
 {/forward_compatibility}
 {$WARN  NO_RETVAL OFF}
-function ERR_SSL_CTX_set_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_set_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_mode');
 end;
 
 
-function ERR_SSL_CTX_clear_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_clear_mode(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_clear_mode');
 end;
 
 
-function ERR_SSL_CTX_sess_set_cache_size(ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_sess_set_cache_size(ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_sess_set_cache_size');
 end;
 
 
-function ERR_SSL_CTX_sess_get_cache_size(ctx: PSSL_CTX): TIdC_LONG; 
+function  ERR_SSL_CTX_sess_get_cache_size(ctx: PSSL_CTX): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_sess_get_cache_size');
 end;
 
 
-function ERR_SSL_CTX_set_session_cache_mode(ctx: PSSL_CTX; m: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_set_session_cache_mode(ctx: PSSL_CTX; m: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_session_cache_mode');
 end;
 
 
-function ERR_SSL_CTX_get_session_cache_mode(ctx: PSSL_CTX): TIdC_LONG; 
+function  ERR_SSL_CTX_get_session_cache_mode(ctx: PSSL_CTX): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_session_cache_mode');
 end;
 
 
-function ERR_SSL_clear_num_renegotiations(ssl: PSSL): TIdC_LONG; 
+function  ERR_SSL_clear_num_renegotiations(ssl: PSSL): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_clear_num_renegotiations');
 end;
 
 
-function ERR_SSL_total_renegotiations(ssl: PSSL): TIdC_LONG; 
+function  ERR_SSL_total_renegotiations(ssl: PSSL): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_total_renegotiations');
 end;
 
 
-function ERR_SSL_CTX_set_tmp_dh(ctx: PSSL_CTX; dh: PDH): TIdC_LONG; 
+function  ERR_SSL_CTX_set_tmp_dh(ctx: PSSL_CTX; dh: PDH): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_tmp_dh');
 end;
 
 
-function ERR_SSL_CTX_set_tmp_ecdh(ctx: PSSL_CTX; ecdh: PByte): TIdC_LONG; 
+function  ERR_SSL_CTX_set_tmp_ecdh(ctx: PSSL_CTX; ecdh: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_tmp_ecdh');
 end;
 
 
-function ERR_SSL_CTX_set_dh_auto(ctx: PSSL_CTX; onoff: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_set_dh_auto(ctx: PSSL_CTX; onoff: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_dh_auto');
 end;
 
 
-function ERR_SSL_set_dh_auto(s: PSSL; onoff: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_set_dh_auto(s: PSSL; onoff: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_dh_auto');
 end;
 
 
-function ERR_SSL_set_tmp_dh(ssl: PSSL; dh: PDH): TIdC_LONG; 
+function  ERR_SSL_set_tmp_dh(ssl: PSSL; dh: PDH): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_tmp_dh');
 end;
 
 
-function ERR_SSL_set_tmp_ecdh(ssl: PSSL; ecdh: PByte): TIdC_LONG; 
+function  ERR_SSL_set_tmp_ecdh(ssl: PSSL; ecdh: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_tmp_ecdh');
 end;
 
 
-function ERR_SSL_CTX_add_extra_chain_cert(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; 
+function  ERR_SSL_CTX_add_extra_chain_cert(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_add_extra_chain_cert');
 end;
 
 
-function ERR_SSL_CTX_get_extra_chain_certs(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; 
+function  ERR_SSL_CTX_get_extra_chain_certs(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_extra_chain_certs');
 end;
 
 
-function ERR_SSL_CTX_get_extra_chain_certs_only(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; 
+function  ERR_SSL_CTX_get_extra_chain_certs_only(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_extra_chain_certs_only');
 end;
 
 
-function ERR_SSL_CTX_clear_extra_chain_certs(ctx: PSSL_CTX): TIdC_LONG; 
+function  ERR_SSL_CTX_clear_extra_chain_certs(ctx: PSSL_CTX): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_clear_extra_chain_certs');
 end;
 
 
-function ERR_SSL_CTX_set0_chain(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; 
+function  ERR_SSL_CTX_set0_chain(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set0_chain');
 end;
 
 
-function ERR_SSL_CTX_set1_chain(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_chain(ctx: PSSL_CTX; sk: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_chain');
 end;
 
 
-function ERR_SSL_CTX_add0_chain_cert(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; 
+function  ERR_SSL_CTX_add0_chain_cert(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_add0_chain_cert');
 end;
 
 
-function ERR_SSL_CTX_add1_chain_cert(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; 
+function  ERR_SSL_CTX_add1_chain_cert(ctx: PSSL_CTX; x509: PX509): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_add1_chain_cert');
 end;
 
 
-function ERR_SSL_CTX_get0_chain_certs(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; 
+function  ERR_SSL_CTX_get0_chain_certs(ctx: PSSL_CTX; px509: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get0_chain_certs');
 end;
 
 
-function ERR_SSL_CTX_clear_chain_certs(ctx: PSSL_CTX): TIdC_LONG; 
+function  ERR_SSL_CTX_clear_chain_certs(ctx: PSSL_CTX): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_clear_chain_certs');
 end;
 
 
-function ERR_SSL_CTX_build_cert_chain(ctx: PSSL_CTX; flags: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_build_cert_chain(ctx: PSSL_CTX; flags: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_build_cert_chain');
 end;
 
 
-function ERR_SSL_CTX_select_current_cert(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; 
+function  ERR_SSL_CTX_select_current_cert(ctx: PSSL_CTX; x509: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_select_current_cert');
 end;
 
 
-function ERR_SSL_CTX_set_current_cert(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_set_current_cert(ctx: PSSL_CTX; op: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_current_cert');
 end;
 
 
-function ERR_SSL_CTX_set0_verify_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; 
+function  ERR_SSL_CTX_set0_verify_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set0_verify_cert_store');
 end;
 
 
-function ERR_SSL_CTX_set1_verify_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_verify_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_verify_cert_store');
 end;
 
 
-function ERR_SSL_CTX_set0_chain_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; 
+function  ERR_SSL_CTX_set0_chain_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set0_chain_cert_store');
 end;
 
 
-function ERR_SSL_CTX_set1_chain_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_chain_cert_store(ctx: PSSL_CTX; st: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_chain_cert_store');
 end;
 
 
-function ERR_SSL_set0_chain(s: PSSL; sk: PByte): TIdC_LONG; 
+function  ERR_SSL_set0_chain(s: PSSL; sk: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set0_chain');
 end;
 
 
-function ERR_SSL_set1_chain(s: PSSL; sk: PByte): TIdC_LONG; 
+function  ERR_SSL_set1_chain(s: PSSL; sk: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_chain');
 end;
 
 
-function ERR_SSL_add0_chain_cert(s: PSSL; x509: PByte): TIdC_LONG; 
+function  ERR_SSL_add0_chain_cert(s: PSSL; x509: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_add0_chain_cert');
 end;
 
 
-function ERR_SSL_add1_chain_cert(s: PSSL; x509: PByte): TIdC_LONG; 
+function  ERR_SSL_add1_chain_cert(s: PSSL; x509: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_add1_chain_cert');
 end;
 
 
-function ERR_SSL_get0_chain_certs(s: PSSL; px509: Pointer): TIdC_LONG; 
+function  ERR_SSL_get0_chain_certs(s: PSSL; px509: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_chain_certs');
 end;
 
 
-function ERR_SSL_clear_chain_certs(s: PSSL): TIdC_LONG; 
+function  ERR_SSL_clear_chain_certs(s: PSSL): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_clear_chain_certs');
 end;
 
 
-function ERR_SSL_build_cert_chain(s: PSSL; flags: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_build_cert_chain(s: PSSL; flags: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_build_cert_chain');
 end;
 
 
-function ERR_SSL_select_current_cert(s: PSSL; x509: PByte): TIdC_LONG; 
+function  ERR_SSL_select_current_cert(s: PSSL; x509: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_select_current_cert');
 end;
 
 
-function ERR_SSL_set_current_cert(s: PSSL; op: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_set_current_cert(s: PSSL; op: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_current_cert');
 end;
 
 
-function ERR_SSL_set0_verify_cert_store(s: PSSL; st: PByte): TIdC_LONG; 
+function  ERR_SSL_set0_verify_cert_store(s: PSSL; st: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set0_verify_cert_store');
 end;
 
 
-function ERR_SSL_set1_verify_cert_store(s: PSSL; st: PByte): TIdC_LONG; 
+function  ERR_SSL_set1_verify_cert_store(s: PSSL; st: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_verify_cert_store');
 end;
 
 
-function ERR_SSL_set0_chain_cert_store(s: PSSL; st: PByte): TIdC_LONG; 
+function  ERR_SSL_set0_chain_cert_store(s: PSSL; st: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set0_chain_cert_store');
 end;
 
 
-function ERR_SSL_set1_chain_cert_store(s: PSSL; st: PByte): TIdC_LONG; 
+function  ERR_SSL_set1_chain_cert_store(s: PSSL; st: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_chain_cert_store');
 end;
 
 
-function ERR_SSL_get1_groups(s: PSSL; glist: PIdC_INT): TIdC_LONG; 
+function  ERR_SSL_get1_groups(s: PSSL; glist: PIdC_INT): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get1_groups');
 end;
 
 
-function ERR_SSL_CTX_set1_groups(ctx: PSSL_CTX; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_groups(ctx: PSSL_CTX; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_groups');
 end;
 
 
-function ERR_SSL_CTX_set1_groups_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_groups_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_groups_list');
 end;
 
 
-function ERR_SSL_set1_groups(s: PSSL; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_set1_groups(s: PSSL; glist: PByte; glistlen: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_groups');
 end;
 
 
-function ERR_SSL_set1_groups_list(s: PSSL; str: PByte): TIdC_LONG; 
+function  ERR_SSL_set1_groups_list(s: PSSL; str: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_groups_list');
 end;
 
 
-function ERR_SSL_get_shared_group(s: PSSL; n: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_get_shared_group(s: PSSL; n: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_shared_group');
 end;
 
 
-function ERR_SSL_CTX_set1_sigalgs(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_sigalgs(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_sigalgs');
 end;
 
 
-function ERR_SSL_CTX_set1_sigalgs_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_sigalgs_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_sigalgs_list');
 end;
 
 
-function ERR_SSL_set1_sigalgs(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_set1_sigalgs(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_sigalgs');
 end;
 
 
-function ERR_SSL_set1_sigalgs_list(s: PSSL; str: PByte): TIdC_LONG; 
+function  ERR_SSL_set1_sigalgs_list(s: PSSL; str: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_sigalgs_list');
 end;
 
 
-function ERR_SSL_CTX_set1_client_sigalgs(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_client_sigalgs(ctx: PSSL_CTX; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_client_sigalgs');
 end;
 
 
-function ERR_SSL_CTX_set1_client_sigalgs_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_client_sigalgs_list(ctx: PSSL_CTX; s: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_client_sigalgs_list');
 end;
 
 
-function ERR_SSL_set1_client_sigalgs(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_set1_client_sigalgs(s: PSSL; slist: PIdC_INT; slistlen: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_client_sigalgs');
 end;
 
 
-function ERR_SSL_set1_client_sigalgs_list(s: PSSL; str: PByte): TIdC_LONG; 
+function  ERR_SSL_set1_client_sigalgs_list(s: PSSL; str: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_client_sigalgs_list');
 end;
 
 
-function ERR_SSL_get0_certificate_types(s: PSSL; clist: PByte): TIdC_LONG; 
+function  ERR_SSL_get0_certificate_types(s: PSSL; clist: PByte): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_certificate_types');
 end;
 
 
-function ERR_SSL_CTX_set1_client_certificate_types(ctx: PSSL_CTX; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_CTX_set1_client_certificate_types(ctx: PSSL_CTX; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_client_certificate_types');
 end;
 
 
-function ERR_SSL_set1_client_certificate_types(s: PSSL; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; 
+function  ERR_SSL_set1_client_certificate_types(s: PSSL; clist: PByte; clistlen: TIdC_LONG): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_client_certificate_types');
 end;
 
 
-function ERR_SSL_get_signature_nid(s: PSSL; pn: Pointer): TIdC_LONG; 
+function  ERR_SSL_get_signature_nid(s: PSSL; pn: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_signature_nid');
 end;
 
 
-function ERR_SSL_get_peer_signature_nid(s: PSSL; pn: Pointer): TIdC_LONG; 
+function  ERR_SSL_get_peer_signature_nid(s: PSSL; pn: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_peer_signature_nid');
 end;
 
 
-function ERR_SSL_get_peer_tmp_key(s: PSSL; pk: Pointer): TIdC_LONG; 
+function  ERR_SSL_get_peer_tmp_key(s: PSSL; pk: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_peer_tmp_key');
 end;
 
 
-function ERR_SSL_get_tmp_key(s: PSSL; pk: Pointer): TIdC_LONG; 
+function  ERR_SSL_get_tmp_key(s: PSSL; pk: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_tmp_key');
 end;
 
 
-function ERR_SSL_get0_raw_cipherlist(s: PSSL; plst: Pointer): TIdC_LONG; 
+function  ERR_SSL_get0_raw_cipherlist(s: PSSL; plst: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_raw_cipherlist');
 end;
 
 
-function ERR_SSL_get0_ec_point_formats(s: PSSL; plst: Pointer): TIdC_LONG; 
+function  ERR_SSL_get0_ec_point_formats(s: PSSL; plst: Pointer): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_ec_point_formats');
 end;
 
 
-function ERR_SSL_CTX_get_options(const ctx: PSSL_CTX): TIdC_ULONG; 
+function  ERR_SSL_CTX_get_options(const ctx: PSSL_CTX): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_options');
 end;
 
 
-function ERR_SSL_get_options(const s: PSSL): TIdC_ULONG; 
+function  ERR_SSL_get_options(const s: PSSL): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_options');
 end;
 
 
-function ERR_SSL_CTX_clear_options(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG; 
+function  ERR_SSL_CTX_clear_options(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_clear_options');
 end;
 
 
-function ERR_SSL_clear_options(s: PSSL; op: TIdC_ULONG): TIdC_ULONG; 
+function  ERR_SSL_clear_options(s: PSSL; op: TIdC_ULONG): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_clear_options');
 end;
 
 
-function ERR_SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG; 
+function  ERR_SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_options');
 end;
 
 
-function ERR_SSL_set_options(s: PSSL; op: TIdC_ULONG): TIdC_ULONG; 
+function  ERR_SSL_set_options(s: PSSL; op: TIdC_ULONG): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_options');
 end;
 
 
-procedure ERR_SSL_CTX_set_stateless_cookie_generate_cb(ctx: PSSL_CTX; gen_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_generate_cb_gen_stateless_cookie_cb); 
+procedure  ERR_SSL_CTX_set_stateless_cookie_generate_cb(ctx: PSSL_CTX; gen_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_generate_cb_gen_stateless_cookie_cb); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_stateless_cookie_generate_cb');
 end;
 
 
-procedure ERR_SSL_CTX_set_stateless_cookie_verify_cb(ctx: PSSL_CTX; verify_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_verify_cb_verify_stateless_cookie_cb); 
+procedure  ERR_SSL_CTX_set_stateless_cookie_verify_cb(ctx: PSSL_CTX; verify_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_verify_cb_verify_stateless_cookie_cb); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_stateless_cookie_verify_cb');
 end;
 
 
-procedure ERR_SSL_set_psk_find_session_callback(s: PSSL; cb: SSL_psk_find_session_cb_func); 
+procedure  ERR_SSL_set_psk_find_session_callback(s: PSSL; cb: SSL_psk_find_session_cb_func); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_psk_find_session_callback');
 end;
 
 
-procedure ERR_SSL_CTX_set_psk_find_session_callback(ctx: PSSL_CTX; cb: SSL_psk_find_session_cb_func); 
+procedure  ERR_SSL_CTX_set_psk_find_session_callback(ctx: PSSL_CTX; cb: SSL_psk_find_session_cb_func); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_psk_find_session_callback');
 end;
 
 
-procedure ERR_SSL_set_psk_use_session_callback(s: PSSL; cb: SSL_psk_use_session_cb_func); 
+procedure  ERR_SSL_set_psk_use_session_callback(s: PSSL; cb: SSL_psk_use_session_cb_func); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_psk_use_session_callback');
 end;
 
 
-procedure ERR_SSL_CTX_set_psk_use_session_callback(ctx: PSSL_CTX; cb: SSL_psk_use_session_cb_func); 
+procedure  ERR_SSL_CTX_set_psk_use_session_callback(ctx: PSSL_CTX; cb: SSL_psk_use_session_cb_func); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_psk_use_session_callback');
 end;
 
 
-procedure ERR_SSL_CTX_set_keylog_callback(ctx: PSSL_CTX; cb: SSL_CTX_keylog_cb_func); 
+procedure  ERR_SSL_CTX_set_keylog_callback(ctx: PSSL_CTX; cb: SSL_CTX_keylog_cb_func); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_keylog_callback');
 end;
 
 
-function ERR_SSL_CTX_get_keylog_callback(const ctx: PSSL_CTX): SSL_CTX_keylog_cb_func; 
+function  ERR_SSL_CTX_get_keylog_callback(const ctx: PSSL_CTX): SSL_CTX_keylog_cb_func; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_keylog_callback');
 end;
 
 
-function ERR_SSL_CTX_set_max_early_data(ctx: PSSL_CTX; max_early_data: TIdC_UINT32): TIdC_INT; 
+function  ERR_SSL_CTX_set_max_early_data(ctx: PSSL_CTX; max_early_data: TIdC_UINT32): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_max_early_data');
 end;
 
 
-function ERR_SSL_CTX_get_max_early_data(const ctx: PSSL_CTX): TIdC_UINT32; 
+function  ERR_SSL_CTX_get_max_early_data(const ctx: PSSL_CTX): TIdC_UINT32; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_max_early_data');
 end;
 
 
-function ERR_SSL_set_max_early_data(s: PSSL; max_early_data: TIdC_UINT32): TIdC_INT; 
+function  ERR_SSL_set_max_early_data(s: PSSL; max_early_data: TIdC_UINT32): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_max_early_data');
 end;
 
 
-function ERR_SSL_get_max_early_data(const s: PSSL): TIdC_UINT32; 
+function  ERR_SSL_get_max_early_data(const s: PSSL): TIdC_UINT32; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_max_early_data');
 end;
 
 
-function ERR_SSL_CTX_set_recv_max_early_data(ctx: PSSL_CTX; recv_max_early_data: TIdC_UINT32): TIdC_INT; 
+function  ERR_SSL_CTX_set_recv_max_early_data(ctx: PSSL_CTX; recv_max_early_data: TIdC_UINT32): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_recv_max_early_data');
 end;
 
 
-function ERR_SSL_CTX_get_recv_max_early_data(const ctx: PSSL_CTX): TIdC_UINT32; 
+function  ERR_SSL_CTX_get_recv_max_early_data(const ctx: PSSL_CTX): TIdC_UINT32; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_recv_max_early_data');
 end;
 
 
-function ERR_SSL_set_recv_max_early_data(s: PSSL; recv_max_early_data: TIdC_UINT32): TIdC_INT; 
+function  ERR_SSL_set_recv_max_early_data(s: PSSL; recv_max_early_data: TIdC_UINT32): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_recv_max_early_data');
 end;
 
 
-function ERR_SSL_get_recv_max_early_data(const s: PSSL): TIdC_UINT32; 
+function  ERR_SSL_get_recv_max_early_data(const s: PSSL): TIdC_UINT32; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_recv_max_early_data');
 end;
 
 
-function ERR_SSL_get_app_data(const ssl: PSSL): Pointer ; 
+function  ERR_SSL_get_app_data(const ssl: PSSL): Pointer ; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_app_data');
 end;
 
  
-function ERR_SSL_set_app_data(ssl: PSSL; data: Pointer): TIdC_INT; 
+function  ERR_SSL_set_app_data(ssl: PSSL; data: Pointer): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_app_data');
 end;
 
 
-function ERR_SSL_in_init(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_in_init(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_in_init');
 end;
 
 
-function ERR_SSL_in_before(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_in_before(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_in_before');
 end;
 
 
-function ERR_SSL_is_init_finished(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_is_init_finished(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_is_init_finished');
 end;
 
 
-function ERR_SSLeay_add_ssl_algorithms: TIdC_INT; 
+function  ERR_SSLeay_add_ssl_algorithms: TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSLeay_add_ssl_algorithms');
 end;
 
 
-function ERR_SSL_CTX_up_ref(ctx: PSSL_CTX): TIdC_INT; 
+function  ERR_SSL_CTX_up_ref(ctx: PSSL_CTX): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_up_ref');
 end;
 
 
-procedure ERR_SSL_CTX_set1_cert_store(v1: PSSL_CTX; v2: PX509_STORE); 
+procedure  ERR_SSL_CTX_set1_cert_store(v1: PSSL_CTX; v2: PX509_STORE); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set1_cert_store');
 end;
 
 
-function ERR_SSL_get_pending_cipher(const s: PSSL): PSSL_CIPHER; 
+function  ERR_SSL_get_pending_cipher(const s: PSSL): PSSL_CIPHER; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_pending_cipher');
 end;
 
 
-function ERR_SSL_CIPHER_standard_name(const c: PSSL_CIPHER): PIdAnsiChar; 
+function  ERR_SSL_CIPHER_standard_name(const c: PSSL_CIPHER): PIdAnsiChar; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CIPHER_standard_name');
 end;
 
 
-function ERR_OPENSSL_cipher_name(const rfc_name: PIdAnsiChar): PIdAnsiChar; 
+function  ERR_OPENSSL_cipher_name(const rfc_name: PIdAnsiChar): PIdAnsiChar; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_cipher_name');
 end;
 
 
-function ERR_SSL_CIPHER_get_protocol_id(const c: PSSL_CIPHER): TIdC_UINT16; 
+function  ERR_SSL_CIPHER_get_protocol_id(const c: PSSL_CIPHER): TIdC_UINT16; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CIPHER_get_protocol_id');
 end;
 
 
-function ERR_SSL_CIPHER_get_kx_nid(const c: PSSL_CIPHER): TIdC_INT; 
+function  ERR_SSL_CIPHER_get_kx_nid(const c: PSSL_CIPHER): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CIPHER_get_kx_nid');
 end;
 
 
-function ERR_SSL_CIPHER_get_auth_nid(const c: PSSL_CIPHER): TIdC_INT; 
+function  ERR_SSL_CIPHER_get_auth_nid(const c: PSSL_CIPHER): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CIPHER_get_auth_nid');
 end;
 
 
-function ERR_SSL_CIPHER_get_handshake_digest(const c: PSSL_CIPHER): PEVP_MD; 
+function  ERR_SSL_CIPHER_get_handshake_digest(const c: PSSL_CIPHER): PEVP_MD; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CIPHER_get_handshake_digest');
 end;
 
 
-function ERR_SSL_CIPHER_is_aead(const c: PSSL_CIPHER): TIdC_INT; 
+function  ERR_SSL_CIPHER_is_aead(const c: PSSL_CIPHER): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CIPHER_is_aead');
 end;
 
 
-function ERR_SSL_has_pending(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_has_pending(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_has_pending');
 end;
 
 
-procedure ERR_SSL_set0_rbio(s: PSSL; rbio: PBIO); 
+procedure  ERR_SSL_set0_rbio(s: PSSL; rbio: PBIO); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set0_rbio');
 end;
 
 
-procedure ERR_SSL_set0_wbio(s: PSSL; wbio: PBIO); 
+procedure  ERR_SSL_set0_wbio(s: PSSL; wbio: PBIO); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set0_wbio');
 end;
 
 
-function ERR_SSL_CTX_set_ciphersuites(ctx: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_CTX_set_ciphersuites(ctx: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_ciphersuites');
 end;
 
 
-function ERR_SSL_set_ciphersuites(s: PSSL; const str: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_set_ciphersuites(s: PSSL; const str: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_ciphersuites');
 end;
 
 
-function ERR_SSL_CTX_use_serverinfo_ex(ctx: PSSL_CTX; version: TIdC_UINT; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_CTX_use_serverinfo_ex(ctx: PSSL_CTX; version: TIdC_UINT; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_use_serverinfo_ex');
 end;
 
 
-function ERR_SSL_use_certificate_chain_file(ssl: PSSL; const file_: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_use_certificate_chain_file(ssl: PSSL; const file_: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_use_certificate_chain_file');
 end;
 
 
-procedure ERR_SSL_load_error_strings; 
+procedure  ERR_SSL_load_error_strings; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_load_error_strings');
 end;
 
 
-function ERR_SSL_SESSION_get_protocol_version(const s: PSSL_SESSION): TIdC_INT; 
+function  ERR_SSL_SESSION_get_protocol_version(const s: PSSL_SESSION): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get_protocol_version');
 end;
 
 
-function ERR_SSL_SESSION_set_protocol_version(s: PSSL_SESSION; version: TIdC_INT): TIdC_INT; 
+function  ERR_SSL_SESSION_set_protocol_version(s: PSSL_SESSION; version: TIdC_INT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_set_protocol_version');
 end;
 
 
-function ERR_SSL_SESSION_get0_hostname(const s: PSSL_SESSION): PIdAnsiChar; 
+function  ERR_SSL_SESSION_get0_hostname(const s: PSSL_SESSION): PIdAnsiChar; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get0_hostname');
 end;
 
 
-function ERR_SSL_SESSION_set1_hostname(s: PSSL_SESSION; const hostname: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_SESSION_set1_hostname(s: PSSL_SESSION; const hostname: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_set1_hostname');
 end;
 
 
-procedure ERR_SSL_SESSION_get0_alpn_selected(const s: PSSL_SESSION; const alpn: PPByte; len: PIdC_SIZET); 
+procedure  ERR_SSL_SESSION_get0_alpn_selected(const s: PSSL_SESSION; const alpn: PPByte; len: PIdC_SIZET); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get0_alpn_selected');
 end;
 
 
-function ERR_SSL_SESSION_set1_alpn_selected(s: PSSL_SESSION; const alpn: PByte; len: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_SESSION_set1_alpn_selected(s: PSSL_SESSION; const alpn: PByte; len: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_set1_alpn_selected');
 end;
 
 
-function ERR_SSL_SESSION_get0_cipher(const s: PSSL_SESSION): PSSL_CIPHER; 
+function  ERR_SSL_SESSION_get0_cipher(const s: PSSL_SESSION): PSSL_CIPHER; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get0_cipher');
 end;
 
 
-function ERR_SSL_SESSION_set_cipher(s: PSSL_SESSION; const cipher: PSSL_CIPHER): TIdC_INT; 
+function  ERR_SSL_SESSION_set_cipher(s: PSSL_SESSION; const cipher: PSSL_CIPHER): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_set_cipher');
 end;
 
 
-function ERR_SSL_SESSION_has_ticket(const s: PSSL_SESSION): TIdC_INT; 
+function  ERR_SSL_SESSION_has_ticket(const s: PSSL_SESSION): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_has_ticket');
 end;
 
 
-function ERR_SSL_SESSION_get_ticket_lifetime_hint(const s: PSSL_SESSION): TIdC_ULONG; 
+function  ERR_SSL_SESSION_get_ticket_lifetime_hint(const s: PSSL_SESSION): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get_ticket_lifetime_hint');
 end;
 
 
-procedure ERR_SSL_SESSION_get0_ticket(const s: PSSL_SESSION; const tick: PPByte; len: PIdC_SIZET); 
+procedure  ERR_SSL_SESSION_get0_ticket(const s: PSSL_SESSION; const tick: PPByte; len: PIdC_SIZET); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get0_ticket');
 end;
 
 
-function ERR_SSL_SESSION_get_max_early_data(const s: PSSL_SESSION): TIdC_UINT32; 
+function  ERR_SSL_SESSION_get_max_early_data(const s: PSSL_SESSION): TIdC_UINT32; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get_max_early_data');
 end;
 
 
-function ERR_SSL_SESSION_set_max_early_data(s: PSSL_SESSION; max_early_data: TIdC_UINT32): TIdC_INT; 
+function  ERR_SSL_SESSION_set_max_early_data(s: PSSL_SESSION; max_early_data: TIdC_UINT32): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_set_max_early_data');
 end;
 
 
-function ERR_SSL_SESSION_set1_id(s: PSSL_SESSION; const sid: PByte; sid_len: TIdC_UINT): TIdC_INT; 
+function  ERR_SSL_SESSION_set1_id(s: PSSL_SESSION; const sid: PByte; sid_len: TIdC_UINT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_set1_id');
 end;
 
 
-function ERR_SSL_SESSION_is_resumable(const s: PSSL_SESSION): TIdC_INT; 
+function  ERR_SSL_SESSION_is_resumable(const s: PSSL_SESSION): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_is_resumable');
 end;
 
 
-function ERR_SSL_SESSION_dup(src: PSSL_SESSION): PSSL_SESSION; 
+function  ERR_SSL_SESSION_dup(src: PSSL_SESSION): PSSL_SESSION; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_dup');
 end;
 
 
-function ERR_SSL_SESSION_get0_id_context(const s: PSSL_SESSION; len: PIdC_UINT): PByte; 
+function  ERR_SSL_SESSION_get0_id_context(const s: PSSL_SESSION; len: PIdC_UINT): PByte; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get0_id_context');
 end;
 
 
-function ERR_SSL_SESSION_print_keylog(bp: PBIO; const x: PSSL_SESSION): TIdC_INT; 
+function  ERR_SSL_SESSION_print_keylog(bp: PBIO; const x: PSSL_SESSION): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_print_keylog');
 end;
 
 
-function ERR_SSL_SESSION_up_ref(ses: PSSL_SESSION): TIdC_INT; 
+function  ERR_SSL_SESSION_up_ref(ses: PSSL_SESSION): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_up_ref');
 end;
 
 
-function ERR_SSL_get_peer_certificate(const s: PSSL): PX509; 
+function  ERR_SSL_get_peer_certificate(const s: PSSL): PX509; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_peer_certificate');
 end;
 
 
-procedure ERR_SSL_CTX_set_default_passwd_cb(ctx: PSSL_CTX; cb: pem_password_cb); 
+procedure  ERR_SSL_CTX_set_default_passwd_cb(ctx: PSSL_CTX; cb: pem_password_cb); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_default_passwd_cb');
 end;
 
 
-procedure ERR_SSL_CTX_set_default_passwd_cb_userdata(ctx: PSSL_CTX; u: Pointer); 
+procedure  ERR_SSL_CTX_set_default_passwd_cb_userdata(ctx: PSSL_CTX; u: Pointer); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_default_passwd_cb_userdata');
 end;
 
 
-function ERR_SSL_CTX_get_default_passwd_cb(ctx: PSSL_CTX): pem_password_cb; 
+function  ERR_SSL_CTX_get_default_passwd_cb(ctx: PSSL_CTX): pem_password_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_default_passwd_cb');
 end;
 
 
-function ERR_SSL_CTX_get_default_passwd_cb_userdata(ctx: PSSL_CTX): Pointer; 
+function  ERR_SSL_CTX_get_default_passwd_cb_userdata(ctx: PSSL_CTX): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_default_passwd_cb_userdata');
 end;
 
 
-procedure ERR_SSL_set_default_passwd_cb(s: PSSL; cb: pem_password_cb); 
+procedure  ERR_SSL_set_default_passwd_cb(s: PSSL; cb: pem_password_cb); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_default_passwd_cb');
 end;
 
 
-procedure ERR_SSL_set_default_passwd_cb_userdata(s: PSSL; u: Pointer); 
+procedure  ERR_SSL_set_default_passwd_cb_userdata(s: PSSL; u: Pointer); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_default_passwd_cb_userdata');
 end;
 
 
-function ERR_SSL_get_default_passwd_cb(s: PSSL): pem_password_cb; 
+function  ERR_SSL_get_default_passwd_cb(s: PSSL): pem_password_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_default_passwd_cb');
 end;
 
 
-function ERR_SSL_get_default_passwd_cb_userdata(s: PSSL): Pointer; 
+function  ERR_SSL_get_default_passwd_cb_userdata(s: PSSL): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_default_passwd_cb_userdata');
 end;
 
 
-function ERR_SSL_up_ref(s: PSSL): TIdC_INT; 
+function  ERR_SSL_up_ref(s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_up_ref');
 end;
 
 
-function ERR_SSL_is_dtls(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_is_dtls(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_is_dtls');
 end;
 
 
-function ERR_SSL_set1_host(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_set1_host(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set1_host');
 end;
 
 
-function ERR_SSL_add1_host(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_add1_host(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_add1_host');
 end;
 
 
-function ERR_SSL_get0_peername(s: PSSL): PIdAnsiChar; 
+function  ERR_SSL_get0_peername(s: PSSL): PIdAnsiChar; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_peername');
 end;
 
 
-procedure ERR_SSL_set_hostflags(s: PSSL; flags: TIdC_UINT); 
+procedure  ERR_SSL_set_hostflags(s: PSSL; flags: TIdC_UINT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_hostflags');
 end;
 
 
-function ERR_SSL_CTX_dane_enable(ctx: PSSL_CTX): TIdC_INT; 
+function  ERR_SSL_CTX_dane_enable(ctx: PSSL_CTX): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_dane_enable');
 end;
 
 
-function ERR_SSL_CTX_dane_mtype_set(ctx: PSSL_CTX; const md: PEVP_MD; mtype: TIdC_UINT8; ord: TIdC_UINT8): TIdC_INT; 
+function  ERR_SSL_CTX_dane_mtype_set(ctx: PSSL_CTX; const md: PEVP_MD; mtype: TIdC_UINT8; ord: TIdC_UINT8): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_dane_mtype_set');
 end;
 
 
-function ERR_SSL_dane_enable(s: PSSL; const basedomain: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_dane_enable(s: PSSL; const basedomain: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_dane_enable');
 end;
 
 
-function ERR_SSL_dane_tlsa_add(s: PSSL; usage: TIdC_UINT8; selector: TIdC_UINT8; mtype: TIdC_UINT8; const data: PByte; dlen: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_dane_tlsa_add(s: PSSL; usage: TIdC_UINT8; selector: TIdC_UINT8; mtype: TIdC_UINT8; const data: PByte; dlen: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_dane_tlsa_add');
 end;
 
 
-function ERR_SSL_get0_dane_authority(s: PSSL; mcert: PPX509; mspki: PPEVP_PKEY): TIdC_INT; 
+function  ERR_SSL_get0_dane_authority(s: PSSL; mcert: PPX509; mspki: PPEVP_PKEY): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_dane_authority');
 end;
 
 
-function ERR_SSL_get0_dane_tlsa(s: PSSL; usage: PIdC_UINT8; selector: PIdC_UINT8; mtype: PIdC_UINT8; const data: PPByte; dlen: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_get0_dane_tlsa(s: PSSL; usage: PIdC_UINT8; selector: PIdC_UINT8; mtype: PIdC_UINT8; const data: PPByte; dlen: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_dane_tlsa');
 end;
 
 
-function ERR_SSL_get0_dane(ssl: PSSL): PSSL_DANE; 
+function  ERR_SSL_get0_dane(ssl: PSSL): PSSL_DANE; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_dane');
 end;
 
 
-function ERR_SSL_CTX_dane_set_flags(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG; 
+function  ERR_SSL_CTX_dane_set_flags(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_dane_set_flags');
 end;
 
 
-function ERR_SSL_CTX_dane_clear_flags(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG; 
+function  ERR_SSL_CTX_dane_clear_flags(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_dane_clear_flags');
 end;
 
 
-function ERR_SSL_dane_set_flags(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG; 
+function  ERR_SSL_dane_set_flags(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_dane_set_flags');
 end;
 
 
-function ERR_SSL_dane_clear_flags(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG; 
+function  ERR_SSL_dane_clear_flags(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_dane_clear_flags');
 end;
 
 
-procedure ERR_SSL_CTX_set_client_hello_cb(c: PSSL_CTX; cb: SSL_client_hello_cb_fn; arg: Pointer); 
+procedure  ERR_SSL_CTX_set_client_hello_cb(c: PSSL_CTX; cb: SSL_client_hello_cb_fn; arg: Pointer); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_client_hello_cb');
 end;
 
 
-function ERR_SSL_client_hello_isv2(s: PSSL): TIdC_INT; 
+function  ERR_SSL_client_hello_isv2(s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_client_hello_isv2');
 end;
 
 
-function ERR_SSL_client_hello_get0_legacy_version(s: PSSL): TIdC_UINT; 
+function  ERR_SSL_client_hello_get0_legacy_version(s: PSSL): TIdC_UINT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_client_hello_get0_legacy_version');
 end;
 
 
-function ERR_SSL_client_hello_get0_random(s: PSSL; const out_: PPByte): TIdC_SIZET; 
+function  ERR_SSL_client_hello_get0_random(s: PSSL; const out_: PPByte): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_client_hello_get0_random');
 end;
 
 
-function ERR_SSL_client_hello_get0_session_id(s: PSSL; const out_: PPByte): TIdC_SIZET; 
+function  ERR_SSL_client_hello_get0_session_id(s: PSSL; const out_: PPByte): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_client_hello_get0_session_id');
 end;
 
 
-function ERR_SSL_client_hello_get0_ciphers(s: PSSL; const out_: PPByte): TIdC_SIZET; 
+function  ERR_SSL_client_hello_get0_ciphers(s: PSSL; const out_: PPByte): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_client_hello_get0_ciphers');
 end;
 
 
-function ERR_SSL_client_hello_get0_compression_methods(s: PSSL; const out_: PPByte): TIdC_SIZET; 
+function  ERR_SSL_client_hello_get0_compression_methods(s: PSSL; const out_: PPByte): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_client_hello_get0_compression_methods');
 end;
 
 
-function ERR_SSL_client_hello_get1_extensions_present(s: PSSL; out_: PPIdC_INT; outlen: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_client_hello_get1_extensions_present(s: PSSL; out_: PPIdC_INT; outlen: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_client_hello_get1_extensions_present');
 end;
 
 
-function ERR_SSL_client_hello_get0_ext(s: PSSL; type_: TIdC_UINT; const out_: PPByte; outlen: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_client_hello_get0_ext(s: PSSL; type_: TIdC_UINT; const out_: PPByte; outlen: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_client_hello_get0_ext');
 end;
 
 
-function ERR_SSL_waiting_for_async(s: PSSL): TIdC_INT; 
+function  ERR_SSL_waiting_for_async(s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_waiting_for_async');
 end;
 
 
-function ERR_SSL_get_all_async_fds(s: PSSL; fds: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_get_all_async_fds(s: PSSL; fds: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_all_async_fds');
 end;
 
 
-function ERR_SSL_get_changed_async_fds(s: PSSL; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_get_changed_async_fds(s: PSSL; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_changed_async_fds');
 end;
 
 
-function ERR_SSL_stateless(s: PSSL): TIdC_INT; 
+function  ERR_SSL_stateless(s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_stateless');
 end;
 
 
-function ERR_SSL_read_ex(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_read_ex(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_read_ex');
 end;
 
 
-function ERR_SSL_read_early_data(s: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_read_early_data(s: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_read_early_data');
 end;
 
 
-function ERR_SSL_peek_ex(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_peek_ex(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_peek_ex');
 end;
 
 
-function ERR_SSL_write_ex(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_write_ex(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_write_ex');
 end;
 
 
-function ERR_SSL_write_early_data(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_write_early_data(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_write_early_data');
 end;
 
 
-function ERR_SSL_get_early_data_status(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_get_early_data_status(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_early_data_status');
 end;
 
 
-function ERR_TLS_method: PSSL_METHOD; 
+function  ERR_TLS_method: PSSL_METHOD; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('TLS_method');
 end;
 
 
-function ERR_TLS_server_method: PSSL_METHOD; 
+function  ERR_TLS_server_method: PSSL_METHOD; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('TLS_server_method');
 end;
 
 
-function ERR_TLS_client_method: PSSL_METHOD; 
+function  ERR_TLS_client_method: PSSL_METHOD; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('TLS_client_method');
 end;
 
 
-function ERR_SSL_key_update(s: PSSL; updatetype: TIdC_INT): TIdC_INT; 
+function  ERR_SSL_key_update(s: PSSL; updatetype: TIdC_INT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_key_update');
 end;
 
 
-function ERR_SSL_get_key_update_type(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_get_key_update_type(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_key_update_type');
 end;
 
 
-procedure ERR_SSL_CTX_set_post_handshake_auth(ctx: PSSL_CTX; val: TIdC_INT); 
+procedure  ERR_SSL_CTX_set_post_handshake_auth(ctx: PSSL_CTX; val: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_post_handshake_auth');
 end;
 
 
-procedure ERR_SSL_set_post_handshake_auth(s: PSSL; val: TIdC_INT); 
+procedure  ERR_SSL_set_post_handshake_auth(s: PSSL; val: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_post_handshake_auth');
 end;
 
 
-function ERR_SSL_verify_client_post_handshake(s: PSSL): TIdC_INT; 
+function  ERR_SSL_verify_client_post_handshake(s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_verify_client_post_handshake');
 end;
 
 
-function ERR_SSL_library_init: TIdC_INT; 
+function  ERR_SSL_library_init: TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_library_init');
 end;
 
 
-function ERR_SSL_client_version(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_client_version(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_client_version');
 end;
 
 
-function ERR_SSL_CTX_set_default_verify_dir(ctx: PSSL_CTX): TIdC_INT; 
+function  ERR_SSL_CTX_set_default_verify_dir(ctx: PSSL_CTX): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_default_verify_dir');
 end;
 
 
-function ERR_SSL_CTX_set_default_verify_file(ctx: PSSL_CTX): TIdC_INT; 
+function  ERR_SSL_CTX_set_default_verify_file(ctx: PSSL_CTX): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_default_verify_file');
 end;
 
 
-function ERR_SSL_get_state(const ssl: PSSL): OSSL_HANDSHAKE_STATE; 
+function  ERR_SSL_get_state(const ssl: PSSL): OSSL_HANDSHAKE_STATE; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_state');
 end;
 
 
-function ERR_SSL_get_client_random(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; 
+function  ERR_SSL_get_client_random(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_client_random');
 end;
 
 
-function ERR_SSL_get_server_random(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; 
+function  ERR_SSL_get_server_random(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_server_random');
 end;
 
 
-function ERR_SSL_SESSION_get_master_key(const sess: PSSL_SESSION; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; 
+function  ERR_SSL_SESSION_get_master_key(const sess: PSSL_SESSION; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get_master_key');
 end;
 
 
-function ERR_SSL_SESSION_set1_master_key(sess: PSSL_SESSION; const in_: PByte; len: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_SESSION_set1_master_key(sess: PSSL_SESSION; const in_: PByte; len: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_set1_master_key');
 end;
 
 
-function ERR_SSL_SESSION_get_max_fragment_length(const sess: PSSL_SESSION): TIdC_UINT8; 
+function  ERR_SSL_SESSION_get_max_fragment_length(const sess: PSSL_SESSION): TIdC_UINT8; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get_max_fragment_length');
 end;
 
 
-procedure ERR_SSL_CTX_set_default_read_buffer_len(ctx: PSSL_CTX; len: TIdC_SIZET); 
+procedure  ERR_SSL_CTX_set_default_read_buffer_len(ctx: PSSL_CTX; len: TIdC_SIZET); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_default_read_buffer_len');
 end;
 
 
-procedure ERR_SSL_set_default_read_buffer_len(s: PSSL; len: TIdC_SIZET); 
+procedure  ERR_SSL_set_default_read_buffer_len(s: PSSL; len: TIdC_SIZET); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_default_read_buffer_len');
 end;
 
 
-function ERR_SSL_CIPHER_get_cipher_nid(const c: PSSL_CIPHEr): TIdC_INT; 
+function  ERR_SSL_CIPHER_get_cipher_nid(const c: PSSL_CIPHEr): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CIPHER_get_cipher_nid');
 end;
 
 
-function ERR_SSL_CIPHER_get_digest_nid(const c: PSSL_CIPHEr): TIdC_INT; 
+function  ERR_SSL_CIPHER_get_digest_nid(const c: PSSL_CIPHEr): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CIPHER_get_digest_nid');
 end;
 
 
-procedure ERR_SSL_CTX_set_not_resumable_session_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_not_resumable_session_callback_cb); 
+procedure  ERR_SSL_CTX_set_not_resumable_session_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_not_resumable_session_callback_cb); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_not_resumable_session_callback');
 end;
 
 
-procedure ERR_SSL_set_not_resumable_session_callback(ssl: PSSL; cb: SSL_set_not_resumable_session_callback_cb); 
+procedure  ERR_SSL_set_not_resumable_session_callback(ssl: PSSL; cb: SSL_set_not_resumable_session_callback_cb); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_not_resumable_session_callback');
 end;
 
 
-procedure ERR_SSL_CTX_set_record_padding_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_record_padding_callback_cb); 
+procedure  ERR_SSL_CTX_set_record_padding_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_record_padding_callback_cb); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_record_padding_callback');
 end;
 
 
-procedure ERR_SSL_CTX_set_record_padding_callback_arg(ctx: PSSL_CTX; arg: Pointer); 
+procedure  ERR_SSL_CTX_set_record_padding_callback_arg(ctx: PSSL_CTX; arg: Pointer); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_record_padding_callback_arg');
 end;
 
 
-function ERR_SSL_CTX_get_record_padding_callback_arg(const ctx: PSSL_CTX): Pointer; 
+function  ERR_SSL_CTX_get_record_padding_callback_arg(const ctx: PSSL_CTX): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_record_padding_callback_arg');
 end;
 
 
-function ERR_SSL_CTX_set_block_padding(ctx: PSSL_CTX; block_size: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_CTX_set_block_padding(ctx: PSSL_CTX; block_size: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_block_padding');
 end;
 
 
-procedure ERR_SSL_set_record_padding_callback(ssl: PSSL; cb: SSL_set_record_padding_callback_cb); 
+procedure  ERR_SSL_set_record_padding_callback(ssl: PSSL; cb: SSL_set_record_padding_callback_cb); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_record_padding_callback');
 end;
 
 
-procedure ERR_SSL_set_record_padding_callback_arg(ssl: PSSL; arg: Pointer); 
+procedure  ERR_SSL_set_record_padding_callback_arg(ssl: PSSL; arg: Pointer); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_record_padding_callback_arg');
 end;
 
 
-function ERR_SSL_get_record_padding_callback_arg(const ssl: PSSL): Pointer; 
+function  ERR_SSL_get_record_padding_callback_arg(const ssl: PSSL): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_record_padding_callback_arg');
 end;
 
 
-function ERR_SSL_set_block_padding(ssl: PSSL; block_size: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_set_block_padding(ssl: PSSL; block_size: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_block_padding');
 end;
 
 
-function ERR_SSL_set_num_tickets(s: PSSL; num_tickets: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_set_num_tickets(s: PSSL; num_tickets: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_num_tickets');
 end;
 
 
-function ERR_SSL_get_num_tickets(const s: PSSL): TIdC_SIZET; 
+function  ERR_SSL_get_num_tickets(const s: PSSL): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_num_tickets');
 end;
 
 
-function ERR_SSL_CTX_set_num_tickets(ctx: PSSL_CTX; num_tickets: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_CTX_set_num_tickets(ctx: PSSL_CTX; num_tickets: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_num_tickets');
 end;
 
 
-function ERR_SSL_CTX_get_num_tickets(const ctx: PSSL_CTX): TIdC_SIZET; 
+function  ERR_SSL_CTX_get_num_tickets(const ctx: PSSL_CTX): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_num_tickets');
 end;
 
 
-function ERR_SSL_session_reused(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_session_reused(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_session_reused');
 end;
 
 
-procedure ERR_SSL_add_ssl_module; 
+procedure  ERR_SSL_add_ssl_module; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_add_ssl_module');
 end;
 
 
-function ERR_SSL_config(s: PSSL; const name: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_config(s: PSSL; const name: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_config');
 end;
 
 
-function ERR_SSL_CTX_config(ctx: PSSL_CTX; const name: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_CTX_config(ctx: PSSL_CTX; const name: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_config');
 end;
 
 
-function ERR_DTLSv1_listen(s: PSSL; client: PBIO_ADDr): TIdC_INT; 
+function  ERR_DTLSv1_listen(s: PSSL; client: PBIO_ADDr): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DTLSv1_listen');
 end;
 
 
-function ERR_SSL_enable_ct(s: PSSL; validation_mode: TIdC_INT): TIdC_INT; 
+function  ERR_SSL_enable_ct(s: PSSL; validation_mode: TIdC_INT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_enable_ct');
 end;
 
 
-function ERR_SSL_CTX_enable_ct(ctx: PSSL_CTX; validation_mode: TIdC_INT): TIdC_INT; 
+function  ERR_SSL_CTX_enable_ct(ctx: PSSL_CTX; validation_mode: TIdC_INT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_enable_ct');
 end;
 
 
-function ERR_SSL_ct_is_enabled(const s: PSSL): TIdC_INT; 
+function  ERR_SSL_ct_is_enabled(const s: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_ct_is_enabled');
 end;
 
 
-function ERR_SSL_CTX_ct_is_enabled(const ctx: PSSL_CTX): TIdC_INT; 
+function  ERR_SSL_CTX_ct_is_enabled(const ctx: PSSL_CTX): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_ct_is_enabled');
 end;
 
 
-function ERR_SSL_CTX_set_default_ctlog_list_file(ctx: PSSL_CTX): TIdC_INT; 
+function  ERR_SSL_CTX_set_default_ctlog_list_file(ctx: PSSL_CTX): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_default_ctlog_list_file');
 end;
 
 
-function ERR_SSL_CTX_set_ctlog_list_file(ctx: PSSL_CTX; const path: PIdAnsiChar): TIdC_INT; 
+function  ERR_SSL_CTX_set_ctlog_list_file(ctx: PSSL_CTX; const path: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_ctlog_list_file');
 end;
 
 
-procedure ERR_SSL_CTX_set0_ctlog_store(ctx: PSSL_CTX; logs: PCTLOG_STORE); 
+procedure  ERR_SSL_CTX_set0_ctlog_store(ctx: PSSL_CTX; logs: PCTLOG_STORE); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set0_ctlog_store');
 end;
 
 
-procedure ERR_SSL_set_security_level(s: PSSL; level: TIdC_INT); 
+procedure  ERR_SSL_set_security_level(s: PSSL; level: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_security_level');
 end;
 
 
-procedure ERR_SSL_set_security_callback(s: PSSL; cb: SSL_security_callback); 
+procedure  ERR_SSL_set_security_callback(s: PSSL; cb: SSL_security_callback); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_security_callback');
 end;
 
 
-function ERR_SSL_get_security_callback(const s: PSSL): SSL_security_callback; 
+function  ERR_SSL_get_security_callback(const s: PSSL): SSL_security_callback; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_security_callback');
 end;
 
 
-procedure ERR_SSL_set0_security_ex_data(s: PSSL; ex: Pointer); 
+procedure  ERR_SSL_set0_security_ex_data(s: PSSL; ex: Pointer); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set0_security_ex_data');
 end;
 
 
-function ERR_SSL_get0_security_ex_data(const s: PSSL): Pointer; 
+function  ERR_SSL_get0_security_ex_data(const s: PSSL): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_security_ex_data');
 end;
 
 
-procedure ERR_SSL_CTX_set_security_level(ctx: PSSL_CTX; level: TIdC_INT); 
+procedure  ERR_SSL_CTX_set_security_level(ctx: PSSL_CTX; level: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_security_level');
 end;
 
 
-function ERR_SSL_CTX_get_security_level(const ctx: PSSL_CTX): TIdC_INT; 
+function  ERR_SSL_CTX_get_security_level(const ctx: PSSL_CTX): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get_security_level');
 end;
 
 
-function ERR_SSL_CTX_get0_security_ex_data(const ctx: PSSL_CTX): Pointer; 
+function  ERR_SSL_CTX_get0_security_ex_data(const ctx: PSSL_CTX): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_get0_security_ex_data');
 end;
 
 
-procedure ERR_SSL_CTX_set0_security_ex_data(ctx: PSSL_CTX; ex: Pointer); 
+procedure  ERR_SSL_CTX_set0_security_ex_data(ctx: PSSL_CTX; ex: Pointer); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set0_security_ex_data');
 end;
 
 
-function ERR_OPENSSL_init_ssl(opts: TIdC_UINT64; const settings: POPENSSL_INIT_SETTINGS): TIdC_INT; 
+function  ERR_OPENSSL_init_ssl(opts: TIdC_UINT64; const settings: POPENSSL_INIT_SETTINGS): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_init_ssl');
 end;
 
 
-function ERR_SSL_free_buffers(ssl: PSSL): TIdC_INT; 
+function  ERR_SSL_free_buffers(ssl: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_free_buffers');
 end;
 
 
-function ERR_SSL_alloc_buffers(ssl: PSSL): TIdC_INT; 
+function  ERR_SSL_alloc_buffers(ssl: PSSL): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_alloc_buffers');
 end;
 
 
-function ERR_SSL_CTX_set_session_ticket_cb(ctx: PSSL_CTX; gen_cb: SSL_CTX_generate_session_ticket_fn; dec_cb: SSL_CTX_decrypt_session_ticket_fn; arg: Pointer): TIdC_INT; 
+function  ERR_SSL_CTX_set_session_ticket_cb(ctx: PSSL_CTX; gen_cb: SSL_CTX_generate_session_ticket_fn; dec_cb: SSL_CTX_decrypt_session_ticket_fn; arg: Pointer): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_session_ticket_cb');
 end;
 
 
-function ERR_SSL_SESSION_set1_ticket_appdata(ss: PSSL_SESSION; const data: Pointer; len: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_SESSION_set1_ticket_appdata(ss: PSSL_SESSION; const data: Pointer; len: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_set1_ticket_appdata');
 end;
 
 
-function ERR_SSL_SESSION_get0_ticket_appdata(ss: PSSL_SESSION; data: PPointer; len: PIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_SESSION_get0_ticket_appdata(ss: PSSL_SESSION; data: PPointer; len: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_SESSION_get0_ticket_appdata');
 end;
 
 
-procedure ERR_DTLS_set_timer_cb(s: PSSL; cb: DTLS_timer_cb); 
+procedure  ERR_DTLS_set_timer_cb(s: PSSL; cb: DTLS_timer_cb); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DTLS_set_timer_cb');
 end;
 
 
-procedure ERR_SSL_CTX_set_allow_early_data_cb(ctx: PSSL_CTX; cb: SSL_allow_early_data_cb_fN; arg: Pointer); 
+procedure  ERR_SSL_CTX_set_allow_early_data_cb(ctx: PSSL_CTX; cb: SSL_allow_early_data_cb_fN; arg: Pointer); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_allow_early_data_cb');
 end;
 
 
-procedure ERR_SSL_set_allow_early_data_cb(s: PSSL; cb: SSL_allow_early_data_cb_fN; arg: Pointer); 
+procedure  ERR_SSL_set_allow_early_data_cb(s: PSSL; cb: SSL_allow_early_data_cb_fN; arg: Pointer); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_allow_early_data_cb');
 end;
 
 
-function ERR_SSL_get0_peer_certificate(const s: PSSL): PX509; 
+function  ERR_SSL_get0_peer_certificate(const s: PSSL): PX509; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get0_peer_certificate');
 end;
 
 
-function ERR_SSL_get1_peer_certificate(const s: PSSL): PX509; 
+function  ERR_SSL_get1_peer_certificate(const s: PSSL): PX509; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get1_peer_certificate');
 end;

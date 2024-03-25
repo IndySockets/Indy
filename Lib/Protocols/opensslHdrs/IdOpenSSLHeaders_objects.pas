@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -88,31 +90,31 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  OBJ_NAME_init: function: TIdC_INT; cdecl = nil;
+  OBJ_NAME_init: function : TIdC_INT; cdecl = nil;
   //TIdC_INT OBJ_NAME_new_index(TIdC_ULONG (*hash_func) (const PIdAnsiChar *);
   //                       TIdC_INT (*cmp_func) (const PIdAnsiChar *; const PIdAnsiChar *);
   //                       void (*free_func) (const PIdAnsiChar *; TIdC_INT; const PIdAnsiChar *));
-  OBJ_NAME_get: function(const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar; cdecl = nil;
-  OBJ_NAME_add: function(const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  OBJ_NAME_remove: function(const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
-  OBJ_NAME_cleanup: procedure(type_: TIdC_INT); cdecl = nil;
+  OBJ_NAME_get: function (const name: PIdAnsiChar; type_: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  OBJ_NAME_add: function (const name: PIdAnsiChar; type_: TIdC_INT; const data: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  OBJ_NAME_remove: function (const name: PIdAnsiChar; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  OBJ_NAME_cleanup: procedure (type_: TIdC_INT); cdecl = nil;
 //  void OBJ_NAME_do_all(TIdC_INT type_; void (*fn) (const OBJ_NAME *; void *arg);
 //                       void *arg);
 //  void OBJ_NAME_do_all_sorted(TIdC_INT type_;
 //                              void (*fn) (const OBJ_NAME *; void *arg);
 //                              void *arg);
 
-  OBJ_dup: function(const o: PASN1_OBJECT): PASN1_OBJECT; cdecl = nil;
-  OBJ_nid2obj: function(n: TIdC_INT): PASN1_OBJECT; cdecl = nil;
-  OBJ_nid2ln: function(n: TIdC_INT): PIdAnsiChar; cdecl = nil;
-  OBJ_nid2sn: function(n: TIdC_INT): PIdAnsiChar; cdecl = nil;
-  OBJ_obj2nid: function(const o: PASN1_OBJECT): TIdC_INT; cdecl = nil;
-  OBJ_txt2obj: function(const s: PIdAnsiChar; no_name: TIdC_INT): PASN1_OBJECT; cdecl = nil;
-  OBJ_obj2txt: function(buf: PIdAnsiChar; buf_len: TIdC_INT; const a: PASN1_OBJECT; no_name: TIdC_INT): TIdC_INT; cdecl = nil;
-  OBJ_txt2nid: function(const s: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  OBJ_ln2nid: function(const s: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  OBJ_sn2nid: function(const s: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  OBJ_cmp: function(const a: PASN1_OBJECT; const b: PASN1_OBJECT): TIdC_INT; cdecl = nil;
+  OBJ_dup: function (const o: PASN1_OBJECT): PASN1_OBJECT; cdecl = nil;
+  OBJ_nid2obj: function (n: TIdC_INT): PASN1_OBJECT; cdecl = nil;
+  OBJ_nid2ln: function (n: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  OBJ_nid2sn: function (n: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  OBJ_obj2nid: function (const o: PASN1_OBJECT): TIdC_INT; cdecl = nil;
+  OBJ_txt2obj: function (const s: PIdAnsiChar; no_name: TIdC_INT): PASN1_OBJECT; cdecl = nil;
+  OBJ_obj2txt: function (buf: PIdAnsiChar; buf_len: TIdC_INT; const a: PASN1_OBJECT; no_name: TIdC_INT): TIdC_INT; cdecl = nil;
+  OBJ_txt2nid: function (const s: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  OBJ_ln2nid: function (const s: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  OBJ_sn2nid: function (const s: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  OBJ_cmp: function (const a: PASN1_OBJECT; const b: PASN1_OBJECT): TIdC_INT; cdecl = nil;
 //  const void *OBJ_bsearch_(const void *key; const void *base; TIdC_INT num; TIdC_INT size;
 //                           TIdC_INT (*cmp) (const void *; const void *));
 //  const void *OBJ_bsearch_ex_(const void *key; const void *base; TIdC_INT num;
@@ -199,18 +201,18 @@ var
   //                          (void)type_2=CHECKED_PTR_OF(type2;cmp##_type_2); \
   //                          cmp##_BSEARCH_CMP_FN));flags)
 
-  OBJ_new_nid: function(num: TIdC_INT): TIdC_INT; cdecl = nil;
-  OBJ_add_object: function(const obj: PASN1_OBJECT): TIdC_INT; cdecl = nil;
-  OBJ_create: function(const oid: PIdAnsiChar; const sn: PIdAnsiChar; const ln: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  OBJ_create_objects: function(in_: PBIO): TIdC_INT; cdecl = nil;
+  OBJ_new_nid: function (num: TIdC_INT): TIdC_INT; cdecl = nil;
+  OBJ_add_object: function (const obj: PASN1_OBJECT): TIdC_INT; cdecl = nil;
+  OBJ_create: function (const oid: PIdAnsiChar; const sn: PIdAnsiChar; const ln: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  OBJ_create_objects: function (in_: PBIO): TIdC_INT; cdecl = nil;
 
-  OBJ_length: function(const obj: PASN1_OBJECT): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
-  OBJ_get0_data: function(const obj: PASN1_OBJECT): PByte; cdecl = nil; {introduced 1.1.0}
+  OBJ_length: function (const obj: PASN1_OBJECT): TIdC_SIZET; cdecl = nil; {introduced 1.1.0}
+  OBJ_get0_data: function (const obj: PASN1_OBJECT): PByte; cdecl = nil; {introduced 1.1.0}
 
-  OBJ_find_sigid_algs: function(signid: TIdC_INT; pdig_nid: PIdC_INT; ppkey_nid: PIdC_INT): TIdC_INT; cdecl = nil;
-  OBJ_find_sigid_by_algs: function(psignid: PIdC_INT; dig_nid: TIdC_INT; pkey_nid: TIdC_INT): TIdC_INT; cdecl = nil;
-  OBJ_add_sigid: function(signid: TIdC_INT; dig_id: TIdC_INT; pkey_id: TIdC_INT): TIdC_INT; cdecl = nil;
-  OBJ_sigid_free: procedure; cdecl = nil;
+  OBJ_find_sigid_algs: function (signid: TIdC_INT; pdig_nid: PIdC_INT; ppkey_nid: PIdC_INT): TIdC_INT; cdecl = nil;
+  OBJ_find_sigid_by_algs: function (psignid: PIdC_INT; dig_nid: TIdC_INT; pkey_nid: TIdC_INT): TIdC_INT; cdecl = nil;
+  OBJ_add_sigid: function (signid: TIdC_INT; dig_id: TIdC_INT; pkey_id: TIdC_INT): TIdC_INT; cdecl = nil;
+  OBJ_sigid_free: procedure ; cdecl = nil;
 
 {$ELSE}
   function OBJ_NAME_init: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -341,12 +343,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 const
   OBJ_length_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
@@ -355,13 +358,13 @@ const
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 
 {$WARN  NO_RETVAL OFF}
-function ERR_OBJ_length(const obj: PASN1_OBJECT): TIdC_SIZET; 
+function  ERR_OBJ_length(const obj: PASN1_OBJECT): TIdC_SIZET; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OBJ_length');
 end;
 
 
-function ERR_OBJ_get0_data(const obj: PASN1_OBJECT): PByte; 
+function  ERR_OBJ_get0_data(const obj: PASN1_OBJECT): PByte; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OBJ_get0_data');
 end;

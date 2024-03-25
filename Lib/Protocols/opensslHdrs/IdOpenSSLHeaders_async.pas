@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -88,26 +90,26 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  ASYNC_init_thread: function(max_size: TIdC_SIZET; init_size: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  ASYNC_cleanup_thread: procedure; cdecl = nil; {introduced 1.1.0}
+  ASYNC_init_thread: function (max_size: TIdC_SIZET; init_size: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ASYNC_cleanup_thread: procedure ; cdecl = nil; {introduced 1.1.0}
 
-  ASYNC_WAIT_CTX_new: function: PASYNC_WAIT_CTX; cdecl = nil; {introduced 1.1.0}
-  ASYNC_WAIT_CTX_free: procedure(ctx: PASYNC_WAIT_CTX); cdecl = nil; {introduced 1.1.0}
-  ASYNC_WAIT_CTX_set_wait_fd: function(ctx: PASYNC_WAIT_CTX; const key: Pointer; fd: OSSL_ASYNC_FD; custom_data: Pointer; cleanup_cb: ASYNC_WAIT_CTX_set_wait_fd_cleanup): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  ASYNC_WAIT_CTX_get_fd: function(ctx: PASYNC_WAIT_CTX; const key: Pointer; fd: POSSL_ASYNC_FD; custom_data: PPointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  ASYNC_WAIT_CTX_get_all_fds: function(ctx: PASYNC_WAIT_CTX; fd: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  ASYNC_WAIT_CTX_get_changed_fds: function(ctx: PASYNC_WAIT_CTX; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  ASYNC_WAIT_CTX_clear_fd: function(ctx: PASYNC_WAIT_CTX; const key: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ASYNC_WAIT_CTX_new: function : PASYNC_WAIT_CTX; cdecl = nil; {introduced 1.1.0}
+  ASYNC_WAIT_CTX_free: procedure (ctx: PASYNC_WAIT_CTX); cdecl = nil; {introduced 1.1.0}
+  ASYNC_WAIT_CTX_set_wait_fd: function (ctx: PASYNC_WAIT_CTX; const key: Pointer; fd: OSSL_ASYNC_FD; custom_data: Pointer; cleanup_cb: ASYNC_WAIT_CTX_set_wait_fd_cleanup): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ASYNC_WAIT_CTX_get_fd: function (ctx: PASYNC_WAIT_CTX; const key: Pointer; fd: POSSL_ASYNC_FD; custom_data: PPointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ASYNC_WAIT_CTX_get_all_fds: function (ctx: PASYNC_WAIT_CTX; fd: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ASYNC_WAIT_CTX_get_changed_fds: function (ctx: PASYNC_WAIT_CTX; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ASYNC_WAIT_CTX_clear_fd: function (ctx: PASYNC_WAIT_CTX; const key: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  ASYNC_is_capable: function: TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ASYNC_is_capable: function : TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  ASYNC_start_job: function(job: PPASYNC_JOB; ctx: PASYNC_WAIT_CTX; ret: PIdC_INT; func: ASYNC_start_job_cb; args: Pointer; size: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  ASYNC_pause_job: function: TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ASYNC_start_job: function (job: PPASYNC_JOB; ctx: PASYNC_WAIT_CTX; ret: PIdC_INT; func: ASYNC_start_job_cb; args: Pointer; size: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ASYNC_pause_job: function : TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  ASYNC_get_current_job: function: PASYNC_JOB; cdecl = nil; {introduced 1.1.0}
-  ASYNC_get_wait_ctx: function(job: PASYNC_JOB): PASYNC_WAIT_CTX; cdecl = nil; {introduced 1.1.0}
-  ASYNC_block_pause: procedure; cdecl = nil; {introduced 1.1.0}
-  ASYNC_unblock_pause: procedure; cdecl = nil; {introduced 1.1.0}
+  ASYNC_get_current_job: function : PASYNC_JOB; cdecl = nil; {introduced 1.1.0}
+  ASYNC_get_wait_ctx: function (job: PASYNC_JOB): PASYNC_WAIT_CTX; cdecl = nil; {introduced 1.1.0}
+  ASYNC_block_pause: procedure ; cdecl = nil; {introduced 1.1.0}
+  ASYNC_unblock_pause: procedure ; cdecl = nil; {introduced 1.1.0}
 
 {$ELSE}
   function ASYNC_init_thread(max_size: TIdC_SIZET; init_size: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
@@ -135,12 +137,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 const
   ASYNC_init_thread_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
@@ -163,97 +166,97 @@ const
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 
 {$WARN  NO_RETVAL OFF}
-function ERR_ASYNC_init_thread(max_size: TIdC_SIZET; init_size: TIdC_SIZET): TIdC_INT; 
+function  ERR_ASYNC_init_thread(max_size: TIdC_SIZET; init_size: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_init_thread');
 end;
 
 
-procedure ERR_ASYNC_cleanup_thread; 
+procedure  ERR_ASYNC_cleanup_thread; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_cleanup_thread');
 end;
 
 
-function ERR_ASYNC_WAIT_CTX_new: PASYNC_WAIT_CTX; 
+function  ERR_ASYNC_WAIT_CTX_new: PASYNC_WAIT_CTX; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_WAIT_CTX_new');
 end;
 
 
-procedure ERR_ASYNC_WAIT_CTX_free(ctx: PASYNC_WAIT_CTX); 
+procedure  ERR_ASYNC_WAIT_CTX_free(ctx: PASYNC_WAIT_CTX); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_WAIT_CTX_free');
 end;
 
 
-function ERR_ASYNC_WAIT_CTX_set_wait_fd(ctx: PASYNC_WAIT_CTX; const key: Pointer; fd: OSSL_ASYNC_FD; custom_data: Pointer; cleanup_cb: ASYNC_WAIT_CTX_set_wait_fd_cleanup): TIdC_INT; 
+function  ERR_ASYNC_WAIT_CTX_set_wait_fd(ctx: PASYNC_WAIT_CTX; const key: Pointer; fd: OSSL_ASYNC_FD; custom_data: Pointer; cleanup_cb: ASYNC_WAIT_CTX_set_wait_fd_cleanup): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_WAIT_CTX_set_wait_fd');
 end;
 
 
-function ERR_ASYNC_WAIT_CTX_get_fd(ctx: PASYNC_WAIT_CTX; const key: Pointer; fd: POSSL_ASYNC_FD; custom_data: PPointer): TIdC_INT; 
+function  ERR_ASYNC_WAIT_CTX_get_fd(ctx: PASYNC_WAIT_CTX; const key: Pointer; fd: POSSL_ASYNC_FD; custom_data: PPointer): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_WAIT_CTX_get_fd');
 end;
 
 
-function ERR_ASYNC_WAIT_CTX_get_all_fds(ctx: PASYNC_WAIT_CTX; fd: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT; 
+function  ERR_ASYNC_WAIT_CTX_get_all_fds(ctx: PASYNC_WAIT_CTX; fd: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_WAIT_CTX_get_all_fds');
 end;
 
 
-function ERR_ASYNC_WAIT_CTX_get_changed_fds(ctx: PASYNC_WAIT_CTX; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT; 
+function  ERR_ASYNC_WAIT_CTX_get_changed_fds(ctx: PASYNC_WAIT_CTX; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_WAIT_CTX_get_changed_fds');
 end;
 
 
-function ERR_ASYNC_WAIT_CTX_clear_fd(ctx: PASYNC_WAIT_CTX; const key: Pointer): TIdC_INT; 
+function  ERR_ASYNC_WAIT_CTX_clear_fd(ctx: PASYNC_WAIT_CTX; const key: Pointer): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_WAIT_CTX_clear_fd');
 end;
 
 
-function ERR_ASYNC_is_capable: TIdC_INT; 
+function  ERR_ASYNC_is_capable: TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_is_capable');
 end;
 
 
-function ERR_ASYNC_start_job(job: PPASYNC_JOB; ctx: PASYNC_WAIT_CTX; ret: PIdC_INT; func: ASYNC_start_job_cb; args: Pointer; size: TIdC_SIZET): TIdC_INT; 
+function  ERR_ASYNC_start_job(job: PPASYNC_JOB; ctx: PASYNC_WAIT_CTX; ret: PIdC_INT; func: ASYNC_start_job_cb; args: Pointer; size: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_start_job');
 end;
 
 
-function ERR_ASYNC_pause_job: TIdC_INT; 
+function  ERR_ASYNC_pause_job: TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_pause_job');
 end;
 
 
-function ERR_ASYNC_get_current_job: PASYNC_JOB; 
+function  ERR_ASYNC_get_current_job: PASYNC_JOB; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_get_current_job');
 end;
 
 
-function ERR_ASYNC_get_wait_ctx(job: PASYNC_JOB): PASYNC_WAIT_CTX; 
+function  ERR_ASYNC_get_wait_ctx(job: PASYNC_JOB): PASYNC_WAIT_CTX; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_get_wait_ctx');
 end;
 
 
-procedure ERR_ASYNC_block_pause; 
+procedure  ERR_ASYNC_block_pause; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_block_pause');
 end;
 
 
-procedure ERR_ASYNC_unblock_pause; 
+procedure  ERR_ASYNC_unblock_pause; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ASYNC_unblock_pause');
 end;

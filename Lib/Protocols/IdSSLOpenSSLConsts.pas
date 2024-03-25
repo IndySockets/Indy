@@ -26,6 +26,10 @@ interface
 
 {$i IdCompilerDefines.inc}
 {$i IdSSLOpenSSLDefines.inc}
+{$IFNDEF USE_OPENSSL}
+  {$message error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
+
 
 const
   {The default SSLLibraryPath is empty. You can override this by setting the
@@ -60,7 +64,7 @@ const
    in the ssleay and libeay libraries for 1.0.2 distributed on the Indy github
    website}
   LegacyAllowFailed = 'BIO_s_log,ECPKPARAMETERS_it,ECPKPARAMETERS_new,ECPKPARAMETERS_free,'+
-                'ECPARAMETERS_it,ECPARAMETERS_new,ECPARAMETERS_free';
+                'ECPARAMETERS_it,ECPARAMETERS_new,ECPARAMETERS_free,HMAC_size,HMAC_CTX_reset,HMAC_CTX_get_md';
   {$IFDEF CPU64}
   CLibCrypto = 'libcrypto-3-x64.dll';
   CLibSSL = 'libssl-3-x64.dll';

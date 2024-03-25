@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -1113,13 +1115,13 @@ type
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
   {$EXTERNALSYM SSL_set_tlsext_host_name} {removed 1.0.0}
-  SSL_set_tlsext_host_name: function(s: PSSL; const name: PIdAnsiChar): TIdC_LONG; cdecl = nil; {removed 1.0.0}
+  SSL_set_tlsext_host_name: function (s: PSSL; const name: PIdAnsiChar): TIdC_LONG; cdecl = nil; {removed 1.0.0}
 
-  SSL_CTX_set_tlsext_max_fragment_length: function(ctx: PSSL_CTx; mode: TIdC_UINT8): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_set_tlsext_max_fragment_length: function(ssl: PSSL; mode: TIdC_UINT8): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_CTX_set_tlsext_max_fragment_length: function (ctx: PSSL_CTx; mode: TIdC_UINT8): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_set_tlsext_max_fragment_length: function (ssl: PSSL; mode: TIdC_UINT8): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_get_servername: function(const s: PSSL; const type_: TIdC_INT): PIdAnsiChar; cdecl = nil;
-  SSL_get_servername_type: function(const s: PSSL): TIdC_INT; cdecl = nil;
+  SSL_get_servername: function (const s: PSSL; const type_: TIdC_INT): PIdAnsiChar; cdecl = nil;
+  SSL_get_servername_type: function (const s: PSSL): TIdC_INT; cdecl = nil;
   (*
    * SSL_export_keying_material exports a value derived from the master secret,
    * as specified in RFC 5705. It writes |olen| bytes to |out| given a label and
@@ -1127,7 +1129,7 @@ var
    * flag controls whether a context is included.) It returns 1 on success and
    * 0 or -1 otherwise.
    *)
-  SSL_export_keying_material: function(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT; cdecl = nil;
+  SSL_export_keying_material: function (s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET; use_context: TIdC_INT): TIdC_INT; cdecl = nil;
 
   (*
    * SSL_export_keying_material_early exports a value derived from the
@@ -1136,12 +1138,12 @@ var
    * |olen| bytes to |out| given a label and optional context. It
    * returns 1 on success and 0 otherwise.
    *)
-  SSL_export_keying_material_early: function(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_export_keying_material_early: function (s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSL_get_peer_signature_type_nid: function(const s: PSSl; pnid: PIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get_signature_type_nid: function(const s: PSSl; pnid: PIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  SSL_get_sigalgs: function(s: PSSl; idx: TIdC_INT; psign: PIdC_INT; phash: PIdC_INT; psignandhash: PIdC_INT; rsig: PByte; rhash: PByte): TIdC_INT; cdecl = nil;
-  SSL_get_shared_sigalgs: function(s: PSSl; idx: TIdC_INT; psign: PIdC_INT; phash: PIdC_INT; psignandhash: PIdC_INT; rsig: PByte; rhash: PByte): TIdC_INT; cdecl = nil;
+  SSL_get_peer_signature_type_nid: function (const s: PSSl; pnid: PIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_signature_type_nid: function (const s: PSSl; pnid: PIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  SSL_get_sigalgs: function (s: PSSl; idx: TIdC_INT; psign: PIdC_INT; phash: PIdC_INT; psignandhash: PIdC_INT; rsig: PByte; rhash: PByte): TIdC_INT; cdecl = nil;
+  SSL_get_shared_sigalgs: function (s: PSSl; idx: TIdC_INT; psign: PIdC_INT; phash: PIdC_INT; psignandhash: PIdC_INT; rsig: PByte; rhash: PByte): TIdC_INT; cdecl = nil;
 
   //__owur TIdC_INT SSL_check_chain(s: PSSL, X509 *x, EVP_PKEY *pk, STACK_OF(X509) *chain);
 
@@ -1313,9 +1315,11 @@ implementation
 uses 
   {$IFNDEF USE_EXTERNAL_LIBRARY}
   classes,
-  IdSSLOpenSSLExceptionHandlers,
   IdSSLOpenSSLLoader,
   {$ENDIF}
+  IdSSLOpenSSLExceptionHandlers,
+  IdResourceStringsOpenSSL,
+
   IdOpenSSLHeaders_ssl;
   
 const
@@ -1332,43 +1336,43 @@ const
 
 
 //# define SSL_set_tlsext_host_name(s,name)         SSL_ctrl(s,SSL_CTRL_SET_TLSEXT_HOSTNAME,TLSEXT_NAMETYPE_host_name, (void *)name)
-function _SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG; cdecl;
+function  _SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG; cdecl;
 begin
   Result := SSL_ctrl(s, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name, Pointer(name));
 end;
 
 {$WARN  NO_RETVAL OFF}
-function ERR_SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG; 
+function  ERR_SSL_set_tlsext_host_name(s: PSSL; const name: PIdAnsiChar): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_tlsext_host_name');
 end;
 
 
-function ERR_SSL_CTX_set_tlsext_max_fragment_length(ctx: PSSL_CTx; mode: TIdC_UINT8): TIdC_INT; 
+function  ERR_SSL_CTX_set_tlsext_max_fragment_length(ctx: PSSL_CTx; mode: TIdC_UINT8): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_CTX_set_tlsext_max_fragment_length');
 end;
 
 
-function ERR_SSL_set_tlsext_max_fragment_length(ssl: PSSL; mode: TIdC_UINT8): TIdC_INT; 
+function  ERR_SSL_set_tlsext_max_fragment_length(ssl: PSSL; mode: TIdC_UINT8): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_set_tlsext_max_fragment_length');
 end;
 
 
-function ERR_SSL_export_keying_material_early(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT; 
+function  ERR_SSL_export_keying_material_early(s: PSSL; out_: PByte; olen: TIdC_SIZET; const label_: PIdAnsiChar; llen: TIdC_SIZET; const context: PByte; contextlen: TIdC_SIZET): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_export_keying_material_early');
 end;
 
 
-function ERR_SSL_get_peer_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT; 
+function  ERR_SSL_get_peer_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_peer_signature_type_nid');
 end;
 
 
-function ERR_SSL_get_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT; 
+function  ERR_SSL_get_signature_type_nid(const s: PSSl; pnid: PIdC_INT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSL_get_signature_type_nid');
 end;

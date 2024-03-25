@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -245,8 +247,8 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  BN_set_flags: procedure(b: PBIGNUM; n: TIdC_INT); cdecl = nil;
-  BN_get_flags: function(b: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_set_flags: procedure (b: PBIGNUM; n: TIdC_INT); cdecl = nil;
+  BN_get_flags: function (b: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
 
   (*
    * get a clone of a BIGNUM with changed flags, for *temporary* use only (the
@@ -254,20 +256,20 @@ var
    * value |dest| should be a newly allocated BIGNUM obtained via BN_new() that
    * has not been otherwise initialised or used.
    *)
-  BN_with_flags: procedure(dest: PBIGNUM; b: PBIGNUM; flags: TIdC_INT); cdecl = nil;
+  BN_with_flags: procedure (dest: PBIGNUM; b: PBIGNUM; flags: TIdC_INT); cdecl = nil;
   (* Wrapper function to make using BN_GENCB easier *)
-  BN_GENCB_call: function(cb: PBN_GENCB; a: TIdC_INT; b: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_GENCB_call: function (cb: PBN_GENCB; a: TIdC_INT; b: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  BN_GENCB_new: function: PBN_GENCB; cdecl = nil;
-  BN_GENCB_free: procedure(cb: PBN_GENCB); cdecl = nil;
+  BN_GENCB_new: function : PBN_GENCB; cdecl = nil;
+  BN_GENCB_free: procedure (cb: PBN_GENCB); cdecl = nil;
 
   (* Populate a PBN_GENCB structure with an "old"-style callback *)
-  BN_GENCB_set_old: procedure(gencb: PBN_GENCB; callback: BN_GENCB_set_old_cb; cb_arg: Pointer); cdecl = nil;
+  BN_GENCB_set_old: procedure (gencb: PBN_GENCB; callback: BN_GENCB_set_old_cb; cb_arg: Pointer); cdecl = nil;
 
   (* Populate a PBN_GENCB structure with a "new"-style callback *)
-  BN_GENCB_set: procedure(gencb: PBN_GENCB; callback: BN_GENCB_set_cb; cb_arg: Pointer); cdecl = nil;
+  BN_GENCB_set: procedure (gencb: PBN_GENCB; callback: BN_GENCB_set_cb; cb_arg: Pointer); cdecl = nil;
 
-  BN_GENCB_get_arg: function(cb: PBN_GENCB): Pointer; cdecl = nil;
+  BN_GENCB_get_arg: function (cb: PBN_GENCB): Pointer; cdecl = nil;
   
   (*
    * BN_prime_checks_for_size() returns the number of Miller-Rabin iterations
@@ -343,152 +345,152 @@ var
 //
 //  # define BN_num_bytes(a) ((BN_num_bits(a)+7)/8)
 
-  BN_abs_is_word: function(a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
-  BN_is_zero: function(a: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_is_one: function(a: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_is_word: function(a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
-  BN_is_odd: function(a: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_abs_is_word: function (a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
+  BN_is_zero: function (a: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_is_one: function (a: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_is_word: function (a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
+  BN_is_odd: function (a: PBIGNUM): TIdC_INT; cdecl = nil;
 
 //  # define BN_one(a)       (BN_set_word((a),1))
 
-  BN_zero_ex: procedure(a: PBIGNUM); cdecl = nil;
+  BN_zero_ex: procedure (a: PBIGNUM); cdecl = nil;
 
-  BN_value_one: function: PBIGNUM; cdecl = nil;
-  BN_options: function: PIdAnsiChar; cdecl = nil;
-  BN_CTX_new: function: PBN_CTX; cdecl = nil;
-  BN_CTX_secure_new: function: PBN_CTX; cdecl = nil;
-  BN_CTX_free: procedure(c: PBN_CTX); cdecl = nil;
-  BN_CTX_start: procedure(ctx: PBN_CTX); cdecl = nil;
-  BN_CTX_get: function(ctx: PBN_CTX): PBIGNUM; cdecl = nil;
-  BN_CTX_end: procedure(ctx: PBN_CTX); cdecl = nil;
-  BN_rand: function(rnd: PBIGNUM; bits: TIdC_INT; top: TIdC_INT; bottom: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_priv_rand: function(rnd: PBIGNUM; bits: TIdC_INT; top: TIdC_INT; bottom: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_rand_range: function(rnd: PBIGNUM; range: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_priv_rand_range: function(rnd: PBIGNUM; range: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_pseudo_rand: function(rnd: PBIGNUM; bits: TIdC_INT; top: TIdC_INT; bottom: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_pseudo_rand_range: function(rnd: PBIGNUM; range: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_num_bits: function(a: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_num_bits_word: function(l: BN_ULONG): TIdC_INT; cdecl = nil;
-  BN_security_bits: function(L: TIdC_INT; N: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_new: function: PBIGNUM; cdecl = nil;
-  BN_secure_new: function: PBIGNUM; cdecl = nil;
-  BN_clear_free: procedure(a: PBIGNUM); cdecl = nil;
-  BN_copy: function(a: PBIGNUM; b: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_swap: procedure(a: PBIGNUM; b: PBIGNUM); cdecl = nil;
-  BN_bin2bn: function(const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_bn2bin: function(const a: PBIGNUM; to_: PByte): TIdC_INT; cdecl = nil;
-  BN_bn2binpad: function(const a: PBIGNUM; to_: PByte; tolen: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_lebin2bn: function(const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_bn2lebinpad: function(a: PBIGNUM; to_: PByte; tolen: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_mpi2bn: function(const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_bn2mpi: function(a: PBIGNUM; to_: PByte): TIdC_INT; cdecl = nil;
-  BN_sub: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_usub: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_uadd: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_add: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_mul: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_sqr: function(r: PBIGNUM; const a: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_value_one: function : PBIGNUM; cdecl = nil;
+  BN_options: function : PIdAnsiChar; cdecl = nil;
+  BN_CTX_new: function : PBN_CTX; cdecl = nil;
+  BN_CTX_secure_new: function : PBN_CTX; cdecl = nil;
+  BN_CTX_free: procedure (c: PBN_CTX); cdecl = nil;
+  BN_CTX_start: procedure (ctx: PBN_CTX); cdecl = nil;
+  BN_CTX_get: function (ctx: PBN_CTX): PBIGNUM; cdecl = nil;
+  BN_CTX_end: procedure (ctx: PBN_CTX); cdecl = nil;
+  BN_rand: function (rnd: PBIGNUM; bits: TIdC_INT; top: TIdC_INT; bottom: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_priv_rand: function (rnd: PBIGNUM; bits: TIdC_INT; top: TIdC_INT; bottom: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_rand_range: function (rnd: PBIGNUM; range: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_priv_rand_range: function (rnd: PBIGNUM; range: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_pseudo_rand: function (rnd: PBIGNUM; bits: TIdC_INT; top: TIdC_INT; bottom: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_pseudo_rand_range: function (rnd: PBIGNUM; range: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_num_bits: function (a: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_num_bits_word: function (l: BN_ULONG): TIdC_INT; cdecl = nil;
+  BN_security_bits: function (L: TIdC_INT; N: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_new: function : PBIGNUM; cdecl = nil;
+  BN_secure_new: function : PBIGNUM; cdecl = nil;
+  BN_clear_free: procedure (a: PBIGNUM); cdecl = nil;
+  BN_copy: function (a: PBIGNUM; b: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_swap: procedure (a: PBIGNUM; b: PBIGNUM); cdecl = nil;
+  BN_bin2bn: function (const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_bn2bin: function (const a: PBIGNUM; to_: PByte): TIdC_INT; cdecl = nil;
+  BN_bn2binpad: function (const a: PBIGNUM; to_: PByte; tolen: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_lebin2bn: function (const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_bn2lebinpad: function (a: PBIGNUM; to_: PByte; tolen: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_mpi2bn: function (const s: PByte; len: TIdC_INT; ret: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_bn2mpi: function (a: PBIGNUM; to_: PByte): TIdC_INT; cdecl = nil;
+  BN_sub: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_usub: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_uadd: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_add: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_mul: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_sqr: function (r: PBIGNUM; const a: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
 
   (** BN_set_negative sets sign of a BIGNUM
    * \param  b  pointer to the BIGNUM object
    * \param  n  0 if the BIGNUM b should be positive and a value != 0 otherwise
    *)
-  BN_set_negative: procedure(b: PBIGNUM; n: TIdC_INT); cdecl = nil;
+  BN_set_negative: procedure (b: PBIGNUM; n: TIdC_INT); cdecl = nil;
   (** BN_is_negative returns 1 if the BIGNUM is negative
    * \param  b  pointer to the BIGNUM object
    * \return 1 if a < 0 and 0 otherwise
    *)
-  BN_is_negative: function(b: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_is_negative: function (b: PBIGNUM): TIdC_INT; cdecl = nil;
 
-  BN_div: function(dv: PBIGNUM; rem: PBIGNUM; const m: PBIGNUM; const d: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_div: function (dv: PBIGNUM; rem: PBIGNUM; const m: PBIGNUM; const d: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
 //  # define BN_mod(rem,m,d,ctx) BN_div(NULL,(rem),(m),(d),(ctx))
-  BN_nnmod: function(r: PBIGNUM; const m: PBIGNUM; const d: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_add: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_add_quick: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_mod_sub: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_sub_quick: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_mod_mul: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_sqr: function(r: PBIGNUM; const a: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_lshift1: function(r: PBIGNUM; const a: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_lshift1_quick: function(r: PBIGNUM; const a: PBIGNUM; const m: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_mod_lshift: function(r: PBIGNUM; const a: PBIGNUM; n: TIdC_INT; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_lshift_quick: function(r: PBIGNUM; const a: PBIGNUM; n: TIdC_INT; const m: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_nnmod: function (r: PBIGNUM; const m: PBIGNUM; const d: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_add: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_add_quick: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_mod_sub: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_sub_quick: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_mod_mul: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_sqr: function (r: PBIGNUM; const a: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_lshift1: function (r: PBIGNUM; const a: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_lshift1_quick: function (r: PBIGNUM; const a: PBIGNUM; const m: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_mod_lshift: function (r: PBIGNUM; const a: PBIGNUM; n: TIdC_INT; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_lshift_quick: function (r: PBIGNUM; const a: PBIGNUM; n: TIdC_INT; const m: PBIGNUM): TIdC_INT; cdecl = nil;
 
-  BN_mod_word: function(const a: PBIGNUM; w: BN_ULONG): BN_ULONG; cdecl = nil;
-  BN_div_word: function(a: PBIGNUM; w: BN_ULONG): BN_ULONG; cdecl = nil;
-  BN_mul_word: function(a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
-  BN_add_word: function(a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
-  BN_sub_word: function(a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
-  BN_set_word: function(a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
-  BN_get_word: function(const a: PBIGNUM): BN_ULONG; cdecl = nil;
+  BN_mod_word: function (const a: PBIGNUM; w: BN_ULONG): BN_ULONG; cdecl = nil;
+  BN_div_word: function (a: PBIGNUM; w: BN_ULONG): BN_ULONG; cdecl = nil;
+  BN_mul_word: function (a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
+  BN_add_word: function (a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
+  BN_sub_word: function (a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
+  BN_set_word: function (a: PBIGNUM; w: BN_ULONG): TIdC_INT; cdecl = nil;
+  BN_get_word: function (const a: PBIGNUM): BN_ULONG; cdecl = nil;
 
-  BN_cmp: function(const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_free: procedure(a: PBIGNUM); cdecl = nil;
-  BN_is_bit_set: function(const a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_lshift: function(r: PBIGNUM; const a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_lshift1: function(r: PBIGNUM; const a: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_exp: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_cmp: function (const a: PBIGNUM; const b: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_free: procedure (a: PBIGNUM); cdecl = nil;
+  BN_is_bit_set: function (const a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_lshift: function (r: PBIGNUM; const a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_lshift1: function (r: PBIGNUM; const a: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_exp: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
 
-  BN_mod_exp: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_exp_mont: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_exp_mont_consttime: function(rr: PBIGNUM; a: PBIGNUM; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX; in_mont: PBN_MONT_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_exp_mont_word: function(r: PBIGNUM; a: BN_ULONG; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_exp2_mont: function(r: PBIGNUM; const a1: PBIGNUM; const p1: PBIGNUM; const a2: PBIGNUM; const p2: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_exp_simple: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_exp: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_exp_mont: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_exp_mont_consttime: function (rr: PBIGNUM; a: PBIGNUM; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX; in_mont: PBN_MONT_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_exp_mont_word: function (r: PBIGNUM; a: BN_ULONG; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_exp2_mont: function (r: PBIGNUM; const a1: PBIGNUM; const p1: PBIGNUM; const a2: PBIGNUM; const p2: PBIGNUM; const m: PBIGNUM; ctx: PBN_CTX; m_ctx: PBN_MONT_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_exp_simple: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
 
-  BN_mask_bits: function(a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_print: function(bio: PBIO; a: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_reciprocal: function(r: PBIGNUM; m: PBIGNUM; len: TIdC_INT; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_rshift: function(r: PBIGNUM; a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_rshift1: function(r: PBIGNUM; a: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_clear: procedure(a: PBIGNUM); cdecl = nil;
-  BN_dup: function(const a: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_ucmp: function(a: PBIGNUM; b: PBIGNUM): TIdC_INT; cdecl = nil;
-  BN_set_bit: function(a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_clear_bit: function(a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
-  BN_bn2hex: function(a: PBIGNUM): PIdAnsiChar; cdecl = nil;
-  BN_bn2dec: function(a: PBIGNUM): PIdAnsiChar; cdecl = nil;
-  BN_hex2bn: function(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  BN_dec2bn: function(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  BN_asc2bn: function(a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  BN_gcd: function(r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_kronecker: function(a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mask_bits: function (a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_print: function (bio: PBIO; a: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_reciprocal: function (r: PBIGNUM; m: PBIGNUM; len: TIdC_INT; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_rshift: function (r: PBIGNUM; a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_rshift1: function (r: PBIGNUM; a: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_clear: procedure (a: PBIGNUM); cdecl = nil;
+  BN_dup: function (const a: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_ucmp: function (a: PBIGNUM; b: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_set_bit: function (a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_clear_bit: function (a: PBIGNUM; n: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_bn2hex: function (a: PBIGNUM): PIdAnsiChar; cdecl = nil;
+  BN_bn2dec: function (a: PBIGNUM): PIdAnsiChar; cdecl = nil;
+  BN_hex2bn: function (a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  BN_dec2bn: function (a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  BN_asc2bn: function (a: PPBIGNUM; str: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  BN_gcd: function (r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_kronecker: function (a: PBIGNUM; b: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
 
-  BN_mod_inverse: function(ret: PBIGNUM; a: PBIGNUM; const n: PBIGNUM; ctx: PBN_CTX): PBIGNUM; cdecl = nil;
-  BN_mod_sqrt: function(ret: PBIGNUM; a: PBIGNUM; const n: PBIGNUM; ctx: PBN_CTX): PBIGNUM; cdecl = nil;
+  BN_mod_inverse: function (ret: PBIGNUM; a: PBIGNUM; const n: PBIGNUM; ctx: PBN_CTX): PBIGNUM; cdecl = nil;
+  BN_mod_sqrt: function (ret: PBIGNUM; a: PBIGNUM; const n: PBIGNUM; ctx: PBN_CTX): PBIGNUM; cdecl = nil;
 
-  BN_consttime_swap: procedure(swap: BN_ULONG; a: PBIGNUM; b: PBIGNUM; nwords: TIdC_INT); cdecl = nil;
+  BN_consttime_swap: procedure (swap: BN_ULONG; a: PBIGNUM; b: PBIGNUM; nwords: TIdC_INT); cdecl = nil;
 
-  BN_generate_prime_ex: function(ret: PBIGNUM; bits: TIdC_INT; safe: TIdC_INT; const add: PBIGNUM; const rem: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
-  BN_is_prime_ex: function(const p: PBIGNUM; nchecks: TIdC_INT; ctx: PBN_CTX; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
-  BN_is_prime_fasttest_ex: function(const p: PBIGNUM; nchecks: TIdC_INT; ctx: PBN_CTX; do_trial_division: TIdC_INT; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
-  BN_X931_generate_Xpq: function(Xp: PBIGNUM; Xq: PBIGNUM; nbits: TIdC_INT; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_X931_derive_prime_ex: function(p: PBIGNUM; p1: PBIGNUM; p2: PBIGNUM; const Xp: PBIGNUM; const Xp1: PBIGNUM; const Xp2: PBIGNUM; const e: PBIGNUM; ctx: PBN_CTX; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
-  BN_X931_generate_prime_ex: function(p: PBIGNUM; p1: PBIGNUM; p2: PBIGNUM; Xp1: PBIGNUM; Xp2: PBIGNUM; Xp: PBIGNUM; const e: PBIGNUM; ctx: PBN_CTX; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
-  BN_MONT_CTX_new: function: PBN_MONT_CTX; cdecl = nil;
-  BN_mod_mul_montgomery: function(r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_to_montgomery: function(r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_from_montgomery: function(r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_MONT_CTX_free: procedure(mont: PBN_MONT_CTX); cdecl = nil;
-  BN_MONT_CTX_set: function(mont: PBN_MONT_CTX; mod_: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_MONT_CTX_copy: function(to_: PBN_MONT_CTX; from: PBN_MONT_CTX): PBN_MONT_CTX; cdecl = nil;
+  BN_generate_prime_ex: function (ret: PBIGNUM; bits: TIdC_INT; safe: TIdC_INT; const add: PBIGNUM; const rem: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  BN_is_prime_ex: function (const p: PBIGNUM; nchecks: TIdC_INT; ctx: PBN_CTX; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  BN_is_prime_fasttest_ex: function (const p: PBIGNUM; nchecks: TIdC_INT; ctx: PBN_CTX; do_trial_division: TIdC_INT; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  BN_X931_generate_Xpq: function (Xp: PBIGNUM; Xq: PBIGNUM; nbits: TIdC_INT; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_X931_derive_prime_ex: function (p: PBIGNUM; p1: PBIGNUM; p2: PBIGNUM; const Xp: PBIGNUM; const Xp1: PBIGNUM; const Xp2: PBIGNUM; const e: PBIGNUM; ctx: PBN_CTX; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  BN_X931_generate_prime_ex: function (p: PBIGNUM; p1: PBIGNUM; p2: PBIGNUM; Xp1: PBIGNUM; Xp2: PBIGNUM; Xp: PBIGNUM; const e: PBIGNUM; ctx: PBN_CTX; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  BN_MONT_CTX_new: function : PBN_MONT_CTX; cdecl = nil;
+  BN_mod_mul_montgomery: function (r: PBIGNUM; const a: PBIGNUM; const b: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_to_montgomery: function (r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_from_montgomery: function (r: PBIGNUM; a: PBIGNUM; mont: PBN_MONT_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_MONT_CTX_free: procedure (mont: PBN_MONT_CTX); cdecl = nil;
+  BN_MONT_CTX_set: function (mont: PBN_MONT_CTX; mod_: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_MONT_CTX_copy: function (to_: PBN_MONT_CTX; from: PBN_MONT_CTX): PBN_MONT_CTX; cdecl = nil;
 //  function BN_MONT_CTX_set_locked(pmont: ^PBN_MONT_CTX; lock: CRYPTO_RWLOCK; mod_: PBIGNUM; ctx: PBN_CTX): PBN_MONT_CTX;
 
-  BN_BLINDING_new: function(const A: PBIGNUM; const Ai: PBIGNUM; mod_: PBIGNUM): PBN_BLINDING; cdecl = nil;
-  BN_BLINDING_free: procedure(b: PBN_BLINDING); cdecl = nil;
-  BN_BLINDING_update: function(b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_BLINDING_convert: function(n: PBIGNUM; b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_BLINDING_invert: function(n: PBIGNUM; b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_BLINDING_convert_ex: function(n: PBIGNUM; r: PBIGNUM; b: PBN_BLINDING; v4: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_BLINDING_invert_ex: function(n: PBIGNUM; r: PBIGNUM; b: PBN_BLINDING; v2: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_BLINDING_new: function (const A: PBIGNUM; const Ai: PBIGNUM; mod_: PBIGNUM): PBN_BLINDING; cdecl = nil;
+  BN_BLINDING_free: procedure (b: PBN_BLINDING); cdecl = nil;
+  BN_BLINDING_update: function (b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_BLINDING_convert: function (n: PBIGNUM; b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_BLINDING_invert: function (n: PBIGNUM; b: PBN_BLINDING; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_BLINDING_convert_ex: function (n: PBIGNUM; r: PBIGNUM; b: PBN_BLINDING; v4: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_BLINDING_invert_ex: function (n: PBIGNUM; r: PBIGNUM; b: PBN_BLINDING; v2: PBN_CTX): TIdC_INT; cdecl = nil;
 
-  BN_BLINDING_is_current_thread: function(b: PBN_BLINDING): TIdC_INT; cdecl = nil;
-  BN_BLINDING_set_current_thread: procedure(b: PBN_BLINDING); cdecl = nil;
-  BN_BLINDING_lock: function(b: PBN_BLINDING): TIdC_INT; cdecl = nil;
-  BN_BLINDING_unlock: function(b: PBN_BLINDING): TIdC_INT; cdecl = nil;
+  BN_BLINDING_is_current_thread: function (b: PBN_BLINDING): TIdC_INT; cdecl = nil;
+  BN_BLINDING_set_current_thread: procedure (b: PBN_BLINDING); cdecl = nil;
+  BN_BLINDING_lock: function (b: PBN_BLINDING): TIdC_INT; cdecl = nil;
+  BN_BLINDING_unlock: function (b: PBN_BLINDING): TIdC_INT; cdecl = nil;
 
-  BN_BLINDING_get_flags: function(v1: PBN_BLINDING): TIdC_ULONG; cdecl = nil;
-  BN_BLINDING_set_flags: procedure(v1: PBN_BLINDING; v2: TIdC_ULONG); cdecl = nil;
+  BN_BLINDING_get_flags: function (v1: PBN_BLINDING): TIdC_ULONG; cdecl = nil;
+  BN_BLINDING_set_flags: procedure (v1: PBN_BLINDING; v2: TIdC_ULONG); cdecl = nil;
 //  function BN_BLINDING_create_param(PBN_BLINDING *b,
 //                                         PBIGNUM *e, PBIGNUM *m, PBN_CTX *ctx,
 //                                        function (
@@ -500,11 +502,11 @@ var
 //    m_ctx: PBN_MONT_CTX): TIdC_INT,
 //                                        PBN_MONT_CTX *m_ctx): PBN_BLINDING;
 
-  BN_RECP_CTX_free: procedure(recp: PBN_RECP_CTX); cdecl = nil;
-  BN_RECP_CTX_set: function(recp: PBN_RECP_CTX; rdiv: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_mul_reciprocal: function(r: PBIGNUM; x: PBIGNUM; y: PBIGNUM; recp: PBN_RECP_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_mod_exp_recp: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_div_recp: function(dv: PBIGNUM; rem: PBIGNUM; m: PBIGNUM; recp: PBN_RECP_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_RECP_CTX_free: procedure (recp: PBN_RECP_CTX); cdecl = nil;
+  BN_RECP_CTX_set: function (recp: PBN_RECP_CTX; rdiv: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_mul_reciprocal: function (r: PBIGNUM; x: PBIGNUM; y: PBIGNUM; recp: PBN_RECP_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_mod_exp_recp: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; m: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_div_recp: function (dv: PBIGNUM; rem: PBIGNUM; m: PBIGNUM; recp: PBN_RECP_CTX; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
 
   (*
    * Functions for arithmetic over binary polynomials represented by BIGNUMs.
@@ -516,26 +518,26 @@ var
   (*
    * r = a + b
    *)
-  BN_GF2m_add: function(r: PBIGNUM; a: PBIGNUM; b: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_GF2m_add: function (r: PBIGNUM; a: PBIGNUM; b: PBIGNUM): TIdC_INT; cdecl = nil;
 //  #  define BN_GF2m_sub(r, a, b) BN_GF2m_add(r, a, b)
   (*
    * r=a mod p
    *)
-  BN_GF2m_mod: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM): TIdC_INT; cdecl = nil;
+  BN_GF2m_mod: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM): TIdC_INT; cdecl = nil;
   (* r = (a * b) mod p *)
-  BN_GF2m_mod_mul: function(r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_GF2m_mod_mul: function (r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
   (* r = (a * a) mod p *)
-  BN_GF2m_mod_sqr: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_GF2m_mod_sqr: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
   (* r = (1 / b) mod p *)
-  BN_GF2m_mod_inv: function(r: PBIGNUM; b: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_GF2m_mod_inv: function (r: PBIGNUM; b: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
   (* r = (a / b) mod p *)
-  BN_GF2m_mod_div: function(r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_GF2m_mod_div: function (r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
   (* r = (a ^ b) mod p *)
-  BN_GF2m_mod_exp: function(r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_GF2m_mod_exp: function (r: PBIGNUM; a: PBIGNUM; b: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
   (* r = sqrt(a) mod p *)
-  BN_GF2m_mod_sqrt: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_GF2m_mod_sqrt: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
   (* r^2 + r = a mod p *)
-  BN_GF2m_mod_solve_quad: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_GF2m_mod_solve_quad: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
 //  #  define BN_GF2m_cmp(a, b) BN_ucmp((a), (b))
   (*-
    * Some functions allow for representation of the irreducible polynomials
@@ -565,36 +567,36 @@ var
   (*
    * faster mod functions for the 'NIST primes' 0 <= a < p^2
    *)
-  BN_nist_mod_192: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_nist_mod_224: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_nist_mod_256: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_nist_mod_384: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  BN_nist_mod_521: function(r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_nist_mod_192: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_nist_mod_224: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_nist_mod_256: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_nist_mod_384: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_nist_mod_521: function (r: PBIGNUM; a: PBIGNUM; p: PBIGNUM; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
 
-  BN_get0_nist_prime_192: function: PBIGNUM; cdecl = nil;
-  BN_get0_nist_prime_224: function: PBIGNUM; cdecl = nil;
-  BN_get0_nist_prime_256: function: PBIGNUM; cdecl = nil;
-  BN_get0_nist_prime_384: function: PBIGNUM; cdecl = nil;
-  BN_get0_nist_prime_521: function: PBIGNUM; cdecl = nil;
+  BN_get0_nist_prime_192: function : PBIGNUM; cdecl = nil;
+  BN_get0_nist_prime_224: function : PBIGNUM; cdecl = nil;
+  BN_get0_nist_prime_256: function : PBIGNUM; cdecl = nil;
+  BN_get0_nist_prime_384: function : PBIGNUM; cdecl = nil;
+  BN_get0_nist_prime_521: function : PBIGNUM; cdecl = nil;
 
 //int (*BN_nist_mod_func(const BIGNUM *p)) (BIGNUM *r, const BIGNUM *a,
 //                                          const BIGNUM *field, BN_CTX *ctx);
 
-  BN_generate_dsa_nonce: function(out_: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const message_: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  BN_generate_dsa_nonce: function (out_: PBIGNUM; range: PBIGNUM; priv: PBIGNUM; const message_: PByte; message_len: TIdC_SIZET; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
 
   (* Primes from RFC 2409 *)
-  BN_get_rfc2409_prime_768: function(bn: PBIGNUM ): PBIGNUM; cdecl = nil;
-  BN_get_rfc2409_prime_1024: function(bn: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_get_rfc2409_prime_768: function (bn: PBIGNUM ): PBIGNUM; cdecl = nil;
+  BN_get_rfc2409_prime_1024: function (bn: PBIGNUM): PBIGNUM; cdecl = nil;
 
   (* Primes from RFC 3526 *)
-  BN_get_rfc3526_prime_1536: function(bn: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_get_rfc3526_prime_2048: function(bn: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_get_rfc3526_prime_3072: function(bn: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_get_rfc3526_prime_4096: function(bn: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_get_rfc3526_prime_6144: function(bn: PBIGNUM): PBIGNUM; cdecl = nil;
-  BN_get_rfc3526_prime_8192: function(bn: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_get_rfc3526_prime_1536: function (bn: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_get_rfc3526_prime_2048: function (bn: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_get_rfc3526_prime_3072: function (bn: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_get_rfc3526_prime_4096: function (bn: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_get_rfc3526_prime_6144: function (bn: PBIGNUM): PBIGNUM; cdecl = nil;
+  BN_get_rfc3526_prime_8192: function (bn: PBIGNUM): PBIGNUM; cdecl = nil;
 
-  BN_bntest_rand: function(rnd: PBIGNUM; bits: TIdC_INT; top: TIdC_INT; bottom: TIdC_INT): TIdC_INT; cdecl = nil;
+  BN_bntest_rand: function (rnd: PBIGNUM; bits: TIdC_INT; top: TIdC_INT; bottom: TIdC_INT): TIdC_INT; cdecl = nil;
 
 {$ELSE}
   procedure BN_set_flags(b: PBIGNUM; n: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -952,12 +954,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

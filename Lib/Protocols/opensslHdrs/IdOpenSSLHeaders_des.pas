@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -129,34 +131,34 @@ var
   {$EXTERNALSYM DES_ede2_cfb64_encrypt}  {removed 1.0.0}
   {$EXTERNALSYM DES_ede2_ofb64_encrypt}  {removed 1.0.0}
   {$EXTERNALSYM DES_fixup_key_parity} {removed 1.0.0}
-  DES_ecb2_encrypt: procedure(input:Pconst_DES_cblock; output:PDES_cblock; ks1:PDES_key_schedule; ks2:PDES_key_schedule; enc:longint); cdecl = nil;  {removed 1.0.0}
-  DES_ede2_cbc_encrypt: procedure(input:Pbyte; output:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;  {removed 1.0.0}
-  DES_ede2_cfb64_encrypt: procedure(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint); cdecl = nil;  {removed 1.0.0}
-  DES_ede2_ofb64_encrypt: procedure(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; num:Plongint); cdecl = nil;  {removed 1.0.0}
+  DES_ecb2_encrypt: procedure (input:Pconst_DES_cblock; output:PDES_cblock; ks1:PDES_key_schedule; ks2:PDES_key_schedule; enc:longint); cdecl = nil;  {removed 1.0.0}
+  DES_ede2_cbc_encrypt: procedure (input:Pbyte; output:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;  {removed 1.0.0}
+  DES_ede2_cfb64_encrypt: procedure (in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint); cdecl = nil;  {removed 1.0.0}
+  DES_ede2_ofb64_encrypt: procedure (in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; num:Plongint); cdecl = nil;  {removed 1.0.0}
 
 
 (* Const before type ignored *)
-  DES_options: function: PIdAnsiChar; cdecl = nil;
+  DES_options: function : PIdAnsiChar; cdecl = nil;
 
-  DES_ecb3_encrypt: procedure(input:Pconst_DES_cblock; output:PDES_cblock; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; enc:longint); cdecl = nil;
+  DES_ecb3_encrypt: procedure (input:Pconst_DES_cblock; output:PDES_cblock; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; enc:longint); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_cbc_cksum: function(input:Pbyte; output:PDES_cblock; length:longint; schedule:PDES_key_schedule; ivec:Pconst_DES_cblock):DES_LONG; cdecl = nil;
+  DES_cbc_cksum: function (input:Pbyte; output:PDES_cblock; length:longint; schedule:PDES_key_schedule; ivec:Pconst_DES_cblock):DES_LONG; cdecl = nil;
 
     { DES_cbc_encrypt does not update the IV!  Use DES_ncbc_encrypt instead.  }
 (* Const before type ignored *)
-  DES_cbc_encrypt: procedure(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
+  DES_cbc_encrypt: procedure (input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_ncbc_encrypt: procedure(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
+  DES_ncbc_encrypt: procedure (input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_xcbc_encrypt: procedure(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; inw:Pconst_DES_cblock; outw:Pconst_DES_cblock; enc:longint); cdecl = nil;
+  DES_xcbc_encrypt: procedure (input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; inw:Pconst_DES_cblock; outw:Pconst_DES_cblock; enc:longint); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_cfb_encrypt: procedure(in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
+  DES_cfb_encrypt: procedure (in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
 
-  DES_ecb_encrypt: procedure(input:Pconst_DES_cblock; output:PDES_cblock; ks:PDES_key_schedule; enc:longint); cdecl = nil; 
+  DES_ecb_encrypt: procedure (input:Pconst_DES_cblock; output:PDES_cblock; ks:PDES_key_schedule; enc:longint); cdecl = nil; 
    {
      * This is the DES encryption function that gets called by just about every
      * other DES routine in the library.  You should not use this function except
@@ -167,7 +169,7 @@ var
      * long's and ks is the DES_key_schedule to use.  enc, is non zero specifies
      * encryption, zero if decryption.
       }
-  DES_encrypt1: procedure(data:PDES_LONG; ks:PDES_key_schedule; enc:longint); cdecl = nil;
+  DES_encrypt1: procedure (data:PDES_LONG; ks:PDES_key_schedule; enc:longint); cdecl = nil;
 
     {
      * This functions is the same as DES_encrypt1() except that the DES initial
@@ -177,75 +179,75 @@ var
      * DES_encrypt2() DES_encrypt2() FP() is the same as DES_encrypt1()
      * DES_encrypt1() DES_encrypt1() except faster :-).
       }
-  DES_encrypt2: procedure(data:PDES_LONG; ks:PDES_key_schedule; enc:longint); cdecl = nil;
+  DES_encrypt2: procedure (data:PDES_LONG; ks:PDES_key_schedule; enc:longint); cdecl = nil;
 
-  DES_encrypt3: procedure(data:PDES_LONG; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule); cdecl = nil;
+  DES_encrypt3: procedure (data:PDES_LONG; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule); cdecl = nil;
 
-  DES_decrypt3: procedure(data:PDES_LONG; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule); cdecl = nil;
-
-(* Const before type ignored *)
-  DES_ede3_cbc_encrypt: procedure(input:Pbyte; output:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
+  DES_decrypt3: procedure (data:PDES_LONG; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_ede3_cfb64_encrypt: procedure(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint); cdecl = nil;
+  DES_ede3_cbc_encrypt: procedure (input:Pbyte; output:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_ede3_cfb_encrypt: procedure(in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
+  DES_ede3_cfb64_encrypt: procedure (in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_ede3_ofb64_encrypt: procedure(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; num:Plongint); cdecl = nil;
+  DES_ede3_cfb_encrypt: procedure (in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
 
 (* Const before type ignored *)
-(* Const before type ignored *)
-  DES_fcrypt: function(buf:PIdAnsiChar; salt:PIdAnsiChar; ret:PIdAnsiChar): PIdAnsiChar; cdecl = nil;
+  DES_ede3_ofb64_encrypt: procedure (in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ks3:PDES_key_schedule; ivec:PDES_cblock; num:Plongint); cdecl = nil;
 
 (* Const before type ignored *)
 (* Const before type ignored *)
-  DES_crypt: function(buf:PIdAnsiChar; salt:PIdAnsiChar): PIdAnsiChar; cdecl = nil;
+  DES_fcrypt: function (buf:PIdAnsiChar; salt:PIdAnsiChar; ret:PIdAnsiChar): PIdAnsiChar; cdecl = nil;
 
 (* Const before type ignored *)
-  DES_ofb_encrypt: procedure(in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock); cdecl = nil;
+(* Const before type ignored *)
+  DES_crypt: function (buf:PIdAnsiChar; salt:PIdAnsiChar): PIdAnsiChar; cdecl = nil;
 
 (* Const before type ignored *)
-  DES_pcbc_encrypt: procedure(input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
+  DES_ofb_encrypt: procedure (in_:Pbyte; out_:Pbyte; numbits:longint; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_quad_cksum: function(input:Pbyte; output:PDES_cblock; length:longint; out_count:longint; seed:PDES_cblock):DES_LONG; cdecl = nil;
+  DES_pcbc_encrypt: procedure (input:Pbyte; output:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; enc:longint); cdecl = nil;
 
-  DES_random_key: function(ret:PDES_cblock):longint; cdecl = nil;
+(* Const before type ignored *)
+  DES_quad_cksum: function (input:Pbyte; output:PDES_cblock; length:longint; out_count:longint; seed:PDES_cblock):DES_LONG; cdecl = nil;
 
-  DES_set_odd_parity: procedure(key:PDES_cblock); cdecl = nil;
+  DES_random_key: function (ret:PDES_cblock):longint; cdecl = nil;
 
-  DES_check_key_parity: function(key:Pconst_DES_cblock):longint; cdecl = nil;
+  DES_set_odd_parity: procedure (key:PDES_cblock); cdecl = nil;
 
-  DES_is_weak_key: function(key:Pconst_DES_cblock):longint; cdecl = nil;
+  DES_check_key_parity: function (key:Pconst_DES_cblock):longint; cdecl = nil;
+
+  DES_is_weak_key: function (key:Pconst_DES_cblock):longint; cdecl = nil;
 
     {
      * DES_set_key (= set_key = DES_key_sched = key_sched) calls
      * DES_set_key_checked if global variable DES_check_key is set,
      * DES_set_key_unchecked otherwise.
       }
-  DES_set_key: function(key:Pconst_DES_cblock; var schedule: DES_key_schedule):longint; cdecl = nil;
+  DES_set_key: function (key:Pconst_DES_cblock; var schedule: DES_key_schedule):longint; cdecl = nil;
 
-  DES_key_sched: function(key:Pconst_DES_cblock; schedule:PDES_key_schedule):longint; cdecl = nil;
+  DES_key_sched: function (key:Pconst_DES_cblock; schedule:PDES_key_schedule):longint; cdecl = nil;
 
-  DES_set_key_checked: function(key:Pconst_DES_cblock; schedule:PDES_key_schedule):longint; cdecl = nil;
+  DES_set_key_checked: function (key:Pconst_DES_cblock; schedule:PDES_key_schedule):longint; cdecl = nil;
 
-  DES_set_key_unchecked: procedure(key:Pconst_DES_cblock; schedule:PDES_key_schedule); cdecl = nil;
-
-(* Const before type ignored *)
-  DES_string_to_key: procedure(str:PIdAnsiChar; key:PDES_cblock); cdecl = nil;
+  DES_set_key_unchecked: procedure (key:Pconst_DES_cblock; schedule:PDES_key_schedule); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_string_to_2keys: procedure(str:PIdAnsiChar; key1:PDES_cblock; key2:PDES_cblock); cdecl = nil;
+  DES_string_to_key: procedure (str:PIdAnsiChar; key:PDES_cblock); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_cfb64_encrypt: procedure(in_:Pbyte; out_:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint); cdecl = nil;
+  DES_string_to_2keys: procedure (str:PIdAnsiChar; key1:PDES_cblock; key2:PDES_cblock); cdecl = nil;
 
 (* Const before type ignored *)
-  DES_ofb64_encrypt: procedure(in_:Pbyte; out_:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; num:Plongint); cdecl = nil;
+  DES_cfb64_encrypt: procedure (in_:Pbyte; out_:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint); cdecl = nil;
 
-  DES_fixup_key_parity: procedure(key: PDES_cblock); cdecl = nil; {removed 1.0.0}
+(* Const before type ignored *)
+  DES_ofb64_encrypt: procedure (in_:Pbyte; out_:Pbyte; length:longint; schedule:PDES_key_schedule; ivec:PDES_cblock; num:Plongint); cdecl = nil;
+
+  DES_fixup_key_parity: procedure (key: PDES_cblock); cdecl = nil; {removed 1.0.0}
 
 {$ELSE}
 
@@ -370,12 +372,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 const
   DES_ecb2_encrypt_removed = (byte(1) shl 8 or byte(0)) shl 8 or byte(0);
@@ -386,58 +389,58 @@ const
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 
-procedure _DES_ecb2_encrypt(input:Pconst_DES_cblock; output:PDES_cblock; ks1: PDES_key_schedule; ks2: PDES_key_schedule; enc: longint); cdecl;
+procedure  _DES_ecb2_encrypt(input:Pconst_DES_cblock; output:PDES_cblock; ks1: PDES_key_schedule; ks2: PDES_key_schedule; enc: longint); cdecl;
     begin
       DES_ecb3_encrypt(input,output,ks1,ks2,ks1,enc);
     end;
 
-procedure _DES_ede2_cbc_encrypt(input:Pbyte; output:Pbyte; length: longint; ks1: PDES_key_schedule; ks2: PDES_key_schedule; ivec: PDES_cblock; enc: longint); cdecl;
+procedure  _DES_ede2_cbc_encrypt(input:Pbyte; output:Pbyte; length: longint; ks1: PDES_key_schedule; ks2: PDES_key_schedule; ivec: PDES_cblock; enc: longint); cdecl;
     begin
       DES_ede3_cbc_encrypt(input,output,length,ks1,ks2,ks1,ivec,enc);
     end;
 
-procedure _DES_ede2_cfb64_encrypt(in_: Pbyte; out_: Pbyte; length: longint; ks1: PDES_key_schedule; ks2: PDES_key_schedule; ivec: PDES_cblock; num: Plongint; enc: longint); cdecl;
+procedure  _DES_ede2_cfb64_encrypt(in_: Pbyte; out_: Pbyte; length: longint; ks1: PDES_key_schedule; ks2: PDES_key_schedule; ivec: PDES_cblock; num: Plongint; enc: longint); cdecl;
     begin
       DES_ede3_cfb64_encrypt(in_,out_,length,ks1,ks2,ks1,ivec,num,enc);
     end;
 
-procedure _DES_ede2_ofb64_encrypt(in_: Pbyte; out_: Pbyte; length: longint; ks1: PDES_key_schedule; ks2: PDES_key_schedule; ivec: PDES_cblock; num: Plongint); cdecl;
+procedure  _DES_ede2_ofb64_encrypt(in_: Pbyte; out_: Pbyte; length: longint; ks1: PDES_key_schedule; ks2: PDES_key_schedule; ivec: PDES_cblock; num: Plongint); cdecl;
     begin
       DES_ede3_ofb64_encrypt(in_,out_,length,ks1,ks2,ks1,ivec,num);
     end;
 
-procedure _DES_fixup_key_parity(key:PDES_cblock); cdecl;
+procedure  _DES_fixup_key_parity(key:PDES_cblock); cdecl;
     begin
       DES_set_odd_parity(key);
    end;
 
 
 {$WARN  NO_RETVAL OFF}
-procedure ERR_DES_ecb2_encrypt(input:Pconst_DES_cblock; output:PDES_cblock; ks1:PDES_key_schedule; ks2:PDES_key_schedule; enc:longint); 
+procedure  ERR_DES_ecb2_encrypt(input:Pconst_DES_cblock; output:PDES_cblock; ks1:PDES_key_schedule; ks2:PDES_key_schedule; enc:longint); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DES_ecb2_encrypt');
 end;
 
 
-procedure ERR_DES_ede2_cbc_encrypt(input:Pbyte; output:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; enc:longint); 
+procedure  ERR_DES_ede2_cbc_encrypt(input:Pbyte; output:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; enc:longint); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DES_ede2_cbc_encrypt');
 end;
 
 
-procedure ERR_DES_ede2_cfb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint); 
+procedure  ERR_DES_ede2_cfb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; num:Plongint; enc:longint); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DES_ede2_cfb64_encrypt');
 end;
 
 
-procedure ERR_DES_ede2_ofb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; num:Plongint); 
+procedure  ERR_DES_ede2_ofb64_encrypt(in_:Pbyte; out_:Pbyte; length:longint; ks1:PDES_key_schedule; ks2:PDES_key_schedule; ivec:PDES_cblock; num:Plongint); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DES_ede2_ofb64_encrypt');
 end;
 
 
-procedure ERR_DES_fixup_key_parity(key: PDES_cblock); 
+procedure  ERR_DES_fixup_key_parity(key: PDES_cblock); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DES_fixup_key_parity');
 end;

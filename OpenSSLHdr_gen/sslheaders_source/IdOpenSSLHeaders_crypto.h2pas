@@ -34,6 +34,7 @@ uses
   IdOpenSSLHeaders_bio,
   IdOpenSSLHeaders_ossl_typ,
   IdOpenSSLHeaders_evp,
+  IdOpenSSLHeaders_provider,
   {$IFDEF VCL_XE3_OR_ABOVE}System.Types{$ELSE}Types{$ENDIF};
 
 {$MINENUMSIZE 4}
@@ -481,6 +482,49 @@ end;
 procedure CRYPTO_THREADID_set_callback(threadid_func: Tthreadid_func);
 begin
 end;
+
+function FIPS_mode: TIdC_INT;
+begin
+  Result := OSSL_PROVIDER_available(nil,PAnsiChar(AnsiString('fips')));
+end;
+
+var fips_provider: POSSL_PROVIDER;
+    base_provider: POSSL_PROVIDER;
+
+function FIPS_mode_set(r: TIdC_INT): TIdC_INT;
+begin
+  if r = 0 then
+  begin
+    if base_provider <> nil then
+    begin
+      OSSL_PROVIDER_unload(base_provider);
+      base_provider := nil;
+    end;
+
+    if fips_provider <> nil then
+    begin
+       OSSL_PROVIDER_unload(fips_provider);
+       fips_provider := nil;
+    end;
+    Result := 1;
+  end
+  else
+  begin
+     Result := 0;
+     fips_provider := OSSL_PROVIDER_load(nil, PAnsiChar(AnsiString('fips')));
+     if fips_provider = nil then
+       Exit;
+     base_provider := OSSL_PROVIDER_load(nil, PAnsiChar(AnsiString('base')));
+     if base_provider = nil then
+     begin
+       OSSL_PROVIDER_unload(fips_provider);
+       fips_provider := nil;
+       Exit;
+     end;
+     Result := 1;
+  end;
+end;
+
 
 {forward_compatibility}
 

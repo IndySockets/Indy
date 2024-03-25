@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -204,93 +206,93 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  DHparams_dup: function(dh: PDH): PDH; cdecl = nil;
+  DHparams_dup: function (dh: PDH): PDH; cdecl = nil;
 
-  DH_OpenSSL: function: PDH_Method; cdecl = nil;
+  DH_OpenSSL: function : PDH_Method; cdecl = nil;
 
-  DH_set_default_method: procedure(const meth: PDH_Method); cdecl = nil;
-  DH_get_default_method: function: PDH_Method; cdecl = nil;
-  DH_set_method: function(dh: PDH; const meth: PDH_Method): TIdC_INT; cdecl = nil;
-  DH_new_method: function(engine: PENGINE): PDH; cdecl = nil;
+  DH_set_default_method: procedure (const meth: PDH_Method); cdecl = nil;
+  DH_get_default_method: function : PDH_Method; cdecl = nil;
+  DH_set_method: function (dh: PDH; const meth: PDH_Method): TIdC_INT; cdecl = nil;
+  DH_new_method: function (engine: PENGINE): PDH; cdecl = nil;
 
-  DH_new: function: PDH; cdecl = nil;
-  DH_free: procedure(dh: PDH); cdecl = nil;
-  DH_up_ref: function(dh: PDH): TIdC_INT; cdecl = nil;
-  DH_bits: function(const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_size: function(const dh: PDH): TIdC_INT; cdecl = nil;
-  DH_security_bits: function(const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_set_ex_data: function(d: PDH; idx: TIdC_INT; arg: Pointer): TIdC_INT; cdecl = nil;
-  DH_get_ex_data: function(d: PDH; idx: TIdC_INT): Pointer; cdecl = nil;
+  DH_new: function : PDH; cdecl = nil;
+  DH_free: procedure (dh: PDH); cdecl = nil;
+  DH_up_ref: function (dh: PDH): TIdC_INT; cdecl = nil;
+  DH_bits: function (const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_size: function (const dh: PDH): TIdC_INT; cdecl = nil;
+  DH_security_bits: function (const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_set_ex_data: function (d: PDH; idx: TIdC_INT; arg: Pointer): TIdC_INT; cdecl = nil;
+  DH_get_ex_data: function (d: PDH; idx: TIdC_INT): Pointer; cdecl = nil;
 
-  DH_generate_parameters_ex: function(dh: PDH; prime_len: TIdC_INT; generator: TIdC_INT; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  DH_generate_parameters_ex: function (dh: PDH; prime_len: TIdC_INT; generator: TIdC_INT; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
 
-  DH_check_params_ex: function(const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_check_ex: function(const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_check_pub_key_ex: function(const dh: PDH; const pub_key: PBIGNUM): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_check_params: function(const dh: PDH; ret: PIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_check: function(const dh: PDH; codes: PIdC_INT): TIdC_INT; cdecl = nil;
-  DH_check_pub_key: function(const dh: PDH; const pub_key: PBIGNUM; codes: PIdC_INT): TIdC_INT; cdecl = nil;
-  DH_generate_key: function(dh: PDH): TIdC_INT; cdecl = nil;
-  DH_compute_key: function(key: PByte; const pub_key: PBIGNUM; dh: PDH): TIdC_INT; cdecl = nil;
-  DH_compute_key_padded: function(key: PByte; const pub_key: PBIGNUM; dh: PDH): TIdC_INT; cdecl = nil;
-  d2i_DHparams: function(a: PPDH; const pp: PPByte; length: TIdC_LONG): PDH; cdecl = nil;
-  i2d_DHparams: function(const a: PDH; pp: PPByte): TIdC_INT; cdecl = nil;
-  d2i_DHxparams: function(a: PPDH; const pp: PPByte; length: TIdC_LONG): PDH; cdecl = nil;
-  i2d_DHxparams: function(const a: PDH; pp: PPByte): TIdC_INT; cdecl = nil;
-  DHparams_print: function(bp: PBIO; const x: PDH): TIdC_INT; cdecl = nil;
+  DH_check_params_ex: function (const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_check_ex: function (const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_check_pub_key_ex: function (const dh: PDH; const pub_key: PBIGNUM): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_check_params: function (const dh: PDH; ret: PIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_check: function (const dh: PDH; codes: PIdC_INT): TIdC_INT; cdecl = nil;
+  DH_check_pub_key: function (const dh: PDH; const pub_key: PBIGNUM; codes: PIdC_INT): TIdC_INT; cdecl = nil;
+  DH_generate_key: function (dh: PDH): TIdC_INT; cdecl = nil;
+  DH_compute_key: function (key: PByte; const pub_key: PBIGNUM; dh: PDH): TIdC_INT; cdecl = nil;
+  DH_compute_key_padded: function (key: PByte; const pub_key: PBIGNUM; dh: PDH): TIdC_INT; cdecl = nil;
+  d2i_DHparams: function (a: PPDH; const pp: PPByte; length: TIdC_LONG): PDH; cdecl = nil;
+  i2d_DHparams: function (const a: PDH; pp: PPByte): TIdC_INT; cdecl = nil;
+  d2i_DHxparams: function (a: PPDH; const pp: PPByte; length: TIdC_LONG): PDH; cdecl = nil;
+  i2d_DHxparams: function (const a: PDH; pp: PPByte): TIdC_INT; cdecl = nil;
+  DHparams_print: function (bp: PBIO; const x: PDH): TIdC_INT; cdecl = nil;
 
-  DH_get_1024_160: function: PDH; cdecl = nil;
-  DH_get_2048_224: function: PDH; cdecl = nil;
-  DH_get_2048_256: function: PDH; cdecl = nil;
+  DH_get_1024_160: function : PDH; cdecl = nil;
+  DH_get_2048_224: function : PDH; cdecl = nil;
+  DH_get_2048_256: function : PDH; cdecl = nil;
 
-  DH_new_by_nid: function(nid: TIdC_INT): PDH; cdecl = nil; {introduced 1.1.0}
-  DH_get_nid: function(const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_new_by_nid: function (nid: TIdC_INT): PDH; cdecl = nil; {introduced 1.1.0}
+  DH_get_nid: function (const dh: PDH): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  DH_KDF_X9_42: function( out_: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; key_oid: PASN1_OBJECT; const ukm: PByte; ukmlen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT; cdecl = nil;
+  DH_KDF_X9_42: function ( out_: PByte; outlen: TIdC_SIZET; const Z: PByte; Zlen: TIdC_SIZET; key_oid: PASN1_OBJECT; const ukm: PByte; ukmlen: TIdC_SIZET; const md: PEVP_MD): TIdC_INT; cdecl = nil;
 
-  DH_get0_pqg: procedure(const dh: PDH; const p: PPBIGNUM; const q: PPBIGNUM; const g: PPBIGNUM); cdecl = nil; {introduced 1.1.0}
-  DH_set0_pqg: function(dh: PDH; p: PBIGNUM; q: PBIGNUM; g: PBIGNUM): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_get0_key: procedure(const dh: PDH; const pub_key: PPBIGNUM; const priv_key: PPBIGNUM); cdecl = nil; {introduced 1.1.0}
-  DH_set0_key: function(dh: PDH; pub_key: PBIGNUM; priv_key: PBIGNUM): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_get0_p: function(const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
-  DH_get0_q: function(const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
-  DH_get0_g: function(const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
-  DH_get0_priv_key: function(const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
-  DH_get0_pub_key: function(const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
-  DH_clear_flags: procedure(dh: PDH; flags: TIdC_INT); cdecl = nil; {introduced 1.1.0}
-  DH_test_flags: function(const dh: PDH; flags: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_set_flags: procedure(dh: PDH; flags: TIdC_INT); cdecl = nil; {introduced 1.1.0}
-  DH_get0_engine: function(d: PDH): PENGINE; cdecl = nil; {introduced 1.1.0}
-  DH_get_length: function(const dh: PDH): TIdC_LONG; cdecl = nil; {introduced 1.1.0}
-  DH_set_length: function(dh: PDH; length: TIdC_LONG): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_get0_pqg: procedure (const dh: PDH; const p: PPBIGNUM; const q: PPBIGNUM; const g: PPBIGNUM); cdecl = nil; {introduced 1.1.0}
+  DH_set0_pqg: function (dh: PDH; p: PBIGNUM; q: PBIGNUM; g: PBIGNUM): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_get0_key: procedure (const dh: PDH; const pub_key: PPBIGNUM; const priv_key: PPBIGNUM); cdecl = nil; {introduced 1.1.0}
+  DH_set0_key: function (dh: PDH; pub_key: PBIGNUM; priv_key: PBIGNUM): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_get0_p: function (const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
+  DH_get0_q: function (const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
+  DH_get0_g: function (const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
+  DH_get0_priv_key: function (const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
+  DH_get0_pub_key: function (const dh: PDH): PBIGNUM; cdecl = nil; {introduced 1.1.0}
+  DH_clear_flags: procedure (dh: PDH; flags: TIdC_INT); cdecl = nil; {introduced 1.1.0}
+  DH_test_flags: function (const dh: PDH; flags: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_set_flags: procedure (dh: PDH; flags: TIdC_INT); cdecl = nil; {introduced 1.1.0}
+  DH_get0_engine: function (d: PDH): PENGINE; cdecl = nil; {introduced 1.1.0}
+  DH_get_length: function (const dh: PDH): TIdC_LONG; cdecl = nil; {introduced 1.1.0}
+  DH_set_length: function (dh: PDH; length: TIdC_LONG): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  DH_meth_new: function(const name: PIdAnsiChar; flags: TIdC_INT): PDH_Method; cdecl = nil; {introduced 1.1.0}
-  DH_meth_free: procedure(dhm: PDH_Method); cdecl = nil; {introduced 1.1.0}
-  DH_meth_dup: function(const dhm: PDH_Method): PDH_Method; cdecl = nil; {introduced 1.1.0}
-  DH_meth_get0_name: function(const dhm: PDH_Method): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
-  DH_meth_set1_name: function(dhm: PDH_Method; const name: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_meth_get_flags: function(const dhm: PDH_Method): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_meth_set_flags: function(const dhm: PDH_Method; flags: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  DH_meth_get0_app_data: function(const dhm: PDH_Method): Pointer; cdecl = nil; {introduced 1.1.0}
-  DH_meth_set0_app_data: function(const dhm: PDH_Method; app_data: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_new: function (const name: PIdAnsiChar; flags: TIdC_INT): PDH_Method; cdecl = nil; {introduced 1.1.0}
+  DH_meth_free: procedure (dhm: PDH_Method); cdecl = nil; {introduced 1.1.0}
+  DH_meth_dup: function (const dhm: PDH_Method): PDH_Method; cdecl = nil; {introduced 1.1.0}
+  DH_meth_get0_name: function (const dhm: PDH_Method): PIdAnsiChar; cdecl = nil; {introduced 1.1.0}
+  DH_meth_set1_name: function (dhm: PDH_Method; const name: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_get_flags: function (const dhm: PDH_Method): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_set_flags: function (const dhm: PDH_Method; flags: TIdC_INT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_get0_app_data: function (const dhm: PDH_Method): Pointer; cdecl = nil; {introduced 1.1.0}
+  DH_meth_set0_app_data: function (const dhm: PDH_Method; app_data: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  DH_meth_get_generate_key: function(const dhm: PDH_Method): DH_meth_generate_key_cb; cdecl = nil; {introduced 1.1.0}
-  DH_meth_set_generate_key: function(const dhm: PDH_Method; generate_key: DH_meth_generate_key_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_get_generate_key: function (const dhm: PDH_Method): DH_meth_generate_key_cb; cdecl = nil; {introduced 1.1.0}
+  DH_meth_set_generate_key: function (const dhm: PDH_Method; generate_key: DH_meth_generate_key_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  DH_meth_get_compute_key: function(const dhm: PDH_Method): DH_meth_compute_key_cb; cdecl = nil; {introduced 1.1.0}
-  DH_meth_set_compute_key: function(const dhm: PDH_Method; compute_key: DH_meth_compute_key_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_get_compute_key: function (const dhm: PDH_Method): DH_meth_compute_key_cb; cdecl = nil; {introduced 1.1.0}
+  DH_meth_set_compute_key: function (const dhm: PDH_Method; compute_key: DH_meth_compute_key_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  DH_meth_get_bn_mod_exp: function(const dhm: PDH_Method): DH_meth_bn_mod_exp_cb; cdecl = nil; {introduced 1.1.0}
-  DH_meth_set_bn_mod_exp: function(const dhm: PDH_Method; bn_mod_expr: DH_meth_bn_mod_exp_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_get_bn_mod_exp: function (const dhm: PDH_Method): DH_meth_bn_mod_exp_cb; cdecl = nil; {introduced 1.1.0}
+  DH_meth_set_bn_mod_exp: function (const dhm: PDH_Method; bn_mod_expr: DH_meth_bn_mod_exp_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  DH_meth_get_init: function(const dhm: PDH_Method): DH_meth_init_cb; cdecl = nil; {introduced 1.1.0}
-  DH_meth_set_init: function(const dhm: PDH_Method; init: DH_meth_init_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_get_init: function (const dhm: PDH_Method): DH_meth_init_cb; cdecl = nil; {introduced 1.1.0}
+  DH_meth_set_init: function (const dhm: PDH_Method; init: DH_meth_init_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  DH_meth_get_finish: function(const dhm: PDH_Method): DH_meth_finish_cb; cdecl = nil; {introduced 1.1.0}
-  DH_meth_set_finish: function(const dhm: PDH_Method; finish: DH_meth_finish_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_get_finish: function (const dhm: PDH_Method): DH_meth_finish_cb; cdecl = nil; {introduced 1.1.0}
+  DH_meth_set_finish: function (const dhm: PDH_Method; finish: DH_meth_finish_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  DH_meth_get_generate_params: function(const dhm: PDH_Method): DH_meth_generate_params_cb; cdecl = nil; {introduced 1.1.0}
-  DH_meth_set_generate_params: function(const dhm: PDH_Method; generate_params: DH_meth_generate_params_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  DH_meth_get_generate_params: function (const dhm: PDH_Method): DH_meth_generate_params_cb; cdecl = nil; {introduced 1.1.0}
+  DH_meth_set_generate_params: function (const dhm: PDH_Method; generate_params: DH_meth_generate_params_cb): TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
 {
 # define EVP_PKEY_CTX_set_dh_paramgen_prime_len(ctx, len) \
@@ -555,12 +557,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 const
   DH_bits_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
@@ -611,265 +614,265 @@ const
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 
 {$WARN  NO_RETVAL OFF}
-function ERR_DH_bits(const dh: PDH): TIdC_INT; 
+function  ERR_DH_bits(const dh: PDH): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_bits');
 end;
 
 
-function ERR_DH_security_bits(const dh: PDH): TIdC_INT; 
+function  ERR_DH_security_bits(const dh: PDH): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_security_bits');
 end;
 
 
-function ERR_DH_check_params_ex(const dh: PDH): TIdC_INT; 
+function  ERR_DH_check_params_ex(const dh: PDH): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_check_params_ex');
 end;
 
 
-function ERR_DH_check_ex(const dh: PDH): TIdC_INT; 
+function  ERR_DH_check_ex(const dh: PDH): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_check_ex');
 end;
 
 
-function ERR_DH_check_pub_key_ex(const dh: PDH; const pub_key: PBIGNUM): TIdC_INT; 
+function  ERR_DH_check_pub_key_ex(const dh: PDH; const pub_key: PBIGNUM): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_check_pub_key_ex');
 end;
 
 
-function ERR_DH_check_params(const dh: PDH; ret: PIdC_INT): TIdC_INT; 
+function  ERR_DH_check_params(const dh: PDH; ret: PIdC_INT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_check_params');
 end;
 
 
-function ERR_DH_new_by_nid(nid: TIdC_INT): PDH; 
+function  ERR_DH_new_by_nid(nid: TIdC_INT): PDH; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_new_by_nid');
 end;
 
 
-function ERR_DH_get_nid(const dh: PDH): TIdC_INT; 
+function  ERR_DH_get_nid(const dh: PDH): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get_nid');
 end;
 
 
-procedure ERR_DH_get0_pqg(const dh: PDH; const p: PPBIGNUM; const q: PPBIGNUM; const g: PPBIGNUM); 
+procedure  ERR_DH_get0_pqg(const dh: PDH; const p: PPBIGNUM; const q: PPBIGNUM; const g: PPBIGNUM); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get0_pqg');
 end;
 
 
-function ERR_DH_set0_pqg(dh: PDH; p: PBIGNUM; q: PBIGNUM; g: PBIGNUM): TIdC_INT; 
+function  ERR_DH_set0_pqg(dh: PDH; p: PBIGNUM; q: PBIGNUM; g: PBIGNUM): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_set0_pqg');
 end;
 
 
-procedure ERR_DH_get0_key(const dh: PDH; const pub_key: PPBIGNUM; const priv_key: PPBIGNUM); 
+procedure  ERR_DH_get0_key(const dh: PDH; const pub_key: PPBIGNUM; const priv_key: PPBIGNUM); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get0_key');
 end;
 
 
-function ERR_DH_set0_key(dh: PDH; pub_key: PBIGNUM; priv_key: PBIGNUM): TIdC_INT; 
+function  ERR_DH_set0_key(dh: PDH; pub_key: PBIGNUM; priv_key: PBIGNUM): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_set0_key');
 end;
 
 
-function ERR_DH_get0_p(const dh: PDH): PBIGNUM; 
+function  ERR_DH_get0_p(const dh: PDH): PBIGNUM; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get0_p');
 end;
 
 
-function ERR_DH_get0_q(const dh: PDH): PBIGNUM; 
+function  ERR_DH_get0_q(const dh: PDH): PBIGNUM; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get0_q');
 end;
 
 
-function ERR_DH_get0_g(const dh: PDH): PBIGNUM; 
+function  ERR_DH_get0_g(const dh: PDH): PBIGNUM; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get0_g');
 end;
 
 
-function ERR_DH_get0_priv_key(const dh: PDH): PBIGNUM; 
+function  ERR_DH_get0_priv_key(const dh: PDH): PBIGNUM; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get0_priv_key');
 end;
 
 
-function ERR_DH_get0_pub_key(const dh: PDH): PBIGNUM; 
+function  ERR_DH_get0_pub_key(const dh: PDH): PBIGNUM; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get0_pub_key');
 end;
 
 
-procedure ERR_DH_clear_flags(dh: PDH; flags: TIdC_INT); 
+procedure  ERR_DH_clear_flags(dh: PDH; flags: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_clear_flags');
 end;
 
 
-function ERR_DH_test_flags(const dh: PDH; flags: TIdC_INT): TIdC_INT; 
+function  ERR_DH_test_flags(const dh: PDH; flags: TIdC_INT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_test_flags');
 end;
 
 
-procedure ERR_DH_set_flags(dh: PDH; flags: TIdC_INT); 
+procedure  ERR_DH_set_flags(dh: PDH; flags: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_set_flags');
 end;
 
 
-function ERR_DH_get0_engine(d: PDH): PENGINE; 
+function  ERR_DH_get0_engine(d: PDH): PENGINE; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get0_engine');
 end;
 
 
-function ERR_DH_get_length(const dh: PDH): TIdC_LONG; 
+function  ERR_DH_get_length(const dh: PDH): TIdC_LONG; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_get_length');
 end;
 
 
-function ERR_DH_set_length(dh: PDH; length: TIdC_LONG): TIdC_INT; 
+function  ERR_DH_set_length(dh: PDH; length: TIdC_LONG): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_set_length');
 end;
 
 
-function ERR_DH_meth_new(const name: PIdAnsiChar; flags: TIdC_INT): PDH_Method; 
+function  ERR_DH_meth_new(const name: PIdAnsiChar; flags: TIdC_INT): PDH_Method; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_new');
 end;
 
 
-procedure ERR_DH_meth_free(dhm: PDH_Method); 
+procedure  ERR_DH_meth_free(dhm: PDH_Method); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_free');
 end;
 
 
-function ERR_DH_meth_dup(const dhm: PDH_Method): PDH_Method; 
+function  ERR_DH_meth_dup(const dhm: PDH_Method): PDH_Method; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_dup');
 end;
 
 
-function ERR_DH_meth_get0_name(const dhm: PDH_Method): PIdAnsiChar; 
+function  ERR_DH_meth_get0_name(const dhm: PDH_Method): PIdAnsiChar; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_get0_name');
 end;
 
 
-function ERR_DH_meth_set1_name(dhm: PDH_Method; const name: PIdAnsiChar): TIdC_INT; 
+function  ERR_DH_meth_set1_name(dhm: PDH_Method; const name: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_set1_name');
 end;
 
 
-function ERR_DH_meth_get_flags(const dhm: PDH_Method): TIdC_INT; 
+function  ERR_DH_meth_get_flags(const dhm: PDH_Method): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_get_flags');
 end;
 
 
-function ERR_DH_meth_set_flags(const dhm: PDH_Method; flags: TIdC_INT): TIdC_INT; 
+function  ERR_DH_meth_set_flags(const dhm: PDH_Method; flags: TIdC_INT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_set_flags');
 end;
 
 
-function ERR_DH_meth_get0_app_data(const dhm: PDH_Method): Pointer; 
+function  ERR_DH_meth_get0_app_data(const dhm: PDH_Method): Pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_get0_app_data');
 end;
 
 
-function ERR_DH_meth_set0_app_data(const dhm: PDH_Method; app_data: Pointer): TIdC_INT; 
+function  ERR_DH_meth_set0_app_data(const dhm: PDH_Method; app_data: Pointer): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_set0_app_data');
 end;
 
 
-function ERR_DH_meth_get_generate_key(const dhm: PDH_Method): DH_meth_generate_key_cb; 
+function  ERR_DH_meth_get_generate_key(const dhm: PDH_Method): DH_meth_generate_key_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_get_generate_key');
 end;
 
 
-function ERR_DH_meth_set_generate_key(const dhm: PDH_Method; generate_key: DH_meth_generate_key_cb): TIdC_INT; 
+function  ERR_DH_meth_set_generate_key(const dhm: PDH_Method; generate_key: DH_meth_generate_key_cb): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_set_generate_key');
 end;
 
 
-function ERR_DH_meth_get_compute_key(const dhm: PDH_Method): DH_meth_compute_key_cb; 
+function  ERR_DH_meth_get_compute_key(const dhm: PDH_Method): DH_meth_compute_key_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_get_compute_key');
 end;
 
 
-function ERR_DH_meth_set_compute_key(const dhm: PDH_Method; compute_key: DH_meth_compute_key_cb): TIdC_INT; 
+function  ERR_DH_meth_set_compute_key(const dhm: PDH_Method; compute_key: DH_meth_compute_key_cb): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_set_compute_key');
 end;
 
 
-function ERR_DH_meth_get_bn_mod_exp(const dhm: PDH_Method): DH_meth_bn_mod_exp_cb; 
+function  ERR_DH_meth_get_bn_mod_exp(const dhm: PDH_Method): DH_meth_bn_mod_exp_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_get_bn_mod_exp');
 end;
 
 
-function ERR_DH_meth_set_bn_mod_exp(const dhm: PDH_Method; bn_mod_expr: DH_meth_bn_mod_exp_cb): TIdC_INT; 
+function  ERR_DH_meth_set_bn_mod_exp(const dhm: PDH_Method; bn_mod_expr: DH_meth_bn_mod_exp_cb): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_set_bn_mod_exp');
 end;
 
 
-function ERR_DH_meth_get_init(const dhm: PDH_Method): DH_meth_init_cb; 
+function  ERR_DH_meth_get_init(const dhm: PDH_Method): DH_meth_init_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_get_init');
 end;
 
 
-function ERR_DH_meth_set_init(const dhm: PDH_Method; init: DH_meth_init_cb): TIdC_INT; 
+function  ERR_DH_meth_set_init(const dhm: PDH_Method; init: DH_meth_init_cb): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_set_init');
 end;
 
 
-function ERR_DH_meth_get_finish(const dhm: PDH_Method): DH_meth_finish_cb; 
+function  ERR_DH_meth_get_finish(const dhm: PDH_Method): DH_meth_finish_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_get_finish');
 end;
 
 
-function ERR_DH_meth_set_finish(const dhm: PDH_Method; finish: DH_meth_finish_cb): TIdC_INT; 
+function  ERR_DH_meth_set_finish(const dhm: PDH_Method; finish: DH_meth_finish_cb): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_set_finish');
 end;
 
 
-function ERR_DH_meth_get_generate_params(const dhm: PDH_Method): DH_meth_generate_params_cb; 
+function  ERR_DH_meth_get_generate_params(const dhm: PDH_Method): DH_meth_generate_params_cb; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_get_generate_params');
 end;
 
 
-function ERR_DH_meth_set_generate_params(const dhm: PDH_Method; generate_params: DH_meth_generate_params_cb): TIdC_INT; 
+function  ERR_DH_meth_set_generate_params(const dhm: PDH_Method; generate_params: DH_meth_generate_params_cb): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('DH_meth_set_generate_params');
 end;

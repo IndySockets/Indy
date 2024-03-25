@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -117,55 +119,55 @@ var
   {$EXTERNALSYM sk_dup} {removed 1.1.0}
   {$EXTERNALSYM sk_sort} {removed 1.1.0}
   {$EXTERNALSYM sk_is_sorted} {removed 1.1.0}
-  OPENSSL_sk_num: function(_para1:POPENSSL_STACK):longint; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_value: function(_para1:POPENSSL_STACK; _para2:longint):pointer; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_set: function(st:POPENSSL_STACK; i:longint; data:pointer):pointer; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_new: function(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_new_null: function:POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_new_reserve: function(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_reserve: function(st:POPENSSL_STACK; n:longint):longint; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_free: procedure(_para1:POPENSSL_STACK); cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_pop_free: procedure(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_deep_copy: function(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_insert: function(sk:POPENSSL_STACK; data:pointer; where:longint):longint; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_delete: function(st:POPENSSL_STACK; loc:longint):pointer; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_delete_ptr: function(st:POPENSSL_STACK; p:pointer):pointer; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_find: function(st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_find_ex: function(st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_push: function(st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_unshift: function(st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_shift: function(st:POPENSSL_STACK):pointer; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_pop: function(st:POPENSSL_STACK):pointer; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_zero: procedure(st:POPENSSL_STACK); cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_set_cmp_func: function(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_dup: function(st:POPENSSL_STACK):POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_sort: procedure(st:POPENSSL_STACK); cdecl = nil; {introduced 1.1.0}
-  OPENSSL_sk_is_sorted: function(st:POPENSSL_STACK):longint; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_num: function (_para1:POPENSSL_STACK):longint; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_value: function (_para1:POPENSSL_STACK; _para2:longint):pointer; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_set: function (st:POPENSSL_STACK; i:longint; data:pointer):pointer; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_new: function (cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_new_null: function :POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_new_reserve: function (c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_reserve: function (st:POPENSSL_STACK; n:longint):longint; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_free: procedure (_para1:POPENSSL_STACK); cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_pop_free: procedure (st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_deep_copy: function (_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_insert: function (sk:POPENSSL_STACK; data:pointer; where:longint):longint; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_delete: function (st:POPENSSL_STACK; loc:longint):pointer; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_delete_ptr: function (st:POPENSSL_STACK; p:pointer):pointer; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_find: function (st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_find_ex: function (st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_push: function (st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_unshift: function (st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_shift: function (st:POPENSSL_STACK):pointer; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_pop: function (st:POPENSSL_STACK):pointer; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_zero: procedure (st:POPENSSL_STACK); cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_set_cmp_func: function (sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_dup: function (st:POPENSSL_STACK):POPENSSL_STACK; cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_sort: procedure (st:POPENSSL_STACK); cdecl = nil; {introduced 1.1.0}
+  OPENSSL_sk_is_sorted: function (st:POPENSSL_STACK):longint; cdecl = nil; {introduced 1.1.0}
 
-  sk_num: function(_para1:POPENSSL_STACK):longint; cdecl = nil; {removed 1.1.0}
-  sk_value: function(_para1:POPENSSL_STACK; _para2:longint):pointer; cdecl = nil; {removed 1.1.0}
-  sk_set: function(st:POPENSSL_STACK; i:longint; data:pointer):pointer; cdecl = nil; {removed 1.1.0}
-  sk_new: function(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; cdecl = nil; {removed 1.1.0}
-  sk_new_null: function:POPENSSL_STACK; cdecl = nil; {removed 1.1.0}
-  sk_new_reserve: function(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; cdecl = nil; {removed 1.0.0}
-  sk_reserve: function(st:POPENSSL_STACK; n:longint):longint; cdecl = nil; {removed 1.0.0}
-  sk_free: procedure(_para1:POPENSSL_STACK); cdecl = nil; {removed 1.1.0}
-  sk_pop_free: procedure(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); cdecl = nil; {removed 1.1.0}
-  sk_deep_copy: function(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; cdecl = nil; {removed 1.1.0}
-  sk_insert: function(sk:POPENSSL_STACK; data:pointer; where:longint):longint; cdecl = nil; {removed 1.1.0}
-  sk_delete: function(st:POPENSSL_STACK; loc:longint):pointer; cdecl = nil; {removed 1.1.0}
-  sk_delete_ptr: function(st:POPENSSL_STACK; p:pointer):pointer; cdecl = nil; {removed 1.1.0}
-  sk_find: function(st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {removed 1.1.0}
-  sk_find_ex: function(st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {removed 1.1.0}
-  sk_push: function(st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {removed 1.1.0}
-  sk_unshift: function(st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {removed 1.1.0}
-  sk_shift: function(st:POPENSSL_STACK):pointer; cdecl = nil; {removed 1.1.0}
-  sk_pop: function(st:POPENSSL_STACK):pointer; cdecl = nil; {removed 1.1.0}
-  sk_zero: procedure(st:POPENSSL_STACK); cdecl = nil; {removed 1.1.0}
-  sk_set_cmp_func: function(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; cdecl = nil; {removed 1.1.0}
-  sk_dup: function(st:POPENSSL_STACK):POPENSSL_STACK; cdecl = nil; {removed 1.1.0}
-  sk_sort: procedure(st:POPENSSL_STACK); cdecl = nil; {removed 1.1.0}
-  sk_is_sorted: function(st:POPENSSL_STACK):longint; cdecl = nil; {removed 1.1.0}
+  sk_num: function (_para1:POPENSSL_STACK):longint; cdecl = nil; {removed 1.1.0}
+  sk_value: function (_para1:POPENSSL_STACK; _para2:longint):pointer; cdecl = nil; {removed 1.1.0}
+  sk_set: function (st:POPENSSL_STACK; i:longint; data:pointer):pointer; cdecl = nil; {removed 1.1.0}
+  sk_new: function (cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; cdecl = nil; {removed 1.1.0}
+  sk_new_null: function :POPENSSL_STACK; cdecl = nil; {removed 1.1.0}
+  sk_new_reserve: function (c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; cdecl = nil; {removed 1.0.0}
+  sk_reserve: function (st:POPENSSL_STACK; n:longint):longint; cdecl = nil; {removed 1.0.0}
+  sk_free: procedure (_para1:POPENSSL_STACK); cdecl = nil; {removed 1.1.0}
+  sk_pop_free: procedure (st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); cdecl = nil; {removed 1.1.0}
+  sk_deep_copy: function (_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; cdecl = nil; {removed 1.1.0}
+  sk_insert: function (sk:POPENSSL_STACK; data:pointer; where:longint):longint; cdecl = nil; {removed 1.1.0}
+  sk_delete: function (st:POPENSSL_STACK; loc:longint):pointer; cdecl = nil; {removed 1.1.0}
+  sk_delete_ptr: function (st:POPENSSL_STACK; p:pointer):pointer; cdecl = nil; {removed 1.1.0}
+  sk_find: function (st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {removed 1.1.0}
+  sk_find_ex: function (st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {removed 1.1.0}
+  sk_push: function (st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {removed 1.1.0}
+  sk_unshift: function (st:POPENSSL_STACK; data:pointer):longint; cdecl = nil; {removed 1.1.0}
+  sk_shift: function (st:POPENSSL_STACK):pointer; cdecl = nil; {removed 1.1.0}
+  sk_pop: function (st:POPENSSL_STACK):pointer; cdecl = nil; {removed 1.1.0}
+  sk_zero: procedure (st:POPENSSL_STACK); cdecl = nil; {removed 1.1.0}
+  sk_set_cmp_func: function (sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; cdecl = nil; {removed 1.1.0}
+  sk_dup: function (st:POPENSSL_STACK):POPENSSL_STACK; cdecl = nil; {removed 1.1.0}
+  sk_sort: procedure (st:POPENSSL_STACK); cdecl = nil; {removed 1.1.0}
+  sk_is_sorted: function (st:POPENSSL_STACK):longint; cdecl = nil; {removed 1.1.0}
 
 {$ELSE}
   function OPENSSL_sk_num(_para1:POPENSSL_STACK):longint cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 1.1.0}
@@ -222,12 +224,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 const
   OPENSSL_sk_num_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
@@ -281,122 +284,122 @@ const
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 
-function _sk_num(_para1:POPENSSL_STACK):longint; cdecl;
+function  _sk_num(_para1:POPENSSL_STACK):longint; cdecl;
 begin
   Result := OPENSSL_sk_num(_para1);
 end;
 
-function _sk_value(_para1:POPENSSL_STACK; _para2:longint):pointer; cdecl;
+function  _sk_value(_para1:POPENSSL_STACK; _para2:longint):pointer; cdecl;
 begin
   Result := OPENSSL_sk_value(_para1,_para2);
 end;
 
-function _sk_set(st:POPENSSL_STACK; i:longint; data:pointer):pointer; cdecl;
+function  _sk_set(st:POPENSSL_STACK; i:longint; data:pointer):pointer; cdecl;
 begin
   Result := OPENSSL_sk_set(st,i,data);
 end;
 
-function _sk_new(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; cdecl;
+function  _sk_new(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; cdecl;
 begin
   Result := OPENSSL_sk_new(cmp);
 end;
 
-function _sk_new_null:POPENSSL_STACK; cdecl;
+function  _sk_new_null:POPENSSL_STACK; cdecl;
 begin
   Result := OPENSSL_sk_new_null;
 end;
 
-function _sk_new_reserve(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; cdecl;
+function  _sk_new_reserve(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; cdecl;
 begin
   Result := OPENSSL_sk_new_reserve(c,n);
 end;
 
-function _sk_reserve(st:POPENSSL_STACK; n:longint):longint; cdecl;
+function  _sk_reserve(st:POPENSSL_STACK; n:longint):longint; cdecl;
 begin
   Result := OPENSSL_sk_reserve(st,n);
 end;
 
-procedure _sk_free(_para1:POPENSSL_STACK); cdecl;
+procedure  _sk_free(_para1:POPENSSL_STACK); cdecl;
 begin
   OPENSSL_sk_free(_para1);
 end;
 
-procedure _sk_pop_free(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); cdecl;
+procedure  _sk_pop_free(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); cdecl;
 begin
   OPENSSL_sk_pop_free(st, func);
 end;
 
-function _sk_deep_copy(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; cdecl;
+function  _sk_deep_copy(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; cdecl;
 begin
   Result := OPENSSL_sk_deep_copy(_para1,c,f);
 end;
 
-function _sk_insert(sk:POPENSSL_STACK; data:pointer; where:longint):longint; cdecl;
+function  _sk_insert(sk:POPENSSL_STACK; data:pointer; where:longint):longint; cdecl;
 begin
   Result := OPENSSL_sk_insert(sk,data,where);
 end;
 
-function _sk_delete(st:POPENSSL_STACK; loc:longint):pointer; cdecl;
+function  _sk_delete(st:POPENSSL_STACK; loc:longint):pointer; cdecl;
 begin
   Result := OPENSSL_sk_delete(st,loc);
 end;
 
-function _sk_delete_ptr(st:POPENSSL_STACK; p:pointer):pointer; cdecl;
+function  _sk_delete_ptr(st:POPENSSL_STACK; p:pointer):pointer; cdecl;
 begin
   Result := OPENSSL_sk_delete_ptr(st,p);
 end;
 
-function _sk_find(st:POPENSSL_STACK; data:pointer):longint; cdecl;
+function  _sk_find(st:POPENSSL_STACK; data:pointer):longint; cdecl;
 begin
   Result := OPENSSL_sk_find(st,data);
 end;
 
-function _sk_find_ex(st:POPENSSL_STACK; data:pointer):longint; cdecl;
+function  _sk_find_ex(st:POPENSSL_STACK; data:pointer):longint; cdecl;
 begin
   Result := OPENSSL_sk_find_ex(st,data);
 end;
 
-function _sk_push(st:POPENSSL_STACK; data:pointer):longint; cdecl;
+function  _sk_push(st:POPENSSL_STACK; data:pointer):longint; cdecl;
 begin
   Result := OPENSSL_sk_push(st,data);
 end;
 
-function _sk_unshift(st:POPENSSL_STACK; data:pointer):longint; cdecl;
+function  _sk_unshift(st:POPENSSL_STACK; data:pointer):longint; cdecl;
 begin
   Result := OPENSSL_sk_unshift(st,data);
 end;
 
-function _sk_shift(st:POPENSSL_STACK):pointer; cdecl;
+function  _sk_shift(st:POPENSSL_STACK):pointer; cdecl;
 begin
   Result := OPENSSL_sk_shift(st);
 end;
 
-function _sk_pop(st:POPENSSL_STACK):pointer; cdecl;
+function  _sk_pop(st:POPENSSL_STACK):pointer; cdecl;
 begin
   Result := OPENSSL_sk_pop(st);
 end;
 
-procedure _sk_zero(st:POPENSSL_STACK); cdecl;
+procedure  _sk_zero(st:POPENSSL_STACK); cdecl;
 begin
   OPENSSL_sk_zero(st);
 end;
 
-function _sk_set_cmp_func(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; cdecl;
+function  _sk_set_cmp_func(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; cdecl;
 begin
   Result := OPENSSL_sk_set_cmp_func(sk,cmp);
 end;
 
-function _sk_dup(st:POPENSSL_STACK):POPENSSL_STACK; cdecl;
+function  _sk_dup(st:POPENSSL_STACK):POPENSSL_STACK; cdecl;
 begin
   Result := OPENSSL_sk_dup(st);
 end;
 
-procedure _sk_sort(st:POPENSSL_STACK); cdecl;
+procedure  _sk_sort(st:POPENSSL_STACK); cdecl;
 begin
   OPENSSL_sk_sort(st);
 end;
 
-function _sk_is_sorted(st:POPENSSL_STACK):longint; cdecl;
+function  _sk_is_sorted(st:POPENSSL_STACK):longint; cdecl;
 begin
   Result := OPENSSL_sk_is_sorted(st);
 end;
@@ -404,289 +407,289 @@ end;
 
 
 {$WARN  NO_RETVAL OFF}
-function ERR_OPENSSL_sk_num(_para1:POPENSSL_STACK):longint; 
+function  ERR_OPENSSL_sk_num(_para1:POPENSSL_STACK):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_num');
 end;
 
 
-function ERR_OPENSSL_sk_value(_para1:POPENSSL_STACK; _para2:longint):pointer; 
+function  ERR_OPENSSL_sk_value(_para1:POPENSSL_STACK; _para2:longint):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_value');
 end;
 
 
-function ERR_OPENSSL_sk_set(st:POPENSSL_STACK; i:longint; data:pointer):pointer; 
+function  ERR_OPENSSL_sk_set(st:POPENSSL_STACK; i:longint; data:pointer):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_set');
 end;
 
 
-function ERR_OPENSSL_sk_new(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; 
+function  ERR_OPENSSL_sk_new(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_new');
 end;
 
 
-function ERR_OPENSSL_sk_new_null:POPENSSL_STACK; 
+function  ERR_OPENSSL_sk_new_null:POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_new_null');
 end;
 
 
-function ERR_OPENSSL_sk_new_reserve(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; 
+function  ERR_OPENSSL_sk_new_reserve(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_new_reserve');
 end;
 
 
-function ERR_OPENSSL_sk_reserve(st:POPENSSL_STACK; n:longint):longint; 
+function  ERR_OPENSSL_sk_reserve(st:POPENSSL_STACK; n:longint):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_reserve');
 end;
 
 
-procedure ERR_OPENSSL_sk_free(_para1:POPENSSL_STACK); 
+procedure  ERR_OPENSSL_sk_free(_para1:POPENSSL_STACK); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_free');
 end;
 
 
-procedure ERR_OPENSSL_sk_pop_free(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); 
+procedure  ERR_OPENSSL_sk_pop_free(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_pop_free');
 end;
 
 
-function ERR_OPENSSL_sk_deep_copy(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; 
+function  ERR_OPENSSL_sk_deep_copy(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_deep_copy');
 end;
 
 
-function ERR_OPENSSL_sk_insert(sk:POPENSSL_STACK; data:pointer; where:longint):longint; 
+function  ERR_OPENSSL_sk_insert(sk:POPENSSL_STACK; data:pointer; where:longint):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_insert');
 end;
 
 
-function ERR_OPENSSL_sk_delete(st:POPENSSL_STACK; loc:longint):pointer; 
+function  ERR_OPENSSL_sk_delete(st:POPENSSL_STACK; loc:longint):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_delete');
 end;
 
 
-function ERR_OPENSSL_sk_delete_ptr(st:POPENSSL_STACK; p:pointer):pointer; 
+function  ERR_OPENSSL_sk_delete_ptr(st:POPENSSL_STACK; p:pointer):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_delete_ptr');
 end;
 
 
-function ERR_OPENSSL_sk_find(st:POPENSSL_STACK; data:pointer):longint; 
+function  ERR_OPENSSL_sk_find(st:POPENSSL_STACK; data:pointer):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_find');
 end;
 
 
-function ERR_OPENSSL_sk_find_ex(st:POPENSSL_STACK; data:pointer):longint; 
+function  ERR_OPENSSL_sk_find_ex(st:POPENSSL_STACK; data:pointer):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_find_ex');
 end;
 
 
-function ERR_OPENSSL_sk_push(st:POPENSSL_STACK; data:pointer):longint; 
+function  ERR_OPENSSL_sk_push(st:POPENSSL_STACK; data:pointer):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_push');
 end;
 
 
-function ERR_OPENSSL_sk_unshift(st:POPENSSL_STACK; data:pointer):longint; 
+function  ERR_OPENSSL_sk_unshift(st:POPENSSL_STACK; data:pointer):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_unshift');
 end;
 
 
-function ERR_OPENSSL_sk_shift(st:POPENSSL_STACK):pointer; 
+function  ERR_OPENSSL_sk_shift(st:POPENSSL_STACK):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_shift');
 end;
 
 
-function ERR_OPENSSL_sk_pop(st:POPENSSL_STACK):pointer; 
+function  ERR_OPENSSL_sk_pop(st:POPENSSL_STACK):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_pop');
 end;
 
 
-procedure ERR_OPENSSL_sk_zero(st:POPENSSL_STACK); 
+procedure  ERR_OPENSSL_sk_zero(st:POPENSSL_STACK); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_zero');
 end;
 
 
-function ERR_OPENSSL_sk_set_cmp_func(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; 
+function  ERR_OPENSSL_sk_set_cmp_func(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_set_cmp_func');
 end;
 
 
-function ERR_OPENSSL_sk_dup(st:POPENSSL_STACK):POPENSSL_STACK; 
+function  ERR_OPENSSL_sk_dup(st:POPENSSL_STACK):POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_dup');
 end;
 
 
-procedure ERR_OPENSSL_sk_sort(st:POPENSSL_STACK); 
+procedure  ERR_OPENSSL_sk_sort(st:POPENSSL_STACK); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_sort');
 end;
 
 
-function ERR_OPENSSL_sk_is_sorted(st:POPENSSL_STACK):longint; 
+function  ERR_OPENSSL_sk_is_sorted(st:POPENSSL_STACK):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OPENSSL_sk_is_sorted');
 end;
 
 
-function ERR_sk_num(_para1:POPENSSL_STACK):longint; 
+function  ERR_sk_num(_para1:POPENSSL_STACK):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_num');
 end;
 
 
-function ERR_sk_value(_para1:POPENSSL_STACK; _para2:longint):pointer; 
+function  ERR_sk_value(_para1:POPENSSL_STACK; _para2:longint):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_value');
 end;
 
 
-function ERR_sk_set(st:POPENSSL_STACK; i:longint; data:pointer):pointer; 
+function  ERR_sk_set(st:POPENSSL_STACK; i:longint; data:pointer):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_set');
 end;
 
 
-function ERR_sk_new(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; 
+function  ERR_sk_new(cmp:TOPENSSL_sk_compfunc):POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_new');
 end;
 
 
-function ERR_sk_new_null:POPENSSL_STACK; 
+function  ERR_sk_new_null:POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_new_null');
 end;
 
 
-function ERR_sk_new_reserve(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; 
+function  ERR_sk_new_reserve(c:TOPENSSL_sk_compfunc; n:longint):POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_new_reserve');
 end;
 
 
-function ERR_sk_reserve(st:POPENSSL_STACK; n:longint):longint; 
+function  ERR_sk_reserve(st:POPENSSL_STACK; n:longint):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_reserve');
 end;
 
 
-procedure ERR_sk_free(_para1:POPENSSL_STACK); 
+procedure  ERR_sk_free(_para1:POPENSSL_STACK); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_free');
 end;
 
 
-procedure ERR_sk_pop_free(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); 
+procedure  ERR_sk_pop_free(st:POPENSSL_STACK; func:TOPENSSL_sk_freefunc); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_pop_free');
 end;
 
 
-function ERR_sk_deep_copy(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; 
+function  ERR_sk_deep_copy(_para1:POPENSSL_STACK; c:TOPENSSL_sk_copyfunc; f:TOPENSSL_sk_freefunc):POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_deep_copy');
 end;
 
 
-function ERR_sk_insert(sk:POPENSSL_STACK; data:pointer; where:longint):longint; 
+function  ERR_sk_insert(sk:POPENSSL_STACK; data:pointer; where:longint):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_insert');
 end;
 
 
-function ERR_sk_delete(st:POPENSSL_STACK; loc:longint):pointer; 
+function  ERR_sk_delete(st:POPENSSL_STACK; loc:longint):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_delete');
 end;
 
 
-function ERR_sk_delete_ptr(st:POPENSSL_STACK; p:pointer):pointer; 
+function  ERR_sk_delete_ptr(st:POPENSSL_STACK; p:pointer):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_delete_ptr');
 end;
 
 
-function ERR_sk_find(st:POPENSSL_STACK; data:pointer):longint; 
+function  ERR_sk_find(st:POPENSSL_STACK; data:pointer):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_find');
 end;
 
 
-function ERR_sk_find_ex(st:POPENSSL_STACK; data:pointer):longint; 
+function  ERR_sk_find_ex(st:POPENSSL_STACK; data:pointer):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_find_ex');
 end;
 
 
-function ERR_sk_push(st:POPENSSL_STACK; data:pointer):longint; 
+function  ERR_sk_push(st:POPENSSL_STACK; data:pointer):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_push');
 end;
 
 
-function ERR_sk_unshift(st:POPENSSL_STACK; data:pointer):longint; 
+function  ERR_sk_unshift(st:POPENSSL_STACK; data:pointer):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_unshift');
 end;
 
 
-function ERR_sk_shift(st:POPENSSL_STACK):pointer; 
+function  ERR_sk_shift(st:POPENSSL_STACK):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_shift');
 end;
 
 
-function ERR_sk_pop(st:POPENSSL_STACK):pointer; 
+function  ERR_sk_pop(st:POPENSSL_STACK):pointer; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_pop');
 end;
 
 
-procedure ERR_sk_zero(st:POPENSSL_STACK); 
+procedure  ERR_sk_zero(st:POPENSSL_STACK); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_zero');
 end;
 
 
-function ERR_sk_set_cmp_func(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; 
+function  ERR_sk_set_cmp_func(sk:POPENSSL_STACK; cmp:TOPENSSL_sk_compfunc):TOPENSSL_sk_compfunc; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_set_cmp_func');
 end;
 
 
-function ERR_sk_dup(st:POPENSSL_STACK):POPENSSL_STACK; 
+function  ERR_sk_dup(st:POPENSSL_STACK):POPENSSL_STACK; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_dup');
 end;
 
 
-procedure ERR_sk_sort(st:POPENSSL_STACK); 
+procedure  ERR_sk_sort(st:POPENSSL_STACK); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_sort');
 end;
 
 
-function ERR_sk_is_sorted(st:POPENSSL_STACK):longint; 
+function  ERR_sk_is_sorted(st:POPENSSL_STACK):longint; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('sk_is_sorted');
 end;

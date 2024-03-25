@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -89,18 +91,18 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  Camellia_set_key: function(const userKey: PByte; const bits: TIdC_INT; key: PCAMELLIA_KEY): TIdC_INT; cdecl = nil;
+  Camellia_set_key: function (const userKey: PByte; const bits: TIdC_INT; key: PCAMELLIA_KEY): TIdC_INT; cdecl = nil;
 
-  Camellia_encrypt: procedure(const in_: PByte; const out_: PByte; const key: PCAMELLIA_KEY); cdecl = nil;
-  Camellia_decrypt: procedure(const in_: PByte; const out_: PByte; const key: PCAMELLIA_KEY); cdecl = nil;
+  Camellia_encrypt: procedure (const in_: PByte; const out_: PByte; const key: PCAMELLIA_KEY); cdecl = nil;
+  Camellia_decrypt: procedure (const in_: PByte; const out_: PByte; const key: PCAMELLIA_KEY); cdecl = nil;
 
-  Camellia_ecb_encrypt: procedure( const in_: PByte; const out_: PByte; const key: PCAMELLIA_KEY; const enc: TIdC_INT); cdecl = nil;
-  Camellia_cbc_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; const enc: TIdC_INT); cdecl = nil;
-  Camellia_cfb128_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
-  Camellia_cfb1_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
-  Camellia_cfb8_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
-  Camellia_ofb128_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT); cdecl = nil;
-  Camellia_ctr128_encrypt: procedure( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: TCamellia_ctr128_encrypt_ivec; ecount_buf: TCamellia_ctr128_encrypt_ecount_buf; num: PIdC_INT); cdecl = nil;
+  Camellia_ecb_encrypt: procedure ( const in_: PByte; const out_: PByte; const key: PCAMELLIA_KEY; const enc: TIdC_INT); cdecl = nil;
+  Camellia_cbc_encrypt: procedure ( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; const enc: TIdC_INT); cdecl = nil;
+  Camellia_cfb128_encrypt: procedure ( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
+  Camellia_cfb1_encrypt: procedure ( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
+  Camellia_cfb8_encrypt: procedure ( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
+  Camellia_ofb128_encrypt: procedure ( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: PByte; num: PIdC_INT); cdecl = nil;
+  Camellia_ctr128_encrypt: procedure ( const in_: PByte; const out_: PByte; length: TIdC_SIZET; const key: PCAMELLIA_KEY; ivec: TCamellia_ctr128_encrypt_ivec; ecount_buf: TCamellia_ctr128_encrypt_ecount_buf; num: PIdC_INT); cdecl = nil;
 
 {$ELSE}
   function Camellia_set_key(const userKey: PByte; const bits: TIdC_INT; key: PCAMELLIA_KEY): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -120,12 +122,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -771,7 +773,7 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  GENERAL_NAME_cmp: function(a: PGENERAL_NAME; b: PGENERAL_NAME): TIdC_INT; cdecl = nil;
+  GENERAL_NAME_cmp: function (a: PGENERAL_NAME; b: PGENERAL_NAME): TIdC_INT; cdecl = nil;
 
 //  ASN1_BIT_STRING *v2i_ASN1_BIT_STRING(method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; STACK_OF(CONF_VALUE) *nval);
 //  STACK_OF(CONF_VALUE) *i2v_ASN1_BIT_STRING(method: PX509V3_EXT_METHOD; ASN1_BIT_STRING *bits; STACK_OF(CONF_VALUE) *extlist);
@@ -779,7 +781,7 @@ var
   //function s2i_ASN1_IA5STRING(method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; const str: PIdAnsiChar): PASN1_IA5STRING;
 
 //  STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(method: PX509V3_EXT_METHOD; gen: PGENERAL_NAME; STACK_OF(CONF_VALUE) *ret);
-  GENERAL_NAME_print: function(out_: PBIO; gen: PGENERAL_NAME): TIdC_INT; cdecl = nil;
+  GENERAL_NAME_print: function (out_: PBIO; gen: PGENERAL_NAME): TIdC_INT; cdecl = nil;
 
 //  DECLARE_ASN1_FUNCTIONS(GENERAL_NAMES)
 
@@ -788,17 +790,17 @@ var
 
 //  DECLARE_ASN1_FUNCTIONS(OTHERNAME)
 //  DECLARE_ASN1_FUNCTIONS(EDIPARTYNAME)
-  OTHERNAME_cmp: function(a: POTHERNAME; b: POTHERNAME): TIdC_INT; cdecl = nil;
-  GENERAL_NAME_set0_value: procedure(a: PGENERAL_NAME; type_: TIdC_INT; value: Pointer); cdecl = nil;
-  GENERAL_NAME_get0_value: function(const a: PGENERAL_NAME; ptype: PIdC_INT): Pointer; cdecl = nil;
-  GENERAL_NAME_set0_othername: function(gen: PGENERAL_NAME; oid: PASN1_OBJECT; value: PASN1_TYPE): TIdC_INT; cdecl = nil;
-  GENERAL_NAME_get0_otherName: function(const gen: PGENERAL_NAME; poid: PPASN1_OBJECT; pvalue: PPASN1_TYPE): TIdC_INT; cdecl = nil;
+  OTHERNAME_cmp: function (a: POTHERNAME; b: POTHERNAME): TIdC_INT; cdecl = nil;
+  GENERAL_NAME_set0_value: procedure (a: PGENERAL_NAME; type_: TIdC_INT; value: Pointer); cdecl = nil;
+  GENERAL_NAME_get0_value: function (const a: PGENERAL_NAME; ptype: PIdC_INT): Pointer; cdecl = nil;
+  GENERAL_NAME_set0_othername: function (gen: PGENERAL_NAME; oid: PASN1_OBJECT; value: PASN1_TYPE): TIdC_INT; cdecl = nil;
+  GENERAL_NAME_get0_otherName: function (const gen: PGENERAL_NAME; poid: PPASN1_OBJECT; pvalue: PPASN1_TYPE): TIdC_INT; cdecl = nil;
 
   //function i2s_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; const ia5: PASN1_OCTET_STRING): PIdAnsiChar;
   //function s2i_ASN1_OCTET_STRING(method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; const str: PIdAnsiChar): PASN1_OCTET_STRING;
 
 //  DECLARE_ASN1_FUNCTIONS(EXTENDED_KEY_USAGE)
-  i2a_ACCESS_DESCRIPTION: function(bp: PBIO; const a: PACCESS_DESCRIPTION): TIdC_INT; cdecl = nil;
+  i2a_ACCESS_DESCRIPTION: function (bp: PBIO; const a: PACCESS_DESCRIPTION): TIdC_INT; cdecl = nil;
 
 //  DECLARE_ASN1_ALLOC_FUNCTIONS(TLS_FEATURE)
 
@@ -813,10 +815,10 @@ var
 //  DECLARE_ASN1_FUNCTIONS(DIST_POINT_NAME)
 //  DECLARE_ASN1_FUNCTIONS(ISSUING_DIST_POINT)
 
-  DIST_POINT_set_dpname: function(dpn: PDIST_POINT_NAME; iname: PX509_NAME): TIdC_INT; cdecl = nil;
+  DIST_POINT_set_dpname: function (dpn: PDIST_POINT_NAME; iname: PX509_NAME): TIdC_INT; cdecl = nil;
 
-  NAME_CONSTRAINTS_check: function(x: PX509; nc: PNAME_CONSTRAINTS): TIdC_INT; cdecl = nil;
-  NAME_CONSTRAINTS_check_CN: function(x: PX509; nc: PNAME_CONSTRAINTS): TIdC_INT; cdecl = nil;
+  NAME_CONSTRAINTS_check: function (x: PX509; nc: PNAME_CONSTRAINTS): TIdC_INT; cdecl = nil;
+  NAME_CONSTRAINTS_check_CN: function (x: PX509; nc: PNAME_CONSTRAINTS): TIdC_INT; cdecl = nil;
 
 //  DECLARE_ASN1_FUNCTIONS(ACCESS_DESCRIPTION)
 //  DECLARE_ASN1_FUNCTIONS(AUTHORITY_INFO_ACCESS)
@@ -840,35 +842,35 @@ var
   //function v2i_GENERAL_NAME_ex(out_: PGENERAL_NAME; const method: PX509V3_EXT_METHOD; ctx: PX509V3_CTX; cnf: PCONF_VALUE; is_nc: TIdC_INT): PGENERAL_NAME;
   //procedure X509V3_conf_free(val: PCONF_VALUE);
 
-  X509V3_EXT_nconf_nid: function(conf: PCONF; ctx: PX509V3_CTX; ext_nid: TIdC_INT; const value: PIdAnsiChar): PX509_EXTENSION; cdecl = nil;
-  X509V3_EXT_nconf: function(conf: PCONF; ctx: PX509V3_CTX; const name: PIdAnsiChar; const value: PIdAnsiChar): PX509_EXTENSION; cdecl = nil;
+  X509V3_EXT_nconf_nid: function (conf: PCONF; ctx: PX509V3_CTX; ext_nid: TIdC_INT; const value: PIdAnsiChar): PX509_EXTENSION; cdecl = nil;
+  X509V3_EXT_nconf: function (conf: PCONF; ctx: PX509V3_CTX; const name: PIdAnsiChar; const value: PIdAnsiChar): PX509_EXTENSION; cdecl = nil;
 //  TIdC_INT X509V3_EXT_add_nconf_sk(conf: PCONF; ctx: PX509V3_CTX; const section: PIdAnsiChar; STACK_OF(X509_EXTENSION) **sk);
-  X509V3_EXT_add_nconf: function(conf: PCONF; ctx: PX509V3_CTX; const section: PIdAnsiChar; cert: PX509): TIdC_INT; cdecl = nil;
-  X509V3_EXT_REQ_add_nconf: function(conf: PCONF; ctx: PX509V3_CTX; const section: PIdAnsiChar; req: PX509_REQ): TIdC_INT; cdecl = nil;
-  X509V3_EXT_CRL_add_nconf: function(conf: PCONF; ctx: PX509V3_CTX; const section: PIdAnsiChar; crl: PX509_CRL): TIdC_INT; cdecl = nil;
+  X509V3_EXT_add_nconf: function (conf: PCONF; ctx: PX509V3_CTX; const section: PIdAnsiChar; cert: PX509): TIdC_INT; cdecl = nil;
+  X509V3_EXT_REQ_add_nconf: function (conf: PCONF; ctx: PX509V3_CTX; const section: PIdAnsiChar; req: PX509_REQ): TIdC_INT; cdecl = nil;
+  X509V3_EXT_CRL_add_nconf: function (conf: PCONF; ctx: PX509V3_CTX; const section: PIdAnsiChar; crl: PX509_CRL): TIdC_INT; cdecl = nil;
 
-  X509V3_EXT_conf_nid: function(conf: Pointer; ctx: PX509V3_CTX; ext_nid: TIdC_INT; const value: PIdAnsiChar): PX509_EXTENSION; cdecl = nil;
+  X509V3_EXT_conf_nid: function (conf: Pointer; ctx: PX509V3_CTX; ext_nid: TIdC_INT; const value: PIdAnsiChar): PX509_EXTENSION; cdecl = nil;
 //  X509_EXTENSION *X509V3_EXT_conf_nid(LHASH_OF(CONF_VALUE) *conf; ctx: PX509V3_CTX; ext_nid: TIdC_INT; const value: PIdAnsiChar);
-  X509V3_EXT_conf: function(conf: Pointer; ctx: PX509V3_CTX; const name: PIdAnsiChar; const value: PIdAnsiChar): PX509_EXTENSION; cdecl = nil;
+  X509V3_EXT_conf: function (conf: Pointer; ctx: PX509V3_CTX; const name: PIdAnsiChar; const value: PIdAnsiChar): PX509_EXTENSION; cdecl = nil;
 //  X509_EXTENSION *X509V3_EXT_conf(LHASH_OF(CONF_VALUE) *conf; ctx: PX509V3_CTX; const name: PIdAnsiChar; const value: PIdAnsiChar);
-  X509V3_EXT_add_conf: function(conf: Pointer; ctx: PX509V3_CTX; const section: PIdAnsiChar; cert: PX509): TIdC_INT; cdecl = nil;
+  X509V3_EXT_add_conf: function (conf: Pointer; ctx: PX509V3_CTX; const section: PIdAnsiChar; cert: PX509): TIdC_INT; cdecl = nil;
 //  TIdC_INT X509V3_EXT_add_conf(LHASH_OF(CONF_VALUE) *conf; ctx: PX509V3_CTX; const section: PIdAnsiChar; cert: PX509);
-  X509V3_EXT_REQ_add_conf: function(conf: Pointer; ctx: PX509V3_CTX; const section: PIdAnsiChar; req: PX509_REQ): TIdC_INT; cdecl = nil;
+  X509V3_EXT_REQ_add_conf: function (conf: Pointer; ctx: PX509V3_CTX; const section: PIdAnsiChar; req: PX509_REQ): TIdC_INT; cdecl = nil;
 //  TIdC_INT X509V3_EXT_REQ_add_conf(LHASH_OF(CONF_VALUE) *conf; ctx: PX509V3_CTX; const section: PIdAnsiChar; req: PX509_REQ);
-  X509V3_EXT_CRL_add_conf: function(conf: Pointer; ctx: PX509V3_CTX; const section: PIdAnsiChar; crl: PX509_CRL): TIdC_INT; cdecl = nil;
+  X509V3_EXT_CRL_add_conf: function (conf: Pointer; ctx: PX509V3_CTX; const section: PIdAnsiChar; crl: PX509_CRL): TIdC_INT; cdecl = nil;
 //  TIdC_INT X509V3_EXT_CRL_add_conf(LHASH_OF(CONF_VALUE) *conf; ctx: PX509V3_CTX; const section: PIdAnsiChar; crl: PX509_CRL);
 
 //  TIdC_INT X509V3_add_value_bool_nf(const name: PIdAnsiChar; TIdC_INT asn1_bool; STACK_OF(CONF_VALUE) **extlist);
   //function X509V3_get_value_bool(const value: PCONF_VALUE; asn1_bool: PIdC_INT): TIdC_INT;
   //function X509V3_get_value_int(const value: PCONF_VALUE; aint: PPASN1_INTEGER): TIdC_INT;
-  X509V3_set_nconf: procedure(ctx: PX509V3_CTX; conf: PCONF); cdecl = nil;
+  X509V3_set_nconf: procedure (ctx: PX509V3_CTX; conf: PCONF); cdecl = nil;
 //  void X509V3_set_conf_lhash(ctx: PX509V3_CTX; LHASH_OF(CONF_VALUE) *lhash);
 
-  X509V3_get_string: function(ctx: PX509V3_CTX; const name: PIdAnsiChar; const section: PIdAnsiChar): PIdAnsiChar; cdecl = nil;
+  X509V3_get_string: function (ctx: PX509V3_CTX; const name: PIdAnsiChar; const section: PIdAnsiChar): PIdAnsiChar; cdecl = nil;
 //  STACK_OF(CONF_VALUE) *X509V3_get_section(ctx: PX509V3_CTX; const section: PIdAnsiChar);
-  X509V3_string_free: procedure(ctx: PX509V3_CTX; str: PIdAnsiChar); cdecl = nil;
+  X509V3_string_free: procedure (ctx: PX509V3_CTX; str: PIdAnsiChar); cdecl = nil;
 //  void X509V3_section_free(ctx: PX509V3_CTX; STACK_OF(CONF_VALUE) *section);
-  X509V3_set_ctx: procedure(ctx: PX509V3_CTX; issuer: PX509; subject: PX509; req: PX509_REQ; crl: PX509_CRL; flags: TIdC_INT); cdecl = nil;
+  X509V3_set_ctx: procedure (ctx: PX509V3_CTX; issuer: PX509; subject: PX509; req: PX509_REQ; crl: PX509_CRL; flags: TIdC_INT); cdecl = nil;
 
 //  TIdC_INT X509V3_add_value(const name: PIdAnsiChar; const value: PIdAnsiChar; STACK_OF(CONF_VALUE) **extlist);
 //  TIdC_INT X509V3_add_value_uPIdAnsiChar(const name: PIdAnsiChar; const Byte *value; STACK_OF(CONF_VALUE) **extlist);
@@ -880,67 +882,67 @@ var
   //function i2s_ASN1_ENUMERATED_TABLE(meth: PX509V3_EXT_METHOD; const aint: PASN1_ENUMERATED): PIdAnsiChar;
   //function X509V3_EXT_add(ext: PX509V3_EXT_METHOD): TIdC_INT;
   //function X509V3_EXT_add_list(extlist: PX509V3_EXT_METHOD): TIdC_INT;
-  X509V3_EXT_add_alias: function(nid_to: TIdC_INT; nid_from: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509V3_EXT_cleanup: procedure; cdecl = nil;
+  X509V3_EXT_add_alias: function (nid_to: TIdC_INT; nid_from: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509V3_EXT_cleanup: procedure ; cdecl = nil;
 
   //function X509V3_EXT_get(ext: PX509_EXTENSION): PX509V3_EXT_METHOD;
   //function X509V3_EXT_get_nid(nid: TIdC_INT): PX509V3_EXT_METHOD;
-  X509V3_add_standard_extensions: function: TIdC_INT; cdecl = nil;
+  X509V3_add_standard_extensions: function : TIdC_INT; cdecl = nil;
 //  STACK_OF(CONF_VALUE) *X509V3_parse_list(const line: PIdAnsiChar);
-  X509V3_EXT_d2i: function(ext: PX509_EXTENSION): Pointer; cdecl = nil;
+  X509V3_EXT_d2i: function (ext: PX509_EXTENSION): Pointer; cdecl = nil;
 //  void *X509V3_get_d2i(const STACK_OF(X509_EXTENSION) *x; nid: TIdC_INT; TIdC_INT *crit; TIdC_INT *idx);
 
-  X509V3_EXT_i2d: function(ext_nid: TIdC_INT; crit: TIdC_INT; ext_struc: Pointer): PX509_EXTENSION; cdecl = nil;
+  X509V3_EXT_i2d: function (ext_nid: TIdC_INT; crit: TIdC_INT; ext_struc: Pointer): PX509_EXTENSION; cdecl = nil;
 //  TIdC_INT X509V3_add1_i2d(STACK_OF(X509_EXTENSION) **x; nid: TIdC_INT; value: Pointer; crit: TIdC_INT; TIdC_ULONG flags);
 
 //  void X509V3_EXT_val_prn(out_: PBIO; STACK_OF(CONF_VALUE) *val; indent: TIdC_INT; TIdC_INT ml);
-  X509V3_EXT_print: function(out_: PBIO; ext: PX509_EXTENSION; flag: TIdC_ULONG; indent: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509V3_EXT_print: function (out_: PBIO; ext: PX509_EXTENSION; flag: TIdC_ULONG; indent: TIdC_INT): TIdC_INT; cdecl = nil;
 //  TIdC_INT X509V3_extensions_print(out_: PBIO; const PIdAnsiChar *title; const STACK_OF(X509_EXTENSION) *exts; flag: TIdC_ULONG; indent: TIdC_INT);
 
-  X509_check_ca: function(x: PX509): TIdC_INT; cdecl = nil;
-  X509_check_purpose: function(x: PX509; id: TIdC_INT; ca: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_supported_extension: function(ex: PX509_EXTENSION): TIdC_INT; cdecl = nil;
-  X509_PURPOSE_set: function(p: PIdC_INT; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
-  X509_check_issued: function(issuer: PX509; subject: PX509): TIdC_INT; cdecl = nil;
-  X509_check_akid: function(issuer: PX509; akid: PAUTHORITY_KEYID): TIdC_INT; cdecl = nil;
-  X509_set_proxy_flag: procedure(x: PX509); cdecl = nil;
-  X509_set_proxy_pathlen: procedure(x: PX509; l: TIdC_LONG); cdecl = nil;
-  X509_get_proxy_pathlen: function(x: PX509): TIdC_LONG; cdecl = nil;
+  X509_check_ca: function (x: PX509): TIdC_INT; cdecl = nil;
+  X509_check_purpose: function (x: PX509; id: TIdC_INT; ca: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_supported_extension: function (ex: PX509_EXTENSION): TIdC_INT; cdecl = nil;
+  X509_PURPOSE_set: function (p: PIdC_INT; purpose: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_check_issued: function (issuer: PX509; subject: PX509): TIdC_INT; cdecl = nil;
+  X509_check_akid: function (issuer: PX509; akid: PAUTHORITY_KEYID): TIdC_INT; cdecl = nil;
+  X509_set_proxy_flag: procedure (x: PX509); cdecl = nil;
+  X509_set_proxy_pathlen: procedure (x: PX509; l: TIdC_LONG); cdecl = nil;
+  X509_get_proxy_pathlen: function (x: PX509): TIdC_LONG; cdecl = nil;
 
-  X509_get_extension_flags: function(x: PX509): TIdC_UINT32; cdecl = nil;
-  X509_get_key_usage: function(x: PX509): TIdC_UINT32; cdecl = nil;
-  X509_get_extended_key_usage: function(x: PX509): TIdC_UINT32; cdecl = nil;
-  X509_get0_subject_key_id: function(x: PX509): PASN1_OCTET_STRING; cdecl = nil;
-  X509_get0_authority_key_id: function(x: PX509): PASN1_OCTET_STRING; cdecl = nil;
+  X509_get_extension_flags: function (x: PX509): TIdC_UINT32; cdecl = nil;
+  X509_get_key_usage: function (x: PX509): TIdC_UINT32; cdecl = nil;
+  X509_get_extended_key_usage: function (x: PX509): TIdC_UINT32; cdecl = nil;
+  X509_get0_subject_key_id: function (x: PX509): PASN1_OCTET_STRING; cdecl = nil;
+  X509_get0_authority_key_id: function (x: PX509): PASN1_OCTET_STRING; cdecl = nil;
   //function X509_get0_authority_issuer(x: PX509): PGENERAL_NAMES;
-  X509_get0_authority_serial: function(x: PX509): PASN1_INTEGER; cdecl = nil;
+  X509_get0_authority_serial: function (x: PX509): PASN1_INTEGER; cdecl = nil;
 
-  X509_PURPOSE_get_count: function: TIdC_INT; cdecl = nil;
-  X509_PURPOSE_get0: function(idx: TIdC_INT): PX509_PURPOSE; cdecl = nil;
-  X509_PURPOSE_get_by_sname: function(const sname: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  X509_PURPOSE_get_by_id: function(id: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509_PURPOSE_get_count: function : TIdC_INT; cdecl = nil;
+  X509_PURPOSE_get0: function (idx: TIdC_INT): PX509_PURPOSE; cdecl = nil;
+  X509_PURPOSE_get_by_sname: function (const sname: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  X509_PURPOSE_get_by_id: function (id: TIdC_INT): TIdC_INT; cdecl = nil;
 //  TIdC_INT X509_PURPOSE_add(id: TIdC_INT, TIdC_INT trust, flags: TIdC_INT, TIdC_INT (*ck) (const X509_PURPOSE *, const X509 *, TIdC_INT), const name: PIdAnsiChar, const sname: PIdAnsiChar, void *arg);
-  X509_PURPOSE_get0_name: function(const xp: PX509_PURPOSE): PIdAnsiChar; cdecl = nil;
-  X509_PURPOSE_get0_sname: function(const xp: PX509_PURPOSE): PIdAnsiChar; cdecl = nil;
-  X509_PURPOSE_get_trust: function(const xp: PX509_PURPOSE): TIdC_INT; cdecl = nil;
-  X509_PURPOSE_cleanup: procedure; cdecl = nil;
-  X509_PURPOSE_get_id: function(const v1: PX509_PURPOSE): TIdC_INT; cdecl = nil;
+  X509_PURPOSE_get0_name: function (const xp: PX509_PURPOSE): PIdAnsiChar; cdecl = nil;
+  X509_PURPOSE_get0_sname: function (const xp: PX509_PURPOSE): PIdAnsiChar; cdecl = nil;
+  X509_PURPOSE_get_trust: function (const xp: PX509_PURPOSE): TIdC_INT; cdecl = nil;
+  X509_PURPOSE_cleanup: procedure ; cdecl = nil;
+  X509_PURPOSE_get_id: function (const v1: PX509_PURPOSE): TIdC_INT; cdecl = nil;
 
 //  STACK_OF(OPENSSL_STRING) *X509_get1_email(x: PX509);
 //  STACK_OF(OPENSSL_STRING) *X509_REQ_get1_email(X509_REQ *x);
 //  void X509_email_free(STACK_OF(OPENSSL_STRING) *sk);
 //  STACK_OF(OPENSSL_STRING) *X509_get1_ocsp(x: PX509);
 
-  X509_check_host: function(x: PX509; const chk: PIdAnsiChar; chklen: TIdC_SIZET; flags: TIdC_UINT; peername: PPIdAnsiChar): TIdC_INT; cdecl = nil;
-  X509_check_email: function(x: PX509; const chk: PIdAnsiChar; chklen: TIdC_SIZET; flags: TIdC_UINT): TIdC_INT; cdecl = nil;
-  X509_check_ip: function(x: PX509; const chk: PByte; chklen: TIdC_SIZET; flags: TIdC_UINT): TIdC_INT; cdecl = nil;
-  X509_check_ip_asc: function(x: PX509; const ipasc: PIdAnsiChar; flags: TIdC_UINT): TIdC_INT; cdecl = nil;
+  X509_check_host: function (x: PX509; const chk: PIdAnsiChar; chklen: TIdC_SIZET; flags: TIdC_UINT; peername: PPIdAnsiChar): TIdC_INT; cdecl = nil;
+  X509_check_email: function (x: PX509; const chk: PIdAnsiChar; chklen: TIdC_SIZET; flags: TIdC_UINT): TIdC_INT; cdecl = nil;
+  X509_check_ip: function (x: PX509; const chk: PByte; chklen: TIdC_SIZET; flags: TIdC_UINT): TIdC_INT; cdecl = nil;
+  X509_check_ip_asc: function (x: PX509; const ipasc: PIdAnsiChar; flags: TIdC_UINT): TIdC_INT; cdecl = nil;
 
-  a2i_IPADDRESS: function(const ipasc: PIdAnsiChar): PASN1_OCTET_STRING; cdecl = nil;
-  a2i_IPADDRESS_NC: function(const ipasc: PIdAnsiChar): PASN1_OCTET_STRING; cdecl = nil;
+  a2i_IPADDRESS: function (const ipasc: PIdAnsiChar): PASN1_OCTET_STRING; cdecl = nil;
+  a2i_IPADDRESS_NC: function (const ipasc: PIdAnsiChar): PASN1_OCTET_STRING; cdecl = nil;
 //  TIdC_INT X509V3_NAME_from_section(X509_NAME *nm; STACK_OF(CONF_VALUE) *dn_sk; TIdC_ULONG chtype);
 
-  X509_POLICY_NODE_print: procedure(out_: PBIO; node: PX509_POLICY_NODE; indent: TIdC_INT); cdecl = nil;
+  X509_POLICY_NODE_print: procedure (out_: PBIO; node: PX509_POLICY_NODE; indent: TIdC_INT); cdecl = nil;
 //  DEFINE_STACK_OF(X509_POLICY_NODE)
 
   (*
@@ -954,7 +956,7 @@ var
   //function X509v3_addr_add_prefix(addr: PIPAddrBlocks; const afi: TIdC_UINT; const safi: PIdC_UINT; a: PByte; const prefixlen: TIdC_INT): TIdC_INT;
   //function X509v3_addr_add_range(addr: PIPAddrBlocks; const afi: TIdC_UINT; const safi: PIdC_UINT; min: PByte; max: PByte): TIdC_INT;
   //function X509v3_addr_get_afi(const f: PIPAddressFamily): TIdC_UINT;
-  X509v3_addr_get_range: function(aor: PIPAddressOrRange; const afi: TIdC_UINT; min: PByte; max: Byte; const length: TIdC_INT): TIdC_INT; cdecl = nil;
+  X509v3_addr_get_range: function (aor: PIPAddressOrRange; const afi: TIdC_UINT; min: PByte; max: Byte; const length: TIdC_INT): TIdC_INT; cdecl = nil;
 
   (*
    * Canonical forms.
@@ -975,8 +977,8 @@ var
   (*
    * Check whether RFC 3779 extensions nest properly in chains.
    *)
-  X509v3_asid_validate_path: function(v1: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
-  X509v3_addr_validate_path: function(v1: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
+  X509v3_asid_validate_path: function (v1: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
+  X509v3_addr_validate_path: function (v1: PX509_STORE_CTX): TIdC_INT; cdecl = nil;
 //  TIdC_INT X509v3_asid_validate_resource_set(STACK_OF(X509) *chain; ASIdentifiers *ext; TIdC_INT allow_inheritance);
 //  TIdC_INT X509v3_addr_validate_resource_set(STACK_OF(X509) *chain; IPAddrBlocks *ext; TIdC_INT allow_inheritance);
 
@@ -986,33 +988,33 @@ var
   (*
    * Admission Syntax
    *)
-  NAMING_AUTHORITY_get0_authorityId: function(const n: PNAMING_AUTHORITY): PASN1_OBJECT; cdecl = nil;
-  NAMING_AUTHORITY_get0_authorityURL: function(const n: PNAMING_AUTHORITY): PASN1_IA5STRING; cdecl = nil;
-  NAMING_AUTHORITY_get0_authorityText: function(const n: PNAMING_AUTHORITY): PASN1_STRING; cdecl = nil;
-  NAMING_AUTHORITY_set0_authorityId: procedure(n: PNAMING_AUTHORITY; namingAuthorityId: PASN1_OBJECT); cdecl = nil;
-  NAMING_AUTHORITY_set0_authorityURL: procedure(n: PNAMING_AUTHORITY; namingAuthorityUrl: PASN1_IA5STRING); cdecl = nil;
-  NAMING_AUTHORITY_set0_authorityText: procedure(n: PNAMING_AUTHORITY; namingAuthorityText: PASN1_STRING); cdecl = nil;
+  NAMING_AUTHORITY_get0_authorityId: function (const n: PNAMING_AUTHORITY): PASN1_OBJECT; cdecl = nil;
+  NAMING_AUTHORITY_get0_authorityURL: function (const n: PNAMING_AUTHORITY): PASN1_IA5STRING; cdecl = nil;
+  NAMING_AUTHORITY_get0_authorityText: function (const n: PNAMING_AUTHORITY): PASN1_STRING; cdecl = nil;
+  NAMING_AUTHORITY_set0_authorityId: procedure (n: PNAMING_AUTHORITY; namingAuthorityId: PASN1_OBJECT); cdecl = nil;
+  NAMING_AUTHORITY_set0_authorityURL: procedure (n: PNAMING_AUTHORITY; namingAuthorityUrl: PASN1_IA5STRING); cdecl = nil;
+  NAMING_AUTHORITY_set0_authorityText: procedure (n: PNAMING_AUTHORITY; namingAuthorityText: PASN1_STRING); cdecl = nil;
 
-  ADMISSION_SYNTAX_get0_admissionAuthority: function(const as_: ADMISSION_SYNTAX): PGENERAL_NAME; cdecl = nil;
-  ADMISSION_SYNTAX_set0_admissionAuthority: procedure(as_: ADMISSION_SYNTAX; aa: PGENERAL_NAME); cdecl = nil;
+  ADMISSION_SYNTAX_get0_admissionAuthority: function (const as_: ADMISSION_SYNTAX): PGENERAL_NAME; cdecl = nil;
+  ADMISSION_SYNTAX_set0_admissionAuthority: procedure (as_: ADMISSION_SYNTAX; aa: PGENERAL_NAME); cdecl = nil;
 //  const STACK_OF(ADMISSIONS) *ADMISSION_SYNTAX_get0_contentsOfAdmissions(const as_: ADMISSION_SYNTAX);
 //  void ADMISSION_SYNTAX_set0_contentsOfAdmissions(as_: ADMISSION_SYNTAX; STACK_OF(ADMISSIONS) *a);
-  ADMISSIONS_get0_admissionAuthority: function(const a: PADMISSIONS): PGENERAL_NAME; cdecl = nil;
-  ADMISSIONS_set0_admissionAuthority: procedure(a: PADMISSIONS; aa: PGENERAL_NAME); cdecl = nil;
-  ADMISSIONS_get0_namingAuthority: function(const a: PADMISSIONS): PNAMING_AUTHORITY; cdecl = nil;
-  ADMISSIONS_set0_namingAuthority: procedure(a: PADMISSIONS; na: PNAMING_AUTHORITY); cdecl = nil;
+  ADMISSIONS_get0_admissionAuthority: function (const a: PADMISSIONS): PGENERAL_NAME; cdecl = nil;
+  ADMISSIONS_set0_admissionAuthority: procedure (a: PADMISSIONS; aa: PGENERAL_NAME); cdecl = nil;
+  ADMISSIONS_get0_namingAuthority: function (const a: PADMISSIONS): PNAMING_AUTHORITY; cdecl = nil;
+  ADMISSIONS_set0_namingAuthority: procedure (a: PADMISSIONS; na: PNAMING_AUTHORITY); cdecl = nil;
   //function ADMISSIONS_get0_professionInfos(const a: PADMISSIONS): PPROFESSION_INFOS;
   //procedure ADMISSIONS_set0_professionInfos(a: PADMISSIONS; pi: PPROFESSION_INFOS);
-  PROFESSION_INFO_get0_addProfessionInfo: function(const pi: PPROFESSION_INFO): PASN1_OCTET_STRING; cdecl = nil;
-  PROFESSION_INFO_set0_addProfessionInfo: procedure(pi: PPROFESSION_INFO; aos: PASN1_OCTET_STRING); cdecl = nil;
-  PROFESSION_INFO_get0_namingAuthority: function(const pi: PPROFESSION_INFO): PNAMING_AUTHORITY; cdecl = nil;
-  PROFESSION_INFO_set0_namingAuthority: procedure(pi: PPROFESSION_INFO; na: PNAMING_AUTHORITY); cdecl = nil;
+  PROFESSION_INFO_get0_addProfessionInfo: function (const pi: PPROFESSION_INFO): PASN1_OCTET_STRING; cdecl = nil;
+  PROFESSION_INFO_set0_addProfessionInfo: procedure (pi: PPROFESSION_INFO; aos: PASN1_OCTET_STRING); cdecl = nil;
+  PROFESSION_INFO_get0_namingAuthority: function (const pi: PPROFESSION_INFO): PNAMING_AUTHORITY; cdecl = nil;
+  PROFESSION_INFO_set0_namingAuthority: procedure (pi: PPROFESSION_INFO; na: PNAMING_AUTHORITY); cdecl = nil;
 //  const STACK_OF(ASN1_STRING) *PROFESSION_INFO_get0_professionItems(const pi: PPROFESSION_INFO);
 //  void PROFESSION_INFO_set0_professionItems(pi: PPROFESSION_INFO; STACK_OF(ASN1_STRING) *as);
 //  const STACK_OF(ASN1_OBJECT) *PROFESSION_INFO_get0_professionOIDs(const pi: PPROFESSION_INFO);
 //  void PROFESSION_INFO_set0_professionOIDs(pi: PPROFESSION_INFO; STACK_OF(ASN1_OBJECT) *po);
-  PROFESSION_INFO_get0_registrationNumber: function(const pi: PPROFESSION_INFO): PASN1_PRINTABLESTRING; cdecl = nil;
-  PROFESSION_INFO_set0_registrationNumber: procedure(pi: PPROFESSION_INFO; rn: PASN1_PRINTABLESTRING); cdecl = nil;
+  PROFESSION_INFO_get0_registrationNumber: function (const pi: PPROFESSION_INFO): PASN1_PRINTABLESTRING; cdecl = nil;
+  PROFESSION_INFO_set0_registrationNumber: procedure (pi: PPROFESSION_INFO; rn: PASN1_PRINTABLESTRING); cdecl = nil;
 
 
 {$ELSE}
@@ -1264,12 +1266,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

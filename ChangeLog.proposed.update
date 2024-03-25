@@ -3,3 +3,8 @@ This Log File records changes to the Indy Proposed Update since its initial publ
 2024/3/21 Updated Test/OpenSSL/openssl-client/TestClient.pas to avoid problem 
           on Linux where -L option meant that the OpenSSL lib directory given 
           on the command line was ignored.
+
+2024/3/25 Added OpenSSL FIPS Support. Missing from initial proposal, but present in earlier
+          versions of Indy. A new unit has been added IdSSLOpenSSLFIPS, and two new supporting
+          OpenSSL Header files: core and provider.
+          README.OpenSSL.FIPS.txt for more information.

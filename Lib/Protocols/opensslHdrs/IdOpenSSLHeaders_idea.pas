@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -75,14 +77,14 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  IDEA_options: function: PIdAnsiChar; cdecl = nil;
-  IDEA_ecb_encrypt: procedure(const in_: PByte; out_: PByte; ks: PIDEA_KEY_SCHEDULE); cdecl = nil;
-  IDEA_set_encrypt_key: procedure(const key: PByte; ks: PIDEA_KEY_SCHEDULE); cdecl = nil;
-  IDEA_set_decrypt_key: procedure(ek: PIDEA_KEY_SCHEDULE; dk: PIDEA_KEY_SCHEDULE); cdecl = nil;
-  IDEA_cbc_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; enc: TIdC_INT); cdecl = nil;
-  IDEA_cfb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT; enc: TIdC_INT); cdecl = nil;
-  IDEA_ofb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT); cdecl = nil;
-  IDEA_encrypt: procedure(in_: PIdC_LONG; ks: PIDEA_KEY_SCHEDULE); cdecl = nil;
+  IDEA_options: function : PIdAnsiChar; cdecl = nil;
+  IDEA_ecb_encrypt: procedure (const in_: PByte; out_: PByte; ks: PIDEA_KEY_SCHEDULE); cdecl = nil;
+  IDEA_set_encrypt_key: procedure (const key: PByte; ks: PIDEA_KEY_SCHEDULE); cdecl = nil;
+  IDEA_set_decrypt_key: procedure (ek: PIDEA_KEY_SCHEDULE; dk: PIDEA_KEY_SCHEDULE); cdecl = nil;
+  IDEA_cbc_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; enc: TIdC_INT); cdecl = nil;
+  IDEA_cfb64_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT; enc: TIdC_INT); cdecl = nil;
+  IDEA_ofb64_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_LONG; ks: PIDEA_KEY_SCHEDULE; iv: PByte; num: PIdC_INT); cdecl = nil;
+  IDEA_encrypt: procedure (in_: PIdC_LONG; ks: PIDEA_KEY_SCHEDULE); cdecl = nil;
 
 {$ELSE}
   function IDEA_options: PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -98,12 +100,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

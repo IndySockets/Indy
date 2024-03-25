@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -357,130 +359,130 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  RSA_new: function: PRSA; cdecl = nil;
-  RSA_new_method: function(engine: PENGINE): PRSA; cdecl = nil;
-  RSA_bits: function(const rsa: PRSA): TIdC_INT; cdecl = nil;
-  RSA_size: function(const rsa: PRSA): TIdC_INT; cdecl = nil;
-  RSA_security_bits: function(const rsa: PRSA): TIdC_INT; cdecl = nil;
+  RSA_new: function : PRSA; cdecl = nil;
+  RSA_new_method: function (engine: PENGINE): PRSA; cdecl = nil;
+  RSA_bits: function (const rsa: PRSA): TIdC_INT; cdecl = nil;
+  RSA_size: function (const rsa: PRSA): TIdC_INT; cdecl = nil;
+  RSA_security_bits: function (const rsa: PRSA): TIdC_INT; cdecl = nil;
 
-  RSA_set0_key: function(r: PRSA; n: PBIGNUM; e: PBIGNUM; d: PBIGNUM): TIdC_INT; cdecl = nil;
-  RSA_set0_factors: function(r: PRSA; p: PBIGNUM; q: PBIGNUM): TIdC_INT; cdecl = nil;
-  RSA_set0_crt_params: function(r: PRSA; dmp1: PBIGNUM; dmq1: PBIGNUM; iqmp: PBIGNUM): TIdC_INT; cdecl = nil;
+  RSA_set0_key: function (r: PRSA; n: PBIGNUM; e: PBIGNUM; d: PBIGNUM): TIdC_INT; cdecl = nil;
+  RSA_set0_factors: function (r: PRSA; p: PBIGNUM; q: PBIGNUM): TIdC_INT; cdecl = nil;
+  RSA_set0_crt_params: function (r: PRSA; dmp1: PBIGNUM; dmq1: PBIGNUM; iqmp: PBIGNUM): TIdC_INT; cdecl = nil;
   //function RSA_set0_multi_prime_params(r: PRSA; primes: array of PBIGNUM; exps: array of PBIGNUM; coeffs: array of PBIGNUM; pnum: TIdC_INT): TIdC_INT;
 
-  RSA_get0_key: procedure(const r: PRSA; const n: PPBIGNUM; const e: PPBIGNUM; const d: PPBIGNUM); cdecl = nil;
-  RSA_get0_factors: procedure(const r: PRSA; const p: PPBIGNUM; const q: PPBIGNUM); cdecl = nil;
-  RSA_get_multi_prime_extra_count: function(const r: PRSA): TIdC_INT; cdecl = nil;
+  RSA_get0_key: procedure (const r: PRSA; const n: PPBIGNUM; const e: PPBIGNUM; const d: PPBIGNUM); cdecl = nil;
+  RSA_get0_factors: procedure (const r: PRSA; const p: PPBIGNUM; const q: PPBIGNUM); cdecl = nil;
+  RSA_get_multi_prime_extra_count: function (const r: PRSA): TIdC_INT; cdecl = nil;
   //function RSA_get0_multi_prime_factors(const r: PRSA; const primes: array of PBIGNUM): TIdC_INT;
-  RSA_get0_crt_params: procedure(const r: PRSA; const dmp1: PPBIGNUM; const dmq1: PPBIGNUM; const iqmp: PPBIGNUM); cdecl = nil;
+  RSA_get0_crt_params: procedure (const r: PRSA; const dmp1: PPBIGNUM; const dmq1: PPBIGNUM; const iqmp: PPBIGNUM); cdecl = nil;
 
   //function RSA_get0_multi_prime_crt_params(const r: PRSA; const exps: array of PBIGNUM; const coeffs: array of PBIGNUM): TIdC_INT;
 
-  RSA_get0_n: function(const d: PRSA): PBIGNUM; cdecl = nil;
-  RSA_get0_e: function(const d: PRSA): PBIGNUM; cdecl = nil;
-  RSA_get0_d: function(const d: PRSA): PBIGNUM; cdecl = nil;
-  RSA_get0_p: function(const d: PRSA): PBIGNUM; cdecl = nil;
-  RSA_get0_q: function(const d: PRSA): PBIGNUM; cdecl = nil;
-  RSA_get0_dmp1: function(const r: PRSA): PBIGNUM; cdecl = nil;
-  RSA_get0_dmq1: function(const r: PRSA): PBIGNUM; cdecl = nil;
-  RSA_get0_iqmp: function(const r: PRSA): PBIGNUM; cdecl = nil;
+  RSA_get0_n: function (const d: PRSA): PBIGNUM; cdecl = nil;
+  RSA_get0_e: function (const d: PRSA): PBIGNUM; cdecl = nil;
+  RSA_get0_d: function (const d: PRSA): PBIGNUM; cdecl = nil;
+  RSA_get0_p: function (const d: PRSA): PBIGNUM; cdecl = nil;
+  RSA_get0_q: function (const d: PRSA): PBIGNUM; cdecl = nil;
+  RSA_get0_dmp1: function (const r: PRSA): PBIGNUM; cdecl = nil;
+  RSA_get0_dmq1: function (const r: PRSA): PBIGNUM; cdecl = nil;
+  RSA_get0_iqmp: function (const r: PRSA): PBIGNUM; cdecl = nil;
 
-  RSA_clear_flags: procedure(r: PRSA; flags: TIdC_INT); cdecl = nil;
-  RSA_test_flags: function(const r: PRSA; flags: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_set_flags: procedure(r: PRSA; flags: TIdC_INT); cdecl = nil;
-  RSA_get_version: function(r: PRSA): TIdC_INT; cdecl = nil;
-  RSA_get0_engine: function(const r: PRSA): PENGINE; cdecl = nil;
+  RSA_clear_flags: procedure (r: PRSA; flags: TIdC_INT); cdecl = nil;
+  RSA_test_flags: function (const r: PRSA; flags: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_set_flags: procedure (r: PRSA; flags: TIdC_INT); cdecl = nil;
+  RSA_get_version: function (r: PRSA): TIdC_INT; cdecl = nil;
+  RSA_get0_engine: function (const r: PRSA): PENGINE; cdecl = nil;
 
   (* New version *)
-  RSA_generate_key_ex: function(rsa: PRSA; bits: TIdC_INT; e: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  RSA_generate_key_ex: function (rsa: PRSA; bits: TIdC_INT; e: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
   (* Multi-prime version *)
-  RSA_generate_multi_prime_key: function(rsa: PRSA; bits: TIdC_INT; primes: TIdC_INT; e: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
-  RSA_X931_derive_ex: function(rsa: PRSA; p1: PBIGNUM; p2: PBIGNUM; q1: PBIGNUM; q2: PBIGNUM; const Xp1: PBIGNUM; const Xp2: PBIGNUM; const Xp: PBIGNUM; const Xq1: PBIGNUM; const Xq2: PBIGNUM; const Xq: PBIGNUM; const e: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
-  RSA_X931_generate_key_ex: function(rsa: PRSA; bits: TIdC_INT; const e: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  RSA_generate_multi_prime_key: function (rsa: PRSA; bits: TIdC_INT; primes: TIdC_INT; e: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  RSA_X931_derive_ex: function (rsa: PRSA; p1: PBIGNUM; p2: PBIGNUM; q1: PBIGNUM; q2: PBIGNUM; const Xp1: PBIGNUM; const Xp2: PBIGNUM; const Xp: PBIGNUM; const Xq1: PBIGNUM; const Xq2: PBIGNUM; const Xq: PBIGNUM; const e: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  RSA_X931_generate_key_ex: function (rsa: PRSA; bits: TIdC_INT; const e: PBIGNUM; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
 
-  RSA_check_key: function(const v1: PRSA): TIdC_INT; cdecl = nil;
-  RSA_check_key_ex: function(const v1: PRSA; cb: BN_GENCB): TIdC_INT; cdecl = nil;
+  RSA_check_key: function (const v1: PRSA): TIdC_INT; cdecl = nil;
+  RSA_check_key_ex: function (const v1: PRSA; cb: BN_GENCB): TIdC_INT; cdecl = nil;
   (* next 4 return -1 on error *)
-  RSA_public_encrypt: function(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_private_encrypt: function(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_public_decrypt: function(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_private_decrypt: function(flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_public_encrypt: function (flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_private_encrypt: function (flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_public_decrypt: function (flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_private_decrypt: function (flen: TIdC_INT; const from: PByte; to_: PByte; rsa: PRSA; padding: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  RSA_free: procedure(r: PRSA); cdecl = nil;
+  RSA_free: procedure (r: PRSA); cdecl = nil;
   (* "up" the RSA object's reference count *)
-  RSA_up_ref: function(r: PRSA): TIdC_INT; cdecl = nil;
+  RSA_up_ref: function (r: PRSA): TIdC_INT; cdecl = nil;
 
-  RSA_flags: function(const r: PRSA): TIdC_INT; cdecl = nil;
+  RSA_flags: function (const r: PRSA): TIdC_INT; cdecl = nil;
 
-  RSA_set_default_method: procedure(const meth: PRSA_METHOD); cdecl = nil;
-  RSA_get_default_method: function: PRSA_METHOD; cdecl = nil;
-  RSA_null_method: function: PRSA_METHOD; cdecl = nil;
-  RSA_get_method: function(const rsa: PRSA): PRSA_METHOD; cdecl = nil;
-  RSA_set_method: function(rsa: PRSA; const meth: PRSA_METHOD): TIdC_INT; cdecl = nil;
+  RSA_set_default_method: procedure (const meth: PRSA_METHOD); cdecl = nil;
+  RSA_get_default_method: function : PRSA_METHOD; cdecl = nil;
+  RSA_null_method: function : PRSA_METHOD; cdecl = nil;
+  RSA_get_method: function (const rsa: PRSA): PRSA_METHOD; cdecl = nil;
+  RSA_set_method: function (rsa: PRSA; const meth: PRSA_METHOD): TIdC_INT; cdecl = nil;
 
   (* these are the actual RSA functions *)
-  RSA_PKCS1_OpenSSL: function: PRSA_METHOD; cdecl = nil;
+  RSA_PKCS1_OpenSSL: function : PRSA_METHOD; cdecl = nil;
 
-  RSA_pkey_ctx_ctrl: function(ctx: PEVP_PKEY_CTX; optype: TIdC_INT; cmd: TIdC_INT; p1: TIdC_INT; p2: Pointer): TIdC_INT; cdecl = nil;
+  RSA_pkey_ctx_ctrl: function (ctx: PEVP_PKEY_CTX; optype: TIdC_INT; cmd: TIdC_INT; p1: TIdC_INT; p2: Pointer): TIdC_INT; cdecl = nil;
 
-  RSA_print: function(bp: PBIO; const r: PRSA; offset: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_print: function (bp: PBIO; const r: PRSA; offset: TIdC_INT): TIdC_INT; cdecl = nil;
 
   (*
    * The following 2 functions sign and verify a X509_SIG ASN1 object inside
    * PKCS#1 padded RSA encryption
    *)
-  RSA_sign: function(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT; cdecl = nil;
-  RSA_verify: function(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; const sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT; cdecl = nil;
+  RSA_sign: function (type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT; cdecl = nil;
+  RSA_verify: function (type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; const sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT; cdecl = nil;
 
   (*
    * The following 2 function sign and verify a ASN1_OCTET_STRING object inside
    * PKCS#1 padded RSA encryption
    *)
-  RSA_sign_ASN1_OCTET_STRING: function(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT; cdecl = nil;
-  RSA_verify_ASN1_OCTET_STRING: function(type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT; cdecl = nil;
+  RSA_sign_ASN1_OCTET_STRING: function (type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigret: PByte; siglen: PIdC_UINT; rsa: PRSA): TIdC_INT; cdecl = nil;
+  RSA_verify_ASN1_OCTET_STRING: function (type_: TIdC_INT; const m: PByte; m_length: TIdC_UINT; sigbuf: PByte; siglen: TIdC_UINT; rsa: PRSA): TIdC_INT; cdecl = nil;
 
-  RSA_blinding_on: function(rsa: PRSA; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
-  RSA_blinding_off: procedure(rsa: PRSA); cdecl = nil;
-  RSA_setup_blinding: function(rsa: PRSA; ctx: PBN_CTX): PBN_BLINDING; cdecl = nil;
-  RSA_padding_add_PKCS1_type_1: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_check_PKCS1_type_1: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_add_PKCS1_type_2: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_check_PKCS1_type_2: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
-  PKCS1_MGF1: function(mask: PByte; len: TIdC_LONG; const seed: PByte; seedlen: TIdC_LONG; const dgst: PEVP_MD): TIdC_INT; cdecl = nil;
-  RSA_padding_add_PKCS1_OAEP: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_check_PKCS1_OAEP: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_add_PKCS1_OAEP_mgf1: function(to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT; cdecl = nil;
-  RSA_padding_check_PKCS1_OAEP_mgf1: function(to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; num: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT; cdecl = nil;
-  RSA_padding_add_SSLv23: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_check_SSLv23: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_add_none: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_check_none: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_add_X931: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_check_X931: function(to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_X931_hash_id: function(nid: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_blinding_on: function (rsa: PRSA; ctx: PBN_CTX): TIdC_INT; cdecl = nil;
+  RSA_blinding_off: procedure (rsa: PRSA); cdecl = nil;
+  RSA_setup_blinding: function (rsa: PRSA; ctx: PBN_CTX): PBN_BLINDING; cdecl = nil;
+  RSA_padding_add_PKCS1_type_1: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_check_PKCS1_type_1: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_add_PKCS1_type_2: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_check_PKCS1_type_2: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
+  PKCS1_MGF1: function (mask: PByte; len: TIdC_LONG; const seed: PByte; seedlen: TIdC_LONG; const dgst: PEVP_MD): TIdC_INT; cdecl = nil;
+  RSA_padding_add_PKCS1_OAEP: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_check_PKCS1_OAEP: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT; const p: PByte; pl: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_add_PKCS1_OAEP_mgf1: function (to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT; cdecl = nil;
+  RSA_padding_check_PKCS1_OAEP_mgf1: function (to_: PByte; tlen: TIdC_INT; const from: PByte; flen: TIdC_INT; num: TIdC_INT; const param: PByte; plen: TIdC_INT; const md: PEVP_MD; const mgf1md: PEVP_MD): TIdC_INT; cdecl = nil;
+  RSA_padding_add_SSLv23: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_check_SSLv23: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_add_none: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_check_none: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_add_X931: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_check_X931: function (to_: PByte; tlen: TIdC_INT; const f: PByte; fl: TIdC_INT; rsa_len: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_X931_hash_id: function (nid: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  RSA_verify_PKCS1_PSS: function(rsa: PRSA; const mHash: PByte; const Hash: PEVP_MD; const EM: PByte; sLen: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_add_PKCS1_PSS: function(rsa: PRSA; EM: PByte; const mHash: PByte; const Hash: PEVP_MD; sLen: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_verify_PKCS1_PSS_mgf1: function(rsa: PRSA; const mHash: PByte; const Hash: PEVP_MD; const mgf1Hash: PEVP_MD; const EM: PByte; sLen: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_padding_add_PKCS1_PSS_mgf1: function(rsa: PRSA; EM: PByte; const mHash: PByte; const Hash: PEVP_MD; const mgf1Hash: PEVP_MD; sLen: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_verify_PKCS1_PSS: function (rsa: PRSA; const mHash: PByte; const Hash: PEVP_MD; const EM: PByte; sLen: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_add_PKCS1_PSS: function (rsa: PRSA; EM: PByte; const mHash: PByte; const Hash: PEVP_MD; sLen: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_verify_PKCS1_PSS_mgf1: function (rsa: PRSA; const mHash: PByte; const Hash: PEVP_MD; const mgf1Hash: PEVP_MD; const EM: PByte; sLen: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_padding_add_PKCS1_PSS_mgf1: function (rsa: PRSA; EM: PByte; const mHash: PByte; const Hash: PEVP_MD; const mgf1Hash: PEVP_MD; sLen: TIdC_INT): TIdC_INT; cdecl = nil;
 
   //#define RSA_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_RSA, l, p, newf, dupf, freef)
 
-  RSA_set_ex_data: function(r: PRSA; idx: TIdC_INT; arg: Pointer): TIdC_INT; cdecl = nil;
-  RSA_get_ex_data: function(const r: PRSA; idx: TIdC_INT): Pointer; cdecl = nil;
-  RSAPublicKey_dup: function(rsa: PRSA): PRSA; cdecl = nil;
-  RSAPrivateKey_dup: function(rsa: PRSA): PRSA; cdecl = nil;
+  RSA_set_ex_data: function (r: PRSA; idx: TIdC_INT; arg: Pointer): TIdC_INT; cdecl = nil;
+  RSA_get_ex_data: function (const r: PRSA; idx: TIdC_INT): Pointer; cdecl = nil;
+  RSAPublicKey_dup: function (rsa: PRSA): PRSA; cdecl = nil;
+  RSAPrivateKey_dup: function (rsa: PRSA): PRSA; cdecl = nil;
 
-  RSA_meth_new: function(const name: PIdAnsiChar; flags: TIdC_INT): PRSA_METHOD; cdecl = nil;
-  RSA_meth_free: procedure(meth: PRSA_METHOD); cdecl = nil;
-  RSA_meth_dup: function(const meth: PRSA_METHOD): PRSA_METHOD; cdecl = nil;
-  RSA_meth_get0_name: function(const meth: PRSA_METHOD): PIdAnsiChar; cdecl = nil;
-  RSA_meth_set1_name: function(meth: PRSA_METHOD; const name: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  RSA_meth_get_flags: function(const meth: PRSA_METHOD): TIdC_INT; cdecl = nil;
-  RSA_meth_set_flags: function(meth: PRSA_METHOD; flags: TIdC_INT): TIdC_INT; cdecl = nil;
-  RSA_meth_get0_app_data: function(const meth: PRSA_METHOD): Pointer; cdecl = nil;
-  RSA_meth_set0_app_data: function(meth: PRSA_METHOD; app_data: Pointer): TIdC_INT; cdecl = nil;
+  RSA_meth_new: function (const name: PIdAnsiChar; flags: TIdC_INT): PRSA_METHOD; cdecl = nil;
+  RSA_meth_free: procedure (meth: PRSA_METHOD); cdecl = nil;
+  RSA_meth_dup: function (const meth: PRSA_METHOD): PRSA_METHOD; cdecl = nil;
+  RSA_meth_get0_name: function (const meth: PRSA_METHOD): PIdAnsiChar; cdecl = nil;
+  RSA_meth_set1_name: function (meth: PRSA_METHOD; const name: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  RSA_meth_get_flags: function (const meth: PRSA_METHOD): TIdC_INT; cdecl = nil;
+  RSA_meth_set_flags: function (meth: PRSA_METHOD; flags: TIdC_INT): TIdC_INT; cdecl = nil;
+  RSA_meth_get0_app_data: function (const meth: PRSA_METHOD): Pointer; cdecl = nil;
+  RSA_meth_set0_app_data: function (meth: PRSA_METHOD; app_data: Pointer): TIdC_INT; cdecl = nil;
 
   //int (*RSA_meth_get_pub_enc(const RSA_METHOD *meth))
   //    (int flen, const unsigned char *from,
@@ -506,36 +508,36 @@ var
   //int (*RSA_meth_get_priv_dec(const RSA_METHOD *meth))
   //    (int flen, const unsigned char *from,
   //     unsigned char *to_, RSA *rsa, int padding);
-  RSA_meth_set_priv_dec: function(rsa: PRSA_METHOD; priv_dec: RSA_meth_set_priv_dec_priv_dec): TIdC_INT; cdecl = nil;
+  RSA_meth_set_priv_dec: function (rsa: PRSA_METHOD; priv_dec: RSA_meth_set_priv_dec_priv_dec): TIdC_INT; cdecl = nil;
 
   //int (*RSA_meth_get_mod_exp(const RSA_METHOD *meth))
   //    (BIGNUM *r0, const BIGNUM *i, RSA *rsa, BN_CTX *ctx);
-  RSA_meth_set_mod_exp: function(rsa: PRSA_METHOD; mod_exp: RSA_meth_set_mod_exp_mod_exp): TIdC_INT; cdecl = nil;
+  RSA_meth_set_mod_exp: function (rsa: PRSA_METHOD; mod_exp: RSA_meth_set_mod_exp_mod_exp): TIdC_INT; cdecl = nil;
   //int (*RSA_meth_get_bn_mod_exp(const RSA_METHOD *meth))
   //    (BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
   //     const BIGNUM *m, BN_CTX *ctx, BN_MONT_CTX *m_ctx);
-  RSA_meth_set_bn_mod_exp: function(rsa: PRSA_METHOD; bn_mod_exp: RSA_meth_set_bn_mod_exp_bn_mod_exp): TIdC_INT; cdecl = nil;
+  RSA_meth_set_bn_mod_exp: function (rsa: PRSA_METHOD; bn_mod_exp: RSA_meth_set_bn_mod_exp_bn_mod_exp): TIdC_INT; cdecl = nil;
   //int (*RSA_meth_get_init(const RSA_METHOD *meth)) (RSA *rsa);
-  RSA_meth_set_init: function(rsa: PRSA_METHOD; init: RSA_meth_set_init_init): TIdC_INT; cdecl = nil;
+  RSA_meth_set_init: function (rsa: PRSA_METHOD; init: RSA_meth_set_init_init): TIdC_INT; cdecl = nil;
   //int (*RSA_meth_get_finish(const RSA_METHOD *meth)) (RSA *rsa);
-  RSA_meth_set_finish: function(rsa: PRSA_METHOD; finish: RSA_meth_set_finish_finish): TIdC_INT; cdecl = nil;
+  RSA_meth_set_finish: function (rsa: PRSA_METHOD; finish: RSA_meth_set_finish_finish): TIdC_INT; cdecl = nil;
   //int (*RSA_meth_get_sign(const RSA_METHOD *meth))
   //    (int type_,
   //     const unsigned char *m, unsigned int m_length,
   //     unsigned char *sigret, unsigned int *siglen,
   //     const RSA *rsa);
-  RSA_meth_set_sign: function(rsa: PRSA_METHOD; sign: RSA_meth_set_sign_sign): TIdC_INT; cdecl = nil;
+  RSA_meth_set_sign: function (rsa: PRSA_METHOD; sign: RSA_meth_set_sign_sign): TIdC_INT; cdecl = nil;
   //int (*RSA_meth_get_verify(const RSA_METHOD *meth))
   //    (int dtype, const unsigned char *m,
   //     unsigned int m_length, const unsigned char *sigbuf,
   //     unsigned int siglen, const RSA *rsa);
-  RSA_meth_set_verify: function(rsa: PRSA_METHOD; verify: RSA_meth_set_verify_verify): TIdC_INT; cdecl = nil;
+  RSA_meth_set_verify: function (rsa: PRSA_METHOD; verify: RSA_meth_set_verify_verify): TIdC_INT; cdecl = nil;
   //int (*RSA_meth_get_keygen(const RSA_METHOD *meth))
   //    (RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb);
-  RSA_meth_set_keygen: function(rsa: PRSA_METHOD; keygen: RSA_meth_set_keygen_keygen): TIdC_INT; cdecl = nil;
+  RSA_meth_set_keygen: function (rsa: PRSA_METHOD; keygen: RSA_meth_set_keygen_keygen): TIdC_INT; cdecl = nil;
   //int (*RSA_meth_get_multi_prime_keygen(const RSA_METHOD *meth))
   //    (RSA *rsa, int bits, int primes, BIGNUM *e, BN_GENCB *cb);
-  RSA_meth_set_multi_prime_keygen: function(meth: PRSA_METHOD; keygen: RSA_meth_set_multi_prime_keygen_keygen): TIdC_INT; cdecl = nil;
+  RSA_meth_set_multi_prime_keygen: function (meth: PRSA_METHOD; keygen: RSA_meth_set_multi_prime_keygen_keygen): TIdC_INT; cdecl = nil;
 
 {$ELSE}
   function RSA_new: PRSA cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -722,12 +724,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

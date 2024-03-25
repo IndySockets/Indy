@@ -33,10 +33,12 @@ uses
   IdSSLOpenSSLConsts,
   IdOpenSSLHeaders_ossl_typ;
 
+  procedure HMAC_CTX_init(ctx : PHMAC_CTX); {removed 1.1.0}
   function HMAC_size(const e: PHMAC_CTX): TIdC_SIZET;
-  function HMAC_CTX_new: PHMAC_CTX;
+  function HMAC_CTX_new: PHMAC_CTX; {introduced 1.1.0}
   function HMAC_CTX_reset(ctx: PHMAC_CTX): TIdC_INT;
-  procedure HMAC_CTX_free(ctx: PHMAC_CTX);
+  procedure HMAC_CTX_cleanup(ctx : PHMAC_CTX); {removed 1.1.0}
+  procedure HMAC_CTX_free(ctx: PHMAC_CTX); {introduced 1.1.0}
 
   function HMAC_Init_ex(ctx: PHMAC_CTX; const key: Pointer; len: TIdC_INT; const md: PEVP_MD; impl: PENGINE): TIdC_INT;
   function HMAC_Update(ctx: PHMAC_CTX; const data: PByte; len: TIdC_SIZET): TIdC_INT;
@@ -48,5 +50,21 @@ uses
   function HMAC_CTX_get_md(const ctx: PHMAC_CTX): PEVP_MD;
 
 implementation
+
+{forward_compatibility}
+function HMAC_CTX_new: PHMAC_CTX;
+begin
+  Result := AllocMem(SizeOf(HMAC_CTX));
+  HMAC_CTX_init(Result);
+end;
+
+procedure HMAC_CTX_free(ctx: PHMAC_CTX);
+begin
+  HMAC_CTX_cleanup(ctx);
+  FreeMem(ctx,SizeOf(HMAC_CTX));
+end;
+
+{/forward_compatibility}
+
 
 end.

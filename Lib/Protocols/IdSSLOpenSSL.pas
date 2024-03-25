@@ -281,7 +281,8 @@ uses
   IdSSLOpenSSLExceptionHandlers,
   IdOpenSSLHeaders_ossl_typ,
   IdOpenSSLHeaders_ssl,
-  IdOpenSSLHeaders_evp;
+  IdOpenSSLHeaders_evp,
+  IdSSLOpenSSLFIPS {Ensure FIPS functions initialised};
 
 type
   TIdSSLVersion = (sslUnknown,sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1,sslvTLSv1_1,

@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -234,7 +236,7 @@ var
   {$EXTERNALSYM SSLErr} {removed 1.0.0}
   {$EXTERNALSYM X509err} {removed 1.0.0}
   {$EXTERNALSYM ERR_GET_REASON} {removed 1.0.0}
-  ERR_put_error: procedure(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT); cdecl = nil; {removed 3.0.0}
+  ERR_put_error: procedure (lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT); cdecl = nil; {removed 3.0.0}
 
 { From 3.0 onwards, replaced by a macro
   define ERR_put_error(lib, func, reason, file, line)
@@ -242,50 +244,50 @@ var
      ERR_set_debug((file), (line), OPENSSL_FUNC),
      ERR_set_error((lib), (reason), NULL))}
 
-  ERR_new: procedure; cdecl = nil; {introduced 3.0.0}
-  ERR_set_debug: procedure(const file_: PIdAnsiChar; line: integer; const func: PIdAnsiChar); cdecl = nil;  {introduced 3.0.0}
-  ERR_set_error: procedure(lib: integer; reason: integer; fmt: PIdAnsiChar; args: array of const); cdecl = nil; {introduced 3.0.0}
+  ERR_new: procedure ; cdecl = nil; {introduced 3.0.0}
+  ERR_set_debug: procedure (const file_: PIdAnsiChar; line: integer; const func: PIdAnsiChar); cdecl = nil;  {introduced 3.0.0}
+  ERR_set_error: procedure (lib: integer; reason: integer; fmt: PIdAnsiChar; args: array of const); cdecl = nil; {introduced 3.0.0}
 
 
-  ERR_set_error_data: procedure(data: PIdAnsiChar; flags: TIdC_INT); cdecl = nil;
+  ERR_set_error_data: procedure (data: PIdAnsiChar; flags: TIdC_INT); cdecl = nil;
   
-  ERR_get_error: function: TIdC_ULONG; cdecl = nil;
-  ERR_get_error_line: function(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG; cdecl = nil;
-  ERR_get_error_line_data: function(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG; cdecl = nil;
+  ERR_get_error: function : TIdC_ULONG; cdecl = nil;
+  ERR_get_error_line: function (file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG; cdecl = nil;
+  ERR_get_error_line_data: function (file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG; cdecl = nil;
 
-  ERR_peek_error: function: TIdC_ULONG; cdecl = nil;
-  ERR_peek_error_line: function(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG; cdecl = nil;
-  ERR_peek_error_line_data: function(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG; cdecl = nil;
+  ERR_peek_error: function : TIdC_ULONG; cdecl = nil;
+  ERR_peek_error_line: function (file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG; cdecl = nil;
+  ERR_peek_error_line_data: function (file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG; cdecl = nil;
 
-  ERR_peek_last_error: function: TIdC_ULONG; cdecl = nil;
-  ERR_peek_last_error_line: function(file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG; cdecl = nil;
-  ERR_peek_last_error_line_data: function(file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG; cdecl = nil;
+  ERR_peek_last_error: function : TIdC_ULONG; cdecl = nil;
+  ERR_peek_last_error_line: function (file_: PPIdAnsiChar; line: PIdC_INT): TIdC_ULONG; cdecl = nil;
+  ERR_peek_last_error_line_data: function (file_: PPIdAnsiChar; line: PIdC_INT; data: PPIdAnsiChar; flags: PIdC_INT): TIdC_ULONG; cdecl = nil;
 
-  ERR_clear_error: procedure; cdecl = nil;
-  ERR_error_string: function(e: TIdC_ULONG; buf: PIdAnsiChar): PIdAnsiChar; cdecl = nil;
-  ERR_error_string_n: procedure(e: TIdC_ULONG; buf: PIdAnsiChar; len: TIdC_SIZET); cdecl = nil;
-  ERR_lib_error_string: function(e: TIdC_ULONG): PIdAnsiChar; cdecl = nil;
-  ERR_func_error_string: function(e: TIdC_ULONG): PIdAnsiChar; cdecl = nil;
-  ERR_reason_error_string: function(e: TIdC_ULONG): PIdAnsiChar; cdecl = nil;
-  ERR_print_errors_cb: procedure(cb: ERR_print_errors_cb_cb; u: Pointer); cdecl = nil;
+  ERR_clear_error: procedure ; cdecl = nil;
+  ERR_error_string: function (e: TIdC_ULONG; buf: PIdAnsiChar): PIdAnsiChar; cdecl = nil;
+  ERR_error_string_n: procedure (e: TIdC_ULONG; buf: PIdAnsiChar; len: TIdC_SIZET); cdecl = nil;
+  ERR_lib_error_string: function (e: TIdC_ULONG): PIdAnsiChar; cdecl = nil;
+  ERR_func_error_string: function (e: TIdC_ULONG): PIdAnsiChar; cdecl = nil;
+  ERR_reason_error_string: function (e: TIdC_ULONG): PIdAnsiChar; cdecl = nil;
+  ERR_print_errors_cb: procedure (cb: ERR_print_errors_cb_cb; u: Pointer); cdecl = nil;
 
-  ERR_print_errors: procedure(bp: PBIO); cdecl = nil;
+  ERR_print_errors: procedure (bp: PBIO); cdecl = nil;
   // void ERR_add_error_data(int num, ...);
   // procedure ERR_add_error_vdata(num: TIdC_INT; args: va_list);
-  ERR_load_strings: function(lib: TIdC_INT; str: PERR_STRING_DATA): TIdC_INT; cdecl = nil;
-  ERR_load_strings_const: function(str: PERR_STRING_DATA): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  ERR_unload_strings: function(lib: TIdC_INT; str: PERR_STRING_DATA): TIdC_INT; cdecl = nil;
-  ERR_load_ERR_strings: function: TIdC_INT; cdecl = nil;
+  ERR_load_strings: function (lib: TIdC_INT; str: PERR_STRING_DATA): TIdC_INT; cdecl = nil;
+  ERR_load_strings_const: function (str: PERR_STRING_DATA): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ERR_unload_strings: function (lib: TIdC_INT; str: PERR_STRING_DATA): TIdC_INT; cdecl = nil;
+  ERR_load_ERR_strings: function : TIdC_INT; cdecl = nil;
 
-  ERR_get_state: function: PERR_STATE; cdecl = nil;
-  ERR_get_next_error_library: function: TIdC_INT; cdecl = nil;
-  ERR_set_mark: function: TIdC_INT; cdecl = nil;
-  ERR_pop_to_mark: function: TIdC_INT; cdecl = nil;
-  ERR_clear_last_mark: function: TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  ERR_get_state: function : PERR_STATE; cdecl = nil;
+  ERR_get_next_error_library: function : TIdC_INT; cdecl = nil;
+  ERR_set_mark: function : TIdC_INT; cdecl = nil;
+  ERR_pop_to_mark: function : TIdC_INT; cdecl = nil;
+  ERR_clear_last_mark: function : TIdC_INT; cdecl = nil; {introduced 1.1.0}
 
-  SSLErr: procedure(func: TIdC_INT; reason: TIdC_INT); cdecl = nil; {removed 1.0.0}
-  X509err: procedure(const f,r : TIdC_INT); cdecl = nil; {removed 1.0.0}
-  ERR_GET_REASON: function(const l : TIdC_INT) : TIdC_INT; cdecl = nil; {removed 1.0.0}
+  SSLErr: procedure (func: TIdC_INT; reason: TIdC_INT); cdecl = nil; {removed 1.0.0}
+  X509err: procedure (const f,r : TIdC_INT); cdecl = nil; {removed 1.0.0}
+  ERR_GET_REASON: function (const l : TIdC_INT) : TIdC_INT; cdecl = nil; {removed 1.0.0}
 
 {$ELSE}
 
@@ -345,12 +347,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 const
   ERR_new_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
@@ -372,12 +375,12 @@ end;
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 
-procedure _SSLErr(func: TIdC_INT; reason: TIdC_INT); cdecl;
+procedure  _SSLErr(func: TIdC_INT; reason: TIdC_INT); cdecl;
 begin
   ERR_put_error(ERR_LIB_SSL,func,reason,'',0);
 end; 
 
-procedure _ERR_put_error(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT); cdecl;
+procedure  _ERR_put_error(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT); cdecl;
 { From 3.0 onwards, replaced by a macro
   define ERR_put_error(lib, func, reason, file, line)
     (ERR_new(),
@@ -389,66 +392,66 @@ begin
   ERR_set_error(lib,reason,'',[]);
 end;
 
-procedure _X509err(const f,r : TIdC_INT); cdecl;
+procedure  _X509err(const f,r : TIdC_INT); cdecl;
 begin
   ERR_PUT_error(ERR_LIB_X509,f,r,nil,0);
 end;
 
-function _ERR_GET_REASON(const l : TIdC_INT) : TIdC_INT; cdecl;
+function  _ERR_GET_REASON(const l : TIdC_INT) : TIdC_INT; cdecl;
 begin
   Result := l and $fff;
 end;
 
 {$WARN  NO_RETVAL OFF}
-procedure ERR_ERR_put_error(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT); 
+procedure  ERR_ERR_put_error(lib: TIdC_INT; func: TIdC_INT; reason: TIdC_INT; file_: PIdAnsiChar; line: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ERR_put_error');
 end;
 
 
-procedure ERR_ERR_new; 
+procedure  ERR_ERR_new; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ERR_new');
 end;
 
 
-procedure ERR_ERR_set_debug(const file_: PIdAnsiChar; line: integer; const func: PIdAnsiChar); 
+procedure  ERR_ERR_set_debug(const file_: PIdAnsiChar; line: integer; const func: PIdAnsiChar); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ERR_set_debug');
 end;
 
 
-procedure ERR_ERR_set_error(lib: integer; reason: integer; fmt: PIdAnsiChar; args: array of const); 
+procedure  ERR_ERR_set_error(lib: integer; reason: integer; fmt: PIdAnsiChar; args: array of const); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ERR_set_error');
 end;
 
 
-function ERR_ERR_load_strings_const(str: PERR_STRING_DATA): TIdC_INT; 
+function  ERR_ERR_load_strings_const(str: PERR_STRING_DATA): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ERR_load_strings_const');
 end;
 
 
-function ERR_ERR_clear_last_mark: TIdC_INT; 
+function  ERR_ERR_clear_last_mark: TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ERR_clear_last_mark');
 end;
 
 
-procedure ERR_SSLErr(func: TIdC_INT; reason: TIdC_INT); 
+procedure  ERR_SSLErr(func: TIdC_INT; reason: TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('SSLErr');
 end;
 
 
-procedure ERR_X509err(const f,r : TIdC_INT); 
+procedure  ERR_X509err(const f,r : TIdC_INT); 
 begin
   EIdAPIFunctionNotPresent.RaiseException('X509err');
 end;
 
 
-function ERR_ERR_GET_REASON(const l : TIdC_INT) : TIdC_INT; 
+function  ERR_ERR_GET_REASON(const l : TIdC_INT) : TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('ERR_GET_REASON');
 end;

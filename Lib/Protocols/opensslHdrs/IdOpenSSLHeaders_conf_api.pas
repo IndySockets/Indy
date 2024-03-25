@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -58,19 +60,19 @@ uses
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  _CONF_new_section: function(conf: PCONF; const section: PAnsiChar): PCONF_VALUE; cdecl = nil;
+  _CONF_new_section: function (conf: PCONF; const section: PAnsiChar): PCONF_VALUE; cdecl = nil;
   //* Up until OpenSSL 0.9.5a, this was get_section */
-  _CONF_get_section: function(const conf: PCONF; const section: PAnsiChar): PCONF_VALUE; cdecl = nil;
+  _CONF_get_section: function (const conf: PCONF; const section: PAnsiChar): PCONF_VALUE; cdecl = nil;
   //* Up until OpenSSL 0.9.5a, this was CONF_get_section */
   //STACK_OF(CONF_VALUE) *_CONF_get_section_values(const CONF *conf,
   //                                               const char *section);
 
-  _CONF_add_string: function(conf: PCONF; section: PCONF_VALUE; value: PCONF_VALUE): TIdC_INT; cdecl = nil;
-  _CONF_get_string: function(const conf: PCONF; const section: PAnsiChar; const name: PAnsiChar): PAnsiChar; cdecl = nil;
-  _CONF_get_number: function(const conf: PCONF; const section: PAnsiChar; const name: PAnsiChar): TIdC_LONG; cdecl = nil;
+  _CONF_add_string: function (conf: PCONF; section: PCONF_VALUE; value: PCONF_VALUE): TIdC_INT; cdecl = nil;
+  _CONF_get_string: function (const conf: PCONF; const section: PAnsiChar; const name: PAnsiChar): PAnsiChar; cdecl = nil;
+  _CONF_get_number: function (const conf: PCONF; const section: PAnsiChar; const name: PAnsiChar): TIdC_LONG; cdecl = nil;
 
-  _CONF_new_data: function(conf: PCONF): TIdC_INT; cdecl = nil;
-  _CONF_free_data: procedure(conf: PCONF); cdecl = nil;
+  _CONF_new_data: function (conf: PCONF): TIdC_INT; cdecl = nil;
+  _CONF_free_data: procedure (conf: PCONF); cdecl = nil;
 
 
 {$ELSE}
@@ -93,12 +95,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

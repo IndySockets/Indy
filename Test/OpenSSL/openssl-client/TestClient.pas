@@ -268,8 +268,16 @@ end;
 
 procedure TBasicHttpsClient.DoRun;
 
+var i: integer;
+    FindSSLDir: boolean;
+
   procedure RunTest;
   begin
+    {$IFDEF UNIX}
+    if FindSSLDir then
+      FVerifyDirs := FindOpenSSLCertsDir;
+    {$ENDIF}
+
     writeln('Using ',OpenSSLVersion, ', OpenSSLDir: ', OpenSSLDir);
     writeln('Getting ',remoteSource,' with no verification');
     FNoVerification := true;
@@ -280,10 +288,9 @@ procedure TBasicHttpsClient.DoRun;
     DoTest;
 end;
 
-var i: integer;
-
 begin
   FPromptOnExit := true;
+  FindSSLDir := false;
   try
     // quick check parameters
     i := 1;
@@ -309,7 +316,7 @@ begin
        {$IFDEF UNIX}
        else
        if ParamStr(i) = '-L' then
-         FVerifyDirs := FindOpenSSLCertsDir
+         FindSSLDir := true
        {$ENDIF}
        else
        if DirectoryExists(ParamStr(i)) then

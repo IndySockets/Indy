@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -85,27 +87,27 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  AES_options: function: PIdAnsiChar; cdecl = nil;
+  AES_options: function : PIdAnsiChar; cdecl = nil;
 
-  AES_set_encrypt_key: function(const userKey: PByte; const bits: TIdC_INT; const key: PAES_KEY): TIdC_INT; cdecl = nil;
-  AES_set_decrypt_key: function(const userKey: PByte; const bits: TIdC_INT; const key: PAES_KEY): TIdC_INT; cdecl = nil;
+  AES_set_encrypt_key: function (const userKey: PByte; const bits: TIdC_INT; const key: PAES_KEY): TIdC_INT; cdecl = nil;
+  AES_set_decrypt_key: function (const userKey: PByte; const bits: TIdC_INT; const key: PAES_KEY): TIdC_INT; cdecl = nil;
 
-  AES_encrypt: procedure(const in_: PByte; out_: PByte; const key: PAES_KEY); cdecl = nil;
-  AES_decrypt: procedure(const in_: PByte; out_: PByte; const key: PAES_KEY); cdecl = nil;
+  AES_encrypt: procedure (const in_: PByte; out_: PByte; const key: PAES_KEY); cdecl = nil;
+  AES_decrypt: procedure (const in_: PByte; out_: PByte; const key: PAES_KEY); cdecl = nil;
 
-  AES_ecb_encrypt: procedure(const in_: PByte; out_: PByte; const key: PAES_KEY; const enc: TIdC_INT); cdecl = nil;
-  AES_cbc_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT); cdecl = nil;
-  AES_cfb128_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
-  AES_cfb1_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
-  AES_cfb8_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
-  AES_ofb128_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT); cdecl = nil;
+  AES_ecb_encrypt: procedure (const in_: PByte; out_: PByte; const key: PAES_KEY; const enc: TIdC_INT); cdecl = nil;
+  AES_cbc_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT); cdecl = nil;
+  AES_cfb128_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
+  AES_cfb1_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
+  AES_cfb8_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT; const enc: TIdC_INT); cdecl = nil;
+  AES_ofb128_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; num: PIdC_INT); cdecl = nil;
   (* NB: the IV is _two_ blocks long *)
-  AES_ige_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT); cdecl = nil;
+  AES_ige_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; ivec: PByte; const enc: TIdC_INT); cdecl = nil;
   (* NB: the IV is _four_ blocks long *)
-  AES_bi_ige_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; const key2: PAES_KEY; ivec: PByte; const enc: TIdC_INT); cdecl = nil;
+  AES_bi_ige_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_SIZET; const key: PAES_KEY; const key2: PAES_KEY; ivec: PByte; const enc: TIdC_INT); cdecl = nil;
 
-  AES_wrap_key: function(key: PAES_KEY; const iv: PByte; out_: PByte; const in_: PByte; inlen: TIdC_UINT): TIdC_INT; cdecl = nil;
-  AES_unwrap_key: function(key: PAES_KEY; const iv: PByte; out_: PByte; const in_: PByte; inlen: TIdC_UINT): TIdC_INT; cdecl = nil;
+  AES_wrap_key: function (key: PAES_KEY; const iv: PByte; out_: PByte; const in_: PByte; inlen: TIdC_UINT): TIdC_INT; cdecl = nil;
+  AES_unwrap_key: function (key: PAES_KEY; const iv: PByte; out_: PByte; const in_: PByte; inlen: TIdC_UINT): TIdC_INT; cdecl = nil;
 
 {$ELSE}
   function AES_options: PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -134,12 +136,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

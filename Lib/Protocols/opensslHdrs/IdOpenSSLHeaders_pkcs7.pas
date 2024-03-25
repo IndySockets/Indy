@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -265,13 +267,13 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  PKCS7_ISSUER_AND_SERIAL_digest: function(data: PPKCS7_ISSUER_AND_SERIAL; const type_: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT; cdecl = nil;
+  PKCS7_ISSUER_AND_SERIAL_digest: function (data: PPKCS7_ISSUER_AND_SERIAL; const type_: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT; cdecl = nil;
 
-  PKCS7_dup: function(p7: PPKCS7): PPKCS7; cdecl = nil;
-  d2i_PKCS7_bio: function(bp: PBIO; p7: PPPKCS7): PPKCS7; cdecl = nil;
-  i2d_PKCS7_bio: function(bp: PBIO; p7: PPKCS7): TIdC_INT; cdecl = nil;
-  i2d_PKCS7_bio_stream: function(out_: PBIO; p7: PPKCS7; in_: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
-  PEM_write_bio_PKCS7_stream: function(out_: PBIO; p7: PPKCS7; in_: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
+  PKCS7_dup: function (p7: PPKCS7): PPKCS7; cdecl = nil;
+  d2i_PKCS7_bio: function (bp: PBIO; p7: PPPKCS7): PPKCS7; cdecl = nil;
+  i2d_PKCS7_bio: function (bp: PBIO; p7: PPKCS7): TIdC_INT; cdecl = nil;
+  i2d_PKCS7_bio_stream: function (out_: PBIO; p7: PPKCS7; in_: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
+  PEM_write_bio_PKCS7_stream: function (out_: PBIO; p7: PPKCS7; in_: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
 
 //  function PKCS7_SIGNER_INFO_new: PPKCS7_SIGNER_INFO;
 //  procedure PKCS7_SIGNER_INFO_free(a: PPKCS7_SIGNER_INFO);
@@ -334,68 +336,68 @@ var
 //  function i2d_PKCS7_NDEF(const a: PPKCS7; out_: PPByte): TIdC_INT;
 //  function PKCS7_print_ctx(out_: PBIO; const x: PPKCS7; indent: TIdC_INT; const pctx: PASN1_PCTX): TIdC_INT;
 
-  PKCS7_ctrl: function(p7: PPKCS7; cmd: TIdC_INT; larg: TIdC_LONG; parg: PIdAnsiChar): TIdC_LONG; cdecl = nil;
+  PKCS7_ctrl: function (p7: PPKCS7; cmd: TIdC_INT; larg: TIdC_LONG; parg: PIdAnsiChar): TIdC_LONG; cdecl = nil;
 
-  PKCS7_set_type: function(p7: PPKCS7; type_: TIdC_INT): TIdC_INT; cdecl = nil;
-  PKCS7_set0_type_other: function(p7: PPKCS7; type_: TIdC_INT; other: PASN1_TYPE): TIdC_INT; cdecl = nil;
-  PKCS7_set_content: function(p7: PPKCS7; p7_data: PPKCS7): TIdC_INT; cdecl = nil;
-  PKCS7_SIGNER_INFO_set: function(p7i: PPKCS7_SIGNER_INFO; x509: PX509; pkey: PEVP_PKEY; const dgst: PEVP_MD): TIdC_INT; cdecl = nil;
-  PKCS7_SIGNER_INFO_sign: function(si: PPKCS7_SIGNER_INFO): TIdC_INT; cdecl = nil;
-  PKCS7_add_signer: function(p7: PPKCS7; p7i: PPKCS7_SIGNER_INFO): TIdC_INT; cdecl = nil;
-  PKCS7_add_certificate: function(p7: PPKCS7; x509: PX509): TIdC_INT; cdecl = nil;
-  PKCS7_add_crl: function(p7: PPKCS7; x509: PX509_CRL): TIdC_INT; cdecl = nil;
-  PKCS7_content_new: function(p7: PPKCS7; nid: TIdC_INT): TIdC_INT; cdecl = nil;
-  PKCS7_dataVerify: function(cert_store: PX509_STORE; ctx: PX509_STORE_CTX; bio: PBIO; p7: PPKCS7; si: PPKCS7_SIGNER_INFO): TIdC_INT; cdecl = nil;
-  PKCS7_signatureVerify: function(bio: PBIO; p7: PPKCS7; si: PPKCS7_SIGNER_INFO; x509: PX509): TIdC_INT; cdecl = nil;
+  PKCS7_set_type: function (p7: PPKCS7; type_: TIdC_INT): TIdC_INT; cdecl = nil;
+  PKCS7_set0_type_other: function (p7: PPKCS7; type_: TIdC_INT; other: PASN1_TYPE): TIdC_INT; cdecl = nil;
+  PKCS7_set_content: function (p7: PPKCS7; p7_data: PPKCS7): TIdC_INT; cdecl = nil;
+  PKCS7_SIGNER_INFO_set: function (p7i: PPKCS7_SIGNER_INFO; x509: PX509; pkey: PEVP_PKEY; const dgst: PEVP_MD): TIdC_INT; cdecl = nil;
+  PKCS7_SIGNER_INFO_sign: function (si: PPKCS7_SIGNER_INFO): TIdC_INT; cdecl = nil;
+  PKCS7_add_signer: function (p7: PPKCS7; p7i: PPKCS7_SIGNER_INFO): TIdC_INT; cdecl = nil;
+  PKCS7_add_certificate: function (p7: PPKCS7; x509: PX509): TIdC_INT; cdecl = nil;
+  PKCS7_add_crl: function (p7: PPKCS7; x509: PX509_CRL): TIdC_INT; cdecl = nil;
+  PKCS7_content_new: function (p7: PPKCS7; nid: TIdC_INT): TIdC_INT; cdecl = nil;
+  PKCS7_dataVerify: function (cert_store: PX509_STORE; ctx: PX509_STORE_CTX; bio: PBIO; p7: PPKCS7; si: PPKCS7_SIGNER_INFO): TIdC_INT; cdecl = nil;
+  PKCS7_signatureVerify: function (bio: PBIO; p7: PPKCS7; si: PPKCS7_SIGNER_INFO; x509: PX509): TIdC_INT; cdecl = nil;
 
-  PKCS7_dataInit: function(p7: PPKCS7; bio: PBIO): PBIO; cdecl = nil;
-  PKCS7_dataFinal: function(p7: PPKCS7; bio: PBIO): TIdC_INT; cdecl = nil;
-  PKCS7_dataDecode: function(p7: PPKCS7; pkey: PEVP_PKEY; in_bio: PBIO; pcert: PX509): PBIO; cdecl = nil;
+  PKCS7_dataInit: function (p7: PPKCS7; bio: PBIO): PBIO; cdecl = nil;
+  PKCS7_dataFinal: function (p7: PPKCS7; bio: PBIO): TIdC_INT; cdecl = nil;
+  PKCS7_dataDecode: function (p7: PPKCS7; pkey: PEVP_PKEY; in_bio: PBIO; pcert: PX509): PBIO; cdecl = nil;
 
-  PKCS7_add_signature: function(p7: PPKCS7; x509: PX509; pkey: PEVP_PKEY; const dgst: PEVP_MD): PPKCS7_SIGNER_INFO; cdecl = nil;
-  PKCS7_cert_from_signer_info: function(p7: PPKCS7; si: PPKCS7_SIGNER_INFO): PX509; cdecl = nil;
-  PKCS7_set_digest: function(p7: PPKCS7; const md: PEVP_MD): TIdC_INT; cdecl = nil;
+  PKCS7_add_signature: function (p7: PPKCS7; x509: PX509; pkey: PEVP_PKEY; const dgst: PEVP_MD): PPKCS7_SIGNER_INFO; cdecl = nil;
+  PKCS7_cert_from_signer_info: function (p7: PPKCS7; si: PPKCS7_SIGNER_INFO): PX509; cdecl = nil;
+  PKCS7_set_digest: function (p7: PPKCS7; const md: PEVP_MD): TIdC_INT; cdecl = nil;
 //  function PKCS7_get_signer_info(p7: PPKCS7): PSTACK_OF_PKCS7_SIGNER_INFO;
 
-  PKCS7_add_recipient: function(p7: PPKCS7; x509: PX509): PPKCS7_RECIP_INFO; cdecl = nil;
-  PKCS7_SIGNER_INFO_get0_algs: procedure(si: PPKCS7_SIGNER_INFO; pk: PPEVP_PKEY; pdig: PPX509_ALGOR; psig: PPX509_ALGOR); cdecl = nil;
-  PKCS7_RECIP_INFO_get0_alg: procedure(ri: PPKCS7_RECIP_INFO; penc: PPX509_ALGOR); cdecl = nil;
-  PKCS7_add_recipient_info: function(p7: PPKCS7; ri: PPKCS7_RECIP_INFO): TIdC_INT; cdecl = nil;
-  PKCS7_RECIP_INFO_set: function(p7i: PPKCS7_RECIP_INFO; x509: PX509): TIdC_INT; cdecl = nil;
-  PKCS7_set_cipher: function(p7: PPKCS7; const cipher: PEVP_CIPHER): TIdC_INT; cdecl = nil;
-  PKCS7_stream: function(boundary: PPPByte; p7: PPKCS7): TIdC_INT; cdecl = nil;
+  PKCS7_add_recipient: function (p7: PPKCS7; x509: PX509): PPKCS7_RECIP_INFO; cdecl = nil;
+  PKCS7_SIGNER_INFO_get0_algs: procedure (si: PPKCS7_SIGNER_INFO; pk: PPEVP_PKEY; pdig: PPX509_ALGOR; psig: PPX509_ALGOR); cdecl = nil;
+  PKCS7_RECIP_INFO_get0_alg: procedure (ri: PPKCS7_RECIP_INFO; penc: PPX509_ALGOR); cdecl = nil;
+  PKCS7_add_recipient_info: function (p7: PPKCS7; ri: PPKCS7_RECIP_INFO): TIdC_INT; cdecl = nil;
+  PKCS7_RECIP_INFO_set: function (p7i: PPKCS7_RECIP_INFO; x509: PX509): TIdC_INT; cdecl = nil;
+  PKCS7_set_cipher: function (p7: PPKCS7; const cipher: PEVP_CIPHER): TIdC_INT; cdecl = nil;
+  PKCS7_stream: function (boundary: PPPByte; p7: PPKCS7): TIdC_INT; cdecl = nil;
 
-  PKCS7_get_issuer_and_serial: function(p7: PPKCS7; idx: TIdC_INT): PPKCS7_ISSUER_AND_SERIAL; cdecl = nil;
+  PKCS7_get_issuer_and_serial: function (p7: PPKCS7; idx: TIdC_INT): PPKCS7_ISSUER_AND_SERIAL; cdecl = nil;
   //function PKCS7_digest_from_attributes(sk: Pointer{PSTACK_OF_X509_ATTRIBUTE}): PASN1_OCTET_STRING;
-  PKCS7_add_signed_attribute: function(p7si: PPKCS7_SIGNER_INFO; nid: TIdC_INT; type_: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
-  PKCS7_add_attribute: function(p7si: PPKCS7_SIGNER_INFO; nid: TIdC_INT; atrtype: TIdC_INT; value: Pointer): TIdC_INT; cdecl = nil;
-  PKCS7_get_attribute: function(si: PPKCS7_SIGNER_INFO; nid: TIdC_INT): PASN1_TYPE; cdecl = nil;
-  PKCS7_get_signed_attribute: function(si: PPKCS7_SIGNER_INFO; nid: TIdC_INT): PASN1_TYPE; cdecl = nil;
+  PKCS7_add_signed_attribute: function (p7si: PPKCS7_SIGNER_INFO; nid: TIdC_INT; type_: TIdC_INT; data: Pointer): TIdC_INT; cdecl = nil;
+  PKCS7_add_attribute: function (p7si: PPKCS7_SIGNER_INFO; nid: TIdC_INT; atrtype: TIdC_INT; value: Pointer): TIdC_INT; cdecl = nil;
+  PKCS7_get_attribute: function (si: PPKCS7_SIGNER_INFO; nid: TIdC_INT): PASN1_TYPE; cdecl = nil;
+  PKCS7_get_signed_attribute: function (si: PPKCS7_SIGNER_INFO; nid: TIdC_INT): PASN1_TYPE; cdecl = nil;
   //function PKCS7_set_signed_attributes(p7si: PPKCS7_SIGNER_INFO; sk: PSTACK_OF_X509): TIdC_INT;
   //function PKCS7_set_attributes(p7si: PPKCS7_SIGNER_INFO; sk: PSTACK_OF_X509_ATTRIBUTE): TIdC_INT;
 
   //function PKCS7_sign(signcert: PX509; pkey: PEVP_PKEY; certs: PSTACK_OF_X509; data: PBIO; flags: TIdC_INT): PPKCS7;
 
-  PKCS7_sign_add_signer: function(p7: PPKCS7; signcert: PX509; pkey: PEVP_PKEY; const md: PEVP_MD; flags: TIdC_INT): PPKCS7_SIGNER_INFO; cdecl = nil;
+  PKCS7_sign_add_signer: function (p7: PPKCS7; signcert: PX509; pkey: PEVP_PKEY; const md: PEVP_MD; flags: TIdC_INT): PPKCS7_SIGNER_INFO; cdecl = nil;
 
-  PKCS7_final: function(p7: PPKCS7; data: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
+  PKCS7_final: function (p7: PPKCS7; data: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
   //function PKCS7_verify(p7: PPKCS7; certs: PSTACK_OF_X509; store: PX509_STORE; indata: PBIO; out_: PBIO; flags: TIdC_INT): TIdC_INT;
   //function PKCS7_get0_signers(p7: PPKCS7; certs: PSTACK_OF_X509; flags: TIdC_INT): PSTACK_OF_X509;
   //function PKCS7_encrypt(certs: PSTACK_OF_X509; in_: PBIO; const cipher: PEVP_CIPHER; flags: TIdC_INT): PPKCS7;
-  PKCS7_decrypt: function(p7: PPKCS7; pkey: PEVP_PKEY; cert: PX509; data: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
+  PKCS7_decrypt: function (p7: PPKCS7; pkey: PEVP_PKEY; cert: PX509; data: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
 
   //function PKCS7_add_attrib_smimecap(si: PPKCS7_SIGNER_INFO; cap: PSTACK_OF_X509_ALGOR): TIdC_INT;
   //function PKCS7_get_smimecap(si: PPKCS7_SIGNER_INFO): PSTACK_OF_X509_ALGOR;
   //function PKCS7_simple_smimecap(sk: PSTACK_OF_X509_ALGOR; nid: TIdC_INT; arg: TIdC_INT): TIdC_INT;
 
-  PKCS7_add_attrib_content_type: function(si: PPKCS7_SIGNER_INFO; coid: PASN1_OBJECT): TIdC_INT; cdecl = nil;
-  PKCS7_add0_attrib_signing_time: function(si: PPKCS7_SIGNER_INFO; t: PASN1_TIME): TIdC_INT; cdecl = nil;
-  PKCS7_add1_attrib_digest: function(si: PPKCS7_SIGNER_INFO; const md: PByte; mdlen: TIdC_INT): TIdC_INT; cdecl = nil;
+  PKCS7_add_attrib_content_type: function (si: PPKCS7_SIGNER_INFO; coid: PASN1_OBJECT): TIdC_INT; cdecl = nil;
+  PKCS7_add0_attrib_signing_time: function (si: PPKCS7_SIGNER_INFO; t: PASN1_TIME): TIdC_INT; cdecl = nil;
+  PKCS7_add1_attrib_digest: function (si: PPKCS7_SIGNER_INFO; const md: PByte; mdlen: TIdC_INT): TIdC_INT; cdecl = nil;
 
-  SMIME_write_PKCS7: function(bio: PBIO; p7: PPKCS7; data: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
-  SMIME_read_PKCS7: function(bio: PBIO; bcont: PPBIO): PPKCS7; cdecl = nil;
+  SMIME_write_PKCS7: function (bio: PBIO; p7: PPKCS7; data: PBIO; flags: TIdC_INT): TIdC_INT; cdecl = nil;
+  SMIME_read_PKCS7: function (bio: PBIO; bcont: PPBIO): PPKCS7; cdecl = nil;
 
-  BIO_new_PKCS7: function(out_: PBIO; p7: PPKCS7): PBIO; cdecl = nil;
+  BIO_new_PKCS7: function (out_: PBIO; p7: PPKCS7): PBIO; cdecl = nil;
 
 {$ELSE}
   function PKCS7_ISSUER_AND_SERIAL_digest(data: PPKCS7_ISSUER_AND_SERIAL; const type_: PEVP_MD; md: PByte; len: PIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -534,12 +536,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

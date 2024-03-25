@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -74,13 +76,13 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  CAST_set_key: procedure(key: PCast_Key; len: TIdC_INT; const data: PByte); cdecl = nil;
-  CAST_ecb_encrypt: procedure(const in_: PByte; out_: PByte; const key: PCast_Key; enc: TIdC_INT); cdecl = nil;
-  CAST_encrypt: procedure(data: PCAST_LONG; const key: PCast_Key); cdecl = nil;
-  CAST_decrypt: procedure(data: PCAST_LONG; const key: PCast_Key); cdecl = nil;
-  CAST_cbc_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; const ks: PCast_Key; iv: PByte; enc: TIdC_INT); cdecl = nil;
-  CAST_cfb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; const schedule: PCast_Key; ivec: PByte; num: PIdC_INT; enc: TIdC_INT); cdecl = nil;
-  CAST_ofb64_encrypt: procedure(const in_: PByte; out_: PByte; length: TIdC_LONG; const schedule: PCast_Key; ivec: PByte; num: PIdC_INT); cdecl = nil;
+  CAST_set_key: procedure (key: PCast_Key; len: TIdC_INT; const data: PByte); cdecl = nil;
+  CAST_ecb_encrypt: procedure (const in_: PByte; out_: PByte; const key: PCast_Key; enc: TIdC_INT); cdecl = nil;
+  CAST_encrypt: procedure (data: PCAST_LONG; const key: PCast_Key); cdecl = nil;
+  CAST_decrypt: procedure (data: PCAST_LONG; const key: PCast_Key); cdecl = nil;
+  CAST_cbc_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_LONG; const ks: PCast_Key; iv: PByte; enc: TIdC_INT); cdecl = nil;
+  CAST_cfb64_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_LONG; const schedule: PCast_Key; ivec: PByte; num: PIdC_INT; enc: TIdC_INT); cdecl = nil;
+  CAST_ofb64_encrypt: procedure (const in_: PByte; out_: PByte; length: TIdC_LONG; const schedule: PCast_Key; ivec: PByte; num: PIdC_INT); cdecl = nil;
 
 {$ELSE}
   procedure CAST_set_key(key: PCast_Key; len: TIdC_INT; const data: PByte) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -95,12 +97,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

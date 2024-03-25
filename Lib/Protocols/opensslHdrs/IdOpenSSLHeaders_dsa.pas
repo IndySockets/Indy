@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -170,51 +172,51 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  DSAparams_dup: function(x: PDSA): PDSA; cdecl = nil;
-  DSA_SIG_new: function: PDSA_SIG; cdecl = nil;
-  DSA_SIG_free: procedure(a: PDSA_SIG); cdecl = nil;
-  i2d_DSA_SIG: function(const a: PDSA_SIG; pp: PPByte): TIdC_INT; cdecl = nil;
-  d2i_DSA_SIG: function(v: PPDSA_SIG; const pp: PPByte; length: TIdC_LONG): PDSA_SIG; cdecl = nil;
-  DSA_SIG_get0: procedure(const sig: PDSA_SIG; const pr: PPBIGNUM; const ps: PPBIGNUM); cdecl = nil;
-  DSA_SIG_set0: function(sig: PDSA_SIG; r: PBIGNUM; s: PBIGNUM): TIdC_INT; cdecl = nil;
+  DSAparams_dup: function (x: PDSA): PDSA; cdecl = nil;
+  DSA_SIG_new: function : PDSA_SIG; cdecl = nil;
+  DSA_SIG_free: procedure (a: PDSA_SIG); cdecl = nil;
+  i2d_DSA_SIG: function (const a: PDSA_SIG; pp: PPByte): TIdC_INT; cdecl = nil;
+  d2i_DSA_SIG: function (v: PPDSA_SIG; const pp: PPByte; length: TIdC_LONG): PDSA_SIG; cdecl = nil;
+  DSA_SIG_get0: procedure (const sig: PDSA_SIG; const pr: PPBIGNUM; const ps: PPBIGNUM); cdecl = nil;
+  DSA_SIG_set0: function (sig: PDSA_SIG; r: PBIGNUM; s: PBIGNUM): TIdC_INT; cdecl = nil;
   
-  DSA_do_sign: function(const dgst: PByte; dlen: TIdC_INT; dsa: PDSA): PDSA_SIG; cdecl = nil;
-  DSA_do_verify: function(const dgst: PByte; dgst_len: TIdC_INT; sig: PDSA_SIG; dsa: PDSA): TIdC_INT; cdecl = nil;
+  DSA_do_sign: function (const dgst: PByte; dlen: TIdC_INT; dsa: PDSA): PDSA_SIG; cdecl = nil;
+  DSA_do_verify: function (const dgst: PByte; dgst_len: TIdC_INT; sig: PDSA_SIG; dsa: PDSA): TIdC_INT; cdecl = nil;
   
-  DSA_OpenSSL: function: PDSA_METHOD; cdecl = nil;
-  DSA_set_default_method: procedure(const v1: PDSA_METHOD); cdecl = nil;
-  DSA_get_default_method: function: PDSA_METHOD; cdecl = nil;
-  DSA_set_method: function(dsa: PDSA; const v1: PDSA_METHOD): TIdC_INT; cdecl = nil;
-  DSA_get_method: function(d: PDSA): PDSA_METHOD; cdecl = nil;
+  DSA_OpenSSL: function : PDSA_METHOD; cdecl = nil;
+  DSA_set_default_method: procedure (const v1: PDSA_METHOD); cdecl = nil;
+  DSA_get_default_method: function : PDSA_METHOD; cdecl = nil;
+  DSA_set_method: function (dsa: PDSA; const v1: PDSA_METHOD): TIdC_INT; cdecl = nil;
+  DSA_get_method: function (d: PDSA): PDSA_METHOD; cdecl = nil;
 
-  DSA_new: function: PDSA; cdecl = nil;
-  DSA_new_method: function(engine: PENGINE): PDSA; cdecl = nil;
-  DSA_free: procedure(r: PDSA); cdecl = nil;
+  DSA_new: function : PDSA; cdecl = nil;
+  DSA_new_method: function (engine: PENGINE): PDSA; cdecl = nil;
+  DSA_free: procedure (r: PDSA); cdecl = nil;
   (* "up" the DSA object's reference count *)
-  DSA_up_ref: function(r: PDSA): TIdC_INT; cdecl = nil;
-  DSA_size: function(const v1: PDSA): TIdC_INT; cdecl = nil;
-  DSA_bits: function(const d: PDSA): TIdC_INT; cdecl = nil;
-  DSA_security_bits: function(const d: PDSA): TIdC_INT; cdecl = nil;
-  DSA_sign: function(type_: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; dsa: PDSA): TIdC_INT; cdecl = nil;
-  DSA_verify: function(type_: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; siglen: TIdC_INT; dsa: PDSA): TIdC_INT; cdecl = nil;
+  DSA_up_ref: function (r: PDSA): TIdC_INT; cdecl = nil;
+  DSA_size: function (const v1: PDSA): TIdC_INT; cdecl = nil;
+  DSA_bits: function (const d: PDSA): TIdC_INT; cdecl = nil;
+  DSA_security_bits: function (const d: PDSA): TIdC_INT; cdecl = nil;
+  DSA_sign: function (type_: TIdC_INT; const dgst: PByte; dlen: TIdC_INT; sig: PByte; siglen: PIdC_UINT; dsa: PDSA): TIdC_INT; cdecl = nil;
+  DSA_verify: function (type_: TIdC_INT; const dgst: PByte; dgst_len: TIdC_INT; const sigbuf: PByte; siglen: TIdC_INT; dsa: PDSA): TIdC_INT; cdecl = nil;
   //#define DSA_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_DSA, l, p, newf, dupf, freef)
-  DSA_set_ex_data: function(d: PDSA; idx: TIdC_INT; arg: Pointer): TIdC_INT; cdecl = nil;
-  DSA_get_ex_data: function(d: PDSA; idx: TIdC_INT): Pointer; cdecl = nil;
+  DSA_set_ex_data: function (d: PDSA; idx: TIdC_INT; arg: Pointer): TIdC_INT; cdecl = nil;
+  DSA_get_ex_data: function (d: PDSA; idx: TIdC_INT): Pointer; cdecl = nil;
   
-  d2i_DSAPublicKey: function(a: PPDSA; const pp: PPByte; length: TIdC_LONG): PDSA; cdecl = nil;
-  d2i_DSAPrivateKey: function(a: PPDSA; const pp: PPByte; length: TIdC_LONG): PDSA; cdecl = nil;
-  d2i_DSAparams: function(a: PPDSA; const pp: PPByte; length: TIdC_LONG): PDSA; cdecl = nil;
+  d2i_DSAPublicKey: function (a: PPDSA; const pp: PPByte; length: TIdC_LONG): PDSA; cdecl = nil;
+  d2i_DSAPrivateKey: function (a: PPDSA; const pp: PPByte; length: TIdC_LONG): PDSA; cdecl = nil;
+  d2i_DSAparams: function (a: PPDSA; const pp: PPByte; length: TIdC_LONG): PDSA; cdecl = nil;
 
-  DSA_generate_parameters_ex: function(dsa: PDSA; bits: TIdC_INT; const seed: PByte; seed_len: TIdC_INT; counter_ret: PIdC_INT; h_ret: PIdC_ULONG; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
+  DSA_generate_parameters_ex: function (dsa: PDSA; bits: TIdC_INT; const seed: PByte; seed_len: TIdC_INT; counter_ret: PIdC_INT; h_ret: PIdC_ULONG; cb: PBN_GENCB): TIdC_INT; cdecl = nil;
 
-  DSA_generate_key: function(a: PDSA): TIdC_INT; cdecl = nil;
-  i2d_DSAPublicKey: function(const a: PDSA; pp: PPByte): TIdC_INT; cdecl = nil;
-  i2d_DSAPrivateKey: function(const a: PDSA; pp: PPByte): TIdC_INT; cdecl = nil;
-  i2d_DSAparams: function(const a: PDSA; pp: PPByte): TIdC_INT; cdecl = nil;
+  DSA_generate_key: function (a: PDSA): TIdC_INT; cdecl = nil;
+  i2d_DSAPublicKey: function (const a: PDSA; pp: PPByte): TIdC_INT; cdecl = nil;
+  i2d_DSAPrivateKey: function (const a: PDSA; pp: PPByte): TIdC_INT; cdecl = nil;
+  i2d_DSAparams: function (const a: PDSA; pp: PPByte): TIdC_INT; cdecl = nil;
   
-  DSAparams_print: function(bp: PBIO; const x: PDSA): TIdC_INT; cdecl = nil;
-  DSA_print: function(bp: PBIO; const x: PDSA; off: TIdC_INT): TIdC_INT; cdecl = nil;
+  DSAparams_print: function (bp: PBIO; const x: PDSA): TIdC_INT; cdecl = nil;
+  DSA_print: function (bp: PBIO; const x: PDSA; off: TIdC_INT): TIdC_INT; cdecl = nil;
 //  function DSAparams_print_fp(fp: PFile; const x: PDSA): TIdC_INT;
 //  function DSA_print_fp(bp: PFile; const x: PDSA; off: TIdC_INT): TIdC_INT;
 
@@ -225,7 +227,7 @@ var
    * Convert DSA structure (key or just parameters) into DH structure (be
    * careful to avoid small subgroup attacks when using this!)
    *)
-  DSA_dup_DH: function(const r: PDSA): PDH; cdecl = nil;
+  DSA_dup_DH: function (const r: PDSA): PDH; cdecl = nil;
 
   //# define EVP_PKEY_CTX_set_dsa_paramgen_bits(ctx, nbits) \
   //        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN, \
@@ -237,47 +239,47 @@ var
   //        EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN, \
   //                                EVP_PKEY_CTRL_DSA_PARAMGEN_MD, 0, (void *)(md))
 
-  DSA_get0_pqg: procedure(const d: PDSA; const p: PPBIGNUM; const q: PPBIGNUM; const g: PPBIGNUM); cdecl = nil;
-  DSA_set0_pqg: function(d: PDSA; p: PBIGNUM; q: PBIGNUM; g: PBIGNUM): TIdC_INT; cdecl = nil;
-  DSA_get0_key: procedure(const d: PDSA; const pub_key: PPBIGNUM; const priv_key: PPBIGNUM); cdecl = nil;
-  DSA_set0_key: function(d: PDSA; pub_key: PBIGNUM; priv_key: PBIGNUM): TIdC_INT; cdecl = nil;
-  DSA_get0_p: function(const d: PDSA): PBIGNUM; cdecl = nil;
-  DSA_get0_q: function(const d: PDSA): PBIGNUM; cdecl = nil;
-  DSA_get0_g: function(const d: PDSA): PBIGNUM; cdecl = nil;
-  DSA_get0_pub_key: function(const d: PDSA): PBIGNUM; cdecl = nil;
-  DSA_get0_priv_key: function(const d: PDSA): PBIGNUM; cdecl = nil;
-  DSA_clear_flags: procedure(d: PDSA; flags: TIdC_INT); cdecl = nil;
-  DSA_test_flags: function(const d: PDSA; flags: TIdC_INT): TIdC_INT; cdecl = nil;
-  DSA_set_flags: procedure(d: PDSA; flags: TIdC_INT); cdecl = nil;
-  DSA_get0_engine: function(d: PDSA): PENGINE; cdecl = nil;
+  DSA_get0_pqg: procedure (const d: PDSA; const p: PPBIGNUM; const q: PPBIGNUM; const g: PPBIGNUM); cdecl = nil;
+  DSA_set0_pqg: function (d: PDSA; p: PBIGNUM; q: PBIGNUM; g: PBIGNUM): TIdC_INT; cdecl = nil;
+  DSA_get0_key: procedure (const d: PDSA; const pub_key: PPBIGNUM; const priv_key: PPBIGNUM); cdecl = nil;
+  DSA_set0_key: function (d: PDSA; pub_key: PBIGNUM; priv_key: PBIGNUM): TIdC_INT; cdecl = nil;
+  DSA_get0_p: function (const d: PDSA): PBIGNUM; cdecl = nil;
+  DSA_get0_q: function (const d: PDSA): PBIGNUM; cdecl = nil;
+  DSA_get0_g: function (const d: PDSA): PBIGNUM; cdecl = nil;
+  DSA_get0_pub_key: function (const d: PDSA): PBIGNUM; cdecl = nil;
+  DSA_get0_priv_key: function (const d: PDSA): PBIGNUM; cdecl = nil;
+  DSA_clear_flags: procedure (d: PDSA; flags: TIdC_INT); cdecl = nil;
+  DSA_test_flags: function (const d: PDSA; flags: TIdC_INT): TIdC_INT; cdecl = nil;
+  DSA_set_flags: procedure (d: PDSA; flags: TIdC_INT); cdecl = nil;
+  DSA_get0_engine: function (d: PDSA): PENGINE; cdecl = nil;
   
-  DSA_meth_new: function(const name: PIdAnsiChar; flags: TIdC_INT): PDSA_METHOD; cdecl = nil;
-  DSA_meth_free: procedure(dsam: PDSA_METHOD); cdecl = nil;
-  DSA_meth_dup: function(const dsam: PDSA_METHOD): PDSA_METHOD; cdecl = nil;
-  DSA_meth_get0_name: function(const dsam: PDSA_METHOD): PIdAnsiChar; cdecl = nil;
-  DSA_meth_set1_name: function(dsam: PDSA_METHOD; const name: PIdAnsiChar): TIdC_INT; cdecl = nil;
-  DSA_meth_get_flags: function(const dsam: PDSA_METHOD): TIdC_INT; cdecl = nil;
-  DSA_meth_set_flags: function(dsam: PDSA_METHOD; flags: TIdC_INT): TIdC_INT; cdecl = nil;
-  DSA_meth_get0_app_data: function(const dsam: PDSA_METHOD): Pointer; cdecl = nil;
-  DSA_meth_set0_app_data: function(dsam: PDSA_METHOD; app_data: Pointer): TIdC_INT; cdecl = nil;
-  DSA_meth_get_sign: function(const dsam: PDSA_METHOD): DSA_meth_sign_cb; cdecl = nil;
-  DSA_meth_set_sign: function(dsam: PDSA_METHOD; sign: DSA_meth_sign_cb): TIdC_INT; cdecl = nil;
-  DSA_meth_get_sign_setup: function(const dsam: PDSA_METHOD): DSA_meth_sign_setup_cb; cdecl = nil;
-  DSA_meth_set_sign_setup: function(dsam: PDSA_METHOD; sign_setup: DSA_meth_sign_setup_cb): TIdC_INT; cdecl = nil;
-  DSA_meth_get_verify: function(const dsam: PDSA_METHOD): DSA_meth_verify_cb; cdecl = nil;
-  DSA_meth_set_verify: function(dsam: PDSA_METHOD; verify: DSA_meth_verify_cb): TIdC_INT; cdecl = nil;
-  DSA_meth_get_mod_exp: function(const dsam: PDSA_METHOD): DSA_meth_mod_exp_cb; cdecl = nil;
-  DSA_meth_set_mod_exp: function(dsam: PDSA_METHOD; mod_exp: DSA_meth_mod_exp_cb): TIdC_INT; cdecl = nil;
-  DSA_meth_get_bn_mod_exp: function(const dsam: PDSA_METHOD): DSA_meth_bn_mod_exp_cb; cdecl = nil;
-  DSA_meth_set_bn_mod_exp: function(dsam: PDSA_METHOD; bn_mod_exp: DSA_meth_bn_mod_exp_cb): TIdC_INT; cdecl = nil;
-  DSA_meth_get_init: function(const dsam: PDSA_METHOD): DSA_meth_init_cb; cdecl = nil;
-  DSA_meth_set_init: function(dsam: PDSA_METHOD; init: DSA_meth_init_cb): TIdC_INT; cdecl = nil;
-  DSA_meth_get_finish: function(const dsam: PDSA_METHOD): DSA_meth_finish_cb; cdecl = nil;
-  DSA_meth_set_finish: function(dsam: PDSA_METHOD; finish: DSA_meth_finish_cb): TIdC_INT; cdecl = nil;
-  DSA_meth_get_paramgen: function(const dsam: PDSA_METHOD): DSA_meth_paramgen_cb; cdecl = nil;
-  DSA_meth_set_paramgen: function(dsam: PDSA_METHOD; paramgen: DSA_meth_paramgen_cb): TIdC_INT; cdecl = nil;
-  DSA_meth_get_keygen: function(const dsam: PDSA_METHOD): DSA_meth_keygen_cb; cdecl = nil;
-  DSA_meth_set_keygen: function(dsam: PDSA_METHOD; keygen: DSA_meth_keygen_cb): TIdC_INT; cdecl = nil;
+  DSA_meth_new: function (const name: PIdAnsiChar; flags: TIdC_INT): PDSA_METHOD; cdecl = nil;
+  DSA_meth_free: procedure (dsam: PDSA_METHOD); cdecl = nil;
+  DSA_meth_dup: function (const dsam: PDSA_METHOD): PDSA_METHOD; cdecl = nil;
+  DSA_meth_get0_name: function (const dsam: PDSA_METHOD): PIdAnsiChar; cdecl = nil;
+  DSA_meth_set1_name: function (dsam: PDSA_METHOD; const name: PIdAnsiChar): TIdC_INT; cdecl = nil;
+  DSA_meth_get_flags: function (const dsam: PDSA_METHOD): TIdC_INT; cdecl = nil;
+  DSA_meth_set_flags: function (dsam: PDSA_METHOD; flags: TIdC_INT): TIdC_INT; cdecl = nil;
+  DSA_meth_get0_app_data: function (const dsam: PDSA_METHOD): Pointer; cdecl = nil;
+  DSA_meth_set0_app_data: function (dsam: PDSA_METHOD; app_data: Pointer): TIdC_INT; cdecl = nil;
+  DSA_meth_get_sign: function (const dsam: PDSA_METHOD): DSA_meth_sign_cb; cdecl = nil;
+  DSA_meth_set_sign: function (dsam: PDSA_METHOD; sign: DSA_meth_sign_cb): TIdC_INT; cdecl = nil;
+  DSA_meth_get_sign_setup: function (const dsam: PDSA_METHOD): DSA_meth_sign_setup_cb; cdecl = nil;
+  DSA_meth_set_sign_setup: function (dsam: PDSA_METHOD; sign_setup: DSA_meth_sign_setup_cb): TIdC_INT; cdecl = nil;
+  DSA_meth_get_verify: function (const dsam: PDSA_METHOD): DSA_meth_verify_cb; cdecl = nil;
+  DSA_meth_set_verify: function (dsam: PDSA_METHOD; verify: DSA_meth_verify_cb): TIdC_INT; cdecl = nil;
+  DSA_meth_get_mod_exp: function (const dsam: PDSA_METHOD): DSA_meth_mod_exp_cb; cdecl = nil;
+  DSA_meth_set_mod_exp: function (dsam: PDSA_METHOD; mod_exp: DSA_meth_mod_exp_cb): TIdC_INT; cdecl = nil;
+  DSA_meth_get_bn_mod_exp: function (const dsam: PDSA_METHOD): DSA_meth_bn_mod_exp_cb; cdecl = nil;
+  DSA_meth_set_bn_mod_exp: function (dsam: PDSA_METHOD; bn_mod_exp: DSA_meth_bn_mod_exp_cb): TIdC_INT; cdecl = nil;
+  DSA_meth_get_init: function (const dsam: PDSA_METHOD): DSA_meth_init_cb; cdecl = nil;
+  DSA_meth_set_init: function (dsam: PDSA_METHOD; init: DSA_meth_init_cb): TIdC_INT; cdecl = nil;
+  DSA_meth_get_finish: function (const dsam: PDSA_METHOD): DSA_meth_finish_cb; cdecl = nil;
+  DSA_meth_set_finish: function (dsam: PDSA_METHOD; finish: DSA_meth_finish_cb): TIdC_INT; cdecl = nil;
+  DSA_meth_get_paramgen: function (const dsam: PDSA_METHOD): DSA_meth_paramgen_cb; cdecl = nil;
+  DSA_meth_set_paramgen: function (dsam: PDSA_METHOD; paramgen: DSA_meth_paramgen_cb): TIdC_INT; cdecl = nil;
+  DSA_meth_get_keygen: function (const dsam: PDSA_METHOD): DSA_meth_keygen_cb; cdecl = nil;
+  DSA_meth_set_keygen: function (dsam: PDSA_METHOD; keygen: DSA_meth_keygen_cb): TIdC_INT; cdecl = nil;
 
 {$ELSE}
   function DSAparams_dup(x: PDSA): PDSA cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -393,12 +395,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

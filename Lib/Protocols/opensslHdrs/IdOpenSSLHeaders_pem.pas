@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -202,119 +204,119 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  PEM_get_EVP_CIPHER_INFO: function(header: PIdAnsiChar; cipher: PEVP_CIPHER_INFO): TIdC_INT; cdecl = nil;
-  PEM_do_header: function(cipher: PEVP_CIPHER_INFO; data: PByte; len: PIdC_LONG; callback: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  PEM_get_EVP_CIPHER_INFO: function (header: PIdAnsiChar; cipher: PEVP_CIPHER_INFO): TIdC_INT; cdecl = nil;
+  PEM_do_header: function (cipher: PEVP_CIPHER_INFO; data: PByte; len: PIdC_LONG; callback: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio: function(bp: PBIO; name: PPIdAnsiChar; header: PPIdAnsiChar; data: PPByte; len: PIdC_LONG): TIdC_INT; cdecl = nil;
-  PEM_read_bio_ex: function(bp: PBIO; name: PPIdAnsiChar; header: PPIdAnsiChar; data: PPByte; len: PIdC_LONG; flags: TIdC_UINT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  PEM_bytes_read_bio_secmem: function(pdata: PPByte; plen: PIdC_LONG; pnm: PPIdAnsiChar; const name: PIdAnsiChar; bp: PBIO; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  PEM_write_bio: function(bp: PBIO; const name: PIdAnsiChar; const hdr: PIdAnsiChar; const data: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
-  PEM_bytes_read_bio: function(pdata: PPByte; plen: PIdC_LONG; pnm: PPIdAnsiChar; const name: PIdAnsiChar; bp: PBIO; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
-  PEM_ASN1_read_bio: function(d2i: d2i_of_void; const name: PIdAnsiChar; bp: PBIO; x: PPointer; cb: pem_password_cb; u: Pointer): Pointer; cdecl = nil;
-  PEM_ASN1_write_bio: function(i2d: i2d_of_void; const name: PIdAnsiChar; bp: PBIO; x: Pointer; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  PEM_read_bio: function (bp: PBIO; name: PPIdAnsiChar; header: PPIdAnsiChar; data: PPByte; len: PIdC_LONG): TIdC_INT; cdecl = nil;
+  PEM_read_bio_ex: function (bp: PBIO; name: PPIdAnsiChar; header: PPIdAnsiChar; data: PPByte; len: PIdC_LONG; flags: TIdC_UINT): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  PEM_bytes_read_bio_secmem: function (pdata: PPByte; plen: PIdC_LONG; pnm: PPIdAnsiChar; const name: PIdAnsiChar; bp: PBIO; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  PEM_write_bio: function (bp: PBIO; const name: PIdAnsiChar; const hdr: PIdAnsiChar; const data: PByte; len: TIdC_LONG): TIdC_INT; cdecl = nil;
+  PEM_bytes_read_bio: function (pdata: PPByte; plen: PIdC_LONG; pnm: PPIdAnsiChar; const name: PIdAnsiChar; bp: PBIO; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  PEM_ASN1_read_bio: function (d2i: d2i_of_void; const name: PIdAnsiChar; bp: PBIO; x: PPointer; cb: pem_password_cb; u: Pointer): Pointer; cdecl = nil;
+  PEM_ASN1_write_bio: function (i2d: i2d_of_void; const name: PIdAnsiChar; bp: PBIO; x: Pointer; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
 
-  PEM_X509_INFO_read_bio: function(bp: PBIO; sk: PSTACK_OF_X509_INFO; cb: pem_password_cb; u: Pointer): PSTACK_OF_X509_INFO; cdecl = nil;
-  PEM_X509_INFO_write_bio: function(bp: PBIO; xi: PX509_INFO; enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cd: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  PEM_X509_INFO_read_bio: function (bp: PBIO; sk: PSTACK_OF_X509_INFO; cb: pem_password_cb; u: Pointer): PSTACK_OF_X509_INFO; cdecl = nil;
+  PEM_X509_INFO_write_bio: function (bp: PBIO; xi: PX509_INFO; enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cd: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
 
-  PEM_SignInit: function(ctx: PEVP_MD_CTX; type_: PEVP_MD): TIdC_INT; cdecl = nil;
-  PEM_SignUpdate: function(ctx: PEVP_MD_CTX; d: PByte; cnt: Byte): TIdC_INT; cdecl = nil;
-  PEM_SignFinal: function(ctx: PEVP_MD_CTX; sigret: PByte; siglen: PIdC_UINT; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
+  PEM_SignInit: function (ctx: PEVP_MD_CTX; type_: PEVP_MD): TIdC_INT; cdecl = nil;
+  PEM_SignUpdate: function (ctx: PEVP_MD_CTX; d: PByte; cnt: Byte): TIdC_INT; cdecl = nil;
+  PEM_SignFinal: function (ctx: PEVP_MD_CTX; sigret: PByte; siglen: PIdC_UINT; pkey: PEVP_PKEY): TIdC_INT; cdecl = nil;
 
   (* The default pem_password_cb that's used internally *)
-  PEM_def_callback: function(buf: PIdAnsiChar; num: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT; cdecl = nil;
-  PEM_proc_type: procedure(buf: PIdAnsiChar; type_: TIdC_INT); cdecl = nil;
-  PEM_dek_info: procedure(buf: PIdAnsiChar; const type_: PIdAnsiChar; len: TIdC_INT; str: PIdAnsiChar); cdecl = nil;
+  PEM_def_callback: function (buf: PIdAnsiChar; num: TIdC_INT; rwflag: TIdC_INT; userdata: Pointer): TIdC_INT; cdecl = nil;
+  PEM_proc_type: procedure (buf: PIdAnsiChar; type_: TIdC_INT); cdecl = nil;
+  PEM_dek_info: procedure (buf: PIdAnsiChar; const type_: PIdAnsiChar; len: TIdC_INT; str: PIdAnsiChar); cdecl = nil;
 
-  PEM_read_bio_X509: function(bp: PBIO; x: PPX509; cb: pem_password_cb; u: Pointer): PX509; cdecl = nil;
-  PEM_write_bio_X509: function(bp: PBIO; x: PX509): TIdC_INT; cdecl = nil;
+  PEM_read_bio_X509: function (bp: PBIO; x: PPX509; cb: pem_password_cb; u: Pointer): PX509; cdecl = nil;
+  PEM_write_bio_X509: function (bp: PBIO; x: PX509): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_X509_AUX: function(bp: PBIO; x: PPX509; cb: pem_password_cb; u: Pointer): PX509; cdecl = nil;
-  PEM_write_bio_X509_AUX: function(bp: PBIO; x: PX509): TIdC_INT; cdecl = nil;
+  PEM_read_bio_X509_AUX: function (bp: PBIO; x: PPX509; cb: pem_password_cb; u: Pointer): PX509; cdecl = nil;
+  PEM_write_bio_X509_AUX: function (bp: PBIO; x: PX509): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_X509_REQ: function(bp: PBIO; x: PPX509_REQ; cb: pem_password_cb; u: Pointer): PX509_REQ; cdecl = nil;
-  PEM_write_bio_X509_REQ: function(bp: PBIO; x: PX509_REQ): TIdC_INT; cdecl = nil;
+  PEM_read_bio_X509_REQ: function (bp: PBIO; x: PPX509_REQ; cb: pem_password_cb; u: Pointer): PX509_REQ; cdecl = nil;
+  PEM_write_bio_X509_REQ: function (bp: PBIO; x: PX509_REQ): TIdC_INT; cdecl = nil;
 
-  PEM_write_bio_X509_REQ_NEW: function(bp: PBIO; x: PX509_REQ): TIdC_INT; cdecl = nil;
+  PEM_write_bio_X509_REQ_NEW: function (bp: PBIO; x: PX509_REQ): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_X509_CRL: function(bp: PBIO; x: PPX509_CRL; cb: pem_password_cb; u: Pointer): PX509_CRL; cdecl = nil;
-  PEM_write_bio_X509_CRL: function(bp: PBIO; x: PX509_CRL): TIdC_INT; cdecl = nil;
+  PEM_read_bio_X509_CRL: function (bp: PBIO; x: PPX509_CRL; cb: pem_password_cb; u: Pointer): PX509_CRL; cdecl = nil;
+  PEM_write_bio_X509_CRL: function (bp: PBIO; x: PX509_CRL): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_PKCS7: function(bp: PBIO; x: PPPKCS7; cb: pem_password_cb; u: Pointer): PPKCS7; cdecl = nil;
-  PEM_write_bio_PKCS7: function(bp: PBIO; x: PPKCS7): TIdC_INT; cdecl = nil;
+  PEM_read_bio_PKCS7: function (bp: PBIO; x: PPPKCS7; cb: pem_password_cb; u: Pointer): PPKCS7; cdecl = nil;
+  PEM_write_bio_PKCS7: function (bp: PBIO; x: PPKCS7): TIdC_INT; cdecl = nil;
 
 //  function PEM_read_bio_NETSCAPE_CERT_SEQUENCE(bp: PBIO; x: PPNETSCAPE_CERT_SEQUENCE; cb: pem_password_cb; u: Pointer): PNETSCAPE_CERT_SEQUENCE;
 //  function PEM_write_bio_NETSCAPE_CERT_SEQUENCE(bp: PBIO; x: PNETSCAPE_CERT_SEQUENCE): TIdC_INT;
 
-  PEM_read_bio_PKCS8: function(bp: PBIO; x: PPX509_SIG; cb: pem_password_cb; u: Pointer): PX509_SIG; cdecl = nil;
-  PEM_write_bio_PKCS8: function(bp: PBIO; x: PX509_SIG): TIdC_INT; cdecl = nil;
+  PEM_read_bio_PKCS8: function (bp: PBIO; x: PPX509_SIG; cb: pem_password_cb; u: Pointer): PX509_SIG; cdecl = nil;
+  PEM_write_bio_PKCS8: function (bp: PBIO; x: PX509_SIG): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_PKCS8_PRIV_KEY_INFO: function(bp: PBIO; x: PPPKCS8_PRIV_KEY_INFO; cb: pem_password_cb; u: Pointer): PPKCS8_PRIV_KEY_INFO; cdecl = nil;
-  PEM_write_bio_PKCS8_PRIV_KEY_INFO: function(bp: PBIO; x: PPKCS8_PRIV_KEY_INFO): TIdC_INT; cdecl = nil;
+  PEM_read_bio_PKCS8_PRIV_KEY_INFO: function (bp: PBIO; x: PPPKCS8_PRIV_KEY_INFO; cb: pem_password_cb; u: Pointer): PPKCS8_PRIV_KEY_INFO; cdecl = nil;
+  PEM_write_bio_PKCS8_PRIV_KEY_INFO: function (bp: PBIO; x: PPKCS8_PRIV_KEY_INFO): TIdC_INT; cdecl = nil;
 
   // RSA
-  PEM_read_bio_RSAPrivateKey: function(bp: PBIO; x: PPRSA; cb: pem_password_cb; u: Pointer): PRSA; cdecl = nil;
-  PEM_write_bio_RSAPrivateKey: function(bp: PBIO; x: PRSA; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  PEM_read_bio_RSAPrivateKey: function (bp: PBIO; x: PPRSA; cb: pem_password_cb; u: Pointer): PRSA; cdecl = nil;
+  PEM_write_bio_RSAPrivateKey: function (bp: PBIO; x: PRSA; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_RSAPublicKey: function(bp: PBIO; x: PPRSA; cb: pem_password_cb; u: Pointer): PRSA; cdecl = nil;
-  PEM_write_bio_RSAPublicKey: function(bp: PBIO; const x: PRSA): TIdC_INT; cdecl = nil;
+  PEM_read_bio_RSAPublicKey: function (bp: PBIO; x: PPRSA; cb: pem_password_cb; u: Pointer): PRSA; cdecl = nil;
+  PEM_write_bio_RSAPublicKey: function (bp: PBIO; const x: PRSA): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_RSA_PUBKEY: function(bp: PBIO; x: PPRSA; cb: pem_password_cb; u: Pointer): PRSA; cdecl = nil;
-  PEM_write_bio_RSA_PUBKEY: function(bp: PBIO; x: PRSA): TIdC_INT; cdecl = nil;
+  PEM_read_bio_RSA_PUBKEY: function (bp: PBIO; x: PPRSA; cb: pem_password_cb; u: Pointer): PRSA; cdecl = nil;
+  PEM_write_bio_RSA_PUBKEY: function (bp: PBIO; x: PRSA): TIdC_INT; cdecl = nil;
   // ~RSA
 
   // DSA
-  PEM_read_bio_DSAPrivateKey: function(bp: PBIO; x: PPDSA; cb: pem_password_cb; u: Pointer): PDSA; cdecl = nil;
-  PEM_write_bio_DSAPrivateKey: function(bp: PBIO; x: PDSA; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  PEM_read_bio_DSAPrivateKey: function (bp: PBIO; x: PPDSA; cb: pem_password_cb; u: Pointer): PDSA; cdecl = nil;
+  PEM_write_bio_DSAPrivateKey: function (bp: PBIO; x: PDSA; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_DSA_PUBKEY: function(bp: PBIO; x: PPDSA; cb: pem_password_cb; u: Pointer): PDSA; cdecl = nil;
-  PEM_write_bio_DSA_PUBKEY: function(bp: PBIO; x: PDSA): TIdC_INT; cdecl = nil;
+  PEM_read_bio_DSA_PUBKEY: function (bp: PBIO; x: PPDSA; cb: pem_password_cb; u: Pointer): PDSA; cdecl = nil;
+  PEM_write_bio_DSA_PUBKEY: function (bp: PBIO; x: PDSA): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_DSAparams: function(bp: PBIO; x: PPDSA; cb: pem_password_cb; u: Pointer): PDSA; cdecl = nil;
-  PEM_write_bio_DSAparams: function(bp: PBIO; const x: PDSA): TIdC_INT; cdecl = nil;
+  PEM_read_bio_DSAparams: function (bp: PBIO; x: PPDSA; cb: pem_password_cb; u: Pointer): PDSA; cdecl = nil;
+  PEM_write_bio_DSAparams: function (bp: PBIO; const x: PDSA): TIdC_INT; cdecl = nil;
   // ~DSA
 
   // EC
-  PEM_read_bio_ECPKParameters: function(bp: PBIO; x: PPEC_GROUP; cb: pem_password_cb; u: Pointer): PEC_GROUP; cdecl = nil;
-  PEM_write_bio_ECPKParameters: function(bp: PBIO; const x: PEC_GROUP): TIdC_INT; cdecl = nil;
+  PEM_read_bio_ECPKParameters: function (bp: PBIO; x: PPEC_GROUP; cb: pem_password_cb; u: Pointer): PEC_GROUP; cdecl = nil;
+  PEM_write_bio_ECPKParameters: function (bp: PBIO; const x: PEC_GROUP): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_ECPrivateKey: function(bp: PBIO; x: PPEC_KEY; cb: pem_password_cb; u: Pointer): PEC_KEY; cdecl = nil;
-  PEM_write_bio_ECPrivateKey: function(bp: PBIO; x: PEC_KEY; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  PEM_read_bio_ECPrivateKey: function (bp: PBIO; x: PPEC_KEY; cb: pem_password_cb; u: Pointer): PEC_KEY; cdecl = nil;
+  PEM_write_bio_ECPrivateKey: function (bp: PBIO; x: PEC_KEY; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_EC_PUBKEY: function(bp: PBIO; x: PPEC_KEY; cb: pem_password_cb; u: Pointer): PEC_KEY; cdecl = nil;
-  PEM_write_bio_EC_PUBKEY: function(bp: PBIO; x: PEC_KEY): TIdC_INT; cdecl = nil;
+  PEM_read_bio_EC_PUBKEY: function (bp: PBIO; x: PPEC_KEY; cb: pem_password_cb; u: Pointer): PEC_KEY; cdecl = nil;
+  PEM_write_bio_EC_PUBKEY: function (bp: PBIO; x: PEC_KEY): TIdC_INT; cdecl = nil;
   // ~EC
 
   // DH
-  PEM_read_bio_DHparams: function(bp: PBIO; x: PPDH; cb: pem_password_cb; u: Pointer): PDH; cdecl = nil;
-  PEM_write_bio_DHparams: function(bp: PBIO; const x: PDH): TIdC_INT; cdecl = nil;
+  PEM_read_bio_DHparams: function (bp: PBIO; x: PPDH; cb: pem_password_cb; u: Pointer): PDH; cdecl = nil;
+  PEM_write_bio_DHparams: function (bp: PBIO; const x: PDH): TIdC_INT; cdecl = nil;
 
-  PEM_write_bio_DHxparams: function(bp: PBIO; const x: PDH): TIdC_INT; cdecl = nil;
+  PEM_write_bio_DHxparams: function (bp: PBIO; const x: PDH): TIdC_INT; cdecl = nil;
   // ~DH
 
-  PEM_read_bio_PrivateKey: function(bp: PBIO; x: PPEVP_PKEY; cb: pem_password_cb; u: Pointer): PEVP_PKEY; cdecl = nil;
-  PEM_write_bio_PrivateKey: function(bp: PBIO; x: PEVP_PKEY; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  PEM_read_bio_PrivateKey: function (bp: PBIO; x: PPEVP_PKEY; cb: pem_password_cb; u: Pointer): PEVP_PKEY; cdecl = nil;
+  PEM_write_bio_PrivateKey: function (bp: PBIO; x: PEVP_PKEY; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
 
-  PEM_read_bio_PUBKEY: function(bp: PBIO; x: PPEVP_PKEY; cb: pem_password_cb; u: Pointer): PEVP_PKEY; cdecl = nil;
-  PEM_write_bio_PUBKEY: function(bp: PBIO; x: PEVP_PKEY): TIdC_INT; cdecl = nil;
+  PEM_read_bio_PUBKEY: function (bp: PBIO; x: PPEVP_PKEY; cb: pem_password_cb; u: Pointer): PEVP_PKEY; cdecl = nil;
+  PEM_write_bio_PUBKEY: function (bp: PBIO; x: PEVP_PKEY): TIdC_INT; cdecl = nil;
 
-  PEM_write_bio_PrivateKey_traditional: function(bp: PBIO; x: PEVP_PKEY; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
-  PEM_write_bio_PKCS8PrivateKey_nid: function(bp: PBIO; x: PEVP_PKEY; nid: TIdC_INT; kstr: PIdAnsiChar; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
-  PEM_write_bio_PKCS8PrivateKey: function(bp: PBIO; x: PEVP_PKEY_METHOD; const enc: PEVP_CIPHER; kstr: PIdAnsiChar; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
-  i2d_PKCS8PrivateKey_bio: function(bp: PBIO; x: PEVP_PKEY; const enc: PEVP_CIPHER_CTX; kstr: PIdAnsiChar; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
-  i2d_PKCS8PrivateKey_nid_bio: function(bp: PBIO; x: PEVP_PKEY; nid: TIdC_INT; kstr: PIdAnsiChar; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
-  d2i_PKCS8PrivateKey_bio: function(bp: PBIO; x: PPEVP_PKEY_CTX; cb: pem_password_cb; u: Pointer): PEVP_PKEY; cdecl = nil;
+  PEM_write_bio_PrivateKey_traditional: function (bp: PBIO; x: PEVP_PKEY; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil; {introduced 1.1.0}
+  PEM_write_bio_PKCS8PrivateKey_nid: function (bp: PBIO; x: PEVP_PKEY; nid: TIdC_INT; kstr: PIdAnsiChar; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  PEM_write_bio_PKCS8PrivateKey: function (bp: PBIO; x: PEVP_PKEY_METHOD; const enc: PEVP_CIPHER; kstr: PIdAnsiChar; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  i2d_PKCS8PrivateKey_bio: function (bp: PBIO; x: PEVP_PKEY; const enc: PEVP_CIPHER_CTX; kstr: PIdAnsiChar; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  i2d_PKCS8PrivateKey_nid_bio: function (bp: PBIO; x: PEVP_PKEY; nid: TIdC_INT; kstr: PIdAnsiChar; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  d2i_PKCS8PrivateKey_bio: function (bp: PBIO; x: PPEVP_PKEY_CTX; cb: pem_password_cb; u: Pointer): PEVP_PKEY; cdecl = nil;
 
-  PEM_read_bio_Parameters: function(bp: PBIO; x: PPEVP_PKEY): PEVP_PKEY; cdecl = nil;
-  PEM_write_bio_Parameters: function(bp: PBIO; x: PEVP_PKEY): TIdC_INT; cdecl = nil;
+  PEM_read_bio_Parameters: function (bp: PBIO; x: PPEVP_PKEY): PEVP_PKEY; cdecl = nil;
+  PEM_write_bio_Parameters: function (bp: PBIO; x: PEVP_PKEY): TIdC_INT; cdecl = nil;
 
-  b2i_PrivateKey: function(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY; cdecl = nil;
-  b2i_PublicKey: function(const in_: PPByte; length: TIdC_LONG): PEVP_PKEY; cdecl = nil;
-  b2i_PrivateKey_bio: function(in_: PBIO): PEVP_PKEY; cdecl = nil;
-  b2i_PublicKey_bio: function(in_: PBIO): PEVP_PKEY; cdecl = nil;
-  i2b_PrivateKey_bio: function(out_: PBIO; pk: PEVP_PKEY): TIdC_INT; cdecl = nil;
-  i2b_PublicKey_bio: function(out_: PBIO; pk: PEVP_PKEY): TIdC_INT; cdecl = nil;
-  b2i_PVK_bio: function(in_: PBIO; cb: pem_password_cb; u: Pointer): PEVP_PKEY; cdecl = nil;
-  i2b_PVK_bio: function(out_: PBIO; pk: PEVP_PKEY; enclevel: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
+  b2i_PrivateKey: function (const in_: PPByte; length: TIdC_LONG): PEVP_PKEY; cdecl = nil;
+  b2i_PublicKey: function (const in_: PPByte; length: TIdC_LONG): PEVP_PKEY; cdecl = nil;
+  b2i_PrivateKey_bio: function (in_: PBIO): PEVP_PKEY; cdecl = nil;
+  b2i_PublicKey_bio: function (in_: PBIO): PEVP_PKEY; cdecl = nil;
+  i2b_PrivateKey_bio: function (out_: PBIO; pk: PEVP_PKEY): TIdC_INT; cdecl = nil;
+  i2b_PublicKey_bio: function (out_: PBIO; pk: PEVP_PKEY): TIdC_INT; cdecl = nil;
+  b2i_PVK_bio: function (in_: PBIO; cb: pem_password_cb; u: Pointer): PEVP_PKEY; cdecl = nil;
+  i2b_PVK_bio: function (out_: PBIO; pk: PEVP_PKEY; enclevel: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; cdecl = nil;
 
 {$ELSE}
   function PEM_get_EVP_CIPHER_INFO(header: PIdAnsiChar; cipher: PEVP_CIPHER_INFO): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -435,12 +437,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 const
   PEM_read_bio_ex_introduced = (byte(1) shl 8 or byte(1)) shl 8 or byte(0);
@@ -450,19 +453,19 @@ const
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 
 {$WARN  NO_RETVAL OFF}
-function ERR_PEM_read_bio_ex(bp: PBIO; name: PPIdAnsiChar; header: PPIdAnsiChar; data: PPByte; len: PIdC_LONG; flags: TIdC_UINT): TIdC_INT; 
+function  ERR_PEM_read_bio_ex(bp: PBIO; name: PPIdAnsiChar; header: PPIdAnsiChar; data: PPByte; len: PIdC_LONG; flags: TIdC_UINT): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('PEM_read_bio_ex');
 end;
 
 
-function ERR_PEM_bytes_read_bio_secmem(pdata: PPByte; plen: PIdC_LONG; pnm: PPIdAnsiChar; const name: PIdAnsiChar; bp: PBIO; cb: pem_password_cb; u: Pointer): TIdC_INT; 
+function  ERR_PEM_bytes_read_bio_secmem(pdata: PPByte; plen: PIdC_LONG; pnm: PPIdAnsiChar; const name: PIdAnsiChar; bp: PBIO; cb: pem_password_cb; u: Pointer): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('PEM_bytes_read_bio_secmem');
 end;
 
 
-function ERR_PEM_write_bio_PrivateKey_traditional(bp: PBIO; x: PEVP_PKEY; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; 
+function  ERR_PEM_write_bio_PrivateKey_traditional(bp: PBIO; x: PEVP_PKEY; const enc: PEVP_CIPHER; kstr: PByte; klen: TIdC_INT; cb: pem_password_cb; u: Pointer): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('PEM_write_bio_PrivateKey_traditional');
 end;

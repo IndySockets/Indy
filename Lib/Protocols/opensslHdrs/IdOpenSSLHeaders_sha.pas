@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -126,33 +128,33 @@ type
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  SHA1_Init: function(c: PSHA_CTX): TIdC_INT; cdecl = nil;
-  SHA1_Update: function(c: PSHA_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  SHA1_Final: function(md: PByte; c: PSHA_CTX): TIdC_INT; cdecl = nil;
-  SHA1: function(const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
-  SHA1_Transform: procedure(c: PSHA_CTX; const data: PByte); cdecl = nil;
+  SHA1_Init: function (c: PSHA_CTX): TIdC_INT; cdecl = nil;
+  SHA1_Update: function (c: PSHA_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  SHA1_Final: function (md: PByte; c: PSHA_CTX): TIdC_INT; cdecl = nil;
+  SHA1: function (const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
+  SHA1_Transform: procedure (c: PSHA_CTX; const data: PByte); cdecl = nil;
 
-  SHA224_Init: function(c: PSHA256_CTX): TIdC_INT; cdecl = nil;
-  SHA224_Update: function(c: PSHA256_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  SHA224_Final: function(md: PByte; c: PSHA256_CTX): TIdC_INT; cdecl = nil;
-  SHA224: function(const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
+  SHA224_Init: function (c: PSHA256_CTX): TIdC_INT; cdecl = nil;
+  SHA224_Update: function (c: PSHA256_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  SHA224_Final: function (md: PByte; c: PSHA256_CTX): TIdC_INT; cdecl = nil;
+  SHA224: function (const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
 
-  SHA256_Init: function(c: PSHA256_CTX): TIdC_INT; cdecl = nil;
-  SHA256_Update: function(c: PSHA256_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  SHA256_Final: function(md: PByte; c: PSHA256_CTX): TIdC_INT; cdecl = nil;
-  SHA256: function(const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
-  SHA256_Transform: procedure(c: PSHA256_CTX; const data: PByte); cdecl = nil;
+  SHA256_Init: function (c: PSHA256_CTX): TIdC_INT; cdecl = nil;
+  SHA256_Update: function (c: PSHA256_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  SHA256_Final: function (md: PByte; c: PSHA256_CTX): TIdC_INT; cdecl = nil;
+  SHA256: function (const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
+  SHA256_Transform: procedure (c: PSHA256_CTX; const data: PByte); cdecl = nil;
 
-  SHA384_Init: function(c: PSHA512_CTX): TIdC_INT; cdecl = nil;
-  SHA384_Update: function(c: PSHA512_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  SHA384_Final: function(md: PByte; c: PSHA512_CTX): TIdC_INT; cdecl = nil;
-  SHA384: function(const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
+  SHA384_Init: function (c: PSHA512_CTX): TIdC_INT; cdecl = nil;
+  SHA384_Update: function (c: PSHA512_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  SHA384_Final: function (md: PByte; c: PSHA512_CTX): TIdC_INT; cdecl = nil;
+  SHA384: function (const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
 
-  SHA512_Init: function(c: PSHA512_CTX): TIdC_INT; cdecl = nil;
-  SHA512_Update: function(c: PSHA512_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
-  SHA512_Final: function(md: PByte; c: PSHA512_CTX): TIdC_INT; cdecl = nil;
-  SHA512: function(const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
-  SHA512_Transform: procedure(c: PSHA512_CTX; const data: PByte); cdecl = nil;
+  SHA512_Init: function (c: PSHA512_CTX): TIdC_INT; cdecl = nil;
+  SHA512_Update: function (c: PSHA512_CTX; const data: Pointer; len: TIdC_SIZET): TIdC_INT; cdecl = nil;
+  SHA512_Final: function (md: PByte; c: PSHA512_CTX): TIdC_INT; cdecl = nil;
+  SHA512: function (const d: PByte; n: TIdC_SIZET; md: PByte): PByte; cdecl = nil;
+  SHA512_Transform: procedure (c: PSHA512_CTX; const data: PByte); cdecl = nil;
 
 {$ELSE}
   function SHA1_Init(c: PSHA_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -187,12 +189,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}

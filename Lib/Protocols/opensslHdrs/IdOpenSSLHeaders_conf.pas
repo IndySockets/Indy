@@ -6,7 +6,9 @@
    
 {$i IdCompilerDefines.inc} 
 {$i IdSSLOpenSSLDefines.inc} 
-
+{$IFNDEF USE_OPENSSL}
+  { error Should not compile if USE_OPENSSL is not defined!!!}
+{$ENDIF}
 {******************************************************************************}
 {                                                                              }
 {            Indy (Internet Direct) - Internet Protocols Simplified            }
@@ -134,7 +136,7 @@ const
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
-  CONF_set_default_method: function(meth: PCONF_METHOD): TIdC_INT; cdecl = nil;
+  CONF_set_default_method: function (meth: PCONF_METHOD): TIdC_INT; cdecl = nil;
 //  (*
 //  void CONF_set_nconf(CONF *conf, LHASH_OF(CONF_VALUE) *hash);
 //  LHASH_OF(CONF_VALUE) *CONF_load(LHASH_OF(CONF_VALUE) *conf, const char *file, long *eline);
@@ -175,45 +177,45 @@ var
   //    LHASH_OF(CONF_VALUE) *data;
   //  end;
 
-  NCONF_new: function(meth: PCONF_METHOD): PCONF; cdecl = nil;
-  NCONF_default: function: PCONF_METHOD; cdecl = nil;
-  NCONF_WIN32: function: PCONF_METHOD; cdecl = nil;
-  NCONF_free: procedure(conf: PCONF); cdecl = nil;
-  NCONF_free_data: procedure(conf: PCONF); cdecl = nil;
+  NCONF_new: function (meth: PCONF_METHOD): PCONF; cdecl = nil;
+  NCONF_default: function : PCONF_METHOD; cdecl = nil;
+  NCONF_WIN32: function : PCONF_METHOD; cdecl = nil;
+  NCONF_free: procedure (conf: PCONF); cdecl = nil;
+  NCONF_free_data: procedure (conf: PCONF); cdecl = nil;
 
-  NCONF_load: function(conf: PCONF; const file_: PAnsiChar; eline: PIdC_LONG): TIdC_INT; cdecl = nil;
-  NCONF_load_bio: function(conf: PCONF; bp: PBIO; eline: PIdC_LONG): TIdC_INT; cdecl = nil;
+  NCONF_load: function (conf: PCONF; const file_: PAnsiChar; eline: PIdC_LONG): TIdC_INT; cdecl = nil;
+  NCONF_load_bio: function (conf: PCONF; bp: PBIO; eline: PIdC_LONG): TIdC_INT; cdecl = nil;
   //STACK_OF(CONF_VALUE) *NCONF_get_section(const CONF *conf,
   //                                        const char *section);
-  NCONF_get_string: function(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar): PAnsiChar; cdecl = nil;
-  NCONF_get_number_e: function(const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar; result: PIdC_LONG): TIdC_INT; cdecl = nil;
-  NCONF_dump_bio: function(const conf: PCONf; out_: PBIO): TIdC_INT; cdecl = nil;
+  NCONF_get_string: function (const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar): PAnsiChar; cdecl = nil;
+  NCONF_get_number_e: function (const conf: PCONF; const group: PAnsiChar; const name: PAnsiChar; result: PIdC_LONG): TIdC_INT; cdecl = nil;
+  NCONF_dump_bio: function (const conf: PCONf; out_: PBIO): TIdC_INT; cdecl = nil;
 
   //#define NCONF_get_number(c,g,n,r) NCONF_get_number_e(c,g,n,r)
 
   //* Module functions */
 
-  CONF_modules_load: function(const cnf: PCONF; const appname: PAnsiChar; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
-  CONF_modules_load_file: function(const filename: PAnsiChar; const appname: PAnsiChar; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
+  CONF_modules_load: function (const cnf: PCONF; const appname: PAnsiChar; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
+  CONF_modules_load_file: function (const filename: PAnsiChar; const appname: PAnsiChar; flags: TIdC_ULONG): TIdC_INT; cdecl = nil;
 
-  CONF_modules_unload: procedure(all: TIdC_INT); cdecl = nil;
-  CONF_modules_finish: procedure; cdecl = nil;
-  CONF_module_add: function(const name: PAnsiChar; ifunc: conf_init_func; ffunc: conf_finish_func): TIdC_INT; cdecl = nil;
+  CONF_modules_unload: procedure (all: TIdC_INT); cdecl = nil;
+  CONF_modules_finish: procedure ; cdecl = nil;
+  CONF_module_add: function (const name: PAnsiChar; ifunc: conf_init_func; ffunc: conf_finish_func): TIdC_INT; cdecl = nil;
 
   //const char *CONF_imodule_get_name(const CONF_IMODULE *md);
   //const char *CONF_imodule_get_value(const CONF_IMODULE *md);
-  CONF_imodule_get_usr_data: function(const md: PCONF_IMODULE): Pointer; cdecl = nil;
-  CONF_imodule_set_usr_data: procedure(md: PCONF_IMODULE; usr_data: Pointer); cdecl = nil;
-  CONF_imodule_get_module: function(const md: PCONF_IMODULE): PCONF_MODULE; cdecl = nil;
-  CONF_imodule_get_flags: function(const md: PCONF_IMODULE): TIdC_ULONG; cdecl = nil;
-  CONF_imodule_set_flags: procedure(md: PCONF_IMODULE; flags: TIdC_ULONG); cdecl = nil;
-  CONF_module_get_usr_data: function(pmod: PCONF_MODULE): Pointer; cdecl = nil;
-  CONF_module_set_usr_data: procedure(pmod: PCONF_MODULE; usr_data: Pointer); cdecl = nil;
+  CONF_imodule_get_usr_data: function (const md: PCONF_IMODULE): Pointer; cdecl = nil;
+  CONF_imodule_set_usr_data: procedure (md: PCONF_IMODULE; usr_data: Pointer); cdecl = nil;
+  CONF_imodule_get_module: function (const md: PCONF_IMODULE): PCONF_MODULE; cdecl = nil;
+  CONF_imodule_get_flags: function (const md: PCONF_IMODULE): TIdC_ULONG; cdecl = nil;
+  CONF_imodule_set_flags: procedure (md: PCONF_IMODULE; flags: TIdC_ULONG); cdecl = nil;
+  CONF_module_get_usr_data: function (pmod: PCONF_MODULE): Pointer; cdecl = nil;
+  CONF_module_set_usr_data: procedure (pmod: PCONF_MODULE; usr_data: Pointer); cdecl = nil;
 
-  CONF_get1_default_config_file: function: PAnsiChar; cdecl = nil;
-  CONF_parse_list: function(const list: PAnsiChar; sep: TIdC_INT; nospc: TIdC_INT; list_cb: CONF_parse_list_list_cb; arg: Pointer): TIdC_INT; cdecl = nil;
+  CONF_get1_default_config_file: function : PAnsiChar; cdecl = nil;
+  CONF_parse_list: function (const list: PAnsiChar; sep: TIdC_INT; nospc: TIdC_INT; list_cb: CONF_parse_list_list_cb; arg: Pointer): TIdC_INT; cdecl = nil;
 
-  OPENSSL_load_builtin_modules: procedure; cdecl = nil;
+  OPENSSL_load_builtin_modules: procedure ; cdecl = nil;
 
 {$ELSE}
   function CONF_set_default_method(meth: PCONF_METHOD): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
@@ -301,12 +303,13 @@ var
 
 implementation
 
-  {$IFNDEF USE_EXTERNAL_LIBRARY}
   uses
-  classes, 
-  IdSSLOpenSSLExceptionHandlers, 
-  IdSSLOpenSSLLoader;
-  {$ENDIF}
+    classes, 
+    IdSSLOpenSSLExceptionHandlers, 
+    IdResourceStringsOpenSSL
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+    ,IdSSLOpenSSLLoader
+  {$ENDIF};
   
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
