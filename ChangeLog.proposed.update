@@ -16,4 +16,7 @@ This Log File records changes to the Indy Proposed Update since its initial publ
           being loaded immediately before it is first used.
 
 2024/3/25 Unit NTLMv2 updated to use new SSL Header Files and reference to old header files 
-          removed from IdDSNRegister
+          removed from IdDSNRegister.
+
+2024/3/26 Added missing units to indyprotocolsfpc.pas and fixed issues with cleaning the units
+          output directory used for fpcmake builds.
