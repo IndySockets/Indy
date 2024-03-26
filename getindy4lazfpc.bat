@@ -37,6 +37,7 @@ copy %SRCROOT%\fpc\README.lazarus-fpc %DESTDIR%
 copy %SRCROOT%\fpc\runtime\core\* %DESTDIR%\runtime\core
 copy %SRCROOT%\fpc\runtime\system\* %DESTDIR%\runtime\system
 copy %SRCROOT%\fpc\runtime\protocols\* %DESTDIR%\runtime\protocols
+copy %SRCROOT%\fpc\runtime\protocols\opensslHdrs\* %DESTDIR%\runtime\protocols\opensslHdrs
 
 #Copy Lazarus Design time files
 copy %SRCROOT%\Lib\System\IdCompilerDefines.inc %DESTDIR%\includes

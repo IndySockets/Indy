@@ -30,6 +30,7 @@ cp "$SRCROOT/fpc/README.lazarus-fpc" "$DESTDIR"
 cp "$SRCROOT"/fpc/runtime/core/* "$DESTDIR/runtime/core"
 cp "$SRCROOT"/fpc/runtime/system/* "$DESTDIR/runtime/system"
 cp "$SRCROOT"/fpc/runtime/protocols/* "$DESTDIR/runtime/protocols"
+cp "$SRCROOT"/fpc/runtime/protocols/opensslHdrs/* "$DESTDIR/runtime/protocols/opensslHdrs"
 
 #Copy Lazarus Design time files
 cp "$SRCROOT/Lib/System/IdCompilerDefines.inc" "$DESTDIR/includes"

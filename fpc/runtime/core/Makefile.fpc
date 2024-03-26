@@ -14,6 +14,65 @@ unitdir=.
 
 [target]
 units=indycorefpc
+implicitunits=IdAssignedNumbers \
+  IdBuffer \
+  IdCmdTCPClient \
+  IdCmdTCPServer \
+  IdCommandHandlers \
+  IdContext \
+  IdCustomTCPServer \
+  IdCustomTransparentProxy \
+  IdExceptionCore \
+  IdGlobalCore \
+  IdIcmpClient \
+  IdIntercept \
+  IdInterceptSimLog \
+  IdInterceptThrottler \
+  IdIOHandler \
+  IdIOHandlerSocket \
+  IdIOHandlerStack \
+  IdIOHandlerStream \
+  IdIPAddress \
+  IdIPMCastBase \
+  IdIPMCastClient \
+  IdIPMCastServer \
+  IdLogBase \
+  IdLogDebug \
+  IdLogEvent \
+  IdLogFile \
+  IdLogStream \
+  IdRawBase \
+  IdRawClient \
+  IdRawFunctions \
+  IdRawHeaders \
+  IdReply \
+  IdReplyRFC \
+  IdResourceStringsCore \
+  IdSchedulerOfThreadDefault \
+  IdSchedulerOfThread \
+  IdSchedulerOfThreadPool \
+  IdScheduler \
+  IdServerIOHandler \
+  IdServerIOHandlerSocket \
+  IdServerIOHandlerStack \
+  IdSimpleServer \
+  IdSocketHandle \
+  IdSocks \
+  IdSync \
+  IdTask \
+  IdTCPClient \
+  IdTCPConnection \
+  IdTCPServer \
+  IdTCPStream \
+  IdThreadComponent \
+  IdThread \
+  IdThreadSafe \
+  IdTraceRoute \
+  IdUDPBase \
+  IdUDPClient \
+  IdUDPServer \
+  IdYarn 
+
 
 [install]
 fpcpackage=y

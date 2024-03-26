@@ -10,6 +10,7 @@ uses
   IdAttachmentFile,
   IdAttachmentMemory,
   IdAuthentication,
+  IdAuthenticationNTLM,    
   IdAuthenticationDigest,
   IdAuthenticationManager,
   IdBlockCipherIntercept,
@@ -154,6 +155,8 @@ uses
   IdNNTP,
   IdNNTPServer,
   IdNetworkCalculator,
+  IdNTLM,
+  IdNTLMv2,
   IdOSFileName,
   IdOTPCalculator,
   IdPOP3,
@@ -171,6 +174,9 @@ uses
   IdReplyPOP3,
   IdReplySMTP,
   IdResourceStringsProtocols,
+  IdResourceStringsOpenSSL,
+  IdResourceStringsSSPI,
+  IdResourceStringsUriUtils,
   IdRexec,
   IdRexecServer,
   IdSASL,
@@ -233,8 +239,7 @@ uses
   IdWebDAV,
   IdWhoIsServer,
   IdWhois,
-  IdZLibCompressorBase,
-  IdSSLOpenSSLFIPS;
+  IdZLibCompressorBase;
 
 implementation
 
