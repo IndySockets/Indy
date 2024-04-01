@@ -20,3 +20,5 @@ This Log File records changes to the Indy Proposed Update since its initial publ
 
 2024/3/26 Added missing units to indyprotocolsfpc.pas and fixed issues with cleaning the units
           output directory used for fpcmake builds.
+
+2024/4/1  Reversed out delayed loading changes.

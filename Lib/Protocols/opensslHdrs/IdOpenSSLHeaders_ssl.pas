@@ -2627,12 +2627,12 @@ var
   //                                        STACK_OF(SSL_CIPHER) *peer_ciphers,
   //                                        const SSL_CIPHER **cipher, void *arg);
 
-  function SSL_CTX_get_options(const ctx: PSSL_CTX): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_options(const s: PSSL): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_clear_options(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_clear_options(s: PSSL; op: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_set_options(s: PSSL; op: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_get_options(const ctx: PSSL_CTX): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_options(const s: PSSL): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_clear_options(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_clear_options(s: PSSL; op: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_options(ctx: PSSL_CTX; op: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_set_options(s: PSSL; op: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   //# define SSL_CTX_set_mode(ctx,op) \
   //        SSL_CTX_ctrl((ctx),SSL_CTRL_MODE,(op),NULL)
@@ -2722,10 +2722,10 @@ var
   //# define SSL_CTX_sess_cache_full(ctx) \
   //        SSL_CTX_ctrl(ctx,SSL_CTRL_SESS_CACHE_FULL,0,NULL)
 
-  procedure SSL_CTX_sess_set_new_cb(ctx: PSSL_CTX; new_session_cb: SSL_CTX_sess_new_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_sess_get_new_cb(ctx: PSSL_CTX): SSL_CTX_sess_new_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_sess_set_remove_cb(ctx: PSSL_CTX; remove_session_cb: SSL_CTX_sess_remove_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_sess_get_remove_cb(ctx: PSSL_CTX): SSL_CTX_sess_remove_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_CTX_sess_set_new_cb(ctx: PSSL_CTX; new_session_cb: SSL_CTX_sess_new_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_sess_get_new_cb(ctx: PSSL_CTX): SSL_CTX_sess_new_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_sess_set_remove_cb(ctx: PSSL_CTX; remove_session_cb: SSL_CTX_sess_remove_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_sess_get_remove_cb(ctx: PSSL_CTX): SSL_CTX_sess_remove_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   //void SSL_CTX_sess_set_get_cb(ctx: PSSL_CTX,
   //                             SSL_SESSION *(*get_session_cb) (struct ssl_st
@@ -2736,38 +2736,38 @@ var
   //SSL_SESSION *(*SSL_CTX_sess_get_get_cb(ctx: PSSL_CTX)) (struct ssl_st *ssl,
   //                                                       const d: PByteata,
   //                                                       TIdC_INT len, TIdC_INT *copy);
-  procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: SSL_CTX_info_callback) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_get_info_callback(ctx: PSSL_CTX): SSL_CTX_info_callback cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_client_cert_cb(ctx: PSSL_CTX; client_cert_cb: SSL_CTX_client_cert_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_get_client_cert_cb(ctx: PSSL_CTX): SSL_CTX_client_cert_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_client_cert_engine(ctx: PSSL_CTX; e: PENGINE): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_CTX_set_info_callback(ctx: PSSL_CTX; cb: SSL_CTX_info_callback) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_get_info_callback(ctx: PSSL_CTX): SSL_CTX_info_callback cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_client_cert_cb(ctx: PSSL_CTX; client_cert_cb: SSL_CTX_client_cert_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_get_client_cert_cb(ctx: PSSL_CTX): SSL_CTX_client_cert_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_client_cert_engine(ctx: PSSL_CTX; e: PENGINE): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  procedure SSL_CTX_set_cookie_generate_cb(ctx: PSSL_CTX; app_gen_cookie_cb: SSL_CTX_cookie_verify_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_cookie_verify_cb(ctx: PSSL_CTX; app_verify_cookie_cb: SSL_CTX_set_cookie_verify_cb_app_verify_cookie_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_stateless_cookie_generate_cb(ctx: PSSL_CTX; gen_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_generate_cb_gen_stateless_cookie_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_CTX_set_stateless_cookie_verify_cb(ctx: PSSL_CTX; verify_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_verify_cb_verify_stateless_cookie_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_cookie_generate_cb(ctx: PSSL_CTX; app_gen_cookie_cb: SSL_CTX_cookie_verify_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_cookie_verify_cb(ctx: PSSL_CTX; app_verify_cookie_cb: SSL_CTX_set_cookie_verify_cb_app_verify_cookie_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_stateless_cookie_generate_cb(ctx: PSSL_CTX; gen_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_generate_cb_gen_stateless_cookie_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_stateless_cookie_verify_cb(ctx: PSSL_CTX; verify_stateless_cookie_cb: SSL_CTX_set_stateless_cookie_verify_cb_verify_stateless_cookie_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   //__owur TIdC_INT SSL_CTX_set_alpn_protos(ctx: PSSL_CTX, const Byte *protos,
   //                                   TIdC_UINT protos_len);
   //__owur TIdC_INT SSL_set_alpn_protos(ssl: PSSL, const Byte *protos,
   //                               TIdC_UINT protos_len);
 
-  procedure SSL_CTX_set_alpn_select_cb(ctx: PSSL_CTX; cb: SSL_CTX_alpn_select_cb_func; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_get0_alpn_selected(const ssl: PSSL; const data: PPByte; len: PIdC_UINT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_psk_client_callback(ctx: PSSL_CTX; cb: SSL_psk_client_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_psk_client_callback(ssl: PSSL; cb: SSL_psk_client_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_psk_server_callback(ctx: PSSL_CTX; cb: SSL_psk_server_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_psk_server_callback(ssl: PSSL; cb: SSL_psk_server_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_CTX_set_alpn_select_cb(ctx: PSSL_CTX; cb: SSL_CTX_alpn_select_cb_func; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_get0_alpn_selected(const ssl: PSSL; const data: PPByte; len: PIdC_UINT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_psk_client_callback(ctx: PSSL_CTX; cb: SSL_psk_client_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_psk_client_callback(ssl: PSSL; cb: SSL_psk_client_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_psk_server_callback(ctx: PSSL_CTX; cb: SSL_psk_server_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_psk_server_callback(ssl: PSSL; cb: SSL_psk_server_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   //__owur TIdC_INT SSL_CTX_use_psk_identity_hint(ctx: PSSL_CTX, const PIdAnsiChar *identity_hint);
   //__owur TIdC_INT SSL_use_psk_identity_hint(s: PSSL, const PIdAnsiChar *identity_hint);
   //const PIdAnsiChar *SSL_get_psk_identity_hint(const s: PSSL);
   //const PIdAnsiChar *SSL_get_psk_identity(const s: PSSL);
 
-  procedure SSL_set_psk_find_session_callback(s: PSSL; cb: SSL_psk_find_session_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_CTX_set_psk_find_session_callback(ctx: PSSL_CTX; cb: SSL_psk_find_session_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set_psk_use_session_callback(s: PSSL; cb: SSL_psk_use_session_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_CTX_set_psk_use_session_callback(ctx: PSSL_CTX; cb: SSL_psk_use_session_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_psk_find_session_callback(s: PSSL; cb: SSL_psk_find_session_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_psk_find_session_callback(ctx: PSSL_CTX; cb: SSL_psk_find_session_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_psk_use_session_callback(s: PSSL; cb: SSL_psk_use_session_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_psk_use_session_callback(ctx: PSSL_CTX; cb: SSL_psk_use_session_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   ///* Register callbacks to handle custom TLS Extensions for client or server. */
 
@@ -2815,20 +2815,20 @@ var
    * is intended for debugging use with tools like Wireshark. The cb function
    * should log line followed by a newline.
    *)
-  procedure SSL_CTX_set_keylog_callback(ctx: PSSL_CTX; cb: SSL_CTX_keylog_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_keylog_callback(ctx: PSSL_CTX; cb: SSL_CTX_keylog_cb_func) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
   (*
    * SSL_CTX_get_keylog_callback returns the callback configured by
    * SSL_CTX_set_keylog_callback.
    *)
-  function SSL_CTX_get_keylog_callback(const ctx: PSSL_CTX): SSL_CTX_keylog_cb_func cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_set_max_early_data(ctx: PSSL_CTX; max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_get_max_early_data(const ctx: PSSL_CTX): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_set_max_early_data(s: PSSL; max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_max_early_data(const s: PSSL): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_set_recv_max_early_data(ctx: PSSL_CTX; recv_max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_get_recv_max_early_data(const ctx: PSSL_CTX): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_set_recv_max_early_data(s: PSSL; recv_max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_recv_max_early_data(const s: PSSL): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_get_keylog_callback(const ctx: PSSL_CTX): SSL_CTX_keylog_cb_func cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_max_early_data(ctx: PSSL_CTX; max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_get_max_early_data(const ctx: PSSL_CTX): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_set_max_early_data(s: PSSL; max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_max_early_data(const s: PSSL): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_recv_max_early_data(ctx: PSSL_CTX; recv_max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_get_recv_max_early_data(const ctx: PSSL_CTX): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_set_recv_max_early_data(s: PSSL; recv_max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_recv_max_early_data(const s: PSSL): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   ///*
   // * These need to be after the above set of includes due to a compiler bug
@@ -2850,9 +2850,9 @@ var
   ///* Is the SSL_connection established? */
   //# define SSL_in_connect_init(a)          (SSL_in_init(a) && !SSL_is_server(a))
   //# define SSL_in_accept_init(a)           (SSL_in_init(a) && SSL_is_server(a))
-  function SSL_in_init(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_in_before(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_is_init_finished(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_in_init(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_in_before(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_is_init_finished(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   (*-
    * Obtain latest Finished message
@@ -2860,8 +2860,8 @@ var
    *   -- that we expected from peer (SSL_get_peer_finished).
    * Returns length (0 == no Finished so far), copies up to 'count' bytes.
    *)
-  function SSL_get_finished(const s: PSSL; buf: Pointer; count: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_peer_finished(const s: PSSL; buf: Pointer; count: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_get_finished(const s: PSSL; buf: Pointer; count: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_peer_finished(const s: PSSL; buf: Pointer; count: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   //# if OPENSSL_API_COMPAT < 0x10100000L
   //#  define OpenSSL_add_ssl_algorithms()   SSL_library_init()
@@ -2914,98 +2914,98 @@ var
   //#  define SSL_set_tmp_rsa_callback(ssl, cb)        while(0) (cb)(NULL, 0, 0)
   //# endif
   //
-  function BIO_f_ssl: PBIO_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function BIO_new_ssl(ctx: PSSL_CTX; client: TIdC_INT): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function BIO_new_ssl_connect(ctx: PSSL_CTX): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function BIO_new_buffer_ssl_connect(ctx: PSSL_CTX): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function BIO_ssl_copy_session_id(to_: PBIO; from: PBIO): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function BIO_f_ssl: PBIO_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function BIO_new_ssl(ctx: PSSL_CTX; client: TIdC_INT): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function BIO_new_ssl_connect(ctx: PSSL_CTX): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function BIO_new_buffer_ssl_connect(ctx: PSSL_CTX): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function BIO_ssl_copy_session_id(to_: PBIO; from: PBIO): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_set_cipher_list(v1: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_new(const meth: PSSL_METHOD): PSSL_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_timeout(ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_get_timeout(const ctx: PSSL_CTX): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_get_cert_store(const v1: PSSL_CTX): PX509_STORE cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_want(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_clear(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_set_cipher_list(v1: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_new(const meth: PSSL_METHOD): PSSL_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_timeout(ctx: PSSL_CTX; t: TIdC_LONG): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_get_timeout(const ctx: PSSL_CTX): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_get_cert_store(const v1: PSSL_CTX): PX509_STORE cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_want(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_clear(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  procedure BIO_ssl_shutdown(ssl_bio: PBIO) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_up_ref(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_CTX_free(v1: PSSL_CTX) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_cert_store(v1: PSSL_CTX; v2: PX509_STORE) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set1_cert_store(v1: PSSL_CTX; v2: PX509_STORE) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure BIO_ssl_shutdown(ssl_bio: PBIO) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_up_ref(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_free(v1: PSSL_CTX) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_cert_store(v1: PSSL_CTX; v2: PX509_STORE) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set1_cert_store(v1: PSSL_CTX; v2: PX509_STORE) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  procedure SSL_CTX_flush_sessions(ctx: PSSL_CTX; tm: TIdC_LONG) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_CTX_flush_sessions(ctx: PSSL_CTX; tm: TIdC_LONG) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_get_current_cipher(const s: PSSL): PSSL_CIPHER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_pending_cipher(const s: PSSL): PSSL_CIPHER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CIPHER_get_bits(const c: PSSL_CIPHER; var alg_bits: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CIPHER_get_version(const c: PSSL_CIPHER): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CIPHER_get_name(const c: PSSL_CIPHER): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CIPHER_standard_name(const c: PSSL_CIPHER): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function OPENSSL_cipher_name(const rfc_name: PIdAnsiChar): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CIPHER_get_id(const c: PSSL_CIPHER): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CIPHER_get_protocol_id(const c: PSSL_CIPHER): TIdC_UINT16 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CIPHER_get_kx_nid(const c: PSSL_CIPHER): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CIPHER_get_auth_nid(const c: PSSL_CIPHER): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CIPHER_get_handshake_digest(const c: PSSL_CIPHER): PEVP_MD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CIPHER_is_aead(const c: PSSL_CIPHER): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_current_cipher(const s: PSSL): PSSL_CIPHER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_pending_cipher(const s: PSSL): PSSL_CIPHER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CIPHER_get_bits(const c: PSSL_CIPHER; var alg_bits: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CIPHER_get_version(const c: PSSL_CIPHER): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CIPHER_get_name(const c: PSSL_CIPHER): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CIPHER_standard_name(const c: PSSL_CIPHER): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function OPENSSL_cipher_name(const rfc_name: PIdAnsiChar): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CIPHER_get_id(const c: PSSL_CIPHER): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CIPHER_get_protocol_id(const c: PSSL_CIPHER): TIdC_UINT16 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CIPHER_get_kx_nid(const c: PSSL_CIPHER): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CIPHER_get_auth_nid(const c: PSSL_CIPHER): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CIPHER_get_handshake_digest(const c: PSSL_CIPHER): PEVP_MD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CIPHER_is_aead(const c: PSSL_CIPHER): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_get_fd(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_rfd(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_wfd(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_cipher_list(const s: PSSL; n: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_shared_ciphers(const s: PSSL; buf: PIdAnsiChar; size: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_read_ahead(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_pending(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_has_pending(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_set_fd(s: PSSL; fd: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_rfd(s: PSSL; fd: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_wfd(s: PSSL; fd: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set0_rbio(s: PSSL; rbio: PBIO) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set0_wbio(s: PSSL; wbio: PBIO) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set_bio(s: PSSL; rbio: PBIO; wbio: PBIO) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_rbio(const s: PSSL): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_wbio(const s: PSSL): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_cipher_list(s: PSSL; const str: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_ciphersuites(ctx: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_set_ciphersuites(s: PSSL; const str: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_verify_mode(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_verify_depth(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_verify_callback(const s: PSSL): SSL_verify_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_read_ahead(s: PSSL; yes: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_verify(s: PSSL; mode: TIdC_INT; callback: SSL_verify_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_verify_depth(s: PSSL; depth: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_get_fd(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_rfd(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_wfd(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_cipher_list(const s: PSSL; n: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_shared_ciphers(const s: PSSL; buf: PIdAnsiChar; size: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_read_ahead(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_pending(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_has_pending(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_set_fd(s: PSSL; fd: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_rfd(s: PSSL; fd: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_wfd(s: PSSL; fd: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set0_rbio(s: PSSL; rbio: PBIO) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set0_wbio(s: PSSL; wbio: PBIO) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_bio(s: PSSL; rbio: PBIO; wbio: PBIO) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_rbio(const s: PSSL): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_wbio(const s: PSSL): PBIO cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_cipher_list(s: PSSL; const str: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_ciphersuites(ctx: PSSL_CTX; const str: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_set_ciphersuites(s: PSSL; const str: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_verify_mode(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_verify_depth(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_verify_callback(const s: PSSL): SSL_verify_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_read_ahead(s: PSSL; yes: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_verify(s: PSSL; mode: TIdC_INT; callback: SSL_verify_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_verify_depth(s: PSSL; depth: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   //void SSL_set_cert_cb(s: PSSL, TIdC_INT (*cb) (ssl: PSSL, void *arg), void *arg);
 
-  function SSL_use_RSAPrivateKey(ssl: PSSL; rsa: PRSA): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_use_RSAPrivateKey_ASN1(ssl: PSSL; const d: PByte; len: TIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_use_PrivateKey(ssl: PSSL; pkey: PEVP_PKEY): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_use_PrivateKey_ASN1(pk: TIdC_INT; ssl: PSSL; const d: PByte; len: TIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_use_certificate(ssl: PSSL; x: PX509): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_use_certificate_ASN1(ssl: PSSL; const d: PByte; len: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_use_RSAPrivateKey(ssl: PSSL; rsa: PRSA): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_use_RSAPrivateKey_ASN1(ssl: PSSL; const d: PByte; len: TIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_use_PrivateKey(ssl: PSSL; pkey: PEVP_PKEY): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_use_PrivateKey_ASN1(pk: TIdC_INT; ssl: PSSL; const d: PByte; len: TIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_use_certificate(ssl: PSSL; x: PX509): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_use_certificate_ASN1(ssl: PSSL; const d: PByte; len: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   //__owur TIdC_INT SSL_use_cert_and_key(ssl: PSSL, x509: PX509, EVP_PKEY *privatekey,
   //                                STACK_OF(X509) *chain, TIdC_INT override);
 
   (* Set serverinfo data for the current active cert. *)
-  function SSL_CTX_use_serverinfo(ctx: PSSL_CTX; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_use_serverinfo_ex(ctx: PSSL_CTX; version: TIdC_UINT; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_use_serverinfo_file(ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_use_serverinfo(ctx: PSSL_CTX; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_use_serverinfo_ex(ctx: PSSL_CTX; version: TIdC_UINT; const serverinfo: PByte; serverinfo_length: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_use_serverinfo_file(ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_use_RSAPrivateKey_file(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_use_RSAPrivateKey_file(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_use_PrivateKey_file(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_use_certificate_file(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_use_PrivateKey_file(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_use_certificate_file(ssl: PSSL; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_use_RSAPrivateKey_file(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_use_RSAPrivateKey_file(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_use_PrivateKey_file(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_use_certificate_file(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_use_PrivateKey_file(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_use_certificate_file(ctx: PSSL_CTX; const file_: PIdAnsiChar; type_: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   (* PEM type *)
-  function SSL_CTX_use_certificate_chain_file(ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_use_certificate_chain_file(ssl: PSSL; const file_: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_load_client_CA_file(const file_: PIdAnsiChar): PSTACK_OF_X509_NAME cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_add_file_cert_subjects_to_stack(stackCAs: PSTACK_OF_X509_NAME; const file_: PIdAnsiChar):TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_add_dir_cert_subjects_to_stack(stackCAs: PSTACK_OF_X509_NAME; const dir_: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_use_certificate_chain_file(ctx: PSSL_CTX; const file_: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_use_certificate_chain_file(ssl: PSSL; const file_: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_load_client_CA_file(const file_: PIdAnsiChar): PSTACK_OF_X509_NAME cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_add_file_cert_subjects_to_stack(stackCAs: PSTACK_OF_X509_NAME; const file_: PIdAnsiChar):TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_add_dir_cert_subjects_to_stack(stackCAs: PSTACK_OF_X509_NAME; const dir_: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   //# if OPENSSL_API_COMPAT < 0x10100000L
   //#  define SSL_load_error_strings() \
@@ -3013,136 +3013,136 @@ var
   //                     | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL)
   //# endif
 
-  function SSL_state_string(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_rstate_string(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_state_string_long(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_rstate_string_long(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_get_time(const s: PSSL_SESSION): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_set_time(s: PSSL_SESSION; t: TIdC_LONG): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_get_timeout(const s: PSSL_SESSION): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_set_timeout(s: PSSL_SESSION; t: TIdC_LONG): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_get_protocol_version(const s: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_set_protocol_version(s: PSSL_SESSION; version: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_state_string(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_rstate_string(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_state_string_long(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_rstate_string_long(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_get_time(const s: PSSL_SESSION): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_set_time(s: PSSL_SESSION; t: TIdC_LONG): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_get_timeout(const s: PSSL_SESSION): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_set_timeout(s: PSSL_SESSION; t: TIdC_LONG): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_get_protocol_version(const s: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_set_protocol_version(s: PSSL_SESSION; version: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_SESSION_get0_hostname(const s: PSSL_SESSION): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_set1_hostname(s: PSSL_SESSION; const hostname: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_SESSION_get0_alpn_selected(const s: PSSL_SESSION; const alpn: PPByte; len: PIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_set1_alpn_selected(s: PSSL_SESSION; const alpn: PByte; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_get0_cipher(const s: PSSL_SESSION): PSSL_CIPHER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_set_cipher(s: PSSL_SESSION; const cipher: PSSL_CIPHER): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_has_ticket(const s: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_get_ticket_lifetime_hint(const s: PSSL_SESSION): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_SESSION_get0_ticket(const s: PSSL_SESSION; const tick: PPByte; len: PIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_get_max_early_data(const s: PSSL_SESSION): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_set_max_early_data(s: PSSL_SESSION; max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_copy_session_id(to_: PSSL; const from: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_get0_peer(s: PSSL_SESSION): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_set1_id_context(s: PSSL_SESSION; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_set1_id(s: PSSL_SESSION; const sid: PByte; sid_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_is_resumable(const s: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_get0_hostname(const s: PSSL_SESSION): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_set1_hostname(s: PSSL_SESSION; const hostname: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_SESSION_get0_alpn_selected(const s: PSSL_SESSION; const alpn: PPByte; len: PIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_set1_alpn_selected(s: PSSL_SESSION; const alpn: PByte; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_get0_cipher(const s: PSSL_SESSION): PSSL_CIPHER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_set_cipher(s: PSSL_SESSION; const cipher: PSSL_CIPHER): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_has_ticket(const s: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_get_ticket_lifetime_hint(const s: PSSL_SESSION): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_SESSION_get0_ticket(const s: PSSL_SESSION; const tick: PPByte; len: PIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_get_max_early_data(const s: PSSL_SESSION): TIdC_UINT32 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_set_max_early_data(s: PSSL_SESSION; max_early_data: TIdC_UINT32): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_copy_session_id(to_: PSSL; const from: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_get0_peer(s: PSSL_SESSION): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_set1_id_context(s: PSSL_SESSION; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_set1_id(s: PSSL_SESSION; const sid: PByte; sid_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_is_resumable(const s: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_SESSION_new: PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_dup(src: PSSL_SESSION): PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_get_id(const s: PSSL_SESSION; len: PIdC_UINT): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_get0_id_context(const s: PSSL_SESSION; len: PIdC_UINT): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_get_compress_id(const s: PSSL_SESSION): TIdC_UINT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_print(fp: PBIO; const ses: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_print_keylog(bp: PBIO; const x: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_up_ref(ses: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_SESSION_free(ses: PSSL_SESSION) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_SESSION_new: PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_dup(src: PSSL_SESSION): PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_get_id(const s: PSSL_SESSION; len: PIdC_UINT): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_get0_id_context(const s: PSSL_SESSION; len: PIdC_UINT): PByte cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_get_compress_id(const s: PSSL_SESSION): TIdC_UINT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_print(fp: PBIO; const ses: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_print_keylog(bp: PBIO; const x: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_up_ref(ses: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_SESSION_free(ses: PSSL_SESSION) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   //__owur TIdC_INT i2d_SSL_SESSION(SSL_SESSION *in_, Byte **pp);
-  function SSL_set_session(to_: PSSL; session: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_add_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_remove_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_generate_session_id(ctx: PSSL_CTX; cb: GEN_SESSION_CB): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_generate_session_id(s: PSSL; cb: GEN_SESSION_CB): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_has_matching_session_id(const s: PSSL; const id: PByte; id_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function d2i_SSL_SESSION(a: PPSSL_SESSION; const pp: PPByte; length: TIdC_LONG): PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_set_session(to_: PSSL; session: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_add_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_remove_session(ctx: PSSL_CTX; session: PSSL_SESSION): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_generate_session_id(ctx: PSSL_CTX; cb: GEN_SESSION_CB): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_generate_session_id(s: PSSL; cb: GEN_SESSION_CB): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_has_matching_session_id(const s: PSSL; const id: PByte; id_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function d2i_SSL_SESSION(a: PPSSL_SESSION; const pp: PPByte; length: TIdC_LONG): PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
 
   //__owur STACK_OF(X509) *SSL_get_peer_cert_chain(const s: PSSL);
   //
-  function SSL_CTX_get_verify_mode(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_get_verify_depth(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_get_verify_callback(const ctx: PSSL_CTX): SSL_verify_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_verify(ctx: PSSL_CTX; mode: TIdC_INT; callback: SSL_verify_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_verify_depth(ctx: PSSL_CTX; depth: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_cert_verify_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_cert_verify_callback_cb; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_cert_cb(c: PSSL_CTX; cb: SSL_CTX_set_cert_cb_cb; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_use_RSAPrivateKey(ctx: PSSL_CTX; rsa: PRSA): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_use_RSAPrivateKey_ASN1(ctx: PSSL_CTX; const d: PByte; len: TIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_use_PrivateKey(ctx: PSSL_CTX; pkey: PEVP_PKEY): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_use_PrivateKey_ASN1(pk: TIdC_INT; ctx: PSSL_CTX; const d: PByte; len: TIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_use_certificate(ctx: PSSL_CTX; x: X509): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_use_certificate_ASN1(ctx: PSSL_CTX; len: TIdC_INT; const d: PByte): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_get_verify_mode(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_get_verify_depth(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_get_verify_callback(const ctx: PSSL_CTX): SSL_verify_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_verify(ctx: PSSL_CTX; mode: TIdC_INT; callback: SSL_verify_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_verify_depth(ctx: PSSL_CTX; depth: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_cert_verify_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_cert_verify_callback_cb; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_cert_cb(c: PSSL_CTX; cb: SSL_CTX_set_cert_cb_cb; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_use_RSAPrivateKey(ctx: PSSL_CTX; rsa: PRSA): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_use_RSAPrivateKey_ASN1(ctx: PSSL_CTX; const d: PByte; len: TIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_use_PrivateKey(ctx: PSSL_CTX; pkey: PEVP_PKEY): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_use_PrivateKey_ASN1(pk: TIdC_INT; ctx: PSSL_CTX; const d: PByte; len: TIdC_LONG): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_use_certificate(ctx: PSSL_CTX; x: X509): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_use_certificate_ASN1(ctx: PSSL_CTX; len: TIdC_INT; const d: PByte): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   //function TIdC_INT SSL_CTX_use_cert_and_key(ctx: PSSL_CTX; x509: PX509; EVP_PKEY *privatekey; STACK_OF(X509) *chain; TIdC_INT override);
 
-  procedure SSL_CTX_set_default_passwd_cb(ctx: PSSL_CTX; cb: pem_password_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_CTX_set_default_passwd_cb_userdata(ctx: PSSL_CTX; u: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_get_default_passwd_cb(ctx: PSSL_CTX): pem_password_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};  {introduced 1.1.0}
-  function SSL_CTX_get_default_passwd_cb_userdata(ctx: PSSL_CTX): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set_default_passwd_cb(s: PSSL; cb: pem_password_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set_default_passwd_cb_userdata(s: PSSL; u: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_default_passwd_cb(s: PSSL): pem_password_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_default_passwd_cb_userdata(s: PSSL): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_default_passwd_cb(ctx: PSSL_CTX; cb: pem_password_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_default_passwd_cb_userdata(ctx: PSSL_CTX; u: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_get_default_passwd_cb(ctx: PSSL_CTX): pem_password_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};  {introduced 1.1.0}
+  function SSL_CTX_get_default_passwd_cb_userdata(ctx: PSSL_CTX): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_default_passwd_cb(s: PSSL; cb: pem_password_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_default_passwd_cb_userdata(s: PSSL; u: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_default_passwd_cb(s: PSSL): pem_password_cb cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_default_passwd_cb_userdata(s: PSSL): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_CTX_check_private_key(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_check_private_key(const ctx: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_check_private_key(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_check_private_key(const ctx: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_set_session_id_context(ctx: PSSL_CTX; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_set_session_id_context(ctx: PSSL_CTX; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_new(ctx: PSSL_CTX): PSSL cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_up_ref(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_is_dtls(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_set_session_id_context(ssl: PSSL; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_new(ctx: PSSL_CTX): PSSL cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_up_ref(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_is_dtls(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_set_session_id_context(ssl: PSSL; const sid_ctx: PByte; sid_ctx_len: TIdC_UINT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_set_purpose(ctx: PSSL_CTX; purpose: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_purpose(ssl: PSSL; purpose: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_trust(ctx: PSSL_CTX; trust: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_trust(ssl: PSSL; trust: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_set_purpose(ctx: PSSL_CTX; purpose: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_purpose(ssl: PSSL; purpose: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_trust(ctx: PSSL_CTX; trust: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_trust(ssl: PSSL; trust: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_set1_host(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_add1_host(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get0_peername(s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set_hostflags(s: PSSL; flags: TIdC_UINT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_set1_host(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_add1_host(s: PSSL; const hostname: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get0_peername(s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_hostflags(s: PSSL; flags: TIdC_UINT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_CTX_dane_enable(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_dane_mtype_set(ctx: PSSL_CTX; const md: PEVP_MD; mtype: TIdC_UINT8; ord: TIdC_UINT8): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_dane_enable(s: PSSL; const basedomain: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_dane_tlsa_add(s: PSSL; usage: TIdC_UINT8; selector: TIdC_UINT8; mtype: TIdC_UINT8; const data: PByte; dlen: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get0_dane_authority(s: PSSL; mcert: PPX509; mspki: PPEVP_PKEY): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get0_dane_tlsa(s: PSSL; usage: PIdC_UINT8; selector: PIdC_UINT8; mtype: PIdC_UINT8; const data: PPByte; dlen: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_dane_enable(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_dane_mtype_set(ctx: PSSL_CTX; const md: PEVP_MD; mtype: TIdC_UINT8; ord: TIdC_UINT8): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_dane_enable(s: PSSL; const basedomain: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_dane_tlsa_add(s: PSSL; usage: TIdC_UINT8; selector: TIdC_UINT8; mtype: TIdC_UINT8; const data: PByte; dlen: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get0_dane_authority(s: PSSL; mcert: PPX509; mspki: PPEVP_PKEY): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get0_dane_tlsa(s: PSSL; usage: PIdC_UINT8; selector: PIdC_UINT8; mtype: PIdC_UINT8; const data: PPByte; dlen: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
   (*
    * Bridge opacity barrier between libcrypt and libssl, also needed to support
    * offline testing in test/danetest.c
    *)
-  function SSL_get0_dane(ssl: PSSL): PSSL_DANE cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_get0_dane(ssl: PSSL): PSSL_DANE cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   (*
    * DANE flags
    *)
-  function SSL_CTX_dane_set_flags(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_dane_clear_flags(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_dane_set_flags(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_dane_clear_flags(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_dane_set_flags(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_dane_clear_flags(ctx: PSSL_CTX; flags: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_dane_set_flags(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_dane_clear_flags(ssl: PSSL; flags: TIdC_ULONG): TIdC_ULONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_CTX_set1_param(ctx: PSSL_CTX; vpm: PX509_VERIFY_PARAM): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set1_param(ssl: PSSL; vpm: PX509_VERIFY_PARAM): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_set1_param(ctx: PSSL_CTX; vpm: PX509_VERIFY_PARAM): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set1_param(ssl: PSSL; vpm: PX509_VERIFY_PARAM): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_get0_param(ctx: PSSL_CTX): PX509_VERIFY_PARAM cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get0_param(ssl: PSSL): PX509_VERIFY_PARAM cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_get0_param(ctx: PSSL_CTX): PX509_VERIFY_PARAM cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get0_param(ssl: PSSL): PX509_VERIFY_PARAM cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_set_srp_username(ctx: PSSL_CTX; name: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_srp_password(ctx: PSSL_CTX; password: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_srp_strength(ctx: PSSL_CTX; strength: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_set_srp_username(ctx: PSSL_CTX; name: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_srp_password(ctx: PSSL_CTX; password: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_srp_strength(ctx: PSSL_CTX; strength: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_set_srp_client_pwd_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_srp_client_pwd_callback_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_srp_verify_param_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_srp_verify_param_callback_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_srp_username_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_srp_username_callback_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_set_srp_client_pwd_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_srp_client_pwd_callback_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_srp_verify_param_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_srp_verify_param_callback_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_srp_username_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_srp_username_callback_cb): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_set_srp_cb_arg(ctx: PSSL_CTX; arg: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_srp_server_param(s: PSSL; const N: PBIGNUm; const g: PBIGNUm; sa: PBIGNUm; v: PBIGNUm; info: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_srp_server_param_pw(s: PSSL; const user: PIdAnsiChar; const pass: PIdAnsiChar; const grp: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_set_srp_cb_arg(ctx: PSSL_CTX; arg: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_srp_server_param(s: PSSL; const N: PBIGNUm; const g: PBIGNUm; sa: PBIGNUm; v: PBIGNUm; info: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_srp_server_param_pw(s: PSSL; const user: PIdAnsiChar; const pass: PIdAnsiChar; const grp: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   //__owur BIGNUM *SSL_get_srp_g(s: PSSL);
   //__owur BIGNUM *SSL_get_srp_N(s: PSSL);
@@ -3153,54 +3153,54 @@ var
   ///*
   // * ClientHello callback and helpers.
   // */
-  procedure SSL_CTX_set_client_hello_cb(c: PSSL_CTX; cb: SSL_client_hello_cb_fn; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_client_hello_isv2(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_client_hello_get0_legacy_version(s: PSSL): TIdC_UINT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_client_hello_get0_random(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_client_hello_get0_session_id(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_client_hello_get0_ciphers(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_client_hello_get0_compression_methods(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_client_hello_get1_extensions_present(s: PSSL; out_: PPIdC_INT; outlen: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_client_hello_get0_ext(s: PSSL; type_: TIdC_UINT; const out_: PPByte; outlen: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_certs_clear(s: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_free(ssl: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_CTX_set_client_hello_cb(c: PSSL_CTX; cb: SSL_client_hello_cb_fn; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_client_hello_isv2(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_client_hello_get0_legacy_version(s: PSSL): TIdC_UINT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_client_hello_get0_random(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_client_hello_get0_session_id(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_client_hello_get0_ciphers(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_client_hello_get0_compression_methods(s: PSSL; const out_: PPByte): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_client_hello_get1_extensions_present(s: PSSL; out_: PPIdC_INT; outlen: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_client_hello_get0_ext(s: PSSL; type_: TIdC_UINT; const out_: PPByte; outlen: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_certs_clear(s: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_free(ssl: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   (*
    * Windows application developer has to include windows.h to use these.
    *)
-  function SSL_waiting_for_async(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_all_async_fds(s: PSSL; fds: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_changed_async_fds(s: PSSL; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_accept(ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_stateless(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_connect(ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_read(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_read_ex(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_waiting_for_async(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_all_async_fds(s: PSSL; fds: POSSL_ASYNC_FD; numfds: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_changed_async_fds(s: PSSL; addfd: POSSL_ASYNC_FD; numaddfds: PIdC_SIZET; delfd: POSSL_ASYNC_FD; numdelfds: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_accept(ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_stateless(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_connect(ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_read(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_read_ex(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_read_early_data(s: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_peek(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_peek_ex(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_write(ssl: PSSL; const buf: Pointer; num: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_write_ex(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_write_early_data(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_callback_ctrl(v1: PSSL; v2: TIdC_INT; v3: SSL_callback_ctrl_v3): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_read_early_data(s: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_peek(ssl: PSSL; buf: Pointer; num: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_peek_ex(ssl: PSSL; buf: Pointer; num: TIdC_SIZET; readbytes: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_write(ssl: PSSL; const buf: Pointer; num: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_write_ex(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_write_early_data(s: PSSL; const buf: Pointer; num: TIdC_SIZET; written: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_callback_ctrl(v1: PSSL; v2: TIdC_INT; v3: SSL_callback_ctrl_v3): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_ctrl(ssl: PSSL; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_ctrl(ctx: PSSL_CTX; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_callback_ctrl(v1: PSSL_CTX; v2: TIdC_INT; v3: SSL_CTX_callback_ctrl_v3): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_ctrl(ssl: PSSL; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_ctrl(ctx: PSSL_CTX; cmd: TIdC_INT; larg: TIdC_LONG; parg: Pointer): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_callback_ctrl(v1: PSSL_CTX; v2: TIdC_INT; v3: SSL_CTX_callback_ctrl_v3): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_get_early_data_status(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_early_data_status(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_get_error(const s: PSSL; ret_code: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_version(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_get_error(const s: PSSL; ret_code: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_version(const s: PSSL): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   (* This sets the 'default' SSL version that SSL_new() will create *)
-  function SSL_CTX_set_ssl_version(ctx: PSSL_CTX; const meth: PSSL_METHOD): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_set_ssl_version(ctx: PSSL_CTX; const meth: PSSL_METHOD): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   ///* Negotiate highest available SSL/TLS version */
-  function TLS_method: PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function TLS_server_method: PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function TLS_client_method: PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function TLS_method: PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function TLS_server_method: PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function TLS_client_method: PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   //__owur const SSL_METHOD *DTLS_method(void); /* DTLS 1.0 and 1.2 */
   //__owur const SSL_METHOD *DTLS_server_method(void); /* DTLS 1.0 and 1.2 */
@@ -3214,24 +3214,24 @@ var
   //__owur STACK_OF(SSL_CIPHER) *SSL_get1_supported_ciphers(s: PSSL);
   //
   //__owur TIdC_INT SSL_do_handshake(s: PSSL);
-  function SSL_key_update(s: PSSL; updatetype: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_key_update_type(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_renegotiate(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_renegotiate_abbreviated(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_shutdown(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CTX_set_post_handshake_auth(ctx: PSSL_CTX; val: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set_post_handshake_auth(s: PSSL; val: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_key_update(s: PSSL; updatetype: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_key_update_type(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_renegotiate(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_renegotiate_abbreviated(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_shutdown(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CTX_set_post_handshake_auth(ctx: PSSL_CTX; val: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_post_handshake_auth(s: PSSL; val: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_renegotiate_pending(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_verify_client_post_handshake(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_renegotiate_pending(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_verify_client_post_handshake(s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_CTX_get_ssl_method(const ctx: PSSL_CTX): PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_ssl_method(const s: PSSL): PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_ssl_method(s: PSSL; const method: PSSL_METHOD): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_alert_type_string_long(value: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_alert_type_string(value: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_alert_desc_string_long(value: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_alert_desc_string(value: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_get_ssl_method(const ctx: PSSL_CTX): PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_ssl_method(const s: PSSL): PSSL_METHOD cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_ssl_method(s: PSSL; const method: PSSL_METHOD): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_alert_type_string_long(value: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_alert_type_string(value: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_alert_desc_string_long(value: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_alert_desc_string(value: TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   //void SSL_set0_CA_list(s: PSSL, STACK_OF(X509_NAME) *name_list);
   //void SSL_CTX_set0_CA_list(ctx: PSSL_CTX, STACK_OF(X509_NAME) *name_list);
@@ -3246,12 +3246,12 @@ var
   //__owur STACK_OF(X509_NAME) *SSL_get_client_CA_list(const s: PSSL);
   //__owur STACK_OF(X509_NAME) *SSL_CTX_get_client_CA_list(const SSL_CTX *s);
 
-  procedure SSL_CTX_set_client_CA_list(ctx: PSSL_CTX; name_list: PSTACK_OF_X509_NAME) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_add_client_CA(ssl: PSSL; x: PX509): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_add_client_CA(ctx: PSSL_CTX; x: PX509): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_CTX_set_client_CA_list(ctx: PSSL_CTX; name_list: PSTACK_OF_X509_NAME) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_add_client_CA(ssl: PSSL; x: PX509): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_add_client_CA(ctx: PSSL_CTX; x: PX509): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  procedure SSL_set_connect_state(s: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_accept_state(s: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_set_connect_state(s: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_accept_state(s: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   //__owur TIdC_LONG SSL_get_default_timeout(const s: PSSL);
   //
@@ -3261,65 +3261,65 @@ var
 
   //__owur PIdAnsiChar *SSL_CIPHER_description(const SSL_CIPHER *, PIdAnsiChar *buf, TIdC_INT size);
   //__owur STACK_OF(X509_NAME) *SSL_dup_CA_list(const STACK_OF(X509_NAME) *sk);
-  function SSL_CIPHER_description(cipher: PSSL_CIPHER; buf: PIdAnsiChar; size_ :TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CIPHER_description(cipher: PSSL_CIPHER; buf: PIdAnsiChar; size_ :TIdC_INT): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_dup(ssl: PSSL): PSSL cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_dup(ssl: PSSL): PSSL cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_get_certificate(const ssl: PSSL): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_get_certificate(const ssl: PSSL): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   (*
    * EVP_PKEY
    *)
-  function SSL_get_privatekey(const ssl: PSSL): PEVP_PKEY cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_get_privatekey(const ssl: PSSL): PEVP_PKEY cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CTX_get0_certificate(const ctx: PSSL_CTX): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_get0_privatekey(const ctx: PSSL_CTX): PEVP_PKEY cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_get0_certificate(const ctx: PSSL_CTX): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_get0_privatekey(const ctx: PSSL_CTX): PEVP_PKEY cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  procedure SSL_CTX_set_quiet_shutdown(ctx: PSSL_CTX; mode: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_get_quiet_shutdown(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_quiet_shutdown(ssl: PSSL; mode: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_quiet_shutdown(const ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_shutdown(ssl: PSSL; mode: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_shutdown(const ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_version(const ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_client_version(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_set_default_verify_paths(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_set_default_verify_dir(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_set_default_verify_file(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_load_verify_locations(ctx: PSSL_CTX; const CAfile: PIdAnsiChar; const CApath: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_CTX_set_quiet_shutdown(ctx: PSSL_CTX; mode: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_get_quiet_shutdown(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_quiet_shutdown(ssl: PSSL; mode: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_quiet_shutdown(const ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_shutdown(ssl: PSSL; mode: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_shutdown(const ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_version(const ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_client_version(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_default_verify_paths(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_set_default_verify_dir(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_default_verify_file(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_load_verify_locations(ctx: PSSL_CTX; const CAfile: PIdAnsiChar; const CApath: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   //# define SSL_get0_session SSL_get_session/* just peek at pointer */
-  function SSL_get_session(const ssl: PSSL): PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_get_session(const ssl: PSSL): PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   (* obtain a reference count *)
-  function SSL_get1_session(ssl: PSSL): PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_SSL_CTX(const ssl: PSSL): PSSL_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_set_SSL_CTX(ssl: PSSL; ctx: PSSL_CTX): PSSL_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_info_callback(ssl: PSSL; cb: SSL_info_callback) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_info_callback(const ssl: PSSL): SSL_info_callback cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_state(const ssl: PSSL): OSSL_HANDSHAKE_STATE cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_get1_session(ssl: PSSL): PSSL_SESSION cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_SSL_CTX(const ssl: PSSL): PSSL_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_set_SSL_CTX(ssl: PSSL; ctx: PSSL_CTX): PSSL_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_info_callback(ssl: PSSL; cb: SSL_info_callback) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_info_callback(const ssl: PSSL): SSL_info_callback cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_state(const ssl: PSSL): OSSL_HANDSHAKE_STATE cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  procedure SSL_set_verify_result(ssl: PSSL; v: TIdC_LONG) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_verify_result(const ssl: PSSL): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_set_verify_result(ssl: PSSL; v: TIdC_LONG) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_verify_result(const ssl: PSSL): TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   //__owur STACK_OF(X509) *SSL_get0_verified_chain(const s: PSSL);
 
-  function SSL_get_client_random(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_server_random(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_get_master_key(const sess: PSSL_SESSION; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_set1_master_key(sess: PSSL_SESSION; const in_: PByte; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_get_max_fragment_length(const sess: PSSL_SESSION): TIdC_UINT8 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_client_random(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_server_random(const ssl: PSSL; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_get_master_key(const sess: PSSL_SESSION; out_: PByte; outlen: TIdC_SIZET): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_set1_master_key(sess: PSSL_SESSION; const in_: PByte; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_get_max_fragment_length(const sess: PSSL_SESSION): TIdC_UINT8 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   //#define SSL_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_SSL, l, p, newf, dupf, freef)
-  function SSL_set_ex_data(ssl: PSSL; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_get_ex_data(const ssl: PSSL; idx: TIdC_INT): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_set_ex_data(ssl: PSSL; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_get_ex_data(const ssl: PSSL; idx: TIdC_INT): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   //#define SSL_SESSION_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_SSL_SESSION, l, p, newf, dupf, freef)
-  function SSL_SESSION_set_ex_data(ss: PSSL_SESSION; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_SESSION_get_ex_data(const ss: PSSL_SESSION; idx: TIdC_INT): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_SESSION_set_ex_data(ss: PSSL_SESSION; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_SESSION_get_ex_data(const ss: PSSL_SESSION; idx: TIdC_INT): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   //#define SSL_CTX_get_ex_new_index(l, p, newf, dupf, freef) \
   //    CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_SSL_CTX, l, p, newf, dupf, freef)
-  function SSL_CTX_set_ex_data(ssl: PSSL_CTX; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CTX_get_ex_data(const ssl: PSSL_CTX; idx: TIdC_INT): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CTX_set_ex_data(ssl: PSSL_CTX; idx: TIdC_INT; data: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CTX_get_ex_data(const ssl: PSSL_CTX; idx: TIdC_INT): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_get_ex_data_X509_STORE_CTX_idx: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_get_ex_data_X509_STORE_CTX_idx: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   //# define SSL_CTX_get_default_read_ahead(ctx) SSL_CTX_get_read_ahead(ctx)
   //# define SSL_CTX_set_default_read_ahead(ctx,m) SSL_CTX_set_read_ahead(ctx,m)
@@ -3349,11 +3349,11 @@ var
   //# define SSL_set_max_pipelines(ssl,m) \
   //        SSL_ctrl(ssl,SSL_CTRL_SET_MAX_PIPELINES,m,NULL)
 
-  procedure SSL_CTX_set_default_read_buffer_len(ctx: PSSL_CTX; len: TIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set_default_read_buffer_len(s: PSSL; len: TIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_default_read_buffer_len(ctx: PSSL_CTX; len: TIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_default_read_buffer_len(s: PSSL; len: TIdC_SIZET) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  procedure SSL_CTX_set_tmp_dh_callback(ctx: PSSL_CTX; dh: SSL_CTX_set_tmp_dh_callback_dh) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_set_tmp_dh_callback(ssl: PSSL; dh: SSL_set_tmp_dh_callback_dh) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  procedure SSL_CTX_set_tmp_dh_callback(ctx: PSSL_CTX; dh: SSL_CTX_set_tmp_dh_callback_dh) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_set_tmp_dh_callback(ssl: PSSL; dh: SSL_set_tmp_dh_callback_dh) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   //__owur const COMP_METHOD *SSL_get_current_compression(const s: PSSL);
   //__owur const COMP_METHOD *SSL_get_current_expansion(const s: PSSL);
@@ -3368,67 +3368,67 @@ var
   //# endif
   //__owur TIdC_INT SSL_COMP_add_compression_method(TIdC_INT id, COMP_METHOD *cm);
 
-  function SSL_CIPHER_find(ssl: PSSL; const ptr: PByte): PSSL_CIPHER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CIPHER_get_cipher_nid(const c: PSSL_CIPHEr): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CIPHER_get_digest_nid(const c: PSSL_CIPHEr): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_CIPHER_find(ssl: PSSL; const ptr: PByte): PSSL_CIPHER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CIPHER_get_cipher_nid(const c: PSSL_CIPHEr): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CIPHER_get_digest_nid(const c: PSSL_CIPHEr): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
   //TIdC_INT SSL_bytes_to_cipher_list(s: PSSL, const Byte *bytes, TIdC_SIZET len,
   //                             TIdC_INT isv2format, STACK_OF(SSL_CIPHER) **sk,
   //                             STACK_OF(SSL_CIPHER) **scsvs);
 
   (* TLS extensions functions *)
-  function SSL_set_session_ticket_ext(s: PSSL; ext_data: Pointer; ext_len: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_set_session_ticket_ext(s: PSSL; ext_data: Pointer; ext_len: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
   //
-  function SSL_set_session_ticket_ext_cb(s: PSSL; cb: tls_session_ticket_ext_cb_fn; arg: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_set_session_ticket_ext_cb(s: PSSL; cb: tls_session_ticket_ext_cb_fn; arg: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
   ///* Pre-shared secret session resumption functions */
   //__owur TIdC_INT SSL_set_session_secret_cb(s: PSSL,
   //                                     tls_session_secret_cb_fn session_secret_cb,
   //                                     void *arg);
 
-  procedure SSL_CTX_set_not_resumable_session_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_not_resumable_session_callback_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set_not_resumable_session_callback(ssl: PSSL; cb: SSL_set_not_resumable_session_callback_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_CTX_set_record_padding_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_record_padding_callback_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_not_resumable_session_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_not_resumable_session_callback_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_not_resumable_session_callback(ssl: PSSL; cb: SSL_set_not_resumable_session_callback_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_record_padding_callback(ctx: PSSL_CTX; cb: SSL_CTX_set_record_padding_callback_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  procedure SSL_CTX_set_record_padding_callback_arg(ctx: PSSL_CTX; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_get_record_padding_callback_arg(const ctx: PSSL_CTX): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_set_block_padding(ctx: PSSL_CTX; block_size: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_record_padding_callback_arg(ctx: PSSL_CTX; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_get_record_padding_callback_arg(const ctx: PSSL_CTX): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_block_padding(ctx: PSSL_CTX; block_size: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  procedure SSL_set_record_padding_callback(ssl: PSSL; cb: SSL_set_record_padding_callback_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_record_padding_callback(ssl: PSSL; cb: SSL_set_record_padding_callback_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  procedure SSL_set_record_padding_callback_arg(ssl: PSSL; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_record_padding_callback_arg(const ssl: PSSL): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_set_block_padding(ssl: PSSL; block_size: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_set_num_tickets(s: PSSL; num_tickets: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_num_tickets(const s: PSSL): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_set_num_tickets(ctx: PSSL_CTX; num_tickets: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_get_num_tickets(const ctx: PSSL_CTX): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_record_padding_callback_arg(ssl: PSSL; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_record_padding_callback_arg(const ssl: PSSL): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_set_block_padding(ssl: PSSL; block_size: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_set_num_tickets(s: PSSL; num_tickets: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_num_tickets(const s: PSSL): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_num_tickets(ctx: PSSL_CTX; num_tickets: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_get_num_tickets(const ctx: PSSL_CTX): TIdC_SIZET cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   //# if OPENSSL_API_COMPAT < 0x10100000L
   //#  define SSL_cache_hit(s) SSL_session_reused(s)
   //# endif
 
-  function SSL_session_reused(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_is_server(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_session_reused(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_is_server(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  function SSL_CONF_CTX_new: PSSL_CONF_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CONF_CTX_finish(cctx: PSSL_CONF_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CONF_CTX_free(cctx: PSSL_CONF_CTX) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CONF_CTX_set_flags(cctx: PSSL_CONF_CTX; flags: TIdC_UINT): TIdC_UINT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CONF_CTX_clear_flags(cctx: PSSL_CONF_CTX; flags: TIdC_UINT): TIdC_UINT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CONF_CTX_set1_prefix(cctx: PSSL_CONF_CTX; const pre: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CONF_cmd(cctx: PSSL_CONF_CTX; const cmd: PIdAnsiChar; const value: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CONF_cmd_argv(cctx: PSSL_CONF_CTX; pargc: PIdC_INT; pargv: PPPIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  function SSL_CONF_cmd_value_type(cctx: PSSL_CONF_CTX; const cmd: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function SSL_CONF_CTX_new: PSSL_CONF_CTX cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CONF_CTX_finish(cctx: PSSL_CONF_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CONF_CTX_free(cctx: PSSL_CONF_CTX) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CONF_CTX_set_flags(cctx: PSSL_CONF_CTX; flags: TIdC_UINT): TIdC_UINT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CONF_CTX_clear_flags(cctx: PSSL_CONF_CTX; flags: TIdC_UINT): TIdC_UINT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CONF_CTX_set1_prefix(cctx: PSSL_CONF_CTX; const pre: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CONF_cmd(cctx: PSSL_CONF_CTX; const cmd: PIdAnsiChar; const value: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CONF_cmd_argv(cctx: PSSL_CONF_CTX; pargc: PIdC_INT; pargv: PPPIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  function SSL_CONF_cmd_value_type(cctx: PSSL_CONF_CTX; const cmd: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
 
-  procedure SSL_CONF_CTX_set_ssl(cctx: PSSL_CONF_CTX; ssl: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_CONF_CTX_set_ssl_ctx(cctx: PSSL_CONF_CTX; ctx: PSSL_CTX) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure SSL_add_ssl_module cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_config(s: PSSL; const name: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_config(ctx: PSSL_CTX; const name: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CONF_CTX_set_ssl(cctx: PSSL_CONF_CTX; ssl: PSSL) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_CONF_CTX_set_ssl_ctx(cctx: PSSL_CONF_CTX; ctx: PSSL_CTX) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF};
+  procedure SSL_add_ssl_module cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_config(s: PSSL; const name: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_config(ctx: PSSL_CTX; const name: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
 //  procedure SSL_trace(write_p: TIdC_INT; version: TIdC_INT; content_type: TIdC_INT; const buf: Pointer; len: TIdC_SIZET; ssl: PSSL; arg: Pointer);
 
-  function DTLSv1_listen(s: PSSL; client: PBIO_ADDr): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function DTLSv1_listen(s: PSSL; client: PBIO_ADDr): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   //# ifndef OPENSSL_NO_CT
   //
@@ -3475,35 +3475,35 @@ var
   // * least one valid SCT, or else handshake termination will be requested.  The
   // * handshake may continue anyway if SSL_VERIFY_NONE is in_ effect.
   // */
-  function SSL_enable_ct(s: PSSL; validation_mode: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_enable_ct(ctx: PSSL_CTX; validation_mode: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_enable_ct(s: PSSL; validation_mode: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_enable_ct(ctx: PSSL_CTX; validation_mode: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   ///*
   // * Report whether a non-NULL callback is enabled.
   // */
-  function SSL_ct_is_enabled(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_ct_is_enabled(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_ct_is_enabled(const s: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_ct_is_enabled(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   ///* Gets the SCTs received from a connection */
   //const STACK_OF(SCT) *SSL_get0_peer_scts(s: PSSL);
 
-  function SSL_CTX_set_default_ctlog_list_file(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_set_ctlog_list_file(ctx: PSSL_CTX; const path: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_CTX_set0_ctlog_store(ctx: PSSL_CTX; logs: PCTLOG_STORE) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_default_ctlog_list_file(ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_ctlog_list_file(ctx: PSSL_CTX; const path: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set0_ctlog_store(ctx: PSSL_CTX; logs: PCTLOG_STORE) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   // const CTLOG_STORE *SSL_CTX_get0_ctlog_store(const ctx: PSSL_CTX);
 
   // # endif /* OPENSSL_NO_CT */
 
-  procedure SSL_set_security_level(s: PSSL; level: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_security_level(s: PSSL; level: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   ////__owur TIdC_INT SSL_get_security_level(const s: PSSL);
-  procedure SSL_set_security_callback(s: PSSL; cb: SSL_security_callback) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get_security_callback(const s: PSSL): SSL_security_callback cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set0_security_ex_data(s: PSSL; ex: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_get0_security_ex_data(const s: PSSL): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_CTX_set_security_level(ctx: PSSL_CTX; level: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_CTX_get_security_level(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_security_callback(s: PSSL; cb: SSL_security_callback) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get_security_callback(const s: PSSL): SSL_security_callback cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set0_security_ex_data(s: PSSL; ex: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_get0_security_ex_data(const s: PSSL): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_security_level(ctx: PSSL_CTX; level: TIdC_INT) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_get_security_level(const ctx: PSSL_CTX): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
   //void SSL_CTX_set_security_callback(ctx: PSSL_CTX,
   //                                   TIdC_INT (*cb) (const s: PSSL, const ctx: PSSL_CTX,
   //                                              TIdC_INT op, TIdC_INT bits, TIdC_INT nid,
@@ -3515,35 +3515,35 @@ var
   //                                                          void *other,
   //                                                          void *ex);
 
-  function SSL_CTX_get0_security_ex_data(const ctx: PSSL_CTX): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_get0_security_ex_data(const ctx: PSSL_CTX): Pointer cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  procedure SSL_CTX_set0_security_ex_data(ctx: PSSL_CTX; ex: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set0_security_ex_data(ctx: PSSL_CTX; ex: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function OPENSSL_init_ssl(opts: TIdC_UINT64; const settings: POPENSSL_INIT_SETTINGS): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function OPENSSL_init_ssl(opts: TIdC_UINT64; const settings: POPENSSL_INIT_SETTINGS): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   //# ifndef OPENSSL_NO_UNIT_TEST
   //__owur const struct openssl_ssl_test_functions *SSL_test_functions(void);
   //# endif
 
-  function SSL_free_buffers(ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_alloc_buffers(ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_free_buffers(ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_alloc_buffers(ssl: PSSL): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_CTX_set_session_ticket_cb(ctx: PSSL_CTX; gen_cb: SSL_CTX_generate_session_ticket_fn; dec_cb: SSL_CTX_decrypt_session_ticket_fn; arg: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_CTX_set_session_ticket_cb(ctx: PSSL_CTX; gen_cb: SSL_CTX_generate_session_ticket_fn; dec_cb: SSL_CTX_decrypt_session_ticket_fn; arg: Pointer): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
-  function SSL_SESSION_set1_ticket_appdata(ss: PSSL_SESSION; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  function SSL_SESSION_get0_ticket_appdata(ss: PSSL_SESSION; data: PPointer; len: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_set1_ticket_appdata(ss: PSSL_SESSION; const data: Pointer; len: TIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  function SSL_SESSION_get0_ticket_appdata(ss: PSSL_SESSION; data: PPointer; len: PIdC_SIZET): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
   //extern const PIdAnsiChar SSL_version_str[];
 
-  procedure DTLS_set_timer_cb(s: PSSL; cb: DTLS_timer_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_CTX_set_allow_early_data_cb(ctx: PSSL_CTX; cb: SSL_allow_early_data_cb_fN; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
-  procedure SSL_set_allow_early_data_cb(s: PSSL; cb: SSL_allow_early_data_cb_fN; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 1.1.0}
+  procedure DTLS_set_timer_cb(s: PSSL; cb: DTLS_timer_cb) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_CTX_set_allow_early_data_cb(ctx: PSSL_CTX; cb: SSL_allow_early_data_cb_fN; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
+  procedure SSL_set_allow_early_data_cb(s: PSSL; cb: SSL_allow_early_data_cb_fN; arg: Pointer) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 1.1.0}
 
 
   //X509 *SSL_get0_peer_certificate(const SSL *s);
-  function SSL_get0_peer_certificate(const s: PSSL): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 3.3.0}
+  function SSL_get0_peer_certificate(const s: PSSL): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 3.3.0}
   // X509 *SSL_get1_peer_certificate(const SSL *s);
-  function SSL_get1_peer_certificate(const s: PSSL): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF}; {introduced 3.3.0}
+  function SSL_get1_peer_certificate(const s: PSSL): PX509 cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibSSL{$ENDIF}; {introduced 3.3.0}
 
 
 

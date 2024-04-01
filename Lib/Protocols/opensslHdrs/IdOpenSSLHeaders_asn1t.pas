@@ -1003,12 +1003,12 @@ var
   ASN1_item_ex_i2d: function (pval: PPASN1_VALUE; AOut: PPByte; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT): TIdC_INT; cdecl = nil;
 
 {$ELSE}
-  function ASN1_item_ex_new(pval: PPASN1_VALUE; const it: PASN1_ITEM): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
-  procedure ASN1_item_ex_free(pval: PPASN1_VALUE; const it: PASN1_ITEM) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function ASN1_item_ex_new(pval: PPASN1_VALUE; const it: PASN1_ITEM): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
+  procedure ASN1_item_ex_free(pval: PPASN1_VALUE; const it: PASN1_ITEM) cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
 
-  function ASN1_item_ex_d2i(pval: PPASN1_VALUE; const AIn: PPByte; len: TIdC_LONG; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT; opt: AnsiChar; ctx: PASN1_TLC): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function ASN1_item_ex_d2i(pval: PPASN1_VALUE; const AIn: PPByte; len: TIdC_LONG; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT; opt: AnsiChar; ctx: PASN1_TLC): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
 
-  function ASN1_item_ex_i2d(pval: PPASN1_VALUE; AOut: PPByte; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function ASN1_item_ex_i2d(pval: PPASN1_VALUE; AOut: PPByte; const it: PASN1_ITEM; tag: TIdC_INT; aclass: TIdC_INT): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
 
 {$ENDIF}
 

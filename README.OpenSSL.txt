@@ -22,7 +22,7 @@ with earlier versions but this is not guaranteed. In order to avoid an
 exception when using an earlier version, Indy must be compiled with the 
 OPENSSL_NO_MIN_VERSION defined symbol.
 
-Four link models are supported for use of the OpenSSL library:
+Three link models are supported for use of the OpenSSL library:
 
     1. Dynamic loading (default). Under this model, the OpenSSL library is 
        loaded on demand at run time. The Indy OpenSSL modules then adjust to the 
@@ -47,29 +47,12 @@ Four link models are supported for use of the OpenSSL library:
        Windows and Linux but currently only available with the Free Pascal Compiler 
        (FPC)  and a static code library compiled using gcc (file extension “.a”).
 
-  4.   Delayed Loading at run time. This is a variant of option 2 (Static loading of a
-       shared library) and, at present, is only supported by Delphi. When this link
-       model is selected, the actual loading happens when the routine is called for
-       the first time.
-
-       The delayed directive is useful in the case where the imported routines do not
-       exist on the target operating system on which the application is run. Statically
-       imported routines require that the operating system find and load the library
-       when the application is started. If the routine is not found in the loaded library,
-       or the library does not exist, the Operating System halts the execution of the
-       application. Using the delayed directive enables you to check, at run time,
-       whether the Operating System supports the required APIs; only then you
-       can call the imported routines.    
-
 Link Option 2 is selected if your program or the IndyOpenSSL package is compiled with
 the OPENSSL_USE_SHARED_LIBRARY defined symbol. It is also selected if
 IdCompilierDefines.inc sets the STATICLOAD_OPENSSL defined symbol (e.g. for IOS).
 
 Link Option 3 is selected if your program or the IndyOpenSSL package is compiled with
 the OPENSSL_USE_STATIC_LIBRARY defined symbol.
-
-Link Option 4 is selected if your program or the IndyOpenSSL package is compiled with
-the OPENSSL_USE_DELAYED_LOADING defined symbol.  
 
 TLS Version Considerations
 

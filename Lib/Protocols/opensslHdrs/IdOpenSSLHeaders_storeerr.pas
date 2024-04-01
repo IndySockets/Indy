@@ -125,7 +125,7 @@ var
   ERR_load_OSSL_STORE_strings: function : TIdC_INT; cdecl = nil;
 
 {$ELSE}
-  function ERR_load_OSSL_STORE_strings: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}{$IFDEF OPENSSL_USE_DELAYED_LOADING} delayed{$ENDIF};
+  function ERR_load_OSSL_STORE_strings: TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF};
 
 {$ENDIF}
 
