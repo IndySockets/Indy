@@ -22,3 +22,10 @@ This Log File records changes to the Indy Proposed Update since its initial publ
           output directory used for fpcmake builds.
 
 2024/4/1  Reversed out delayed loading changes.
+
+2024/4/3 OpenSSL functions OSSL_PROVIDER_get0_default_search_path, OSSL_PROVIDER_load_ex and   
+         OSSL_PROVIDER_try_load in header file idOpenSSLHeaders_provider (introduced for FIPS support) 
+         had been incorrectly marked up as having been introduced in OpenSSL 3.0. They were
+         actually introduced in 3.2. This error result is a load library fail for 3.0 and 3.1.
+         This has now been corrected.
+
