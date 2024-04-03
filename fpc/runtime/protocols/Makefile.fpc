@@ -1,0 +1,278 @@
+[package]
+name=indyprotocols
+version=$(INDY_VERSION)
+main=indy
+
+[requires]
+packages=indycore
+
+[compiler]
+options= -MDelphi $(OPT) -Scghi -CX -Ur -Xs -vew
+unittargetdir= ../../units/$(CPU_TARGET)-$(OS_TARGET)
+includedir=../../includes
+unitdir=.:opensslHdrs
+
+[target]
+units=indyprotocolsfpc
+dirs=opensslHdrs
+implicitunits=IdAllAuthentications \
+  IdAllFTPListParsers \
+  IdAllHeaderCoders \
+  IdASN1Util \
+  IdAttachmentFile \
+  IdAttachmentMemory \
+  IdAttachment \
+  IdAuthenticationDigest \
+  IdAuthenticationManager \
+  IdAuthenticationNTLM \
+  IdAuthentication \
+  IdAuthenticationSSPI \
+  IdBlockCipherIntercept \
+  IdChargenServer \
+  IdChargenUDPServer \
+  IdCharsets \
+  IdCoder00E \
+  IdCoder3to4 \
+  IdCoderBinHex4 \
+  IdCoderHeader \
+  IdCoderMIME \
+  IdCoder \
+  IdCoderQuotedPrintable \
+  IdCoderUUE \
+  IdCoderXXE \
+  IdCompressionIntercept \
+  IdCompressorZLib \
+  IdConnectThroughHttpProxy \
+  IdContainers \
+  IdCookieManager \
+  IdCookie \
+  IdCustomHTTPServer \
+  IdDateTimeStamp \
+  IdDayTime \
+  IdDayTimeServer \
+  IdDayTimeUDP \
+  IdDayTimeUDPServer \
+  IdDICTCommon \
+  IdDICT \
+  IdDICTServer \
+  IdDiscardServer \
+  IdDiscardUDPServer \
+  IdDNSCommon \
+  IdDNSResolver \
+  IdDNSServer \
+  IdEcho \
+  IdEchoServer \
+  IdEchoUDP \
+  IdEchoUDPServer \
+  IdEMailAddress \
+  IdExplicitTLSClientServerBase \
+  IdFinger \
+  IdFingerServer \
+  IdFIPS \
+  IdFSP \
+  IdFTPBaseFileSystem \
+  IdFTPCommon \
+  IdFTPListOutput \
+  IdFTPListParseAS400 \
+  IdFTPListParseBase \
+  IdFTPListParseBullGCOS7 \
+  IdFTPListParseBullGCOS8 \
+  IdFTPListParseChameleonNewt \
+  IdFTPListParseCiscoIOS \
+  IdFTPListParseDistinctTCPIP \
+  IdFTPListParseEPLF \
+  IdFTPListParseHellSoft \
+  IdFTPListParseIEFTPGateway \
+  IdFTPListParseKA9Q \
+  IdFTPListParseMicrowareOS9 \
+  IdFTPListParseMPEiX \
+  IdFTPListParseMusic \
+  IdFTPListParseMVS \
+  IdFTPListParseNCSAForDOS \
+  IdFTPListParseNCSAForMACOS \
+  IdFTPListParseNovellNetware \
+  IdFTPListParseNovellNetwarePSU \
+  IdFTPListParseOS2 \
+  IdFTPListParsePCNFSD \
+  IdFTPListParsePCTCP \
+  IdFTPListParseStercomOS390Exp \
+  IdFTPListParseStercomUnixEnt \
+  IdFTPListParseStratusVOS \
+  IdFTPListParseSuperTCP \
+  IdFTPListParseTandemGuardian \
+  IdFTPListParseTOPS20 \
+  IdFTPListParseTSXPlus \
+  IdFTPListParseUnisysClearPath \
+  IdFTPListParseUnix \
+  IdFTPListParseVM \
+  IdFTPListParseVMS \
+  IdFTPListParseVSE \
+  IdFTPListParseVxWorks \
+  IdFTPListParseWfFTP \
+  IdFTPListParseWindowsNT \
+  IdFTPListParseWinQVTNET \
+  IdFTPListParseXecomMicroRTOS \
+  IdFTPList \
+  IdFTPListTypes \
+  IdFTP \
+  IdFTPServerContextBase \
+  IdFTPServer \
+  IdGlobalProtocols \
+  IdGopherConsts \
+  IdGopher \
+  IdGopherServer \
+  IdHashAdler32 \
+  IdHashCRC \
+  IdHashElf \
+  IdHashMessageDigest \
+  IdHash \
+  IdHashSHA \
+  IdHeaderCoder2022JP \
+  IdHeaderCoderBase \
+  IdHeaderCoderIndy \
+  IdHeaderCoderPlain \
+  IdHeaderList \
+  IdHL7 \
+  IdHMACMD5 \
+  IdHMAC \
+  IdHMACSHA1 \
+  IdHTTPHeaderInfo \
+  IdHTTP \
+  IdHTTPProxyServer \
+  IdHTTPServer \
+  IdIdent \
+  IdIdentServer \
+  IdIMAP4 \
+  IdIMAP4Server \
+  IdIPAddrMon \
+  IdIPWatch \
+  IdIRC \
+  IdIrcServer \
+  IdLPR \
+  IdMailBox \
+  IdMappedFTP \
+  IdMappedPOP3 \
+  IdMappedPortTCP \
+  IdMappedPortUDP \
+  IdMappedTelnet \
+  IdMessageBuilder \
+  IdMessageClient \
+  IdMessageCoderBinHex4 \
+  IdMessageCoderMIME \
+  IdMessageCoder \
+  IdMessageCoderQuotedPrintable \
+  IdMessageCoderUUE \
+  IdMessageCoderXXE \
+  IdMessageCoderYenc \
+  IdMessageCollection \
+  IdMessageHelper \
+  IdMessageParts \
+  IdMessage \
+  IdMultipartFormData \
+  IdNetworkCalculator \
+  IdNNTP \
+  IdNNTPServer \
+  IdNTLM \
+  IdNTLMv2 \
+  IdOSFileName \
+  IdOTPCalculator \
+  IdPOP3 \
+  IdPOP3Server \
+  IdQotd \
+  IdQotdServer \
+  IdQOTDUDP \
+  IdQOTDUDPServer \
+  IdRemoteCMDClient \
+  IdRemoteCMDServer \
+  IdReplyFTP \
+  IdReplyIMAP4 \
+  IdReplyPOP3 \
+  IdReplySMTP \
+  IdResourceStringsOpenSSL \
+  IdResourceStringsProtocols \
+  IdResourceStringsSSPI \
+  IdResourceStringsUriUtils \
+  IdRexec \
+  IdRexecServer \
+  IdRSH \
+  IdRSHServer \
+  IdSASLAnonymous \
+  IdSASLCollection \
+  IdSASL_CRAMBase \
+  IdSASL_CRAM_MD5 \
+  IdSASL_CRAM_SHA1 \
+  IdSASLDigest \
+  IdSASLExternal \
+  IdSASLLogin \
+  IdSASLOTP \
+  IdSASL \
+  IdSASLPlain \
+  IdSASLSKey \
+  IdSASLUserPass \
+  IdServerInterceptLogBase \
+  IdServerInterceptLogEvent \
+  IdServerInterceptLogFile \
+  IdSMTPBase \
+  IdSMTP \
+  IdSMTPRelay \
+  IdSMTPServer \
+  IdSNMP \
+  IdSNPP \
+  IdSNTP \
+  IdSocksServer \
+  IdSSLOpenSSLConsts \
+  IdSSLOpenSSLExceptionHandlers \
+  IdSSLOpenSSLFIPS \
+  IdSSLOpenSSLLoader \
+  IdSSLOpenSSL \
+  IdSSL \
+  IdSSPI \
+  IdStrings \
+  IdSysLogMessage \
+  IdSysLog \
+  IdSysLogServer \
+  IdSystat \
+  IdSystatServer \
+  IdSystatUDP \
+  IdSystatUDPServer \
+  IdTelnet \
+  IdTelnetServer \
+  IdText \
+  IdTime \
+  IdTimeServer \
+  IdTimeUDP \
+  IdTimeUDPServer \
+  IdTrivialFTPBase \
+  IdTrivialFTP \
+  IdTrivialFTPServer \
+  IdUnixTime \
+  IdUnixTimeServer \
+  IdUnixTimeUDP \
+  IdUnixTimeUDPServer \
+  IdURI \
+  IdUriUtils \
+  IdUserAccounts \
+  IdUserPassProvider \
+  IdVCard \
+  IdWebDAV \
+  IdWhois \
+  IdWhoIsServer \
+  IdZLibCompressorBase \
+  IdZLibConst \
+  IdZLibHeaders \
+  IdZLib 
+
+
+[install]
+fpcpackage=y
+fpcsubdir=packages/extra
+buildunit=indyprotocolsfpc
+
+[clean]
+files=../../units/$(CPU_TARGET)-$(OS_TARGET)/IdResourceStringsCore.rsj \
+  ../../units/$(CPU_TARGET)-$(OS_TARGET)/IdResourceStringsOpenSSL.rsj \
+  ../../units/$(CPU_TARGET)-$(OS_TARGET)/IdResourceStringsProtocols.rsj \
+  ../../units/$(CPU_TARGET)-$(OS_TARGET)/IdResourceStrings.rsj \
+  ../../units/$(CPU_TARGET)-$(OS_TARGET)/IdResourceStringsSSPI.rsj \
+  ../../units/$(CPU_TARGET)-$(OS_TARGET)/IdResourceStringsUnix.rsj \
+  ../../units/$(CPU_TARGET)-$(OS_TARGET)/IdResourceStringsUriUtils.rsj

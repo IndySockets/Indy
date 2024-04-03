@@ -1,0 +1,84 @@
+[compiler]
+unittargetdir= ../../../units/$(CPU_TARGET)-$(OS_TARGET)
+
+[target]
+implicitunits=AllOpenSSLHeaders \
+  IdOpenSSLHeaders_aes \
+  IdOpenSSLHeaders_asn1err \
+  IdOpenSSLHeaders_asn1_mac \
+  IdOpenSSLHeaders_asn1 \
+  IdOpenSSLHeaders_asn1t \
+  IdOpenSSLHeaders_asyncerr \
+  IdOpenSSLHeaders_async \
+  IdOpenSSLHeaders_bioerr \
+  IdOpenSSLHeaders_bio \
+  IdOpenSSLHeaders_blowfish \
+  IdOpenSSLHeaders_bnerr \
+  IdOpenSSLHeaders_bn \
+  IdOpenSSLHeaders_buffererr \
+  IdOpenSSLHeaders_buffer \
+  IdOpenSSLHeaders_camellia \
+  IdOpenSSLHeaders_cast \
+  IdOpenSSLHeaders_cmac \
+  IdOpenSSLHeaders_cmserr \
+  IdOpenSSLHeaders_cms \
+  IdOpenSSLHeaders_comperr \
+  IdOpenSSLHeaders_comp \
+  IdOpenSSLHeaders_conf_api \
+  IdOpenSSLHeaders_conferr \
+  IdOpenSSLHeaders_conf \
+  IdOpenSSLHeaders_core \
+  IdOpenSSLHeaders_cryptoerr \
+  IdOpenSSLHeaders_crypto \
+  IdOpenSSLHeaders_cterr \
+  IdOpenSSLHeaders_des \
+  IdOpenSSLHeaders_dherr \
+  IdOpenSSLHeaders_dh \
+  IdOpenSSLHeaders_dsaerr \
+  IdOpenSSLHeaders_dsa \
+  IdOpenSSLHeaders_ebcdic \
+  IdOpenSSLHeaders_ecerr \
+  IdOpenSSLHeaders_ec \
+  IdOpenSSLHeaders_engineerr \
+  IdOpenSSLHeaders_engine \
+  IdOpenSSLHeaders_err \
+  IdOpenSSLHeaders_evperr \
+  IdOpenSSLHeaders_evp \
+  IdOpenSSLHeaders_hmac \
+  IdOpenSSLHeaders_idea \
+  IdOpenSSLHeaders_kdferr \
+  IdOpenSSLHeaders_objectserr \
+  IdOpenSSLHeaders_objects \
+  IdOpenSSLHeaders_obj_mac \
+  IdOpenSSLHeaders_ocsperr \
+  IdOpenSSLHeaders_ossl_typ \
+  IdOpenSSLHeaders_pemerr \
+  IdOpenSSLHeaders_pem \
+  IdOpenSSLHeaders_pkcs12 \
+  IdOpenSSLHeaders_pkcs7err \
+  IdOpenSSLHeaders_pkcs7 \
+  IdOpenSSLHeaders_provider \
+  IdOpenSSLHeaders_randerr \
+  IdOpenSSLHeaders_rand \
+  IdOpenSSLHeaders_rc4 \
+  IdOpenSSLHeaders_rsaerr \
+  IdOpenSSLHeaders_rsa \
+  IdOpenSSLHeaders_sha \
+  IdOpenSSLHeaders_srtp \
+  IdOpenSSLHeaders_ssl3 \
+  IdOpenSSLHeaders_sslerr \
+  IdOpenSSLHeaders_ssl \
+  IdOpenSSLHeaders_stack \
+  IdOpenSSLHeaders_storeerr \
+  IdOpenSSLHeaders_tls1 \
+  IdOpenSSLHeaders_tserr \
+  IdOpenSSLHeaders_ts \
+  IdOpenSSLHeaders_txt_db \
+  IdOpenSSLHeaders_uierr \
+  IdOpenSSLHeaders_ui \
+  IdOpenSSLHeaders_whrlpool \
+  IdOpenSSLHeaders_x509err \
+  IdOpenSSLHeaders_x509 \
+  IdOpenSSLHeaders_x509v3 \
+  IdOpenSSLHeaders_x509_vfy 
+

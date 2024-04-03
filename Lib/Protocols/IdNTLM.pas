@@ -43,6 +43,7 @@ unit IdNTLM;
 interface
 
 {$i IdCompilerDefines.inc}
+{$i IdSSLOpenSSLDefines.inc}
 
 uses
   IdGlobal,
@@ -284,12 +285,9 @@ uses
   IdGlobalProtocols,
   IdHash,
   IdHashMessageDigest,
-  IdCoderMIME
-  {$IFNDEF DOTNET}
-    {.$IFDEF USE_OPENSSL}
-  , IdSSLOpenSSLHeaders
-    {.$ENDIF}
-  {$ENDIF}
+  IdCoderMIME,
+  IdSSLOpenSSLLoader,
+  IdOpenSSLHeaders_des
   {$IFDEF HAS_GENERICS_TArray_Copy}
     {$IFDEF HAS_UNIT_Generics_Collections}
   , System.Generics.Collections
@@ -298,7 +296,7 @@ uses
   ;
 
 type
-  Pdes_key_schedule = ^des_key_schedule;
+  Pdes_key_schedule = ^DES_key_schedule;
 
 const
   cProtocolStr: array[1..8] of Byte = (Ord('N'),Ord('T'),Ord('L'),Ord('M'),Ord('S'),Ord('S'),Ord('P'),$0); {Do not Localize}
@@ -331,12 +329,14 @@ function NTLMFunctionsLoaded : Boolean;
 //{$IFNDEF USE_OPENSSL}{$IFDEF USE_INLINE} inline; {$ENDIF}{$ENDIF}
 begin
   {.$IFDEF USE_OPENSSL}
-  Result := IdSSLOpenSSLHeaders.Load;
+  Result := GetOpenSSLLoader.Load;
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
   if Result then begin
     Result := Assigned(DES_set_odd_parity) and
       Assigned(DES_set_key) and
       Assigned(DES_ecb_encrypt);
   end;
+  {$ENDIF}
   {.$ELSE}
   //Result := False;
   {.$ENDIF}
@@ -378,13 +378,13 @@ Var
 begin
   setup_des_key(keys^, ks);
   Move(ANonce[0], nonce, 8);
-  des_ecb_encrypt(@nonce, Pconst_DES_cblock(results), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@nonce, PDES_cblock(results), @ks, DES_ENCRYPT);
 
   setup_des_key(PDES_cblock(PtrUInt(keys) + 7)^, ks);
-  des_ecb_encrypt(@nonce, Pconst_DES_cblock(PtrUInt(results) + 8), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@nonce, PDES_cblock(PtrUInt(results) + 8), @ks, DES_ENCRYPT);
 
   setup_des_key(PDES_cblock(PtrUInt(keys) + 14)^, ks);
-  des_ecb_encrypt(@nonce, Pconst_DES_cblock(PtrUInt(results) + 16), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@nonce, PDES_cblock(PtrUInt(results) + 16), @ks, DES_ENCRYPT);
 end;
 
 Const
@@ -419,10 +419,10 @@ begin
   //* create LanManager hashed password */
 
   setup_des_key(pdes_cblock(@lm_pw[0])^, ks);
-  des_ecb_encrypt(@magic, Pconst_DES_cblock(@lm_hpw[0]), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@magic, PDES_cblock(@lm_hpw[0]), @ks, DES_ENCRYPT);
 
   setup_des_key(pdes_cblock(PtrUInt(@lm_pw[0]) + 7)^, ks);
-  des_ecb_encrypt(@magic, Pconst_DES_cblock(PtrUInt(@lm_hpw[0]) + 8), ks, DES_ENCRYPT);
+  des_ecb_encrypt(@magic, PDES_cblock(PtrUInt(@lm_hpw[0]) + 8), @ks, DES_ENCRYPT);
 
   FillChar(lm_hpw[16], 5, 0);
 

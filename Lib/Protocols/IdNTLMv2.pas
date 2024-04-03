@@ -3,11 +3,12 @@ unit IdNTLMv2;
 interface
 
 {$i IdCompilerDefines.inc}
+{$i IdSSLOpenSSLDefines.inc}
 
 uses
   IdGlobal,
   IdStruct
-  {$IFNDEF DOTNET}, IdCTypes, IdSSLOpenSSLHeaders{$ENDIF}
+  {$IFNDEF DOTNET}, IdCTypes, IdOpenSSLHeaders_rc4, IdOpenSSLHeaders_des{$ENDIF}
   ;
 
 type
@@ -150,21 +151,11 @@ function DumpFlags(const AFlags : UInt32): String; overload;
 function LoadRC4 : Boolean;
 function RC4FunctionsLoaded : Boolean;
 
-{$IFNDEF DOTNET}
-//const char *RC4_options(void);
-var
-  GRC4_Options : function () : PIdAnsiChar; cdecl = nil;
-//void RC4_set_key(RC4_KEY *key, int len, const unsigned char *data);
-  GRC4_set_key : procedure(key : PRC4_KEY; len : TIdC_INT; data : PIdAnsiChar); cdecl = nil;
-//void RC4(RC4_KEY *key, unsigned long len, const unsigned char *indata,
-//		unsigned char *outdata);
-  GRC4 : procedure (key : PRC4_KEY; len : TIdC_ULONG; indata, outdata : PIdAnsiChar) ; cdecl = nil;
-{$ENDIF}
-
 implementation
 
 uses
   SysUtils,
+  IdSSLOpenSSLLoader,
    {$IFDEF USE_VCL_POSIX}
   PosixTime,
    {$ENDIF}
@@ -275,7 +266,7 @@ function NowAsFileTime : FILETIME;
 {$IFDEF UNIX}
   {$IFNDEF USE_VCL_POSIX}
 var
-  TheTms: tms;
+  TheTms: UInt32;
   {$ENDIF}
 {$ENDIF}
 begin
@@ -559,33 +550,34 @@ end;
 
 function NTLMFunctionsLoaded : Boolean;
 begin
-  Result := IdSSLOpenSSLHeaders.Load;
+  Result := GetOpenSSLLoader.Load;
   if Result then begin
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
     Result := Assigned(des_set_odd_parity) and
       Assigned(DES_set_key) and
       Assigned(DES_ecb_encrypt);
+  {$ELSE}
+  Result := true;
+  {$ENDIF}
   end;
 end;
 
 function LoadRC4 : Boolean;
-var
-  h : Integer;
 begin
-  Result := IdSSLOpenSSLHeaders.Load;
-  if Result then begin
-    h := IdSSLOpenSSLHeaders.GetCryptLibHandle;
-    GRC4_Options := LoadLibFunction(h,'RC4_options');
-    GRC4_set_key := LoadLibFunction(h,'RC4_set_key');
-    GRC4 := LoadLibFunction(h,'RC4');
-  end;
-  Result := RC4FunctionsLoaded;
+  Result := GetOpenSSLLoader.Load;
+  if Result then
+    Result := RC4FunctionsLoaded;
 end;
 
 function RC4FunctionsLoaded : Boolean;
 begin
-  Result := Assigned(GRC4_Options) and
-     Assigned(GRC4_set_key) and
-     Assigned(GRC4);
+  {$IFNDEF USE_EXTERNAL_LIBRARY}
+  Result := Assigned(RC4_Options) and
+     Assigned(RC4_set_key) and
+     Assigned(RC4);
+  {$ELSE}
+  Result := {$ifndef OPENSSL_NO_RC4}true{$else}false{$endif};
+  {$ENDIF}
 end;
 {$ENDIF}
 
@@ -638,7 +630,7 @@ var
   Lks: des_key_schedule;
 begin
   setup_des_key(pdes_cblock(@Akey[AKeyIdx])^, Lks);
-  DES_ecb_encrypt(@AData[ADataIdx], Pconst_DES_cblock(@Res[AResIdx]), Lks, DES_ENCRYPT);
+  DES_ecb_encrypt(@AData[ADataIdx], PDES_cblock(@Res[AResIdx]), @Lks, DES_ENCRYPT);
 
 end;
 
@@ -670,13 +662,13 @@ var
 begin
   SetLength(Results,24);
   setup_des_key(PDES_cblock(@Akeys[0])^, ks);
-  DES_ecb_encrypt(@AServerNonce[0], Pconst_DES_cblock(results), ks, DES_ENCRYPT);
+  DES_ecb_encrypt(@AServerNonce[0], PDES_cblock(results), @ks, DES_ENCRYPT);
 
-  setup_des_key(PDES_cblock(Integer(Akeys) + 7)^, ks);
-  DES_ecb_encrypt(@AServerNonce[0], Pconst_DES_cblock(PtrUInt(results) + 8), ks, DES_ENCRYPT);
+  setup_des_key(PDES_cblock(@Akeys[7])^, ks);
+  DES_ecb_encrypt(@AServerNonce[0], PDES_cblock(PtrUInt(results) + 8), @ks, DES_ENCRYPT);
 
-  setup_des_key(PDES_cblock(Integer(Akeys) + 14)^, ks);
-  DES_ecb_encrypt(@AServerNonce[0], Pconst_DES_cblock(PtrUInt(results) + 16), ks, DES_ENCRYPT);
+  setup_des_key(PDES_cblock(@Akeys[14])^, ks);
+  DES_ecb_encrypt(@AServerNonce[0], PDES_cblock(PtrUInt(results) + 16), @ks, DES_ENCRYPT);
 end;
 
 
@@ -697,10 +689,10 @@ begin
 
   //* create LanManager hashed password */
   setup_des_key(pdes_cblock(@lm_pw[0])^, ks);
-  DES_ecb_encrypt(@magic, pconst_des_cblock(@lm_hpw[0]), ks, DES_ENCRYPT);
+  DES_ecb_encrypt(@magic, PDES_cblock(@lm_hpw[0]), @ks, DES_ENCRYPT);
 
   setup_des_key(pdes_cblock(@lm_pw[7])^, ks);
-  DES_ecb_encrypt(@magic, pconst_des_cblock(@lm_hpw[8]), ks, DES_ENCRYPT);
+  DES_ecb_encrypt(@magic, PDES_cblock(@lm_hpw[8]), @ks, DES_ENCRYPT);
   CopyTIdBytes(lm_pw,0,vlmHash,0,16);
  // FillChar(lm_hpw[17], 5, 0);
   SetLength(Result,24);
@@ -740,7 +732,7 @@ begin
   DESL(nt_hpw, nonce, Result);
 end;
 
-{
+(*
 function CreateNTLMResponse(const APassword : String; const nonce : TIdBytes): TIdBytes;
 var
   nt_pw : TIdBytes;
@@ -764,7 +756,7 @@ begin
   Move( nt_hpw128[ 0], nt_hpw[ 1], 16);
   FillChar( nt_hpw[ 17], 5, 0);
   DESL(pdes_cblock( @nt_hpw[1]), nonce, Pdes_key_schedule( @Result[ 0]));
-end;    }
+end;    *)
 
 {$ELSE}
 
@@ -1123,10 +1115,10 @@ begin
   CopyTIdBytes(LHash8,0,LKey,0,8);
   SetLength(Result,16);
   setup_des_key(pdes_cblock(@LKey[0])^, ks);
-  DES_ecb_encrypt(@LHash8, pconst_des_cblock(@Result[0]), ks, DES_ENCRYPT);
+  DES_ecb_encrypt(@LHash8, PDES_cblock(@Result[0]), @ks, DES_ENCRYPT);
 
   setup_des_key(pdes_cblock(@LKey[7])^, ks);
-  DES_ecb_encrypt(@LHash8, pconst_des_cblock(@Result[8]), ks, DES_ENCRYPT);
+  DES_ecb_encrypt(@LHash8, PDES_cblock(@Result[8]), @ks, DES_ENCRYPT);
 
 end;
 

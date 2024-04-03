@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="12"/>
+    <BuildModes Active="Default"/>
+    <Units>
+      <Unit>
+        <Filename Value="fpc_openssl_server.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <CursorPos Y="10"/>
+        <UsageCount Value="42"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../openssl-client/fpc_openssl_client.lpr"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="testserver.pas"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="380"/>
+        <CursorPos X="59" Y="408"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../projects/oauth2/src/oauth2Client.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="24"/>
+        <CursorPos X="58" Y="37"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdSSLOpenSSL.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1340"/>
+        <CursorPos X="39" Y="2057"/>
+        <UsageCount Value="17"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/IdCustomHTTPServer.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/usr/share/fpcsrc/rtl/objpas/sysutils/osutilsh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="3"/>
+        <CursorPos X="11" Y="31"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/usr/share/fpcsrc/rtl/objpas/classes/classesh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1091"/>
+        <CursorPos X="15" Y="1109"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="/usr/share/fpcsrc/rtl/objpas/classes/streams.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdAssignedNumbers.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="87"/>
+        <CursorPos X="3" Y="101"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdCustomTCPServer.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="604"/>
+        <CursorPos Y="619"/>
+        <UsageCount Value="14"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdServerIOHandler.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="44"/>
+        <CursorPos X="23" Y="47"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpcsrc/3.2.2/rtl/objpas/classes/lists.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="203"/>
+        <CursorPos Y="218"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpcsrc/3.2.2/rtl/objpas/classes/compon.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="550"/>
+        <CursorPos Y="565"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdContext.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="164"/>
+        <CursorPos Y="178"/>
+        <UsageCount Value="12"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdSchedulerOfThread.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="174"/>
+        <CursorPos Y="192"/>
+        <UsageCount Value="12"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdThread.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="695"/>
+        <CursorPos X="3" Y="699"/>
+        <UsageCount Value="12"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdYarn.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="18"/>
+        <CursorPos X="3" Y="39"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpcsrc/3.2.2/rtl/inc/objpas.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="65"/>
+        <CursorPos Y="84"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdIOHandler.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1486"/>
+        <CursorPos Y="1513"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdScheduler.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="140"/>
+        <CursorPos Y="155"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Core/IdIOHandlerSocket.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="233"/>
+        <CursorPos Y="250"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpcsrc/3.2.2/rtl/inc/except.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="176"/>
+        <CursorPos Y="200"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLExceptionHandlers.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="118"/>
+        <CursorPos Y="133"/>
+        <UsageCount Value="14"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/System/IdGlobal.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1325"/>
+        <CursorPos X="3" Y="1339"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_x509_vfy.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1138"/>
+        <CursorPos X="32" Y="1143"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../tools/sslheaders_source/IdOpenSSLHeaders_x509_vfy.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="573"/>
+        <CursorPos X="43" Y="584"/>
+        <UsageCount Value="12"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_ssl.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="4701"/>
+        <CursorPos X="78" Y="4713"/>
+        <UsageCount Value="14"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/IdHTTP.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="61" Y="5"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_x509.pas"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../tools/sslheaders_source/IdOpenSSLHeaders_x509.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1138"/>
+        <CursorPos X="44" Y="1157"/>
+        <UsageCount Value="11"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_ossl_typ.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="521"/>
+        <CursorPos X="15" Y="544"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../tools/sslheaders_source/IdOpenSSLHeaders_ossl_typ.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="512"/>
+        <CursorPos X="33" Y="535"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/System/IdCTypes.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="46"/>
+        <CursorPos X="11" Y="61"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../projects/Indy/Lib/Protocols/IdSSLOpenSSL.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2344"/>
+        <CursorPos X="36" Y="2355"/>
+        <UsageCount Value="12"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../projects/Indy/Lib/Protocols/IdSSLOpenSSLHeaders.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="19575"/>
+        <CursorPos X="48" Y="19584"/>
+        <UsageCount Value="12"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../tools/sslheaders_source/IdOpenSSLHeaders_ssl.h2pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2701"/>
+        <CursorPos X="51" Y="2712"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../runtime/openssl/IdOpenSSLHeaders_pkcs12.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="251"/>
+        <CursorPos X="15" Y="265"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/opensslHdrs/IdOpenSSLHeaders_x509.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="864"/>
+        <CursorPos X="31" Y="845"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/IdSSLOpenSSL.pas"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="704"/>
+        <CursorPos X="3" Y="709"/>
+        <UsageCount Value="14"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/IdOpenSSLConsts.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="37"/>
+        <CursorPos X="14" Y="48"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../projects/Indy/Lib/System/IdGlobal.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="4698"/>
+        <CursorPos X="50" Y="4701"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/IdOpenSSLLoader.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="172"/>
+        <CursorPos X="52" Y="190"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/opensslHdrs/IdOpenSSLHeaders_aes.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="7"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../Lib/Protocols/opensslHdrs/AllOpenSSLHeaders.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="56"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../fpcsrc/3.2.2/rtl/inc/astrings.inc"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="126"/>
+        <CursorPos Y="150"/>
+        <UsageCount Value="14"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="324"/>
+        <CursorPos Y="346"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../../../../Indy/runtime/system/IdStackUnix.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="851"/>
+        <CursorPos X="34" Y="866"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
+    </Units>
+    <JumpHistory HistoryIndex="29">
+      <Position>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <Caret Line="298" Column="16" TopLine="275"/>
+      </Position>
+      <Position>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <Caret Line="301" Column="18" TopLine="278"/>
+      </Position>
+      <Position>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <Caret Line="303" Column="31" TopLine="280"/>
+      </Position>
+      <Position>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <Caret Line="310" Column="17" TopLine="287"/>
+      </Position>
+      <Position>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <Caret Line="314" Column="33" TopLine="291"/>
+      </Position>
+      <Position>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <Caret Line="315" Column="35" TopLine="292"/>
+      </Position>
+      <Position>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <Caret Line="317" Column="70" TopLine="294"/>
+      </Position>
+      <Position>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <Caret Line="319" Column="47" TopLine="300"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="331" Column="30" TopLine="321"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="86" Column="22" TopLine="65"/>
+      </Position>
+      <Position>
+        <Filename Value="../openssl-client/TestClient.pas"/>
+        <Caret Line="78" Column="17" TopLine="64"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="301" Column="45" TopLine="290"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="108" Column="21" TopLine="84"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="341" Column="18" TopLine="318"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="347" Column="18" TopLine="324"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="350" Column="34" TopLine="327"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="351" Column="36" TopLine="328"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="353" Column="71" TopLine="330"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="351" Column="39" TopLine="338"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="353" Column="75" TopLine="339"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="359" Column="11" TopLine="345"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="355" Column="40" TopLine="342"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="86" Column="15" TopLine="72"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="364" Column="33" TopLine="345"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="344" Column="19" TopLine="334"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="77" Column="15" TopLine="62"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="239" Column="3" TopLine="235"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="86" Column="15" TopLine="79"/>
+      </Position>
+      <Position>
+        <Filename Value="testserver.pas"/>
+        <Caret Line="408" Column="59" TopLine="380"/>
+      </Position>
+    </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes ActiveMode="default">
+        <Mode Name="default"/>
+      </Modes>
+    </RunParams>
+    <HistoryLists>
+      <List Name="CommandLineParameters" Count="5">
+        <Item1 Value="../libs/3.0/x86_64"/>
+        <Item2 Value="-h"/>
+        <Item3 Value="../libs/1.0/x86_64"/>
+        <Item4 Value="../libs/3.2/x86_64"/>
+        <Item5 Value="../3.2/x86_64"/>
+      </List>
+    </HistoryLists>
+  </ProjectSession>
+</CONFIG>

@@ -1,0 +1,10 @@
+[prerules]
+ifdef DEBUG
+export OPT=-O1 -g -gl
+else
+export OPT=-O3
+endif
+export INDY_VERSION=10.6.2.0
+
+[target]
+dirs=runtime/system runtime/core runtime/protocols 

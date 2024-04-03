@@ -1,0 +1,90 @@
+Proposed Update to Indy for Support of OpenSSL 3.x
+
+This repository is a proposed update to the Indy master branch made available 
+prior to a formal pull request. This file will not be part of the pull request.
+
+This update includes work performed by @mezen in producing a version of Indy 
+supporting OpenSSL 1.1.1. This version is intended to overcome two criticisms 
+of that update: The first is that the proposal for 1.1.1 did not use the 
+existing Indy OpenSSL classes. The second is that Openssl 3.x was not yet 
+supported.
+
+This update has taken @mezen's new openssl loader, and intermediate code 
+OpenSSL header files, added a couple more header files and written a new code 
+processor (a sed script) to process the intermediate code into usable unit 
+files. With a few mods to IdSSLOpenSSL, The result supports:
+
+OpenSSL 1.0.2, 1.1.1 and 3.x and which dynamically adjusts to the version it 
+finds. it probably works with earlier versions - but not tested.
+
+The IdSSLOpenSSL components are unchanged except for the addition of a couple 
+of useful properties e.g. to report the TLS protocol in use (ideally always TLS 
+1.3). There is also a new feature to automatically use the Windows crypto API 
+so that the Windows Root Certificate store can be used for validation on 
+Windows hosts (the default - but can be disabled at compile time). There are 
+also some low level changes to handle the change to opaque data structures 
+(e.g. SSL_CTX) in 1.1.1 and 3.x.
+
+Three link models are supported.
+   Dynamic Library Load (the default and the approach used in previous versions)
+   compile time linkage to a shared (.so or .dll) library (OpenSSL 3.x only)
+   compile time linkage to a static library (FPC only with gcc compiled 
+OpenSSL).
+
+This version has been tested on both Windows and Linux with both Lazarus/FPC 
+(3.2.2) and Delphi (Berlin 32 bit only). There are two test programs used for 
+validation:
+
+    Https Get from a public website with certification validation
+    Https Get from an embedded TIdHttpServer using a private PKI and password 
+protected keys.
+
+Hopefully the result will be found useful.
+
+Please read README.OpenSSL for further information on the update.
+
+NOTES FOR USING THE TEST PROGRAMS
+
+The directory Test/OpenSSL contains the two test programs together with a 
+README giving more details on their use. They are intended to run "standalone". 
+That is without having to integrate Indy into the IDE. There are variants for 
+both Delphi and Lazarus/fpc.
+
+Note: when testing under Windows, if there are no default OpenSSL dlls in the 
+search path then you will either need to copy libssl and libcrypto into the 
+project folder or add a command line parameter providing the location of the 
+OpenSSL dlls.
+
+NOTES FOR LAZARUS/FPC
+
+Please try out the test programs before following the instructions below.
+
+Before trying out the update with your own programs, you should run the script:
+
+getindy4lazfpc.sh (Linux)
+getindy4lazfpc.bat (Windows)
+
+These scripts are intended to extract the files relevant to Lazarus/FPC to 
+another directory and to place the Lazarus package files in the destination 
+directory itself. By default the scripts extract the files to:
+
+$HOME/Indy (Linux)
+"%homedrive%%homepath%"\Indy (Windows)
+
+To override the default, provide the target directory as the only command line 
+argument for the script. There is no need for the target directory to exist 
+before running the script.
+
+After running the script, you should read the file README.lazarus-fpc for 
+further guidance.
+
+Note that you must ensure that any existing Lazarus project that you test this 
+update with, includes the indyprotocols run time package in the requirements 
+list.
+
+NOTES FOR DELPHI USERS
+
+Integration with the Delphi IDE is tbd and needs someone to take this on.
+
+
+
