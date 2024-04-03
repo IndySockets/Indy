@@ -34,7 +34,7 @@ Three link models are supported for use of the OpenSSL library:
     2. Static Loading of a shared library. Under this model, the OpenSSL 
        library (.dll or .so) is loaded when a program using Indy and OpenSSL is loaded 
        with all library entry points pre-determined. This link model is only available 
-       with version 3.x of OpenSSL and effectively forces use of the most recent 
+       with version 3.2 onwards of OpenSSL and effectively forces use of the most recent 
        versions of OpenSSL and with a specific library name (e.g. libssl.so.3 and 
        libcrypto.so.3 for the Linux version).
 
