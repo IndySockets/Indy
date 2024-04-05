@@ -965,7 +965,9 @@ var
   begin
     if AStrings.Count > 1 then begin
       // break trailing CR&LF
-      Result := ReplaceAll(Trim(AStrings.Text), sLineBreak, '&'); {do not localize}
+      Result := ReplaceAll(Trim(AStrings.Text),
+        {$IFDEF HAS_TStrings_LineBreak}AStrings.LineBreak{$ELSE}sLineBreak{$ENDIF},
+        '&'); {do not localize}
     end else begin
       Result := Trim(AStrings.Text);
     end;

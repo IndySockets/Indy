@@ -49,7 +49,7 @@ constructor TVersInc.Create;
 begin
   inherited;
   FExt := '.inc';
-  FProductVersion := Format('%d.%d.%d', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Patch]);
+  FProductVersion := Format('%d.%d.%d', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Release]);
 end;
 
 procedure TVersInc.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
@@ -144,26 +144,30 @@ end;
 procedure TVersInc.GenIdVers;
 var
   FileVersion : string;
-  TemplateStr: String;
+  BuildStr: String;
 begin
   FCode.Clear;
 
-  TemplateStr := iif(FTemplate, '$WCREV$', '0');
-  FileVersion := FProductVersion + '.' + TemplateStr;
+  if FTemplate then
+    BuildStr := '$WCREV$'
+  else
+    BuildStr := IntToStr(IndyVersion_Build);
+
+  FileVersion := FProductVersion + '.' + BuildStr;
 
   Code('  gsIdVersionMajor = ' + IntToStr(IndyVersion_Major) + ';');
   Code('  {$NODEFINE gsIdVersionMajor}');
   Code('  gsIdVersionMinor = ' + IntToStr(IndyVersion_Minor) + ';');
   Code('  {$NODEFINE gsIdVersionMinor}');
-  Code('  gsIdVersionRelease = ' + IntToStr(IndyVersion_Patch) + ';');
+  Code('  gsIdVersionRelease = ' + IntToStr(IndyVersion_Release) + ';');
   Code('  {$NODEFINE gsIdVersionRelease}');
-  Code('  gsIdVersionBuild = ' + TemplateStr + ';');
+  Code('  gsIdVersionBuild = ' + BuildStr + ';');
   Code('  {$NODEFINE gsIdVersionBuild}');
   Code('');
   Code('  (*$HPPEMIT ''#define gsIdVersionMajor ' + IntToStr(IndyVersion_Major) + '''*)');
   Code('  (*$HPPEMIT ''#define gsIdVersionMinor ' + IntToStr(IndyVersion_Minor) + '''*)');
-  Code('  (*$HPPEMIT ''#define gsIdVersionRelease ' + IntToStr(IndyVersion_Patch) + '''*)');
-  Code('  (*$HPPEMIT ''#define gsIdVersionBuild ' + TemplateStr + '''*)');
+  Code('  (*$HPPEMIT ''#define gsIdVersionRelease ' + IntToStr(IndyVersion_Release) + '''*)');
+  Code('  (*$HPPEMIT ''#define gsIdVersionBuild ' + BuildStr + '''*)');
   Code('  (*$HPPEMIT ''''*)');
   Code('');
   Code('  gsIdVersion = ''' + FileVersion + '''; {do not localize}');

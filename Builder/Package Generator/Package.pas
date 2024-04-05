@@ -231,7 +231,8 @@ function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boole
 const
   IndyVersion_Major   = 10;
   IndyVersion_Minor   = 6;
-  IndyVersion_Patch   = 3;
+  IndyVersion_Release = 3;
+  IndyVersion_Build   = 1;
 
 implementation
 
@@ -558,14 +559,17 @@ procedure TPackage.GenResourceScript;
 var
   ProductVersion: string;
   FileVersion : string;
-  TemplateStr: String;
+  BuildStr: String;
 begin
   //We don't call many of the inherited Protected methods because
   //those are for Packages while I'm making a unit.
 
-  TemplateStr := iif(FTemplate,'$WCREV$','0');
+  if FTemplate then
+    BuildStr := '$WCREV$'
+  else
+    BuildStr := IntToStr(IndyVersion_Build);
 
-  FileVersion := Format('%d,%d,%d,%s', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Patch, TemplateStr]);
+  FileVersion := Format('%d,%d,%d,%s', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Release, BuildStr]);
   ProductVersion := FileVersion;
 
   Code('1 VERSIONINFO ');
@@ -576,8 +580,8 @@ begin
   Code('FILEOS 0x40004L');
   Code('FILETYPE 0x1L');
 
-  ProductVersion := Format('%d.%d.%d', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Patch]);
-  FileVersion := ProductVersion + '.' + TemplateStr;
+  ProductVersion := Format('%d.%d.%d', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Release]);
+  FileVersion := ProductVersion + '.' + BuildStr;
 
   Code('FILESUBTYPE 0x0L');
   Code('{');

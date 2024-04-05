@@ -1163,6 +1163,7 @@
 {$IFDEF VCL_2006_OR_ABOVE}
   {$DEFINE USE_INLINE}
   {$DEFINE HAS_2PARAM_FileAge}
+  {$DEFINE HAS_TStrings_LineBreak} // TODO: when was LineBreak introduced?
   {$IFDEF WINDOWS}
     // System.RegisterExpectedMemoryLeak() is only available on Windows at this time
     {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
@@ -1473,6 +1474,7 @@
   {$ENDIF}
   {$DEFINE HAS_UNIT_ctypes}
   {$DEFINE HAS_sLineBreak}
+  {$DEFINE HAS_TStrings_LineBreak} // TODO: when was LineBreak introduced?
   {$IFDEF FPC_HAS_UNICODESTRING}
     {$DEFINE HAS_UnicodeString}
   {$ELSE}
