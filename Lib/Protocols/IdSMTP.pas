@@ -218,6 +218,7 @@ type
     // This is just an internal flag we use to determine if we already authenticated to the server.
     FDidAuthenticate: Boolean;
     FValidateAuthLoginCapability: Boolean;
+    FCanAttemptIR: Boolean;
     // FSASLMechanisms : TIdSASLList;
     FSASLMechanisms : TIdSASLEntries;
     //
@@ -248,6 +249,7 @@ type
   published
     property AuthType: TIdSMTPAuthenticationType read FAuthType write FAuthType
      default DEF_SMTP_AUTH;
+    property CanAttemptIR: Boolean read FCanAttemptIR write FCanAttemptIR default True;
     property Host;
     property Password;
     property Port default IdPORT_SMTP;
@@ -363,7 +365,7 @@ begin
       end;
     satSASL:
       begin
-        SASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_smtp, ['235'], ['334'], Self, Capabilities); {do not localize}
+        SASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_smtp, ['235'], ['334'], Self, Capabilities, 'AUTH', FCanAttemptIR); {do not localize}
         FDidAuthenticate := True;
       end;
   end;
@@ -389,6 +391,7 @@ begin
   inherited InitComponent;
   FSASLMechanisms := TIdSASLEntries.Create(Self);
   FAuthType := DEF_SMTP_AUTH;
+  FCanAttemptIR := True;
   FValidateAuthLoginCapability := True;
 end;
 
