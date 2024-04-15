@@ -2133,7 +2133,7 @@ begin
   //  {$ENDIF}
   //);
 
-  Result := IndyX509_STORE_load_locations(ctx^.cert_store, ACAFile, ACAPath);
+  Result := IndyX509_STORE_load_locations(SSL_CTX_get_cert_store(ctx), ACAFile, ACAPath);
 end;
 
 function IndySSL_CTX_use_DHparams_file(ctx: PSSL_CTX;

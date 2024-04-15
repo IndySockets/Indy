@@ -39,3 +39,5 @@ This Log File records changes to the Indy Proposed Update since its initial publ
           is defined. This restores the ability for static linking with OpenSSL libraries for 3.0
           and 3.1.
 
+2024/4/15 Issue 3 fixes to enable compilation with Delphi and target Linux64.
+
