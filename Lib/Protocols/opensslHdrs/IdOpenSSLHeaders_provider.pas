@@ -75,11 +75,8 @@ type
 	  files generated for C++. }
 	  
   {$EXTERNALSYM OSSL_PROVIDER_set_default_search_path} {introduced 3.0.0}
-  {$EXTERNALSYM OSSL_PROVIDER_get0_default_search_path} {introduced 3.2.0}
   {$EXTERNALSYM OSSL_PROVIDER_load} {introduced 3.0.0}
-  {$EXTERNALSYM OSSL_PROVIDER_load_ex} {introduced 3.2.0}
   {$EXTERNALSYM OSSL_PROVIDER_try_load} {introduced 3.0.0}
-  {$EXTERNALSYM OSSL_PROVIDER_try_load_ex} {introduced 3.2.0}
   {$EXTERNALSYM OSSL_PROVIDER_unload} {introduced 3.0.0}
   {$EXTERNALSYM OSSL_PROVIDER_available} {introduced 3.0.0}
   {$EXTERNALSYM OSSL_PROVIDER_do_all} {introduced 3.0.0}
@@ -93,16 +90,16 @@ type
   {$EXTERNALSYM OSSL_PROVIDER_get0_dispatch} {introduced 3.0.0}
   {$EXTERNALSYM OSSL_PROVIDER_add_builtin} {introduced 3.0.0}
   {$EXTERNALSYM OSSL_PROVIDER_get0_name} {introduced 3.0.0}
+  {$EXTERNALSYM OSSL_PROVIDER_get0_default_search_path} {introduced 3.2.0}
+  {$EXTERNALSYM OSSL_PROVIDER_try_load_ex} {introduced 3.2.0}
+  {$EXTERNALSYM OSSL_PROVIDER_load_ex} {introduced 3.2.0}
 
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 var
   OSSL_PROVIDER_set_default_search_path: function (ctx: POSSL_LIB_CTX; path: PIdAnsiChar): TIdC_INT; cdecl = nil; {introduced 3.0.0}
-  OSSL_PROVIDER_get0_default_search_path: function (libctx: POSSL_LIB_CTX): PIdAnsiChar; cdecl = nil; {introduced 3.2.0}
     { Load and unload a provider  }
   OSSL_PROVIDER_load: function (_para1:POSSL_LIB_CTX; name: PIdAnsiChar):POSSL_PROVIDER; cdecl = nil; {introduced 3.0.0}
-  OSSL_PROVIDER_load_ex: function (_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params: POSSL_PARAM):POSSL_PROVIDER; cdecl = nil; {introduced 3.2.0}
   OSSL_PROVIDER_try_load: function (_para1:POSSL_LIB_CTX; name: PIdAnsiChar; retain_fallbacks: TIdC_LONG):POSSL_PROVIDER; cdecl = nil; {introduced 3.0.0}
-  OSSL_PROVIDER_try_load_ex: function (_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params:POSSL_PARAM; retain_fallbacks:TIdC_LONG):POSSL_PROVIDER; cdecl = nil; {introduced 3.2.0}
   OSSL_PROVIDER_unload: function (prov:POSSL_PROVIDER):TIdC_LONG; cdecl = nil; {introduced 3.0.0}
   OSSL_PROVIDER_available: function (_para1:POSSL_LIB_CTX; name:PIdAnsiChar):TIdC_LONG; cdecl = nil; {introduced 3.0.0}
   OSSL_PROVIDER_do_all: function (ctx:POSSL_LIB_CTX; cb:TDo_AllCallback; cbdata:pointer):TIdC_LONG; cdecl = nil; {introduced 3.0.0}
@@ -119,16 +116,15 @@ var
 
     { Information  }
   OSSL_PROVIDER_get0_name: function (prov:POSSL_PROVIDER):PIdAnsiChar; cdecl = nil; {introduced 3.0.0}
-
+  OSSL_PROVIDER_get0_default_search_path: function (libctx: POSSL_LIB_CTX): PIdAnsiChar; cdecl = nil; {introduced 3.2.0}
+  OSSL_PROVIDER_try_load_ex: function (_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params:POSSL_PARAM; retain_fallbacks:TIdC_LONG):POSSL_PROVIDER; cdecl = nil; {introduced 3.2.0}
+  OSSL_PROVIDER_load_ex: function (_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params: POSSL_PARAM):POSSL_PROVIDER; cdecl = nil; {introduced 3.2.0}
 
 {$ELSE}
   function OSSL_PROVIDER_set_default_search_path(ctx: POSSL_LIB_CTX; path: PIdAnsiChar): TIdC_INT cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.0.0}
-  function OSSL_PROVIDER_get0_default_search_path(libctx: POSSL_LIB_CTX): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.2.0}
     { Load and unload a provider  }
   function OSSL_PROVIDER_load(_para1:POSSL_LIB_CTX; name: PIdAnsiChar):POSSL_PROVIDER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.0.0}
-  function OSSL_PROVIDER_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params: POSSL_PARAM):POSSL_PROVIDER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.2.0}
   function OSSL_PROVIDER_try_load(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; retain_fallbacks: TIdC_LONG):POSSL_PROVIDER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.0.0}
-  function OSSL_PROVIDER_try_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params:POSSL_PARAM; retain_fallbacks:TIdC_LONG):POSSL_PROVIDER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.2.0}
   function OSSL_PROVIDER_unload(prov:POSSL_PROVIDER):TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.0.0}
   function OSSL_PROVIDER_available(_para1:POSSL_LIB_CTX; name:PIdAnsiChar):TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.0.0}
   function OSSL_PROVIDER_do_all(ctx:POSSL_LIB_CTX; cb:TDo_AllCallback; cbdata:pointer):TIdC_LONG cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.0.0}
@@ -145,7 +141,11 @@ var
 
     { Information  }
   function OSSL_PROVIDER_get0_name(prov:POSSL_PROVIDER):PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.0.0}
-
+    {$IFDEF OPENSSL_3_2_ORLATER}
+  function OSSL_PROVIDER_get0_default_search_path(libctx: POSSL_LIB_CTX): PIdAnsiChar cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.2.0}
+  function OSSL_PROVIDER_try_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params:POSSL_PARAM; retain_fallbacks:TIdC_LONG):POSSL_PROVIDER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.2.0}
+  function OSSL_PROVIDER_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params: POSSL_PARAM):POSSL_PROVIDER cdecl; external {$IFNDEF OPENSSL_USE_STATIC_LIBRARY}CLibCrypto{$ENDIF}; {introduced 3.2.0}
+    {$ENDIF}
 
 {$ENDIF}
 
@@ -161,11 +161,8 @@ implementation
   
 const
   OSSL_PROVIDER_set_default_search_path_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
-  OSSL_PROVIDER_get0_default_search_path_introduced = (byte(3) shl 8 or byte(2)) shl 8 or byte(0);
   OSSL_PROVIDER_load_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
-  OSSL_PROVIDER_load_ex_introduced = (byte(3) shl 8 or byte(2)) shl 8 or byte(0);
   OSSL_PROVIDER_try_load_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
-  OSSL_PROVIDER_try_load_ex_introduced = (byte(3) shl 8 or byte(2)) shl 8 or byte(0);
   OSSL_PROVIDER_unload_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
   OSSL_PROVIDER_available_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
   OSSL_PROVIDER_do_all_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
@@ -179,17 +176,14 @@ const
   OSSL_PROVIDER_get0_dispatch_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
   OSSL_PROVIDER_add_builtin_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
   OSSL_PROVIDER_get0_name_introduced = (byte(3) shl 8 or byte(0)) shl 8 or byte(0);
+  OSSL_PROVIDER_get0_default_search_path_introduced = (byte(3) shl 8 or byte(2)) shl 8 or byte(0);
+  OSSL_PROVIDER_try_load_ex_introduced = (byte(3) shl 8 or byte(2)) shl 8 or byte(0);
+  OSSL_PROVIDER_load_ex_introduced = (byte(3) shl 8 or byte(2)) shl 8 or byte(0);
 {$IFNDEF USE_EXTERNAL_LIBRARY}
 {$WARN  NO_RETVAL OFF}
 function  ERR_OSSL_PROVIDER_set_default_search_path(ctx: POSSL_LIB_CTX; path: PIdAnsiChar): TIdC_INT; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OSSL_PROVIDER_set_default_search_path');
-end;
-
-
-function  ERR_OSSL_PROVIDER_get0_default_search_path(libctx: POSSL_LIB_CTX): PIdAnsiChar; 
-begin
-  EIdAPIFunctionNotPresent.RaiseException('OSSL_PROVIDER_get0_default_search_path');
 end;
 
 
@@ -199,21 +193,9 @@ begin
 end;
 
 
-function  ERR_OSSL_PROVIDER_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params: POSSL_PARAM):POSSL_PROVIDER; 
-begin
-  EIdAPIFunctionNotPresent.RaiseException('OSSL_PROVIDER_load_ex');
-end;
-
-
 function  ERR_OSSL_PROVIDER_try_load(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; retain_fallbacks: TIdC_LONG):POSSL_PROVIDER; 
 begin
   EIdAPIFunctionNotPresent.RaiseException('OSSL_PROVIDER_try_load');
-end;
-
-
-function  ERR_OSSL_PROVIDER_try_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params:POSSL_PARAM; retain_fallbacks:TIdC_LONG):POSSL_PROVIDER; 
-begin
-  EIdAPIFunctionNotPresent.RaiseException('OSSL_PROVIDER_try_load_ex');
 end;
 
 
@@ -295,6 +277,24 @@ begin
 end;
 
 
+function  ERR_OSSL_PROVIDER_get0_default_search_path(libctx: POSSL_LIB_CTX): PIdAnsiChar; 
+begin
+  EIdAPIFunctionNotPresent.RaiseException('OSSL_PROVIDER_get0_default_search_path');
+end;
+
+
+function  ERR_OSSL_PROVIDER_try_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params:POSSL_PARAM; retain_fallbacks:TIdC_LONG):POSSL_PROVIDER; 
+begin
+  EIdAPIFunctionNotPresent.RaiseException('OSSL_PROVIDER_try_load_ex');
+end;
+
+
+function  ERR_OSSL_PROVIDER_load_ex(_para1:POSSL_LIB_CTX; name: PIdAnsiChar; params: POSSL_PARAM):POSSL_PROVIDER; 
+begin
+  EIdAPIFunctionNotPresent.RaiseException('OSSL_PROVIDER_load_ex');
+end;
+
+
 {$WARN  NO_RETVAL ON}
 
 procedure Load(const ADllHandle: TIdLibHandle; LibVersion: TIdC_UINT; const AFailed: TStringList);
@@ -308,11 +308,8 @@ procedure Load(const ADllHandle: TIdLibHandle; LibVersion: TIdC_UINT; const AFai
 
 begin
   OSSL_PROVIDER_set_default_search_path := LoadFunction('OSSL_PROVIDER_set_default_search_path',nil); {introduced 3.0.0}
-  OSSL_PROVIDER_get0_default_search_path := LoadFunction('OSSL_PROVIDER_get0_default_search_path',nil); {introduced 3.2.0}
   OSSL_PROVIDER_load := LoadFunction('OSSL_PROVIDER_load',nil); {introduced 3.0.0}
-  OSSL_PROVIDER_load_ex := LoadFunction('OSSL_PROVIDER_load_ex',nil); {introduced 3.2.0}
   OSSL_PROVIDER_try_load := LoadFunction('OSSL_PROVIDER_try_load',nil); {introduced 3.0.0}
-  OSSL_PROVIDER_try_load_ex := LoadFunction('OSSL_PROVIDER_try_load_ex',nil); {introduced 3.2.0}
   OSSL_PROVIDER_unload := LoadFunction('OSSL_PROVIDER_unload',nil); {introduced 3.0.0}
   OSSL_PROVIDER_available := LoadFunction('OSSL_PROVIDER_available',nil); {introduced 3.0.0}
   OSSL_PROVIDER_do_all := LoadFunction('OSSL_PROVIDER_do_all',nil); {introduced 3.0.0}
@@ -326,6 +323,9 @@ begin
   OSSL_PROVIDER_get0_dispatch := LoadFunction('OSSL_PROVIDER_get0_dispatch',nil); {introduced 3.0.0}
   OSSL_PROVIDER_add_builtin := LoadFunction('OSSL_PROVIDER_add_builtin',nil); {introduced 3.0.0}
   OSSL_PROVIDER_get0_name := LoadFunction('OSSL_PROVIDER_get0_name',nil); {introduced 3.0.0}
+  OSSL_PROVIDER_get0_default_search_path := LoadFunction('OSSL_PROVIDER_get0_default_search_path',nil); {introduced 3.2.0}
+  OSSL_PROVIDER_try_load_ex := LoadFunction('OSSL_PROVIDER_try_load_ex',nil); {introduced 3.2.0}
+  OSSL_PROVIDER_load_ex := LoadFunction('OSSL_PROVIDER_load_ex',nil); {introduced 3.2.0}
   if not assigned(OSSL_PROVIDER_set_default_search_path) then 
   begin
     {$if declared(OSSL_PROVIDER_set_default_search_path_introduced)}
@@ -350,33 +350,6 @@ begin
    {$ifend}
    if not assigned(OSSL_PROVIDER_set_default_search_path) and Assigned(AFailed) then 
      AFailed.Add('OSSL_PROVIDER_set_default_search_path');
-  end;
-
-
-  if not assigned(OSSL_PROVIDER_get0_default_search_path) then 
-  begin
-    {$if declared(OSSL_PROVIDER_get0_default_search_path_introduced)}
-    if LibVersion < OSSL_PROVIDER_get0_default_search_path_introduced then
-      {$if declared(FC_OSSL_PROVIDER_get0_default_search_path)}
-      OSSL_PROVIDER_get0_default_search_path := @FC_OSSL_PROVIDER_get0_default_search_path
-      {$else}
-      OSSL_PROVIDER_get0_default_search_path := @ERR_OSSL_PROVIDER_get0_default_search_path
-      {$ifend}
-    else
-    {$ifend}
-   {$if declared(OSSL_PROVIDER_get0_default_search_path_removed)}
-   if OSSL_PROVIDER_get0_default_search_path_removed <= LibVersion then
-     {$if declared(_OSSL_PROVIDER_get0_default_search_path)}
-     OSSL_PROVIDER_get0_default_search_path := @_OSSL_PROVIDER_get0_default_search_path
-     {$else}
-       {$IF declared(ERR_OSSL_PROVIDER_get0_default_search_path)}
-       OSSL_PROVIDER_get0_default_search_path := @ERR_OSSL_PROVIDER_get0_default_search_path
-       {$ifend}
-     {$ifend}
-    else
-   {$ifend}
-   if not assigned(OSSL_PROVIDER_get0_default_search_path) and Assigned(AFailed) then 
-     AFailed.Add('OSSL_PROVIDER_get0_default_search_path');
   end;
 
 
@@ -407,33 +380,6 @@ begin
   end;
 
 
-  if not assigned(OSSL_PROVIDER_load_ex) then 
-  begin
-    {$if declared(OSSL_PROVIDER_load_ex_introduced)}
-    if LibVersion < OSSL_PROVIDER_load_ex_introduced then
-      {$if declared(FC_OSSL_PROVIDER_load_ex)}
-      OSSL_PROVIDER_load_ex := @FC_OSSL_PROVIDER_load_ex
-      {$else}
-      OSSL_PROVIDER_load_ex := @ERR_OSSL_PROVIDER_load_ex
-      {$ifend}
-    else
-    {$ifend}
-   {$if declared(OSSL_PROVIDER_load_ex_removed)}
-   if OSSL_PROVIDER_load_ex_removed <= LibVersion then
-     {$if declared(_OSSL_PROVIDER_load_ex)}
-     OSSL_PROVIDER_load_ex := @_OSSL_PROVIDER_load_ex
-     {$else}
-       {$IF declared(ERR_OSSL_PROVIDER_load_ex)}
-       OSSL_PROVIDER_load_ex := @ERR_OSSL_PROVIDER_load_ex
-       {$ifend}
-     {$ifend}
-    else
-   {$ifend}
-   if not assigned(OSSL_PROVIDER_load_ex) and Assigned(AFailed) then 
-     AFailed.Add('OSSL_PROVIDER_load_ex');
-  end;
-
-
   if not assigned(OSSL_PROVIDER_try_load) then 
   begin
     {$if declared(OSSL_PROVIDER_try_load_introduced)}
@@ -458,33 +404,6 @@ begin
    {$ifend}
    if not assigned(OSSL_PROVIDER_try_load) and Assigned(AFailed) then 
      AFailed.Add('OSSL_PROVIDER_try_load');
-  end;
-
-
-  if not assigned(OSSL_PROVIDER_try_load_ex) then 
-  begin
-    {$if declared(OSSL_PROVIDER_try_load_ex_introduced)}
-    if LibVersion < OSSL_PROVIDER_try_load_ex_introduced then
-      {$if declared(FC_OSSL_PROVIDER_try_load_ex)}
-      OSSL_PROVIDER_try_load_ex := @FC_OSSL_PROVIDER_try_load_ex
-      {$else}
-      OSSL_PROVIDER_try_load_ex := @ERR_OSSL_PROVIDER_try_load_ex
-      {$ifend}
-    else
-    {$ifend}
-   {$if declared(OSSL_PROVIDER_try_load_ex_removed)}
-   if OSSL_PROVIDER_try_load_ex_removed <= LibVersion then
-     {$if declared(_OSSL_PROVIDER_try_load_ex)}
-     OSSL_PROVIDER_try_load_ex := @_OSSL_PROVIDER_try_load_ex
-     {$else}
-       {$IF declared(ERR_OSSL_PROVIDER_try_load_ex)}
-       OSSL_PROVIDER_try_load_ex := @ERR_OSSL_PROVIDER_try_load_ex
-       {$ifend}
-     {$ifend}
-    else
-   {$ifend}
-   if not assigned(OSSL_PROVIDER_try_load_ex) and Assigned(AFailed) then 
-     AFailed.Add('OSSL_PROVIDER_try_load_ex');
   end;
 
 
@@ -839,16 +758,94 @@ begin
   end;
 
 
+  if not assigned(OSSL_PROVIDER_get0_default_search_path) then 
+  begin
+    {$if declared(OSSL_PROVIDER_get0_default_search_path_introduced)}
+    if LibVersion < OSSL_PROVIDER_get0_default_search_path_introduced then
+      {$if declared(FC_OSSL_PROVIDER_get0_default_search_path)}
+      OSSL_PROVIDER_get0_default_search_path := @FC_OSSL_PROVIDER_get0_default_search_path
+      {$else}
+      OSSL_PROVIDER_get0_default_search_path := @ERR_OSSL_PROVIDER_get0_default_search_path
+      {$ifend}
+    else
+    {$ifend}
+   {$if declared(OSSL_PROVIDER_get0_default_search_path_removed)}
+   if OSSL_PROVIDER_get0_default_search_path_removed <= LibVersion then
+     {$if declared(_OSSL_PROVIDER_get0_default_search_path)}
+     OSSL_PROVIDER_get0_default_search_path := @_OSSL_PROVIDER_get0_default_search_path
+     {$else}
+       {$IF declared(ERR_OSSL_PROVIDER_get0_default_search_path)}
+       OSSL_PROVIDER_get0_default_search_path := @ERR_OSSL_PROVIDER_get0_default_search_path
+       {$ifend}
+     {$ifend}
+    else
+   {$ifend}
+   if not assigned(OSSL_PROVIDER_get0_default_search_path) and Assigned(AFailed) then 
+     AFailed.Add('OSSL_PROVIDER_get0_default_search_path');
+  end;
+
+
+  if not assigned(OSSL_PROVIDER_try_load_ex) then 
+  begin
+    {$if declared(OSSL_PROVIDER_try_load_ex_introduced)}
+    if LibVersion < OSSL_PROVIDER_try_load_ex_introduced then
+      {$if declared(FC_OSSL_PROVIDER_try_load_ex)}
+      OSSL_PROVIDER_try_load_ex := @FC_OSSL_PROVIDER_try_load_ex
+      {$else}
+      OSSL_PROVIDER_try_load_ex := @ERR_OSSL_PROVIDER_try_load_ex
+      {$ifend}
+    else
+    {$ifend}
+   {$if declared(OSSL_PROVIDER_try_load_ex_removed)}
+   if OSSL_PROVIDER_try_load_ex_removed <= LibVersion then
+     {$if declared(_OSSL_PROVIDER_try_load_ex)}
+     OSSL_PROVIDER_try_load_ex := @_OSSL_PROVIDER_try_load_ex
+     {$else}
+       {$IF declared(ERR_OSSL_PROVIDER_try_load_ex)}
+       OSSL_PROVIDER_try_load_ex := @ERR_OSSL_PROVIDER_try_load_ex
+       {$ifend}
+     {$ifend}
+    else
+   {$ifend}
+   if not assigned(OSSL_PROVIDER_try_load_ex) and Assigned(AFailed) then 
+     AFailed.Add('OSSL_PROVIDER_try_load_ex');
+  end;
+
+
+  if not assigned(OSSL_PROVIDER_load_ex) then 
+  begin
+    {$if declared(OSSL_PROVIDER_load_ex_introduced)}
+    if LibVersion < OSSL_PROVIDER_load_ex_introduced then
+      {$if declared(FC_OSSL_PROVIDER_load_ex)}
+      OSSL_PROVIDER_load_ex := @FC_OSSL_PROVIDER_load_ex
+      {$else}
+      OSSL_PROVIDER_load_ex := @ERR_OSSL_PROVIDER_load_ex
+      {$ifend}
+    else
+    {$ifend}
+   {$if declared(OSSL_PROVIDER_load_ex_removed)}
+   if OSSL_PROVIDER_load_ex_removed <= LibVersion then
+     {$if declared(_OSSL_PROVIDER_load_ex)}
+     OSSL_PROVIDER_load_ex := @_OSSL_PROVIDER_load_ex
+     {$else}
+       {$IF declared(ERR_OSSL_PROVIDER_load_ex)}
+       OSSL_PROVIDER_load_ex := @ERR_OSSL_PROVIDER_load_ex
+       {$ifend}
+     {$ifend}
+    else
+   {$ifend}
+   if not assigned(OSSL_PROVIDER_load_ex) and Assigned(AFailed) then 
+     AFailed.Add('OSSL_PROVIDER_load_ex');
+  end;
+
+
 end;
 
 procedure Unload;
 begin
   OSSL_PROVIDER_set_default_search_path := nil; {introduced 3.0.0}
-  OSSL_PROVIDER_get0_default_search_path := nil; {introduced 3.2.0}
   OSSL_PROVIDER_load := nil; {introduced 3.0.0}
-  OSSL_PROVIDER_load_ex := nil; {introduced 3.2.0}
   OSSL_PROVIDER_try_load := nil; {introduced 3.0.0}
-  OSSL_PROVIDER_try_load_ex := nil; {introduced 3.2.0}
   OSSL_PROVIDER_unload := nil; {introduced 3.0.0}
   OSSL_PROVIDER_available := nil; {introduced 3.0.0}
   OSSL_PROVIDER_do_all := nil; {introduced 3.0.0}
@@ -862,6 +859,9 @@ begin
   OSSL_PROVIDER_get0_dispatch := nil; {introduced 3.0.0}
   OSSL_PROVIDER_add_builtin := nil; {introduced 3.0.0}
   OSSL_PROVIDER_get0_name := nil; {introduced 3.0.0}
+  OSSL_PROVIDER_get0_default_search_path := nil; {introduced 3.2.0}
+  OSSL_PROVIDER_try_load_ex := nil; {introduced 3.2.0}
+  OSSL_PROVIDER_load_ex := nil; {introduced 3.2.0}
 end;
 {$ELSE}
 {$ENDIF}

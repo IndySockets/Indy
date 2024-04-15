@@ -813,7 +813,7 @@ var
   _RAND_event : TRAND_event = nil;
   {$ENDIF}
 
-  function UTC_Time_Decode(UCTtime : PASN1_UTCTIME; var year, month, day, hour, min, sec: Word;
+  function UTC_Time_Decode(UTCtime : PASN1_UTCTIME; var year, month, day, hour, min, sec: Word;
     var tz_hour, tz_min: Integer): Integer;
   var
     i, tz_dir: Integer;
@@ -824,17 +824,17 @@ var
       {$ENDIF}
     {$ENDIF}
   begin
-    Result := 1;
-    if UCTtime^.length < 12 then begin
+    Result := 0; {default is to return with an error indication}
+    if UTCtime^.length < 12 then begin
       Exit;
     end;
     {$IFDEF USE_MARSHALLED_PTRS}
-    time_str := TMarshal.ReadStringAsAnsi(TPtrWrapper.Create(UCTtime^.data), UCTtime^.length);
+    time_str := TMarshal.ReadStringAsAnsi(TPtrWrapper.Create(UTCtime^.data), UTCtime^.length);
     {$ELSE}
       {$IFDEF STRING_IS_ANSI}
-    SetString(time_str, PAnsiChar(UCTtime^.data), UCTtime^.length);
+    SetString(time_str, PAnsiChar(UTCtime^.data), UTCtime^.length);
       {$ELSE}
-    SetString(LTemp, PChar(UCTtime^.data), UCTtime^.length);
+    SetString(LTemp, PAnsiChar(UTCtime^.data), UTCtime^.length);   {Note: UTCtime is a type defined by OpenSSL and hence is ansistring and not UCS-2}
     // TODO: do we need to use SetCodePage() here?
     time_str := String(LTemp); // explicit convert to Unicode
       {$ENDIF}
@@ -870,6 +870,7 @@ var
       tz_hour := IndyStrToInt(Copy(time_str, 14, 15)) * tz_dir;
       tz_min  := IndyStrToInt(Copy(time_str, 17, 18)) * tz_dir;
     end;
+    Result := 1; {everthing OK}
   end;
 
   procedure InitializeRandom;
@@ -2455,8 +2456,8 @@ begin
   end;
 end;
 
-// Note that I define UCTTime as  PASN1_STRING
-function UTCTime2DateTime(UCTTime: PASN1_UTCTIME): TDateTime;
+// Note that I define UTCtime as  PASN1_STRING
+function UTCTime2DateTime(UTCtime: PASN1_UTCTIME): TDateTime;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   year: Word;
@@ -2469,7 +2470,7 @@ var
   tz_m: Integer;
 begin
   Result := 0;
-  if UTC_Time_Decode(UCTTime, year, month, day, hour, min, sec, tz_h, tz_m) > 0 then begin
+  if UTC_Time_Decode(UTCtime, year, month, day, hour, min, sec, tz_h, tz_m) > 0 then begin
     Result := EncodeDate(year, month, day) + EncodeTime(hour, min, sec, 0);
     AddMins(Result, tz_m);
     AddHrs(Result, tz_h);

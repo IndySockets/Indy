@@ -23,9 +23,19 @@ This Log File records changes to the Indy Proposed Update since its initial publ
 
 2024/4/1  Reversed out delayed loading changes.
 
-2024/4/3 OpenSSL functions OSSL_PROVIDER_get0_default_search_path, OSSL_PROVIDER_load_ex and   
-         OSSL_PROVIDER_try_load in header file idOpenSSLHeaders_provider (introduced for FIPS support) 
-         had been incorrectly marked up as having been introduced in OpenSSL 3.0. They were
-         actually introduced in 3.2. This error result is a load library fail for 3.0 and 3.1.
-         This has now been corrected.
+2024/4/3  OpenSSL functions OSSL_PROVIDER_get0_default_search_path, OSSL_PROVIDER_load_ex and   
+          OSSL_PROVIDER_try_load in header file idOpenSSLHeaders_provider (introduced for FIPS support) 
+          had been incorrectly marked up as having been introduced in OpenSSL 3.0. They were
+          actually introduced in 3.2. This error result is a load library fail for 3.0 and 3.1.
+          This has now been corrected.
+
+2024/4/15 Fix for Issue #2 IdSSLOpenSSL - UTC_Time_Decode - convert to char should be PAnsiChar 
+          instead of PChar on Unicode. Patch include with updated comments. OpenSSL Test Programs
+          updated to include certificate notAfter and notBefore times in order to test patch and
+          provide regression test.
+
+2024/4/15 In IdOpenSSLHeaders_providers.pas, the OpenSSL functions introduced in OpenSSL 3.2 are
+          now only required for static library linking  if the defined symbol OPENSSL_3_2_ORLATER
+          is defined. This restores the ability for static linking with OpenSSL libraries for 3.0
+          and 3.1.
 

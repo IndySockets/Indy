@@ -299,6 +299,8 @@ begin
   writeln('X.509 Certificate Details');
   writeln('Subject: ', Certificate.Subject.OneLine);
   writeln('Issuer: ', Certificate.Issuer.OneLine);
+  writeln('Not Before: ',DateTimeToStr(Certificate.notBefore));
+  writeln('Not After: ',DateTimeToStr(Certificate.notAfter));
   writeln;
 end;
 
