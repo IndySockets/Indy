@@ -64,14 +64,14 @@ is the best that can be negotiated. All later versions support TLS 1.3 and will
 use it if possible. Earlier versions of TLS and SSL (version 3) continue to be 
 supported but are deprecated for use.
 
-In earlier versions of Indy, the SSLOptions.Mode property could be used to 
+In earlier versions of Indy, the SSLOptions.Method property could be used to 
 force a given version of the SSL/TLS protocol. With later versions of OpenSSL 
 (1.1.1 onwards), this property is  ignored, with the most recent TLS version 
 always used.
 
 In earlier versions, the SSLOptions.SSLVersions property could be used to limit 
 negotiation to a list of acceptable versions. In this version, it is used to 
-determine the minimum version acceptable only. All later versions in the list 
+determine the minimum and maximum version acceptable only. All other versions in the list 
 are ignored. Both changes are consequential on changes to the OpenSSL library.
 
 Data Encryption

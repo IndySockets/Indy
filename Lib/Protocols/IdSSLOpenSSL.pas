@@ -296,7 +296,7 @@ type
 
 const
   DEF_SSLVERSION = sslvTLSv1_2;
-  DEF_SSLVERSIONS = [sslvTLSv1_3];
+  DEF_SSLVERSIONS = [sslvTLSv1_2,sslvTLSv1_3];
   P12_FILETYPE = 3;
   MAX_SSL_PASSWORD_LENGTH = 128;
 
@@ -3539,9 +3539,17 @@ begin
 end;
 
 procedure TIdSSLContext.InitContext(CtxMode: TIdSSLCtxMode);
+const
+  SSLProtoVersion: array[TIdSSLVersion] of TIdC_LONG = (0,0,0,
+                         SSL3_VERSION,    {sslvSSLv3}
+                         TLS1_VERSION,    {sslvTLSv1}
+                         TLS1_1_VERSION,  {sslvTLSv1_1}
+                         TLS1_2_VERSION,  {sslvTLSv1_2}
+                         TLS1_3_VERSION); {sslvTLSv1_3}
 var
   SSLMethod: PSSL_METHOD;
   error: TIdC_INT;
+  v: TIdSSLVersion;
 //  pCAname: PSTACK_X509_NAME;
   {$IFDEF USE_MARSHALLED_PTRS}
   M: TMarshaller;
@@ -3567,23 +3575,30 @@ begin
   //set SSL Versions we will use
   if HasTLS_method then
   begin
-    if sslvSSLv3 in SSLVersions then
-      SSL_CTX_set_min_proto_version(fContext,SSL3_VERSION)
-    else
-    if sslvTLSv1 in SSLVersions then
-      SSL_CTX_set_min_proto_version(fContext,TLS1_VERSION)
-    else
-    if sslvTLSv1_1 in SSLVersions then
-      SSL_CTX_set_min_proto_version(fContext,TLS1_1_VERSION)
-    else
-    if sslvTLSv1_2 in SSLVersions then
-      SSL_CTX_set_min_proto_version(fContext,TLS1_2_VERSION)
-    else
-    if sslvTLSv1_3 in SSLVersions then
-      SSL_CTX_set_min_proto_version(fContext,TLS1_3_VERSION)
-    else
-    {Set to the lowest now possible}
-      SSL_CTX_set_min_proto_version(fContext,SSL3_VERSION);
+    if SSLVersions <> [] then
+    begin
+      for v := sslvSSLv3 to high(TIdSSLVersions) do
+      begin
+        if v in SSLVersions then
+        begin
+          SSL_CTX_set_min_proto_version(fContext,SSLProtoVersion[v]);
+          break;
+        end;
+     end;
+      for v := high(TIdSSLVersions) downto sslvSSLv3 do
+      begin
+        if v in SSLVersions then
+        begin
+          SSL_CTX_set_max_proto_version(fContext,SSLProtoVersion[v]);
+          break;
+        end;
+     end;
+   end
+   else
+   begin
+     SSL_CTX_set_min_proto_version(fContext,SSL3_VERSION);
+     SSL_CTX_set_max_proto_version(fContext,SSLProtoVersion[high(TIdSSLVersion)]);
+   end;
   end
   else
   begin

@@ -41,3 +41,7 @@ This Log File records changes to the Indy Proposed Update since its initial publ
 
 2024/4/15 Issue 3 fixes to enable compilation with Delphi and target Linux64.
 
+2024/4/26 SSLOptions.SSLVersions can now be used to select both the minimum and maximum versions
+          of the TLS Protocol negotiated for OpenSSLVersions 1.1.0 and later. OpenSSL will
+          always try to negotiate the highest version acceptable to both ends of the session.
+
