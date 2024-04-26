@@ -144,9 +144,13 @@ end;
 procedure TVersInc.GenIdVers;
 var
   FileVersion : string;
-  BuildStr: String;
+  MajorStr, MinorStr, ReleaseStr, BuildStr: String;
 begin
   FCode.Clear;
+
+  MajorStr := IntToStr(IndyVersion_Major);
+  MinorStr := IntToStr(IndyVersion_Minor);
+  ReleaseStr := IntToStr(IndyVersion_Release);
 
   if FTemplate then
     BuildStr := '$WCREV$'
@@ -155,18 +159,18 @@ begin
 
   FileVersion := FProductVersion + '.' + BuildStr;
 
-  Code('  gsIdVersionMajor = ' + IntToStr(IndyVersion_Major) + ';');
+  Code('  gsIdVersionMajor = ' + MajorStr + ';');
   Code('  {$NODEFINE gsIdVersionMajor}');
-  Code('  gsIdVersionMinor = ' + IntToStr(IndyVersion_Minor) + ';');
+  Code('  gsIdVersionMinor = ' + MinorStr + ';');
   Code('  {$NODEFINE gsIdVersionMinor}');
-  Code('  gsIdVersionRelease = ' + IntToStr(IndyVersion_Release) + ';');
+  Code('  gsIdVersionRelease = ' + ReleaseStr + ';');
   Code('  {$NODEFINE gsIdVersionRelease}');
   Code('  gsIdVersionBuild = ' + BuildStr + ';');
   Code('  {$NODEFINE gsIdVersionBuild}');
   Code('');
-  Code('  (*$HPPEMIT ''#define gsIdVersionMajor ' + IntToStr(IndyVersion_Major) + '''*)');
-  Code('  (*$HPPEMIT ''#define gsIdVersionMinor ' + IntToStr(IndyVersion_Minor) + '''*)');
-  Code('  (*$HPPEMIT ''#define gsIdVersionRelease ' + IntToStr(IndyVersion_Release) + '''*)');
+  Code('  (*$HPPEMIT ''#define gsIdVersionMajor ' + MajorStr + '''*)');
+  Code('  (*$HPPEMIT ''#define gsIdVersionMinor ' + MinorStr + '''*)');
+  Code('  (*$HPPEMIT ''#define gsIdVersionRelease ' + ReleaseStr + '''*)');
   Code('  (*$HPPEMIT ''#define gsIdVersionBuild ' + BuildStr + '''*)');
   Code('  (*$HPPEMIT ''''*)');
   Code('');

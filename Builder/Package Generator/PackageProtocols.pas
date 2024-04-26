@@ -392,24 +392,24 @@ begin
     FDesc := 'Protocols Run-Time';
 
     FExt := '.rc.tmpl';
-    inherited GenerateRC(ACompiler, AFlags - [gfDesignTime] + [gfTemplate]);
+    inherited GenerateRC(ACompiler, LFlags - [gfDesignTime] + [gfTemplate]);
     WriteFile;
 
     FExt := '.rc';
-    inherited GenerateRC(ACompiler, AFlags - [gfDesignTime, gfTemplate]);
+    inherited GenerateRC(ACompiler, LFlags - [gfDesignTime, gfTemplate]);
     WriteFile;
   end;
 
-  if gfDesignTime in AFlags then begin
+  if gfDesignTime in LFlags then begin
     FName := 'dclIndyProtocols' + GCompilerID[ACompiler];
     FDesc := 'Protocols Design-Time';
 
     FExt := '.rc.tmpl';
-    inherited GenerateRC(ACompiler, AFlags - [gfRunTime] + [gfTemplate]);
+    inherited GenerateRC(ACompiler, LFlags - [gfRunTime] + [gfTemplate]);
     WriteFile;
 
     FExt := '.rc';
-    inherited GenerateRC(ACompiler, AFlags - [gfRunTime, gfTemplate]);
+    inherited GenerateRC(ACompiler, LFlags - [gfRunTime, gfTemplate]);
     WriteFile;
   end;
 end;

@@ -232,7 +232,7 @@ const
   IndyVersion_Major   = 10;
   IndyVersion_Minor   = 6;
   IndyVersion_Release = 3;
-  IndyVersion_Build   = 1;
+  IndyVersion_Build   = 2;
 
 implementation
 

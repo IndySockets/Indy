@@ -98,6 +98,7 @@ uses
   PackageBuildRes in 'PackageBuildRes.pas',
   PackageVersInc in 'PackageVersInc.pas',
   PackageCleanCmd in 'PackageCleanCmd.pas',
+  PackageLazarus in 'PackageLazarus.pas',
   DModule in 'DModule.pas';
 
 procedure Main;
@@ -114,6 +115,11 @@ begin
         Exit;
       end;
 
+      LDebugFlag := [];
+      if FindCmdLineSwitch('debugPkgs') then begin
+        Include(LDebugFlag, gfDebug);
+      end;
+
       WriteLn('Generating Visual Studio Package...');
 
       with TPackageVisualStudio.Create do try
@@ -121,15 +127,16 @@ begin
         Generate(ctDotNet);
 
         Load('DotNet=True, DesignUnit=False', True);
-        Generate(ctDotNet, [gfDebug]);
+        Generate(ctDotNet, [gfDebug]{LDebugFlag});
       finally Free; end;
 
-      // TODO: Add a package generator for FreePascal/Lazarus packages and makefiles...
+      WriteLn('Generating Lazarus Package...');
 
-      LDebugFlag := [];
-      if FindCmdLineSwitch('debugPkgs') then begin
-        Include(LDebugFlag, gfDebug);
-      end;
+      with TPackageLazarus.Create do try
+        // nothing to load from the database...
+        //Load('FPC=True, FPCListInPkg=True');
+        Generate(ctUnversioned, []{LDebugFlag});
+      finally Free; end;
 
       WriteLn('Generating D8 Master Package...');
 
