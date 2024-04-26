@@ -1,6 +1,8 @@
 library Indy.SocketsDebug;
 
 {%DelphiDotNetAssemblyCompiler '$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll'}
+{%DelphiDotNetAssemblyCompiler '$(CommonProgramFiles)\borland shared\bds\shared assemblies\3.0\Borland.Delphi.dll'}
+{%DelphiDotNetAssemblyCompiler '$(CommonProgramFiles)\borland shared\bds\shared assemblies\3.0\Borland.VclRtl.dll'}
 
 
 uses
@@ -65,6 +67,7 @@ uses
   IdException in 'System\IdException.pas',
   IdExceptionCore in 'Core\IdExceptionCore.pas',
   IdExplicitTLSClientServerBase in 'Protocols\IdExplicitTLSClientServerBase.pas',
+  IdFIPS in 'Protocols\IdFIPS.pas',
   IdFSP in 'Protocols\IdFSP.pas',
   IdFTP in 'Protocols\IdFTP.pas',
   IdFTPBaseFileSystem in 'Protocols\IdFTPBaseFileSystem.pas',
@@ -80,6 +83,7 @@ uses
   IdFTPListParseDistinctTCPIP in 'Protocols\IdFTPListParseDistinctTCPIP.pas',
   IdFTPListParseEPLF in 'Protocols\IdFTPListParseEPLF.pas',
   IdFTPListParseHellSoft in 'Protocols\IdFTPListParseHellSoft.pas',
+  IdFTPListParseIEFTPGateway in 'Protocols\IdFTPListParseIEFTPGateway.pas',
   IdFTPListParseKA9Q in 'Protocols\IdFTPListParseKA9Q.pas',
   IdFTPListParseMPEiX in 'Protocols\IdFTPListParseMPEiX.pas',
   IdFTPListParseMVS in 'Protocols\IdFTPListParseMVS.pas',
@@ -91,6 +95,7 @@ uses
   IdFTPListParseNovellNetwarePSU in 'Protocols\IdFTPListParseNovellNetwarePSU.pas',
   IdFTPListParseOS2 in 'Protocols\IdFTPListParseOS2.pas',
   IdFTPListParsePCNFSD in 'Protocols\IdFTPListParsePCNFSD.pas',
+  IdFTPListParsePCTCP in 'Protocols\IdFTPListParsePCTCP.pas',
   IdFTPListParseStercomOS390Exp in 'Protocols\IdFTPListParseStercomOS390Exp.pas',
   IdFTPListParseStercomUnixEnt in 'Protocols\IdFTPListParseStercomUnixEnt.pas',
   IdFTPListParseStratusVOS in 'Protocols\IdFTPListParseStratusVOS.pas',
@@ -119,6 +124,7 @@ uses
   IdGopher in 'Protocols\IdGopher.pas',
   IdGopherConsts in 'Protocols\IdGopherConsts.pas',
   IdGopherServer in 'Protocols\IdGopherServer.pas',
+  IdHL7 in 'Protocols\IdHL7.pas',
   IdHMAC in 'Protocols\IdHMAC.pas',
   IdHMACMD5 in 'Protocols\IdHMACMD5.pas',
   IdHMACSHA1 in 'Protocols\IdHMACSHA1.pas',
@@ -132,7 +138,7 @@ uses
   IdHashMessageDigest in 'Protocols\IdHashMessageDigest.pas',
   IdHashSHA in 'Protocols\IdHashSHA.pas',
   IdHeaderCoderBase in 'Protocols\IdHeaderCoderBase.pas',
-  IdHeaderCoderDotNet in 'Protocols\IdHeaderCoderDotNet.pas',
+  IdHeaderCoderIndy in 'Protocols\IdHeaderCoderIndy.pas',
   IdHeaderCoderPlain in 'Protocols\IdHeaderCoderPlain.pas',
   IdHeaderList in 'Protocols\IdHeaderList.pas',
   IdIMAP4 in 'Protocols\IdIMAP4.pas',
@@ -172,6 +178,7 @@ uses
   IdMessageBuilder in 'Protocols\IdMessageBuilder.pas',
   IdMessageClient in 'Protocols\IdMessageClient.pas',
   IdMessageCoder in 'Protocols\IdMessageCoder.pas',
+  IdMessageCoderBinHex4 in 'Protocols\IdMessageCoderBinHex4.pas',
   IdMessageCoderMIME in 'Protocols\IdMessageCoderMIME.pas',
   IdMessageCoderQuotedPrintable in 'Protocols\IdMessageCoderQuotedPrintable.pas',
   IdMessageCoderUUE in 'Protocols\IdMessageCoderUUE.pas',
@@ -292,6 +299,7 @@ uses
   IdUnixTimeServer in 'Protocols\IdUnixTimeServer.pas',
   IdUnixTimeUDP in 'Protocols\IdUnixTimeUDP.pas',
   IdUnixTimeUDPServer in 'Protocols\IdUnixTimeUDPServer.pas',
+  IdUriUtils in 'Protocols\IdUriUtils.pas',
   IdUserAccounts in 'Protocols\IdUserAccounts.pas',
   IdUserPassProvider in 'Protocols\IdUserPassProvider.pas',
   IdVCard in 'Protocols\IdVCard.pas',

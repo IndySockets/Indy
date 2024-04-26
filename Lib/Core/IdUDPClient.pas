@@ -85,6 +85,8 @@ uses
 (*$HPPEMIT '#pragma alias "@Idudpclient@TIdUDPClient@SetPortW$qqrxus"="@Idudpclient@TIdUDPClient@SetPort$qqrxus"' *)
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
+// TODO: when compiling with bcc64x, use this pragma instead:
+// #pragma comment(linker, "/alternatename:<name1>=<name2>")
 
 type
   EIdMustUseOpenProxy = class(EIdUDPException);

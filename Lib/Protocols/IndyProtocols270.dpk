@@ -24,7 +24,7 @@ package IndyProtocols270;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
-{$DEFINE VER330}
+{$DEFINE VER340}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 Protocols'}
 {$RUNONLY}
@@ -162,6 +162,7 @@ contains
   IdGopher in 'IdGopher.pas',
   IdGopherConsts in 'IdGopherConsts.pas',
   IdGopherServer in 'IdGopherServer.pas',
+  IdHL7 in 'IdHL7.pas',
   IdHMAC in 'IdHMAC.pas',
   IdHMACMD5 in 'IdHMACMD5.pas',
   IdHMACSHA1 in 'IdHMACSHA1.pas',

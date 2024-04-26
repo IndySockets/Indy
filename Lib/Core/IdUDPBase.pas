@@ -88,6 +88,8 @@ uses
 (*$HPPEMIT '#pragma alias "@Idudpbase@TIdUDPBase@SetPortW$qqrxus"="@Idudpbase@TIdUDPBase@SetPort$qqrxus"' *)
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
+// TODO: when compiling with bcc64x, use this pragma instead:
+// #pragma comment(linker, "/alternatename:<name1>=<name2>")
 
 const
   ID_UDP_BUFFERSIZE = 8192;

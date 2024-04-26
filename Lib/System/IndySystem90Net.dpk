@@ -21,8 +21,8 @@ package IndySystem90Net;
 {$IMPLICITBUILD ON}
 
 requires
-Borland.Delphi,
-Borland.VclRtl;
+  Borland.Delphi,
+  Borland.VclRtl;
 
 contains
   IdAntiFreezeBase in 'IdAntiFreezeBase.pas',

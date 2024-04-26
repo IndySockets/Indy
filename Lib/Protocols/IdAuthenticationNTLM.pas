@@ -80,8 +80,8 @@ uses
   IdGlobalProtocols,
   IdException,
   IdCoderMIME,
-  IdResourceStringsOpenSSL,
   {.$IFDEF USE_OPENSSL}
+  IdResourceStringsOpenSSL,
   IdSSLOpenSSLHeaders,
   IdSSLOpenSSL,
   {.$ENDIF}

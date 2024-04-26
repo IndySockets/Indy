@@ -1,6 +1,8 @@
 library Indy.Sockets;
 
 {%DelphiDotNetAssemblyCompiler '$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll'}
+{%DelphiDotNetAssemblyCompiler '$(CommonProgramFiles)\borland shared\bds\shared assemblies\3.0\Borland.Delphi.dll'}
+{%DelphiDotNetAssemblyCompiler '$(CommonProgramFiles)\borland shared\bds\shared assemblies\3.0\Borland.VclRtl.dll'}
 
 
 uses
@@ -65,6 +67,7 @@ uses
   Indy.Sockets.IdException in 'Indy.Sockets.IdException.pas',
   Indy.Sockets.IdExceptionCore in 'Indy.Sockets.IdExceptionCore.pas',
   Indy.Sockets.IdExplicitTLSClientServerBase in 'Indy.Sockets.IdExplicitTLSClientServerBase.pas',
+  Indy.Sockets.IdFIPS in 'Indy.Sockets.IdFIPS.pas',
   Indy.Sockets.IdFSP in 'Indy.Sockets.IdFSP.pas',
   Indy.Sockets.IdFTP in 'Indy.Sockets.IdFTP.pas',
   Indy.Sockets.IdFTPBaseFileSystem in 'Indy.Sockets.IdFTPBaseFileSystem.pas',
@@ -80,6 +83,7 @@ uses
   Indy.Sockets.IdFTPListParseDistinctTCPIP in 'Indy.Sockets.IdFTPListParseDistinctTCPIP.pas',
   Indy.Sockets.IdFTPListParseEPLF in 'Indy.Sockets.IdFTPListParseEPLF.pas',
   Indy.Sockets.IdFTPListParseHellSoft in 'Indy.Sockets.IdFTPListParseHellSoft.pas',
+  Indy.Sockets.IdFTPListParseIEFTPGateway in 'Indy.Sockets.IdFTPListParseIEFTPGateway.pas',
   Indy.Sockets.IdFTPListParseKA9Q in 'Indy.Sockets.IdFTPListParseKA9Q.pas',
   Indy.Sockets.IdFTPListParseMPEiX in 'Indy.Sockets.IdFTPListParseMPEiX.pas',
   Indy.Sockets.IdFTPListParseMVS in 'Indy.Sockets.IdFTPListParseMVS.pas',
@@ -91,6 +95,7 @@ uses
   Indy.Sockets.IdFTPListParseNovellNetwarePSU in 'Indy.Sockets.IdFTPListParseNovellNetwarePSU.pas',
   Indy.Sockets.IdFTPListParseOS2 in 'Indy.Sockets.IdFTPListParseOS2.pas',
   Indy.Sockets.IdFTPListParsePCNFSD in 'Indy.Sockets.IdFTPListParsePCNFSD.pas',
+  Indy.Sockets.IdFTPListParsePCTCP in 'Indy.Sockets.IdFTPListParsePCTCP.pas',
   Indy.Sockets.IdFTPListParseStercomOS390Exp in 'Indy.Sockets.IdFTPListParseStercomOS390Exp.pas',
   Indy.Sockets.IdFTPListParseStercomUnixEnt in 'Indy.Sockets.IdFTPListParseStercomUnixEnt.pas',
   Indy.Sockets.IdFTPListParseStratusVOS in 'Indy.Sockets.IdFTPListParseStratusVOS.pas',
@@ -119,6 +124,7 @@ uses
   Indy.Sockets.IdGopher in 'Indy.Sockets.IdGopher.pas',
   Indy.Sockets.IdGopherConsts in 'Indy.Sockets.IdGopherConsts.pas',
   Indy.Sockets.IdGopherServer in 'Indy.Sockets.IdGopherServer.pas',
+  Indy.Sockets.IdHL7 in 'Indy.Sockets.IdHL7.pas',
   Indy.Sockets.IdHMAC in 'Indy.Sockets.IdHMAC.pas',
   Indy.Sockets.IdHMACMD5 in 'Indy.Sockets.IdHMACMD5.pas',
   Indy.Sockets.IdHMACSHA1 in 'Indy.Sockets.IdHMACSHA1.pas',
@@ -132,7 +138,7 @@ uses
   Indy.Sockets.IdHashMessageDigest in 'Indy.Sockets.IdHashMessageDigest.pas',
   Indy.Sockets.IdHashSHA in 'Indy.Sockets.IdHashSHA.pas',
   Indy.Sockets.IdHeaderCoderBase in 'Indy.Sockets.IdHeaderCoderBase.pas',
-  Indy.Sockets.IdHeaderCoderDotNet in 'Indy.Sockets.IdHeaderCoderDotNet.pas',
+  Indy.Sockets.IdHeaderCoderIndy in 'Indy.Sockets.IdHeaderCoderIndy.pas',
   Indy.Sockets.IdHeaderCoderPlain in 'Indy.Sockets.IdHeaderCoderPlain.pas',
   Indy.Sockets.IdHeaderList in 'Indy.Sockets.IdHeaderList.pas',
   Indy.Sockets.IdIMAP4 in 'Indy.Sockets.IdIMAP4.pas',
@@ -172,6 +178,7 @@ uses
   Indy.Sockets.IdMessageBuilder in 'Indy.Sockets.IdMessageBuilder.pas',
   Indy.Sockets.IdMessageClient in 'Indy.Sockets.IdMessageClient.pas',
   Indy.Sockets.IdMessageCoder in 'Indy.Sockets.IdMessageCoder.pas',
+  Indy.Sockets.IdMessageCoderBinHex4 in 'Indy.Sockets.IdMessageCoderBinHex4.pas',
   Indy.Sockets.IdMessageCoderMIME in 'Indy.Sockets.IdMessageCoderMIME.pas',
   Indy.Sockets.IdMessageCoderQuotedPrintable in 'Indy.Sockets.IdMessageCoderQuotedPrintable.pas',
   Indy.Sockets.IdMessageCoderUUE in 'Indy.Sockets.IdMessageCoderUUE.pas',
@@ -292,6 +299,7 @@ uses
   Indy.Sockets.IdUnixTimeServer in 'Indy.Sockets.IdUnixTimeServer.pas',
   Indy.Sockets.IdUnixTimeUDP in 'Indy.Sockets.IdUnixTimeUDP.pas',
   Indy.Sockets.IdUnixTimeUDPServer in 'Indy.Sockets.IdUnixTimeUDPServer.pas',
+  Indy.Sockets.IdUriUtils in 'Indy.Sockets.IdUriUtils.pas',
   Indy.Sockets.IdUserAccounts in 'Indy.Sockets.IdUserAccounts.pas',
   Indy.Sockets.IdUserPassProvider in 'Indy.Sockets.IdUserPassProvider.pas',
   Indy.Sockets.IdVCard in 'Indy.Sockets.IdVCard.pas',

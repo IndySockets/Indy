@@ -149,6 +149,8 @@ uses
 (*$HPPEMIT '#pragma alias "@Idtcpclient@TIdTCPClientCustom@SetPortW$qqrxus"="@Idtcpclient@TIdTCPClientCustom@SetPort$qqrxus"' *)
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
+// TODO: when compiling with bcc64x, use this pragma instead:
+// #pragma comment(linker, "/alternatename:<name1>=<name2>")
 
 type
 

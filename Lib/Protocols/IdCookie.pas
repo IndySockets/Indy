@@ -211,6 +211,7 @@ uses
 
 function GetDefaultPath(const AURL: TIdURI): String;
 var
+  LUrlPath: string;
   Idx: Integer;
 begin
   {
@@ -237,10 +238,11 @@ begin
          to, but not including, the right-most %x2F ("/").
   }
 
-  if TextStartsWith(AURL.Path, '/') then begin {do not localize}
-    Idx := RPos('/', AURL.Path); {do not localize}
+  LUrlPath := AURL.Path + AURL.Document;
+  if TextStartsWith(LUrlPath, '/') then begin {do not localize}
+    Idx := RPos('/', LUrlPath); {do not localize}
     if Idx > 1 then begin
-      Result := Copy(AURL.Path, 1, Idx-1);
+      Result := Copy(LUrlPath, 1, Idx-1);
       Exit;
     end;
   end;
@@ -464,7 +466,7 @@ function TIdCookie.IsAllowed(AURI: TIdURI; SecureOnly: Boolean): Boolean;
 
 begin
   // using the algorithm defined in RFC 6265 section 5.4...
-  Result := MatchesHost and IsPathMatch(AURI.Path, Path) and
+  Result := MatchesHost and IsPathMatch(AURI.Path + AURI.Document, Path) and
             ((not Secure) or (Secure and SecureOnly)) and
             ((not HttpOnly) or (HttpOnly and IsHTTP(AURI.Protocol)))
             // TODO:

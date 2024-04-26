@@ -3596,6 +3596,8 @@ var
   var
     LLocalLine : String;
   begin
+    // TODO: rewrite this to wait on both control and data sockets at the same
+    // time and read a command only if the control socket is actually readable...
     LLocalLine := ReadCommandLine(AContext);
     if LLocalLine <> '' then begin
       if not FDataChannelCommands.HandleCommand(AContext, LLocalLine) then begin

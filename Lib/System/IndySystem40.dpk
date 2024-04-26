@@ -1,17 +1,13 @@
 package IndySystem40;
 
-{$ASSERTIONS ON}
+{$R *.res}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -22,14 +18,15 @@ package IndySystem40;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 System'}
 {$RUNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
-  rtl;
+  Vcl40;
 
 contains
   IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
   IdBaseComponent in 'IdBaseComponent.pas',
+  IdCTypes in 'IdCTypes.pas',
   IdComponent in 'IdComponent.pas',
   IdException in 'IdException.pas',
   IdGlobal in 'IdGlobal.pas',
@@ -40,11 +37,8 @@ contains
   IdStackConsts in 'IdStackConsts.pas',
   IdStackWindows in 'IdStackWindows.pas',
   IdStream in 'IdStream.pas',
-  IdStreamRandomAccess in 'IdStreamRandomAccess.pas',
   IdStreamVCL in 'IdStreamVCL.pas',
-  IdStreamVCLBase in 'IdStreamVCLBase.pas',
-  IdStreamVCLWin32 in 'IdStreamVCLWin32.pas',
-  IdTStrings in 'IdTStrings.pas',
+  IdStruct in 'IdStruct.pas',
   IdWinsock2 in 'IdWinsock2.pas',
   IdWship6 in 'IdWship6.pas';
 

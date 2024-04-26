@@ -40,6 +40,7 @@
 unit PackageFTPParsers;
 
 interface
+
 uses
   Package;
 
@@ -47,7 +48,7 @@ type
   TFTPParsers = class(TPackage)
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler); override;
+    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
   end;
 
 implementation
@@ -60,20 +61,29 @@ uses
 constructor TFTPParsers.Create;
 begin
   inherited;
-  FName := 'IdAllFTPListParsers';
-  FExt := '.pas';
+  FOutputSubDir := 'Lib\Protocols';
 end;
 
-procedure TFTPParsers.Generate(ACompiler: TCompiler);
+procedure TFTPParsers.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 var
   i: Integer;
 begin
-  inherited;
   //We don't call many of the inherited Protected methods because
   //those are for Packages while I'm making a unit.
+  //inherited;
+
+  FName := 'IdAllFTPListParsers';
+  FExt := '.pas';
+
+  FCompiler := ACompiler;
+  FCode.Clear;
+  FDesignTime := False;
+
   Code('unit IdAllFTPListParsers;');
   Code('');
   Code('interface');
+  Code('');
+  Code('{$I IdCompilerDefines.inc}');
   Code('');
   Code('{');
   Code('Note that is unit is simply for listing ALL FTP List parsers in Indy.');
@@ -83,10 +93,15 @@ begin
   Code('ABSOLELY NO CODE is permitted in this unit.');
   Code('');
   Code('}');
+  Code('');
   Code('// RLebeau 4/17/10: this forces C++Builder to link to this unit so');
   Code('// the units can register themselves correctly at program startup...');
   Code('');
-  Code('(*$HPPEMIT ''#pragma link "IdAllFTPListParsers"''*)');
+  Code('{$IFDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}');
+  Code('  {$HPPEMIT LINKUNIT}');
+  Code('{$ELSE}');
+  Code('  {$HPPEMIT ''#pragma link "IdAllFTPListParsers"''}');
+  Code('{$ENDIF}');
   //Now add our units
   Code('');
   Code('implementation');
@@ -98,7 +113,10 @@ begin
   //
   Code('');
   Code('{dee-duh-de-duh, that''s all folks.}');
-  WriteFile(DM.OutputPath + '\Lib\Protocols\');
+  Code('');
+  Code('end.');
+
+  WriteFile;
 end;
 
 end.
