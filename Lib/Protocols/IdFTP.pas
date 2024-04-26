@@ -2097,7 +2097,7 @@ begin
         end;
 
         if AResume then begin
-          SendCmd('REST ' + IntToStr(ADest.Position), [350]);  {do not localize}
+          {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('REST ' + IntToStr(ADest.Position), [350]);  {do not localize}
         end;
 
         // RLebeau 5/15/2020: there are some FTP servers (vsFTPd, etc) that will try to
@@ -2168,9 +2168,9 @@ begin
         }
 
         if AResume then begin
-          SendCmd('REST ' + IntToStr(ADest.Position), [350]);  {do not localize}
+          {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}('REST ' + IntToStr(ADest.Position), [350]);  {do not localize}
         end;
-        SendCmd(ACommand, [125, 150, 154]); //APR: Ericsson Switch FTP);
+        {$IFDEF OVERLOADED_OPENARRAY_BUG}SendCmdArr{$ELSE}SendCmd{$ENDIF}(ACommand, [125, 150, 154]); //APR: Ericsson Switch FTP);
 
       end;
     finally
