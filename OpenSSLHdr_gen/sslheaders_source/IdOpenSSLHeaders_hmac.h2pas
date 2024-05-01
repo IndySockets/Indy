@@ -31,12 +31,13 @@ uses
   IdCTypes,
   IdGlobal,
   IdSSLOpenSSLConsts,
-  IdOpenSSLHeaders_ossl_typ;
+  IdOpenSSLHeaders_ossl_typ,
+  IdOpenSSLHeaders_evp;
 
   procedure HMAC_CTX_init(ctx : PHMAC_CTX); {removed 1.1.0}
-  function HMAC_size(const e: PHMAC_CTX): TIdC_SIZET;
+  function HMAC_size(const e: PHMAC_CTX): TIdC_SIZET; {introduced 1.1.0}
   function HMAC_CTX_new: PHMAC_CTX; {introduced 1.1.0}
-  function HMAC_CTX_reset(ctx: PHMAC_CTX): TIdC_INT;
+  function HMAC_CTX_reset(ctx: PHMAC_CTX): TIdC_INT; {introduced 1.1.0}
   procedure HMAC_CTX_cleanup(ctx : PHMAC_CTX); {removed 1.1.0}
   procedure HMAC_CTX_free(ctx: PHMAC_CTX); {introduced 1.1.0}
 
@@ -47,7 +48,7 @@ uses
   function HMAC_CTX_copy(dctx: PHMAC_CTX; sctx: PHMAC_CTX): TIdC_INT;
 
   procedure HMAC_CTX_set_flags(ctx: PHMAC_CTX; flags: TIdC_ULONG);
-  function HMAC_CTX_get_md(const ctx: PHMAC_CTX): PEVP_MD;
+  function HMAC_CTX_get_md(const ctx: PHMAC_CTX): PEVP_MD; {introduced 1.1.0}
 
 implementation
 
@@ -62,6 +63,37 @@ procedure HMAC_CTX_free(ctx: PHMAC_CTX);
 begin
   HMAC_CTX_cleanup(ctx);
   FreeMem(ctx,SizeOf(HMAC_CTX));
+end;
+
+(*
+typedef struct hmac_ctx_st {
+    const EVP_MD *md;
+    EVP_MD_CTX md_ctx;
+    EVP_MD_CTX i_ctx;
+    EVP_MD_CTX o_ctx;
+    unsigned int key_length;
+    unsigned char key[HMAC_MAX_MD_CBLOCK];
+} HMAC_CTX;
+*)
+
+const
+  HMAC_MAX_MD_CBLOCK = 128; {largest known is SHA512}
+
+type
+ PHMAC_CTX = ^HMAC_CTX;
+ HMAC_CTX = record
+   md: EVP_MD;
+   md_ctx: EVP_MD_CTX;
+   i_ctx: EVP_MD_CTX;
+   o_ctx: EVP_MD_CTX;
+   key_length: TIdC_UINT;
+   key: array [0..HMAC_MAX_MD_CBLOCK] of char;
+ end;
+
+
+function HMAC_size(const e: PHMAC_CTX): TIdC_SIZET; 
+begin
+  Result := EVP_MD_size(e^.md);
 end;
 
 {/forward_compatibility}

@@ -45,3 +45,5 @@ This Log File records changes to the Indy Proposed Update since its initial publ
           of the TLS Protocol negotiated for OpenSSLVersions 1.1.0 and later. OpenSSL will
           always try to negotiate the highest version acceptable to both ends of the session.
 
+2024/5/1  HMAC header file markup corrected to avoid missing function reports for OpenSSL 1.0.2.
+
