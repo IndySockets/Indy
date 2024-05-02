@@ -458,7 +458,7 @@ type
     function DoHeadersAvailable(ASender: TIdContext; const AUri: String; AHeaders: TIdHeaderList): Boolean; virtual;
     procedure DoHeadersBlocked(ASender: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String); virtual;
     function DoHeaderExpectations(ASender: TIdContext; const AExpectations: String): Boolean; virtual;
-    function DoParseAuthentication(ASender: TIdContext; const AAuthType, AAuthData: String; var VUsername, VPassword: String): Boolean;
+    function DoParseAuthentication(ASender: TIdContext; const AAuthType, AAuthData: String; var VUsername, VPassword: String): Boolean; virtual;
     function DoQuerySSLPort(APort: TIdPort): Boolean; virtual;
     procedure DoSessionEnd(Sender: TIdHTTPSession); virtual;
     procedure DoSessionStart(Sender: TIdHTTPSession); virtual;
