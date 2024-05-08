@@ -6209,12 +6209,32 @@ end;
 
 function GetTickDiff64(const AOldTickCount, ANewTickCount: TIdTicks): TIdTicks;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFNDEF VCL_6_OR_ABOVE}
+var
+  // Delphi 5 seems to have a problem with the Int64 calculations
+  // below on a temporary, so breaking up the calculations...
+  d: TIdTicks;
+{$ENDIF}
 begin
   {This is just in case the TickCount rolled back to zero}
   if ANewTickCount >= AOldTickCount then begin
+    {$IFNDEF VCL_6_OR_ABOVE}
+    d := ANewTickCount;
+    Dec(d, AOldTickCount);
+    Result := d;
+    {$ELSE}
     Result := TIdTicks(ANewTickCount - AOldTickCount);
+    {$ENDIF}
   end else begin
+    {$IFNDEF VCL_6_OR_ABOVE}
+    d := High(TIdTicks);
+    Dec(d, AOldTickCount);
+    Inc(d, ANewTickCount);
+    Inc(d);
+    Result := d;
+    {$ELSE}
     Result := TIdTicks(((High(TIdTicks) - AOldTickCount) + ANewTickCount) + 1);
+    {$ENDIF}
   end;
 end;
 
