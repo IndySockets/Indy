@@ -219,20 +219,24 @@ const
     '',               // .NET
     '');              // Kylix
 
-  //Fetch Defaults
-  IdFetchDelimDefault = ' ';    {Do not Localize}
-  IdFetchDeleteDefault = True;
-  IdFetchCaseSensitiveDefault = True;
-
 function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer;  overload;
 function iif(ATest: Boolean; const ATrue: string; const AFalse: string): string; overload;
 function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
 
-const
-  IndyVersion_Major   = 10;
-  IndyVersion_Minor   = 6;
-  IndyVersion_Release = 3;
-  IndyVersion_Build   = 2;
+var
+  IndyVersion_Major_Str: string = '';
+  IndyVersion_Minor_Str: string = '';
+  IndyVersion_Release_Str: string = '';
+  IndyVersion_Build_Str: string = '';
+  IndyVersion_Build_Template: string = '';
+
+  IndyVersion_ProductVersion_Str: string = '';
+  IndyVersion_FileVersion_Str: string = '';
+  IndyVersion_FileVersion_Template: string = '';
+
+  IndyVersion_VersionInfo_ProductVersion_Str: string = '';
+  IndyVersion_VersionInfo_FileVersion_Str: string = '';
+  IndyVersion_VersionInfo_FileVersion_Template: string = '';
 
 implementation
 
@@ -293,7 +297,7 @@ constructor TPackage.Create;
 begin
   FContainsClause := 'contains';
   FExt := '.dpk';
-  FVersion := IntToStr(IndyVersion_Major);
+  FVersion := IndyVersion_Major_Str;
   FCode := TStringList.Create;
   FDirs := TStringList.Create;
   FUnits := TStringList.Create;
@@ -557,31 +561,26 @@ end;
 
 procedure TPackage.GenResourceScript;
 var
-  ProductVersion: string;
   FileVersion : string;
-  BuildStr: String;
 begin
   //We don't call many of the inherited Protected methods because
   //those are for Packages while I'm making a unit.
 
-  if FTemplate then
-    BuildStr := '$WCREV$'
-  else
-    BuildStr := IntToStr(IndyVersion_Build);
-
-  FileVersion := Format('%d,%d,%d,%s', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Release, BuildStr]);
-  ProductVersion := FileVersion;
+  FileVersion := iif(FTemplate,
+    IndyVersion_VersionInfo_FileVersion_Template,
+    IndyVersion_VersionInfo_FileVersion_Str);
 
   Code('1 VERSIONINFO ');
   Code('FILEVERSION ' + FileVersion);
-  Code('PRODUCTVERSION ' + ProductVersion);
+  Code('PRODUCTVERSION ' + FileVersion);
   Code('FILEFLAGSMASK 0x3FL');
   Code('FILEFLAGS 0x00L');
   Code('FILEOS 0x40004L');
   Code('FILETYPE 0x1L');
 
-  ProductVersion := Format('%d.%d.%d', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Release]);
-  FileVersion := ProductVersion + '.' + BuildStr;
+  FileVersion := iif(FTemplate,
+    IndyVersion_FileVersion_Template,
+    IndyVersion_FileVersion_Str);
 
   Code('FILESUBTYPE 0x0L');
   Code('{');
@@ -590,13 +589,13 @@ begin
   Code('  BLOCK "000104E4"');
   Code('  {');
   Code('   VALUE "CompanyName", "Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"');
-  Code('   VALUE "FileDescription", "Internet Direct (Indy) ' + ProductVersion + ' - ' + FDesc + ' Package\0"');
+  Code('   VALUE "FileDescription", "Internet Direct (Indy) ' + IndyVersion_ProductVersion_Str + ' - ' + FDesc + ' Package\0"');
   Code('   VALUE "FileVersion", "' + FileVersion + '\0"');
   Code('   VALUE "InternalName", "' + FName + '\0"');
   Code('   VALUE "LegalCopyright", "Copyright © 1993 - ' + IntToStr(DateUtils.YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"');
   Code('   VALUE "OriginalFilename", "' + FName + '.bpl\0"');
   Code('   VALUE "ProductName", "Indy\0"');
-  Code('   VALUE "ProductVersion", "' + ProductVersion + '\0"');
+  Code('   VALUE "ProductVersion", "' + IndyVersion_ProductVersion_Str + '\0"');
   Code('  }');
   Code('');
   Code(' }');
@@ -608,5 +607,50 @@ begin
   Code('');
   Code('}');
 end;
+
+procedure InitVersionNumbers;
+var
+  LMajor, LMinor, LRelease, LBuild, LPos: Integer;
+  LParam: string;
+begin
+  if not FindCmdLineSwitch('version', LParam) then
+    raise Exception.Create('Version parameter is missing');
+
+  try
+    LPos := Pos('.', LParam);
+    LMajor := StrToInt(Copy(LParam, 1, LPos-1));
+    Delete(LParam, 1, LPos);
+
+    LPos := Pos('.', LParam);
+    LMinor := StrToInt(Copy(LParam, 1, LPos-1));
+    Delete(LParam, 1, LPos);
+
+    LPos := Pos('.', LParam);
+    LRelease := StrToInt(Copy(LParam, 1, LPos-1));
+    Delete(LParam, 1, LPos);
+
+    LBuild := StrToInt(LParam);
+  except
+    Exception.RaiseOuterException(Exception.Create('Version parameter value is invalid'));
+    Exit;
+  end;
+
+  IndyVersion_Major_Str := IntToStr(LMajor);
+  IndyVersion_Minor_Str := IntToStr(LMinor);
+  IndyVersion_Release_Str := IntToStr(LRelease);
+  IndyVersion_Build_Str := IntToStr(LBuild);
+  IndyVersion_Build_Template := '$WCREV$';
+
+  IndyVersion_ProductVersion_Str := Format('%d.%d.%d', [LMajor, LMinor, LRelease]);
+  IndyVersion_FileVersion_Str := Format('%d.%d.%d.%d', [LMajor, LMinor, LRelease, LBuild]);
+  IndyVersion_FileVersion_Template := Format('%d.%d.%d.%s', [LMajor, LMinor, LRelease, IndyVersion_Build_Template]);
+
+  IndyVersion_VersionInfo_ProductVersion_Str := Format('%d,%d,%d', [LMajor, LMinor, LRelease]);
+  IndyVersion_VersionInfo_FileVersion_Str := Format('%d,%d,%d,%d', [LMajor, LMinor, LRelease, LBuild]);
+  IndyVersion_VersionInfo_FileVersion_Template := Format('%d,%d,%d,%s', [LMajor, LMinor, LRelease, IndyVersion_Build_Template]);
+end;
+
+initialization
+  InitVersionNumbers;
 
 end.
