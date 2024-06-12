@@ -587,6 +587,18 @@ begin
   FSASLMechanisms.Assign(AValue);
 end;
 
+procedure TIdPOP3.SendUTF8IfAdvertised;
+var
+  Capa : string;
+begin
+  for Capa in FCapabilities do
+    if TextStartsWith(Capa, 'UTF8 ') then
+    begin
+      SendCmd('UTF8','');
+      exit;
+    end;
+end;
+
 procedure TIdPOP3.Connect;
 var
   S: String;
@@ -619,6 +631,7 @@ begin
     if FAutoLogin then begin
       Login;
     end;
+    SendUTF8IfAdvertised;
   except
     Disconnect(False);
     raise;
