@@ -286,7 +286,7 @@ uses
 
 type
   TIdSSLVersion = (sslUnknown,sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1,sslvTLSv1_1,
-    sslvTLSv1_2, sslvTLSv1_3);
+    sslvTLSv1_2, sslvTLSv1_3); {May need to update constants below if adding to this set}
   TIdSSLVersions = set of TIdSSLVersion;
   TIdSSLMode = (sslmUnassigned, sslmClient, sslmServer, sslmBoth);
   TIdSSLVerifyMode = (sslvrfPeer, sslvrfFailIfNoPeerCert, sslvrfClientOnce);
@@ -297,6 +297,7 @@ type
 const
   DEF_SSLVERSION = sslvTLSv1_2;
   DEF_SSLVERSIONS = [sslvTLSv1_2,sslvTLSv1_3];
+  MAX_SSLVERSION = sslvTLSv1_3;
   P12_FILETYPE = 3;
   MAX_SSL_PASSWORD_LENGTH = 128;
 
@@ -3577,7 +3578,7 @@ begin
   begin
     if SSLVersions <> [] then
     begin
-      for v := sslvSSLv3 to high(TIdSSLVersions) do
+      for v := sslvSSLv3 to MAX_SSLVERSION do
       begin
         if v in SSLVersions then
         begin
@@ -3585,7 +3586,7 @@ begin
           break;
         end;
      end;
-      for v := high(TIdSSLVersions) downto sslvSSLv3 do
+      for v := MAX_SSLVERSION downto sslvSSLv3 do
       begin
         if v in SSLVersions then
         begin
