@@ -32,6 +32,7 @@ type
     procedure GenIdVers;
     procedure GenAsmVers;
     procedure GenAsmInfo;
+    procedure GenIdCompilerDefines;
   public
     constructor Create; override;
     procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
@@ -40,7 +41,7 @@ type
 implementation
 
 uses
-  Classes, SysUtils, DateUtils, DModule;
+  Classes, SysUtils, DateUtils, StrUtils, DModule;
 
 { TVersInc }
 
@@ -113,6 +114,19 @@ begin
     FDesc := '';
     FOutputSubDir := 'Lib\System';
     GenAsmInfo;
+    WriteFile;
+
+    FName := 'IdCompilerDefines';
+    GenIdCompilerDefines;
+    FOutputSubDir := 'Lib\System';
+    WriteFile;
+    FOutputSubDir := 'Lib\Core';
+    WriteFile;
+    FOutputSubDir := 'Lib\Protocols';
+    WriteFile;
+    FOutputSubDir := 'Lib\FCL';
+    WriteFile;
+    FOutputSubDir := 'Lib\SuperCore';
     WriteFile;
   end;
 
@@ -283,6 +297,47 @@ begin
   Code('implementation');
   Code('');
   Code('end.');
+end;
+
+procedure TVersInc.GenIdCompilerDefines;
+var
+  LFileName, LOldDefinePrefix, LProductDefine, LVersionDefine: string;
+  Data: TStringList;
+  I, LPadding: Integer;
+begin
+  FCode.Clear;
+
+  // TODO: put the version defines into their own .inc file that
+  // IdCompilerDefines.inc can then include...
+
+  LFileName := DM.OutputPath + 'Lib\System\IdCompilerDefines.inc';
+
+  LProductDefine := '{$DEFINE ' + StringReplace(IndyVersion_ProductVersion_Str, '.', '_', [rfReplaceAll]) + '}';
+  LVersionDefine := '{$DEFINE ' + StringReplace(IndyVersion_FileVersion_Str, '.', '_', [rfReplaceAll]) + '}';
+  LPadding := Length(LVersionDefine) - Length(LProductDefine);
+  LVersionDefine := LVersionDefine + '  //so developers can IFDEF for this specific version';
+
+  // TStreamReader would be preferred, but its broken!
+  Data := TStringList.Create;
+  try
+    Data.LoadFromFile(LFileName);
+    LOldDefinePrefix := '{$DEFINE ' + IndyVersion_Major_Str + '_';
+    for I := 0 to Data.Count-1 do begin
+      if StartsStr(LOldDefinePrefix, Data[I]) then
+      begin
+        Data[I] := LProductDefine + StringOfChar(' ', LPadding) + '  //so developers can IFDEF for this product version';
+        if StartsStr(LOldDefinePrefix, Data[I+1]) then begin
+          Data[I+1] := LVersionDefine;
+        end else begin
+          Data.Insert(I+1, LVersionDefine);
+        end;
+        Break;
+      end;
+    end;
+    FCode.Assign(Data);
+  finally
+    Data.Free;
+  end;
 end;
 
 end.

@@ -16,7 +16,8 @@
 {.$IFDEF IdIPv6} // use IPv6 by default
 
 {$DEFINE INDY100}
-{$DEFINE 10_6_2}  //so developers can IFDEF for this specific version
+{$DEFINE 10_6_3}    //so developers can IFDEF for this product version
+{$DEFINE 10_6_3_3}  //so developers can IFDEF for this specific version
 
 // When generating C++Builder output files, certain workarounds to compiler
 // problems need to be enabled! When invoking DCC on the command-line, use
