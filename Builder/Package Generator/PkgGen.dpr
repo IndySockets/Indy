@@ -107,7 +107,7 @@ var
 begin
   DM := TDM.Create(nil); try
     with DM do begin
-      WriteLn('INI Path: '+ Ini.FileName );
+      WriteLn('INI Path: ' + Ini.FileName );
 
       if FindCmdLineSwitch('checkini') then begin
         WriteLn('Checking for missing files to add to INI...');
@@ -115,11 +115,17 @@ begin
         Exit;
       end;
 
+      InitVersionNumbers;
+
       LDebugFlag := [];
       if FindCmdLineSwitch('debugPkgs') then begin
         Include(LDebugFlag, gfDebug);
+        WriteLn('Will Generate Debug Packages');
+      end else begin
+        WriteLn('Will Not Generate Debug Packages');
       end;
 
+      WriteLn;
       WriteLn('Generating Visual Studio Package...');
 
       with TPackageVisualStudio.Create do try
@@ -258,8 +264,6 @@ begin
       with TBuildRes.Create do try
         // nothing to load from the database...
         Generate(Delphi_Native);
-        // TODO: run buildres.bat only if any .rc files were actually (re-)generated...
-        Run;
       finally Free; end;
 
       WriteLn('Generating Clean.cmd scripts...');
@@ -286,6 +290,7 @@ begin
     end;
   end;
 
+  WriteLn;
   WriteLn('Done! Press ENTER to exit...');
   ReadLn;
 end.

@@ -238,6 +238,8 @@ var
   IndyVersion_VersionInfo_FileVersion_Str: string = '';
   IndyVersion_VersionInfo_FileVersion_Template: string = '';
 
+procedure InitVersionNumbers;
+
 implementation
 
 uses
@@ -611,27 +613,52 @@ end;
 procedure InitVersionNumbers;
 var
   LMajor, LMinor, LRelease, LBuild, LPos: Integer;
-  LParam: string;
+  LVerNum, LTemp: string;
 begin
-  if not FindCmdLineSwitch('version', LParam) then
-    raise Exception.Create('Version parameter is missing');
+  if FindCmdLineSwitch('version', LVerNum) then
+    LVerNum := Trim(LVerNum);
+
+  if LVerNum = '' then begin
+    with TMemIniFile.Create(DM.DataPath + 'PkgGen.ini') do try
+      LVerNum := Trim(ReadString('Settings', 'LastVersion', ''));
+    finally
+      Free;
+    end;
+    WriteLn;
+    if LVerNum <> '' then begin
+      WriteLn('Please enter a version number in #.#.#.# format');
+      Write  ('or leave blank to reuse last version (',LVerNum,'): ');
+    end else
+    begin
+      Write('Please enter a version number in #.#.#.# format: ');
+    end;
+    ReadLn(LTemp);
+    LTemp := Trim(LTemp);
+    if LTemp <> '' then begin
+      LVerNum := LTemp;
+    end
+    else if LVerNum = '' then begin
+      raise Exception.Create('Version number is missing');
+    end;
+  end;
 
   try
-    LPos := Pos('.', LParam);
-    LMajor := StrToInt(Copy(LParam, 1, LPos-1));
-    Delete(LParam, 1, LPos);
+    LTemp := LVerNum;
+    LPos := Pos('.', LTemp);
+    LMajor := StrToInt(Copy(LTemp, 1, LPos-1));
+    Delete(LTemp, 1, LPos);
 
-    LPos := Pos('.', LParam);
-    LMinor := StrToInt(Copy(LParam, 1, LPos-1));
-    Delete(LParam, 1, LPos);
+    LPos := Pos('.', LTemp);
+    LMinor := StrToInt(Copy(LTemp, 1, LPos-1));
+    Delete(LTemp, 1, LPos);
 
-    LPos := Pos('.', LParam);
-    LRelease := StrToInt(Copy(LParam, 1, LPos-1));
-    Delete(LParam, 1, LPos);
+    LPos := Pos('.', LTemp);
+    LRelease := StrToInt(Copy(LTemp, 1, LPos-1));
+    Delete(LTemp, 1, LPos);
 
-    LBuild := StrToInt(LParam);
+    LBuild := StrToInt(LTemp);
   except
-    Exception.RaiseOuterException(Exception.Create('Version parameter value is invalid'));
+    Exception.RaiseOuterException(Exception.Create('Version number is invalid'));
     Exit;
   end;
 
@@ -648,9 +675,17 @@ begin
   IndyVersion_VersionInfo_ProductVersion_Str := Format('%d,%d,%d', [LMajor, LMinor, LRelease]);
   IndyVersion_VersionInfo_FileVersion_Str := Format('%d,%d,%d,%d', [LMajor, LMinor, LRelease, LBuild]);
   IndyVersion_VersionInfo_FileVersion_Template := Format('%d,%d,%d,%s', [LMajor, LMinor, LRelease, IndyVersion_Build_Template]);
-end;
 
-initialization
-  InitVersionNumbers;
+  with TMemIniFile.Create(DM.DataPath + 'PkgGen.ini') do
+  try
+    WriteString('Settings', 'LastVersion', LVerNum);
+    UpdateFile;
+  finally
+    Free;
+  end;
+
+  WriteLn;
+  WriteLn('Version Number set to ',LMajor,'.',LMinor,'.',LRelease,'.',LBuild);
+end;
 
 end.
