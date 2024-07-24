@@ -706,13 +706,13 @@ const
 var
   LResponse, LIP: TIdBytes;
 begin
-  LIP := IPToBytes(AIP, AContext.IPVersion);
+  LIP := IPToBytes(AIP, IPVersion);
   SetLength(LResponse, 4 + Length(LIP) + 2);
 
   LResponse[0] := 5; // SOCKS version
   LResponse[1] := AStatus;
   LResponse[2] := 0;
-  LResponse[3] := LTypes[AContext.IPVersion];
+  LResponse[3] := LTypes[IPVersion];
   CopyTIdBytes(LIP, 0, LResponse, 4, Length(LIP));
   CopyTIdUInt16(GStack.HostToNetwork(APort), LResponse, 4+Length(LIP));
 
