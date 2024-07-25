@@ -699,7 +699,7 @@ begin
     // gets called by Notification() if the Scheduler is freed while
     // the server is still Active?
     if Active then begin
-      raise EIdException.Create(RSTCPServerSchedulerAlreadyActive);
+      raise EIdException.Create(RSTCPServerSchedulerAlreadyActive); // TODO: create a new Exception class for this
     end;
 
     // under ARC, all weak references to a freed object get nil'ed automatically
@@ -752,7 +752,7 @@ begin
     // IOHandler is freed while the server is still Active?
     {
     if Active then begin
-      raise EIdException.Create(RSTCPServerIOHandlerAlreadyActive);
+      raise EIdException.Create(RSTCPServerIOHandlerAlreadyActive); // TODO: create a new Exception class for this
     end;
     }
 
@@ -1008,6 +1008,9 @@ begin
   if Bindings.Count = 0 then begin
     // TODO: on systems that support dual-stack sockets, create a single
     // Binding object that supports both IPv4 and IPv6 on the same socket...
+
+    // TODO: remove the CanCreateTwoBindings conditional and just attempt
+    // both IPv4 and IPv6 and ignore any failures...
 
     {$IFDEF CanCreateTwoBindings}LBinding := {$ENDIF}Bindings.Add; // IPv4 or IPv6 by default
 

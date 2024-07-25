@@ -1374,8 +1374,8 @@ function GetTickDiff64(const AOldTickCount, ANewTickCount: TIdTicks): TIdTicks;
 function GetElapsedTicks(const AOldTickCount: TIdTicks): UInt32;
 function GetElapsedTicks64(const AOldTickCount: TIdTicks): TIdTicks;
 
-procedure IdDelete(var s: string; AOffset, ACount: Integer); // TODO: deprecate this
-procedure IdInsert(const Source: string; var S: string; Index: Integer); // TODO: deprecate this
+procedure IdDelete(var s: string; AOffset, ACount: Integer); deprecated;
+procedure IdInsert(const Source: string; var S: string; Index: Integer); deprecated;
 
 type
   // TODO: use "array of Integer" instead?
@@ -2426,7 +2426,7 @@ begin
     end;
   end;
   if LError then begin
-    raise EIdException.CreateResFmt(PResStringRec(@RSInvalidCodePage), [FCodePage]);
+    raise EIdException.CreateResFmt(PResStringRec(@RSInvalidCodePage), [FCodePage]); // TODO: create a new Exception class for this
   end;
 
   {$IFNDEF WINCE}
@@ -2454,7 +2454,7 @@ begin
   else
     FMaxCharSize := LocaleCharsFromUnicode(FCodePage, FWCharToMBFlags, @cValue[0], 2, nil, 0, nil, nil);
     if FMaxCharSize < 1 then begin
-      raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]);
+      raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]); // TODO: create a new Exception class for this
     end;
     // Not all charsets support all codepoints.  For example, ISO-8859-1 does
     // not support U+10FFFF.  If LocaleCharsFromUnicode() fails above,
@@ -2522,9 +2522,9 @@ begin
   );
   if Result = iconv_t(-1) then begin
     if LFlags <> '' then begin
-      raise EIdException.CreateResFmt(@RSInvalidCharSetConvWithFlags, [ACharSet, cUTF16CharSet, LFlags]);
+      raise EIdException.CreateResFmt(@RSInvalidCharSetConvWithFlags, [ACharSet, cUTF16CharSet, LFlags]); // TODO: create a new Exception class for this
     end else begin
-      raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
+      raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]); // TODO: create a new Exception class for this
     end;
   end;
 end;
@@ -2681,7 +2681,7 @@ begin
     LConverted := ConvertEncodingFromUTF8(LUTF8, ACharSet, LEncoded);
     if not LEncoded then begin
       // TODO: uncomment this?
-      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
+      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]); // TODO: create a new Exception class for this
       Exit;
     end;
   end;
@@ -2874,7 +2874,7 @@ begin
     LConverted := ConvertEncodingToUTF8(LBytes, ACharSet, LEncoded);
     if not LEncoded then begin
       // TODO: uncomment this?
-      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
+      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]); // TODO: create a new Exception class for this
       Exit;
     end;
   end;
@@ -3951,7 +3951,7 @@ begin
     Result := TIdVCLEncoding.Create(ACodepage);
     {$ELSE}
     Result := nil;
-    raise EIdException.CreateResFmt(@RSUnsupportedCodePage, [ACodepage]);
+    raise EIdException.CreateResFmt(@RSUnsupportedCodePage, [ACodepage]); // TODO: create a new Exception class for this
     {$IFEND}
   end;
 end;
@@ -3994,7 +3994,7 @@ begin
         // CharsetToCodePage() here, at least until CharsetToEncoding() can be moved
         // to this unit once IdCharsets has been moved to the System package...
         Result := nil;
-        raise EIdException.CreateFmt(RSUnsupportedCharSet, [ACharSet]);
+        raise EIdException.CreateFmt(RSUnsupportedCharSet, [ACharSet]); // TODO: create a new Exception class for this
         {$IFEND}
       end;
     end;
@@ -6504,7 +6504,7 @@ end;
 procedure ToDo(const AMsg: string);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  raise EIdException.Create(AMsg);
+  raise EIdException.Create(AMsg); // TODO: create a new Exception class for this
 end;
 
 // RLebeau: the following three functions are utility functions
@@ -7454,7 +7454,7 @@ var
   function ReadByte: Byte;
   begin
     if AStream.Read(Result, 1) <> 1 then begin
-      raise EIdException.Create('Unable to read byte'); {do not localize}
+      raise EIdException.Create('Unable to read byte'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
     end;
   end;
 
@@ -7952,7 +7952,7 @@ var
 begin
   Result := 0;
   if ACharPos < 1 then begin
-    raise EIdException.Create('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize } // TODO: add a resource string, and create a new Exception class for this
   end;
   if ACharPos <= Length(AString) then begin
     // RLebeau 5/8/08: Calling Pos() with a Char as input creates a temporary
@@ -7988,7 +7988,7 @@ function CharEquals(const AString: string; const ACharPos: Integer; const AValue
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if ACharPos < 1 then begin
-    raise EIdException.Create('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize } // TODO: add a resource string, and create a new Exception class for this
   end;
   Result := ACharPos <= Length(AString);
   if Result then begin
@@ -8012,7 +8012,7 @@ var
 begin
   Result := 0;
   if ACharPos < 1 then begin
-    raise EIdException.Create('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize } // TODO: add a resource string, and create a new Exception class for this
   end;
   if ACharPos <= ASB.Length then begin
     {$IFDEF HAS_String_IndexOf}
@@ -8052,7 +8052,7 @@ function CharEquals(const ASB: TIdStringBuilder; const ACharPos: Integer; const 
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if ACharPos < 1 then begin
-    raise EIdException.Create('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize } // TODO: add a resource string, and create a new Exception class for this
   end;
   Result := ACharPos <= ASB.Length;
   if Result then begin
@@ -8079,7 +8079,7 @@ function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet:
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if AIndex < 0 then begin
-    raise EIdException.Create('Invalid AIndex'); {do not localize}
+    raise EIdException.Create('Invalid AIndex'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   if AIndex < Length(ABytes) then begin
     Result := ByteIndex(ABytes[AIndex], ASet);

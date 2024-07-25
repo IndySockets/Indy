@@ -319,7 +319,8 @@ type
     procedure WriteContent;
     //
     function ServeFile(AContext: TIdContext; const AFile: String): Int64; virtual;
-    function SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; const AFile: String): Int64;
+    function SmartServeFile(AContext: TIdContext; const AFile: String): Int64; overload;
+    function SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; const AFile: String): Int64; overload; deprecated 'Use SmartServeFile() without ARequestInfo parameter';
     //
     property AuthCharset: string read FAuthCharset write FAuthCharset;
     property AuthRealm: string read FAuthRealm write FAuthRealm;
@@ -330,6 +331,7 @@ type
     property FreeContentStream: Boolean read FFreeContentStream write FFreeContentStream;
     // writable for isapi compatibility. Use with care
     property HeaderHasBeenWritten: Boolean read FHeaderHasBeenWritten write FHeaderHasBeenWritten;
+    property RequestInfo: TIdHTTPRequestInfo read FRequestInfo;
     property ResponseNo: Integer read FResponseNo write SetResponseNo;
     property ResponseText: String read FResponseText write FResponseText;
     property HTTPServer: TIdCustomHTTPServer read FHTTPServer;
@@ -472,7 +474,7 @@ type
     function DoHeadersAvailable(ASender: TIdContext; const AUri: String; AHeaders: TIdHeaderList): Boolean; virtual;
     procedure DoHeadersBlocked(ASender: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String); virtual;
     function DoHeaderExpectations(ASender: TIdContext; const AExpectations: String): Boolean; virtual;
-    function DoParseAuthentication(ASender: TIdContext; const AAuthType, AAuthData: String; var VUsername, VPassword: String): Boolean;
+    function DoParseAuthentication(ASender: TIdContext; const AAuthType, AAuthData: String; var VUsername, VPassword: String): Boolean; virtual;
     function DoQuerySSLPort(APort: TIdPort): Boolean; virtual;
     procedure DoSessionEnd(Sender: TIdHTTPSession); virtual;
     procedure DoSessionStart(Sender: TIdHTTPSession); virtual;
@@ -874,7 +876,7 @@ begin
       soEnd: LOffset := (FRangeEnd+1) + Offset;
     else
       // TODO: move this into IdResourceStringsProtocols.pas
-      raise EIdException.Create('Unknown Seek Origin'); {do not localize}
+      raise EIdException.Create('Unknown Seek Origin'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
     end;
     LOffset := IndyMax(LOffset, FRangeStart);
     LOffset := IndyMin(LOffset, FRangeEnd+1);
@@ -1722,7 +1724,7 @@ begin
     // gets called by Notification() if the sessionList is freed while
     // the server is still Active?
     if Active then begin
-      raise EIdException.Create(RSHTTPCannotSwitchSessionListWhenActive);
+      raise EIdException.Create(RSHTTPCannotSwitchSessionListWhenActive); // TODO: create a new Exception class for this
     end;
 
     // under ARC, all weak references to a freed object get nil'ed automatically
@@ -1776,7 +1778,7 @@ begin
   LCookieName := Trim(AValue);
   if LCookieName = '' then begin
     // TODO: move this into IdResourceStringsProtocols.pas
-    raise EIdException.Create('Invalid cookie name'); {do not localize}
+    raise EIdException.Create('Invalid cookie name'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   FSessionIDCookieName := AValue;
 end;
@@ -1948,6 +1950,9 @@ begin
       s := Copy(AValue, i, j-i);
       // See RFC 1866 section 8.2.1. TP
       s := ReplaceAll(s, '+', ' ');  {do not localize}
+      // TODO: provide an event or property that lets the user specify
+      // which charset to use for converting the decoded Unicode characters
+      // to ANSI in pre-Unicode compilers...
       Params.Add(TIdURI.URLDecode(s, LEncoding));
       i := j + 1;
     end;
@@ -2206,6 +2211,14 @@ begin
   Result := AContext.Connection.IOHandler.WriteFile(AFile, EnableTransferFile);
 end;
 
+function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext; const AFile: String): Int64;
+  {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
+begin
+  {$I IdDeprecatedImplBugOff.inc}
+  Result := SmartServeFile(AContext, FRequestInfo, AFile);
+  {$I IdDeprecatedImplBugOn.inc}
+end;
+
 function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo; const AFile: String): Int64;
 var
@@ -2329,7 +2342,7 @@ begin
     if (ContentText <> '') or Assigned(ContentStream) then begin
       LCharSet := FCharSet;
       if LCharSet = '' then begin
-        LCharSet := 'ISO-8859-1'; {Do not Localize}
+        LCharSet := 'utf-8'; {Do not Localize}
       end;
       ContentType := 'text/html; charset=' + LCharSet; {Do not Localize}
     end;
@@ -2608,7 +2621,7 @@ end;
 
 constructor TIdHTTPSessionCleanerThread.Create(SessionList: TIdHTTPCustomSessionList);
 begin
-  inherited Create(false);
+  inherited Create(False);
   // thread priority used to be set to tpIdle but this is not supported
   // under DotNet. How low do you want to go?
   IndySetThreadPriority(Self, tpLowest);

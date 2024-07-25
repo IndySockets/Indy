@@ -817,6 +817,7 @@ my $default_depflags = " -DOPENSSL_NO_CAMELLIA -DOPENSSL_NO_CAPIENG -DOPENSSL_NO
 {$ELSE}
 (*$HPPEMIT '}'*)
 {$ENDIF}
+
 // RLebeau: why are the following types not being placed in
 // the Idsslopensslheaders namespace with the types above?
 (*$HPPEMIT 'struct RSA;'*)
@@ -24693,7 +24694,7 @@ begin
   {$ENDIF}
   // Check if first 14 chars (4-digit year) are numbers
   if (Length(time_str) >= 14) and IsNumeric(time_str, 14) then begin
-  // Convert time from string to number
+    // Convert time from string to number
     year := IndyStrToInt(Copy(time_str, 1, 4));
     month := IndyStrToInt(Copy(time_str, 5, 2));
     day := IndyStrToInt(Copy(time_str, 7, 2));

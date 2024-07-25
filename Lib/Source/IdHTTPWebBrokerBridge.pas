@@ -552,19 +552,13 @@ begin
   // ContentType := 'text/html'; {do not localize}
 end;
 
-{$IFDEF WBB_ANSI}
-  {$DEFINE CONVERT_UNICODE_TO_ANSI}
-{$ELSE}
-  {$UNDEF CONVERT_UNICODE_TO_ANSI}
-{$ENDIF}
-
 function TIdHTTPAppResponse.GetContent: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
-{$IFDEF CONVERT_UNICODE_TO_ANSI}
+{$IFDEF WBB_ANSI}
 var
   LBytes: TIdBytes;
 {$ENDIF}
 begin
-  {$IFDEF CONVERT_UNICODE_TO_ANSI}
+  {$IFDEF WBB_ANSI}
   // RLebeau 2/21/2009: encode the content using the specified charset.
   Result := '';
   LBytes := CharsetToEncoding(FResponseInfo.CharSet).GetBytes(FResponseInfo.ContentText);
@@ -749,19 +743,13 @@ begin
   Result := FSent;
 end;
 
-{$IFDEF WBB_ANSI}
-  {$DEFINE CONVERT_ANSI_TO_UNICODE}
-{$ELSE}
-  {$UNDEF CONVERT_ANSI_TO_UNICODE}
-{$ENDIF}
-
 procedure TIdHTTPAppResponse.SetContent(const AValue: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF});
-{$IFDEF CONVERT_ANSI_TO_UNICODE}
+{$IFDEF WBB_ANSI}
 var
   LValue : string;
 {$ENDIF}
 begin
-  {$IFDEF CONVERT_ANSI_TO_UNICODE}
+  {$IFDEF WBB_ANSI}
 
   // AValue contains Encoded bytes
   if AValue <> '' then begin

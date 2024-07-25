@@ -458,8 +458,7 @@ begin
   CopyBytesToHostUInt32(AData, VI, LC);
 
   VL.FModifiedDateGMT := UnixDateTimeToDelphiDateTime(LC);
-  // TODO: use UniversalTimeToLocal() (FPC) or TTimeZone.Local.ToLocalTime() (DCC) instead
-  VL.FModifiedDate := VL.FModifiedDateGMT + OffSetFromUTC;
+  VL.FModifiedDate := UTCTimeToLocalTime(VL.FModifiedDateGMT);
   Inc(VI, 4);
 
   CopyBytesToHostUInt32(AData, VI, LC);

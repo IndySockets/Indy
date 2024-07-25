@@ -176,7 +176,15 @@ uses
   Classes,
   IdGlobal,
   IdGlobalProtocols,
-  SysUtils;
+  SysUtils
+  // to facilite inlining
+  {$IFNDEF HAS_GetLocalTimeOffset}
+    {$IFDEF HAS_DateUtils_TTimeZone}
+  ,{$IFDEF DCC_XE2_OR_ABOVE}System.TimeSpan{$ELSE}TimeSpan{$ENDIF}
+  ,DateUtils
+    {$ENDIF}
+  {$ENDIF}
+  ;
 
 type
   TIdFTPTransferType = (ftASCII, ftBinary);
@@ -1325,7 +1333,7 @@ begin
 
   Result := -1 * GetLocalTimeOffset();
   {$ELSEIF DEFINED(HAS_DateUtils_TTimeZone)}
-  Result := {-1 *} TTimeZone.Local.UtcOffset.TotalMinutes;
+  Result := {-1 *} Trunc(TTimeZone.Local.UtcOffset.TotalMinutes);
   {$ELSE}
   LD := OffsetFromUTC;
   DecodeTime(LD, LHour, LMin, LSec, LMSec);
@@ -1343,6 +1351,7 @@ var
   LYear, LMonth, LDay,
   LHour, LMin, LSec, LMSec : Word;
   LOfs : Integer;
+  LFmt : string;
 begin
   DecodeDate(ATimeStamp, LYear, LMonth, LDay);
   DecodeTime(ATimeStamp, LHour, LMin, LSec, LMSec);
@@ -1353,10 +1362,11 @@ begin
   if AIncludeGMTOffset then begin
     LOfs := MinutesFromGMT;
     if LOfs < 0 then begin
-      Result := Result + IntToStr(LOfs);
+      LFmt := '%d'; {do not localize}
     end else begin
-      Result := Result + '+' + IntToStr(LOfs);
+      LFmt := '+%d'; {do not localize}
     end;
+    Result := Result + IndyFormat(LFmt, [LOfs]);
   end;
   Result := ReplaceAll(Result, ' ', '0');
 end;
@@ -1471,7 +1481,7 @@ This function ensures that 2 digit dates returned
 by some FTP servers are interpretted just like Borland's year
 handling routines.
 
-Delphi and FreePascal, we have a format settings object that includes a member
+For Delphi and FreePascal, we have a format settings object that includes a member
 for two digit year processing.  Use that instead because that is thread-safe.
 
 Also note, that TFormatSettings is a record (in XE+, with associated functions

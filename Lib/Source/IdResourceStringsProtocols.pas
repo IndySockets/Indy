@@ -649,8 +649,8 @@ resourcestring
   RSIllegalCharInInputString = 'Illegal character in input string.';
 
   // TIdMessageCoder
-  RSMessageDecoderNotFound = 'Message decoder not found';
-  RSMessageEncoderNotFound = 'Message encoder not found';
+  RSMessageDecoderNotFound = 'Message decoder not found: %s';
+  RSMessageEncoderNotFound = 'Message encoder not found: %s';
 
   // TIdMessageCoderMIME
   RSMessageCoderMIMEUnrecognizedContentTrasnferEncoding = 'Unrecognized content trasnfer encoding.';

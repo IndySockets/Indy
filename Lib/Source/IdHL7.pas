@@ -472,13 +472,9 @@ type
 implementation
 
 uses
-  {$IFDEF USE_VCL_POSIX}
-    {$IFDEF OSX}
+  {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(OSX)}
   CoreServices,
-    {$ENDIF}
-  PosixSysSelect,
-  PosixSysTime,
-  {$ENDIF}
+  {$IFEND}
   IdGlobalProtocols,
   IdResourceStringsProtocols;
 
@@ -1626,8 +1622,7 @@ begin
   end;
 end;
 
-function TIdHL7.HandleMessage(const AMsg: String; AConn: TIdTCPConnection;
-  var VReply: String): Boolean;
+function TIdHL7.HandleMessage(const AMsg: String; AConn: TIdTCPConnection; var VReply: String): Boolean;
 var
   LQueMsg: IIdQueuedMessage;
 begin

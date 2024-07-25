@@ -199,6 +199,7 @@ begin
   end;
 end;
 
+// TODO: move this to the IdAuthentication unit, or maybe the IdGlobalProtocols unit...
 function Unquote(var S: String): String;
 var
   I, Len: Integer;
@@ -266,7 +267,9 @@ begin
 
         LParams := TStringList.Create;
         try
+          {$IFDEF HAS_TStringList_CaseSensitive}
           LParams.CaseSensitive := False;
+          {$ENDIF}
 
           while S <> '' do begin
             // RLebeau: Apache sends a space after each comma, but IIS does not!

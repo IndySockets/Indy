@@ -134,8 +134,8 @@ var
   end;
 begin
   if FForcePortsInRange then begin
-    if ((AThread.Connection.IOHandler as TIdIOHandlerSocket).Binding.Port >= 512) or
-       ((AThread.Connection.IOHandler as TIdIOHandlerSocket).Binding.Port <= 1023) then
+    if (AThread.Connection.Socket.Binding.Port >= 512) or
+       (AThread.Connection.Socket.Binding.Port <= 1023) then
     begin
       ExecuteCMD;
     end;

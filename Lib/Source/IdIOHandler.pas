@@ -413,6 +413,8 @@ uses
 (*$HPPEMIT '#pragma alias "@Idiohandler@TIdIOHandler@SetPortW$qqri"="@Idiohandler@TIdIOHandler@SetPort$qqri"' *)
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
+// TODO: when compiling with bcc64x, use this pragma instead:
+// #pragma comment(linker, "/alternatename:<name1>=<name2>")
 
 const
   GRecvBufferSizeDefault = 32 * 1024;
@@ -865,7 +867,7 @@ class function TIdIOHandler.MakeIOHandler(ABaseType: TIdIOHandlerClass;
 begin
   Result := TryMakeIOHandler(ABaseType, AOwner);
   if not Assigned(Result) then begin
-    raise EIdException.CreateFmt(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]);
+    raise EIdException.CreateFmt(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]); // TODO: create a new Exception class for this
   end;
 end;
 
@@ -1106,7 +1108,7 @@ end;
 
 function TIdIOHandler.ReadInt16(AConvert: Boolean = True): Int16;
 begin
-  EnsureInputBytes(Self, SizeOf(Int16));
+  EnsureInputBytes(SizeOf(Int16));
   Result := Int16(InputBuffer.ExtractToUInt16(-1, AConvert));
 end;
 

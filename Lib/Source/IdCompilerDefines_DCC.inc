@@ -243,7 +243,20 @@
   {$DEFINE DCC_10_4_UPDATE2_OR_ABOVE}
 {$IFEND}
 
+//Delphi & CBuilder 12.0 Athens (Yukon)
 {$IF CompilerVersion >= 36}
+  {$IF CompilerVersion < 37}
+    {$DEFINE DCC_12}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_12}
+    {$ELSE}
+      {$DEFINE DELPHI_12}
+    {$ENDIF}
+  {$ENDIF}
+  {$DEFINE DCC_12_OR_ABOVE}
+{$IFEND}
+
+{$IF CompilerVersion >= 37}
   {$MESSAGE ERROR 'Unsupported compiler version detected!'}
 {$IFEND}
 

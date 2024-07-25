@@ -47,6 +47,7 @@ type
       fIsPeer : Boolean;
      procedure SetPassThrough(const AValue: Boolean); virtual;
    public
+     constructor Create(AOwner: TComponent); override;
      function Clone :  TIdSSHIOHandlerSocketBase; virtual; abstract;
      procedure StartSSH; virtual; abstract;
      property PassThrough: Boolean read fPassThrough write SetPassThrough;
@@ -91,6 +92,7 @@ type
     property ClientClass : TIdClientSSHClass read FClientClass write FClientClass;
     property ServerClass : TIdServerSSHClass read FServerClass write FServerClass;
   end;
+
   TIdSSHRegistry = class(TCollection)
   protected
     function GetItem ( Index: Integer ) : TIdSSHRegEntry;
@@ -126,6 +128,12 @@ end;
 
 { TIdSSHIOHandlerSocketBase }
 
+constructor TIdSSHIOHandlerSocketBase.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  fPassThrough := True;
+end;
+
 procedure TIdSSHIOHandlerSocketBase.SetPassThrough(const AValue: Boolean);
 begin
   fPassThrough := AValue;
@@ -135,7 +143,7 @@ end;
 
 function TIdServerIOHandlerSSHBase.MakeClientIOHandler(ATheThread:TIdThreadHandle ): TIdIOHandler;
 begin
-  result:=MakeClientIOHandler;
+  Result := MakeClientIOHandler;
 end;
 
 { TIdSSHRegistry }

@@ -143,7 +143,7 @@ end;
 function TIdTelnetServer.DoAuthenticate;
 begin
   if not Assigned(OnAuthentication) then begin
-    raise EIdException.Create(RSTELNETSRVNoAuthHandler);
+    raise EIdException.Create(RSTELNETSRVNoAuthHandler); // TODO: create a new Exception class for this
   end;
   Result := False;
   OnAuthentication(AContext, AUsername, APassword, result);
@@ -182,9 +182,9 @@ begin
         if DoAuthenticate(AContext, Data.Username, Data.Password) then begin
           Break; // exit the loop
         end;
-        AContext.Connection.IOHandler.WriteLn(RSTELNETSRVInvalidLogin); // translate
+        AContext.Connection.IOHandler.WriteLn(RSTELNETSRVInvalidLogin);
         if i = FLoginAttempts then begin
-          raise EIdException.Create(RSTELNETSRVMaxloginAttempt); // translate
+          raise EIdException.Create(RSTELNETSRVMaxloginAttempt); // TODO: create a new Exception class for this
         end;
       end;
     end;

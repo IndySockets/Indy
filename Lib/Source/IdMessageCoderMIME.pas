@@ -695,7 +695,8 @@ const
   // MtW: Inversed: see http://support.microsoft.com/default.aspx?scid=kb;en-us;207188
   InvalidWindowsFilenameChars = '\/:*?"<>|'; {do not localize}
 var
-  LN: integer;
+  LN, LIdx: Integer;
+  LChar: Char;
   {$IFDEF STRING_IS_IMMUTABLE}
   LSB: TIdStringBuilder;
   {$ENDIF}
@@ -716,15 +717,25 @@ begin
   LSB := TIdStringBuilder.Create(Result);
   for LN := 0 to LSB.Length-1 do begin
     // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
-    if Pos(LSB[LN], InvalidWindowsFilenameChars) > 0 then begin
-      LSB[LN] := '_';    {do not localize}
+    // TODO: use CharIsInSet() instead?
+    LChar := LSB[LN];
+    for LIdx := 1 to Length(InvalidWindowsFilenameChars) do begin
+      if InvalidWindowsFilenameChars[LIdx] = LChar then begin
+        LSB[LN] := '_';    {do not localize}
+        Break;
+      end;
     end;
   end;
   {$ELSE}
   for LN := 1 to Length(Result) do begin
     // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
-    if Pos(Result[LN], InvalidWindowsFilenameChars) > 0 then begin
-      Result[LN] := '_';    {do not localize}
+    // TODO: use CharIsInSet() instead?
+    LChar := Result[LN];
+    for LIdx := 1 to Length(InvalidWindowsFilenameChars) do begin
+      if InvalidWindowsFilenameChars[LIdx] = LChar then begin
+        Result[LN] := '_';    {do not localize}
+        Break;
+      end;
     end;
   end;
   {$ENDIF}

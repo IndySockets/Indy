@@ -20,7 +20,7 @@ type
   public
     procedure Assign(Source: TPersistent); override;
     property ContentID: String read FContentID write FContentID;
-    property ContentTransfer: String read FContentTransfer;
+    property ContentTransfer: String read FContentTransfer write FContentTransfer;
     property ContentType: String read FContentType write FContentType;
     property Data: TStream read FData write FData;
     property FileName: String read FFileName write FFileName;
@@ -517,6 +517,7 @@ begin
   //
   if LUseHtml and not (LUsePlain or LUseViewerMsg or LUseHtmlFiles or LUseAttachments) then
   begin
+    // TODO: create "multipart/alternative" pieces if FHtmlViewerNeededMsg is not empty...
     AMsg.Body.Assign(FHtml);
     Exit;
   end;
@@ -605,12 +606,13 @@ end;
 
 procedure TIdMessageBuilderHtml.FillHeaders(AMsg: TIdMessage);
 var
-  LUsePlain, LUseHtml: Boolean;
+  LUsePlain, LUseHtml, LUseViewerNeededMsg: Boolean;
 begin
   if FAttachments.Count = 0 then
   begin
     LUsePlain := FPlainText.Count > 0;
     LUseHtml := FHtml.Count > 0;
+    LUseViewerNeededMsg := FHtmlViewerNeededMsg <> '';
 
     if LUsePlain and (not LUseHtml) then
     begin
@@ -628,7 +630,7 @@ begin
     end
     else if LUseHtml then
     begin
-      if (not LUsePlain) and (FHtmlViewerNeededMsg = '') and (FHtmlFiles.Count = 0) then
+      if (not LUsePlain) and (not LUseViewerNeededMsg) and (FHtmlFiles.Count = 0) then
       begin
         // HTML only
         //
@@ -693,7 +695,7 @@ end;
 
 procedure TIdMessageBuilderRtf.FillBody(AMsg: TIdMessage);
 var
-  LUsePlain, LUseRtf, LUseViewerMsg, LUseAttachments: Boolean;
+  LUsePlain, LUseRtf, LUseViewerNeededMsg, LUseAttachments: Boolean;
   LAlternativeIndex: Integer;
   LTextPart: TIdText;
 begin
@@ -701,7 +703,7 @@ begin
   //
   LUsePlain := FPlainText.Count > 0;
   LUseRtf := FRtf.Count > 0;
-  LUseViewerMsg := FRtfViewerNeededMsg <> '';
+  LUseViewerNeededMsg := FRtfViewerNeededMsg <> '';
   LUseAttachments := FAttachments.Count > 0;
   LAlternativeIndex := -1;
 
@@ -721,8 +723,9 @@ begin
 
   // Should the message contain only RTF?
   //
-  if LUseRtf and not (LUsePlain or LUseViewerMsg or LUseAttachments) then
+  if LUseRtf and not (LUsePlain or LUseViewerNeededMsg or LUseAttachments) then
   begin
+    // TODO: create "multipart/alternative" pieces if FRtfViewerNeededMsg is not empty...
     AMsg.Body.Assign(FRtf);
     Exit;
   end;
@@ -778,12 +781,13 @@ end;
 
 procedure TIdMessageBuilderRtf.FillHeaders(AMsg: TIdMessage);
 var
-  LUsePlain, LUseRtf: Boolean:
+  LUsePlain, LUseRtf, LUseViewerNeededMsg: Boolean;
 begin
   if FAttachments.Count = 0 then
   begin
     LUsePlain := FPlainText.Count > 0;
     LUseRtf := FRtf.Count > 0;
+    LUseViewerNeededMsg := FRtfViewerNeededMsg <> '';
 
     if (LUsePlain) and (not LUseRtf) then
     begin
@@ -801,7 +805,7 @@ begin
     end
     else if LUseRtf then
     begin
-      if (not LUsePlain) and (FRtfViewerNeededMsg = '') then
+      if (not LUsePlain) and (not LUseViewerNeededMsg) then
       begin
         // RTF only
         //

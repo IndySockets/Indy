@@ -208,6 +208,9 @@ begin
   inherited Create;
   FAuthParams := TIdHeaderList.Create(QuoteHTTP);
   FParams := TIdHeaderList.Create(QuoteHTTP);
+  {$IFDEF HAS_TStringList_CaseSensitive}
+  FParams.CaseSensitive := False;
+  {$ENDIF}
   FCurrentStep := 0;
 end;
 
@@ -345,7 +348,9 @@ begin
 
   LParams := TStringList.Create;
   try
+    {$IFDEF HAS_TStringList_CaseSensitive}
     LParams.CaseSensitive := False;
+    {$ENDIF}
 
     while S <> '' do begin
       // RLebeau: Apache sends a space after each comma, but IIS does not!

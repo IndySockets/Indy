@@ -1623,6 +1623,7 @@ begin
   {$ELSE}
 
   if FileExists(AFilename) then begin
+    // the other cases simply return -1 on error, so make sure to do the same here
     try
       // TODO: maybe use TIdReadFileNonExclusiveStream instead?
       LStream := TIdReadFileExclusiveStream.Create(AFilename);
@@ -3329,6 +3330,7 @@ begin
     KeyList := TStringList.create;
     try
       Reg.RootKey := HKEY_CLASSES_ROOT;
+      // TODO: use RegEnumKeyEx() directly to avoid wasting memory loading keys we don't care about...
       if Reg.OpenKeyReadOnly('\') then begin  {do not localize}
         Reg.GetKeyNames(KeyList);
         Reg.Closekey;
@@ -3808,8 +3810,8 @@ begin
   end;
 end;
 
-function ParseUntil(const AStr : String; const AChar : Char; var VPos : Integer;
-  const ALen : Integer) : String;
+function ParseUntil(const AStr : String; const AChar : Char;
+  var VPos : Integer; const ALen : Integer) : String;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LStart: Integer;
@@ -3824,8 +3826,8 @@ begin
   Result := Copy(AStr, LStart, VPos-LStart);
 end;
 
-procedure DiscardUntil(const AStr : String; const AChar : Char; var VPos : Integer;
-  const ALen : Integer);
+procedure DiscardUntil(const AStr : String; const AChar : Char;
+  var VPos : Integer; const ALen : Integer);
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   while VPos <= ALen do begin
@@ -3836,8 +3838,8 @@ begin
   end;
 end;
 
-function ParseUntilCharOrEndOfTag(const AStr : String; const AChar: Char; var VPos : Integer;
-  const ALen : Integer): String;
+function ParseUntilCharOrEndOfTag(const AStr : String; const AChar: Char;
+  var VPos : Integer; const ALen : Integer): String;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
 var
   LStart: Integer;
@@ -4375,12 +4377,17 @@ begin
   LItems := TIdHeaderNameValueList.Create;
   try
     SplitHeaderSubItems(AHeaderLine, LItems, AQuoteType);
-    {$IFDEF USE_OBJECT_ARC}
+    {$IF DEFINED(USE_OBJECT_ARC)}
     Result := LItems.GetValue(ASubItem);
-    {$ELSE}
+    {$ELSEIF DEFINED(HAS_TStringList_CaseSensitive)}
     LItems.CaseSensitive := False;
     Result := LItems.Values[ASubItem];
-    {$ENDIF}
+    {$ELSE}
+    I := IndyIndexOfName(LItems, ASubItem);
+    if I <> -1 then begin
+      Result := IndyValueFromIndex(LItems, I);
+    end;
+    {$IFEND}
   finally
     LItems.Free;
   end;
@@ -4445,7 +4452,9 @@ begin
     {$IFDEF USE_OBJECT_ARC}
     I := LItems.IndexOfName(ASubItem);
     {$ELSE}
+      {$IFDEF HAS_TStringList_CaseSensitive}
     LItems.CaseSensitive := False;
+      {$ENDIF}
     I := IndyIndexOfName(LItems, ASubItem);
     {$ENDIF}
     if I >= 0 then begin
@@ -4621,6 +4630,7 @@ end;
 {$IFEND}
 
 {$IFDEF NO_NATIVE_ASM}
+
 function ROL(const AVal: UInt32; AShift: Byte): UInt32;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin

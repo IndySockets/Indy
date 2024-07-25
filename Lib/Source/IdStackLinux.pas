@@ -581,7 +581,9 @@ begin
       IPVersionUnsupported;
     end;
   end;
-  LiSize := Libc.sendto(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, Psockaddr(@LAddr), LiSize);
+  LiSize := Libc.sendto(
+    ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL,
+    Psockaddr(@LAddr), LiSize);
   end;
   if LiSize = Id_SOCKET_ERROR then begin
     // TODO: move this into RaiseLastSocketError directly

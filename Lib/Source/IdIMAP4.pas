@@ -1979,7 +1979,9 @@ var
 begin
   LUsersFolders := TStringList.Create;
   try
+    {$IFDEF HAS_TStringList_CaseSensitive}
     LUsersFolders.CaseSensitive := False;
+    {$ENDIF}
 
     //Get folder names...
     if not ListMailBoxes(LUsersFolders) then begin

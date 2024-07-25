@@ -3032,7 +3032,7 @@ begin
     if (FUseTLS in ExplicitTLSVals) then begin
       LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
       if not LIO.PassThrough then begin
-        LIO.Passthrough := True;
+        LIO.PassThrough := True;
       end;
       LContext.FCCC := False;
     end;
@@ -3600,6 +3600,8 @@ var
   var
     LLocalLine : String;
   begin
+    // TODO: rewrite this to wait on both control and data sockets at the same
+    // time and read a command only if the control socket is actually readable...
     LLocalLine := ReadCommandLine(AContext);
     if LLocalLine <> '' then begin
       if not FDataChannelCommands.HandleCommand(AContext, LLocalLine) then begin
@@ -4551,16 +4553,16 @@ end;
 
 procedure TIdFTPServer.CommandAUTH(ASender: TIdCommand);
 var
-  LIO : TIdSSLIOHandlerSocketBase;
   LContext : TIdFTPServerContext;
 begin
   LContext := ASender.Context as TIdFTPServerContext;
-  if (PosInStrArray(ASender.UnparsedParams, TLS_AUTH_NAMES) > -1) and (IOHandler is TIdServerIOHandlerSSLBase)
-    and (FUseTLS in ExplicitTLSVals) then begin
+  if (PosInStrArray(ASender.UnparsedParams, TLS_AUTH_NAMES) > -1) and
+    (ASender.Context.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and
+    (FUseTLS in ExplicitTLSVals) then
+  begin
     ASender.Reply.SetReply(234,RSFTPAuthSSL);
     ASender.SendReply;
-    LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
-    LIO.Passthrough := False;
+    (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
     {
     This is from:
 
@@ -4656,7 +4658,6 @@ end;
 
 procedure TIdFTPServer.CommandCCC(ASender: TIdCommand);
 var
-  LIO : TIdSSLIOHandlerSocketBase;
   LContext : TIdFTPServerContext;
 begin
   LContext := ASender.Context as TIdFTPServerContext;
@@ -4668,8 +4669,7 @@ begin
       if LContext.FUserSecurity.PermitCCC then begin
         ASender.Reply.SetReply(200, RSFTPClearCommandConnection);
         ASender.SendReply;
-        LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
-        LIO.Passthrough := True;
+        (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
         LContext.FCCC := True;
       end else begin
         ASender.Reply.SetReply(534, RSFTPClearCommandNotPermitted);
@@ -4798,7 +4798,7 @@ var
 begin
   AContext.Connection.IOHandler.DefStringEncoding := IndyTextEncoding_8Bit;
 
-  // RLebeau 6/11/2020: let the user decide whether to enable SSL in their
+  // RLebeau 2/2/2021: let the user decide whether to enable SSL in their
   // own event handler.  Indy should not be making any assumptions about
   // whether to implicitally force SSL on any given connection.  This
   // prevents a single server from handling both SSL and non-SSL connections
@@ -4854,6 +4854,15 @@ begin
     end else begin
       inherited DoConnect(AContext);
     end;
+  end;
+end;
+
+function TIdFTPServer.DoQuerySSLPort(APort: TIdPort): Boolean;
+begin
+  // check for the default FTPS port, but let the user override that if desired...
+  Result := (APort = IdPORT_ftps);
+  if Assigned(FOnQuerySSLPort) then begin
+    FOnQuerySSLPort(APort, Result);
   end;
 end;
 
@@ -5341,8 +5350,7 @@ begin
   LFileSystem := FTPFileSystem;
   if Assigned(LFileSystem) then begin
     LFileSystem.GetFileDate(ASender, AFileName, VFileDate);
-    // TODO: use LocalTimeToUniversal() (FPC) or TTimeZone.Local.ToUniversalTime() (DCC) instead
-    VFileDate := VFileDate - OffsetFromUTC;
+    VFileDate := LocalTimeToUTCTime(VFileDate);
   end else if Assigned(FOnGetFileDate) then begin
     FOnGetFileDate(ASender, AFileName, VFileDate);
   end;
@@ -5507,8 +5515,7 @@ procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
     if IsValidTimeStamp(ALSender.Params[0]) then begin
       LFileName := ALSender.UnparsedParams;
       //This is local Time
-      // TODO: use UniversalTimeToLocal() (FPC) or TTimeZone.Local.ToLocalTime() (DCC) instead
-      LgMTime := FTPMLSToGMTDateTime(Fetch(LFileName)) - OffsetFromUTC;
+      LgMTime := UTCTimeToLocalTime(FTPMLSToGMTDateTime(Fetch(LFileName)));
       LFileName := DoProcessPath(AContext, LFileName);
       if Assigned(FOnSiteUTIME) then
       begin
@@ -6232,14 +6239,16 @@ end;
 procedure TIdFTPServer.CommandSiteZONE(ASender: TIdCommand);
 var
   LMin : Integer;
+  LFmt: string;
 begin
   LMin := MinutesFromGMT;
   //plus must always be displayed for positive numbers
   if LMin < 0 then begin
-    ASender.Reply.SetReply(210, IndyFormat('UTC%d', [MinutesFromGMT])); {do not localize}
+    LFmt := 'UTC%d'; {do not localize}
   end else begin
-    ASender.Reply.SetReply(210, IndyFormat('UTC+%d', [MinutesFromGMT])); {do not localize}
+    LFmt := 'UTC+%d'; {do not localize}
   end;
+  ASender.Reply.SetReply(210, IndyFormat(LFmt, [LMin]));
 end;
 
 procedure TIdFTPServer.CommandCheckSum(ASender: TIdCommand);
@@ -6355,7 +6364,7 @@ begin
       Exit;
     end;
 
-    VIP := LContext.Connection.Socket.Binding.IP;
+    VIP := LContext.Binding.IP;
     VIPVersion := LContext.Binding.IPVersion;
 
     if (FPASVBoundPortMin <> 0) and (FPASVBoundPortMax <> 0) then begin
@@ -7157,7 +7166,7 @@ begin
   if APASV then begin
     FDataChannel := TIdSimpleServer.Create(nil);
     LDataChannelSvr := TIdSimpleServer(FDataChannel);
-    LDataChannelSvr.BoundIP := FControlContext.Connection.Socket.Binding.IP;
+    LDataChannelSvr.BoundIP := FControlContext.Binding.IP;
     if (AServer.PASVBoundPortMin <> 0) and (AServer.PASVBoundPortMax <> 0) then begin
       LDataChannelSvr.BoundPortMin := AServer.PASVBoundPortMin;
       LDataChannelSvr.BoundPortMax := AServer.PASVBoundPortMax;
@@ -7171,7 +7180,7 @@ begin
     FDataChannel := TIdTCPClient.Create(nil);
     //the TCPClient for the dataport must be bound to a default port
     LDataChannelCli := TIdTCPClient(FDataChannel);
-    LDataChannelCli.BoundIP := FControlContext.Connection.Socket.Binding.IP;
+    LDataChannelCli.BoundIP := FControlContext.Binding.IP;
     LDataChannelCli.BoundPort := AServer.DefaultDataPort;
     LDataChannelCli.IPVersion := FControlContext.Binding.IPVersion;
   end;
@@ -7314,7 +7323,7 @@ begin
         if AConnectMode then begin
           LIO.IsPeer := False;
         end;
-        LIO.Passthrough := False;
+        LIO.PassThrough := False;
       end;
     end
     else if FDataChannel is TIdTCPClient then begin
@@ -7324,7 +7333,7 @@ begin
         if AConnectMode then begin
           LIO.IsPeer := False;
         end;
-        LIO.Passthrough := False;
+        LIO.PassThrough := False;
       end;
     end;
   except

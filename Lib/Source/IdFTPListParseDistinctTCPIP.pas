@@ -193,7 +193,7 @@ begin
   // 12/29/2002  01:42p                  23 CreateTest.txt
   // I suspect that this server returns the timestamp as GMT
   LI.ModifiedDateGMT := LI.ModifiedDate;
-  LI.ModifiedDate := LI.ModifiedDate - TimeZoneBias;
+  LI.ModifiedDate := UTCTimeToLocalTime(LI.ModifiedDateGMT);
   // file name
   LBuf := StripSpaces(LBuf, 1);
   LI.FileName := LBuf;

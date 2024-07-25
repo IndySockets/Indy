@@ -211,7 +211,7 @@ type
     property DataObject: TObject read FDataObject write FDataObject;
     property DataValue: PtrInt read FDataValue write FDataValue;
     {$IFNDEF USE_OBJECT_ARC}
-    property Data: TObject read FDataObject write FDataObject; // deprecated 'Use DataObject or DataValu property.';
+    property Data: TObject read FDataObject write FDataObject; // deprecated 'Use DataObject or DataValue property.';
     {$ENDIF}
   published
     property CmdDelimiter: Char read FCmdDelimiter write FCmdDelimiter;

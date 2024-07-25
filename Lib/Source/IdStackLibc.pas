@@ -590,7 +590,8 @@ begin
           end;
           LiSize := SizeOf(sockaddr_in6);
         end;
-        LBytesOut := Libc.sendto(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL,
+        LBytesOut := Libc.sendto(
+          ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL,
           {$IFDEF LIBCPASS_STRUCT}Psockaddr(@LAddr)^{$ELSE}Psockaddr(@LAddr){$ENDIF},
           LiSize);
        end;

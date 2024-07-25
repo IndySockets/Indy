@@ -224,6 +224,7 @@ begin
     try
       while LList.Count > 0 do begin
         LThread := {$IFDEF HAS_GENERICS_TList}LList.Items[0]{$ELSE}TIdThreadWithTask(LList.Items[0]){$ENDIF};
+        LList.Delete(0);
         LThread.Terminate;
         {$IFDEF DEPRECATED_TThread_SuspendResume}
         LThread.Suspended := False;
@@ -232,7 +233,6 @@ begin
         {$ENDIF}
         LThread.WaitFor;
         LThread.Free;
-        LList.Delete(0);
       end;
     finally
       FThreadPool.UnlockList;

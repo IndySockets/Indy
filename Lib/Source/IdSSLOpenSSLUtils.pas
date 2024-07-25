@@ -1,7 +1,8 @@
-{$I IdCompilerDefines.inc}
-unit IdSSLOpenSSLUtils {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
+unit IdSSLOpenSSLUtils deprecated;
 
 interface
+
+{$I IdCompilerDefines.inc}
 
 uses
   IdCTypes,
@@ -39,7 +40,7 @@ procedure LockVerifyCB_Leave;
 //
 function AddMins(const DT: TDateTime; const Mins: Extended): TDateTime;
 function AddHrs(const DT: TDateTime; const Hrs: Extended): TDateTime;
-function GetLocalTime(const DT: TDateTime): TDateTime;
+function GetLocalTime(const DT: TDateTime): TDateTime; deprecated 'Use IdGlobal.UTCTimeToLocalTime()';
 
 function IndySSL_load_client_CA_file(const AFileName: String) : PSTACK_OF_X509_NAME;
 function IndySSL_CTX_use_PrivateKey_file(ctx: PSSL_CTX; const AFileName: String;
@@ -626,7 +627,7 @@ end;
 function GetLocalTime(const DT: TDateTime): TDateTime;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := DT - TimeZoneBias { / (24 * 60) } ;
+  Result := UTCTimeToLocalTime(DT);
 end;
 
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
@@ -854,8 +855,7 @@ var
   tz_m: Integer;
 begin
   Result := 0;
-  if UTC_Time_Decode(UCTTime, year, month, day, hour, min, sec, tz_h,
-    tz_m) > 0 then begin
+  if UTC_Time_Decode(UCTTime, year, month, day, hour, min, sec, tz_h, tz_m) > 0 then begin
     Result := EncodeDate(year, month, day) + EncodeTime(hour, min, sec, 0);
     AddMins(Result, tz_m);
     AddHrs(Result, tz_h);

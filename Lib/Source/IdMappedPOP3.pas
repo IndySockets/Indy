@@ -171,7 +171,7 @@ Begin
       end;//if
 
       if TIdTCPClient(FOutboundClient).Host = '' then begin
-        raise EIdException.Create(RSEmptyHost);
+        raise EIdException.Create(RSEmptyHost); // TODO: create a new Exception class for this
       end;
 
       TIdTCPClient(FOutboundClient).ConnectTimeout := FConnectTimeOut;

@@ -827,10 +827,13 @@ end;
 
 // TODO: move this to IdStackVCLPosix...
 {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(ANDROID)}
-function GetActivityContext: JContext;
-  {$IFDEF USE_INLINE}inline;{$ENDIF}
+function GetActivityContext: JContext; {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := {$IFDEF HAS_TAndroidHelper}TAndroidHelper.Context{$ELSE}SharedActivityContext{$ENDIF};
+  {$IFDEF HAS_TAndroidHelper}
+  Result := TAndroidHelper.Context;
+  {$ELSE}
+  Result := SharedActivityContext;
+  {$ENDIF}
 end;
 
 function HasAndroidPermission(const Permission: string): Boolean;

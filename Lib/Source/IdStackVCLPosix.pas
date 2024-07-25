@@ -134,13 +134,11 @@ uses
   Posix.ArpaInet,
   Posix.Errno,
   Posix.NetDB,
-  {$IFDEF HAS_getifaddrs}
+  {$IF DEFINED(HAS_getifaddrs)}
   Posix.NetIf,
-  {$ELSE}
-    {$IFDEF ANDROID}
+  {$ELSEIF DEFINED(ANDROID)}
   //IdIfAddrs,
-    {$ENDIF}
-  {$ENDIF}
+  {$IFEND}
   Posix.NetinetIn,
   Posix.StrOpts,
   Posix.SysTypes,

@@ -624,15 +624,13 @@ begin
   // return an error if dwAddress is INADDR_NONE (255.255.255.255)
   // since this is never a valid argument to getaddrinfo.
   dwAddress := inet_addr(
-    {$IFDEF USE_MARSHALLED_PTRS}
+    {$IF DEFINED(USE_MARSHALLED_PTRS)}
     M.AsAnsi(pszAddress).ToPointer
-    {$ELSE}
-      {$IFNDEF UNICODE}
-    pszAddress
-      {$ELSE}
+    {$ELSEIF DEFINED(UNICODE)}
     PIdAnsiChar(AnsiString(pszAddress)) // explicit convert to Ansi
-      {$ENDIF}
-    {$ENDIF}
+    {$ELSE}
+    pszAddress
+    {$IFEND}
   );
   if dwAddress = INADDR_NONE then begin
     Result := FALSE;
@@ -695,15 +693,13 @@ begin
   pszAlias^ := TIdPlatformChar(0);
 
   ptHost := gethostbyname(
-    {$IFDEF USE_MARSHALLED_PTRS}
+    {$IF DEFINED(USE_MARSHALLED_PTRS)}
     M.AsAnsi(pszNodeName).ToPointer
-    {$ELSE}
-      {$IFNDEF UNICODE}
-    pszNodeName
-      {$ELSE}
+    {$ELSEIF DEFINED(UNICODE)}
     PIdAnsiChar(AnsiString(pszNodeName)) // explicit convert to Ansi
-      {$ENDIF}
-    {$ENDIF}
+    {$ELSE}
+    pszNodeName
+    {$IFEND}
   );
   if ptHost <> nil then begin
     if (ptHost^.h_addrtype = AF_INET) and (ptHost^.h_length = SizeOf(in_addr)) then begin
@@ -951,15 +947,13 @@ begin
     begin
       if (iSocketType = 0) or (iSocketType = SOCK_DGRAM) then begin
         ptService := getservbyname(
-          {$IFDEF USE_MARSHALLED_PTRS}
+          {$IF DEFINED(USE_MARSHALLED_PTRS)}
           M.AsAnsi(pszServiceName).ToPointer
-          {$ELSE}
-            {$IFNDEF UNICODE}
-          pszServiceName
-            {$ELSE}
+          {$ELSEIF DEFINED(UNICODE)}
           PIdAnsiChar(AnsiString(pszServiceName)) // explicit convert to Ansi
-            {$ENDIF}
-          {$ENDIF}
+          {$ELSE}
+          pszServiceName
+          {$IFEND}
           , 'udp'); {do not localize}
         if ptService <> nil then begin
           wPort := ptService^.s_port;
@@ -969,15 +963,13 @@ begin
 
       if (iSocketType = 0) or (iSocketType = SOCK_STREAM) then begin
         ptService := getservbyname(
-          {$IFDEF USE_MARSHALLED_PTRS}
+          {$IF DEFINED(USE_MARSHALLED_PTRS)}
           M.AsAnsi(pszServiceName).ToPointer
-          {$ELSE}
-            {$IFNDEF UNICODE}
-          pszServiceName
-            {$ELSE}
+          {$ELSEIF DEFINED(UNICODE)}
           PIdAnsiChar(AnsiString(pszServiceName)) // explicit convert to Ansi
-            {$ENDIF}
-          {$ENDIF}
+          {$ELSE}
+          pszServiceName
+          {$IFEND}
           , 'tcp'); {do not localize}
         if ptService <> nil then begin
           wPort := ptService^.s_port;
@@ -1451,15 +1443,15 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
   begin
     hWship6Dll := SafeLoadLibrary(Wship6_dll);
     hProcHandle := hWship6Dll;
-    gai := LoadLibFunction(hProcHandle, fn_getaddrinfo);  {do not localize}
+    gai := LoadLibFunction(hProcHandle, fn_getaddrinfo);
   end;
 
   if Assigned(gai) then
   begin
-    gni := LoadLibFunction(hProcHandle, fn_getnameinfo);  {do not localize}
+    gni := LoadLibFunction(hProcHandle, fn_getnameinfo);
     if Assigned(gni) then
     begin
-      fai := LoadLibFunction(hProcHandle, fn_freeaddrinfo);  {do not localize}
+      fai := LoadLibFunction(hProcHandle, fn_freeaddrinfo);
       if Assigned(fai) then
       begin
         {$IFDEF WINCE_UNICODE}
@@ -1477,11 +1469,11 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
 
         //Additional functions should be initialized here.
         {$IFNDEF WINCE}
-        inet_pton := LoadLibFunction(hProcHandle, fn_inet_pton);  {do not localize}
-        inet_ntop := LoadLibFunction(hProcHandle, fn_inet_ntop);  {do not localize}
-        GetAddrInfoEx := LoadLibFunction(hProcHandle, fn_GetAddrInfoEx); {Do not localize}
-        SetAddrInfoEx := LoadLibFunction(hProcHandle, fn_SetAddrInfoEx); {Do not localize}
-        FreeAddrInfoEx := LoadLibFunction(hProcHandle, fn_FreeAddrInfoEx); {Do not localize}
+        inet_pton := LoadLibFunction(hProcHandle, fn_inet_pton);
+        inet_ntop := LoadLibFunction(hProcHandle, fn_inet_ntop);
+        GetAddrInfoEx := LoadLibFunction(hProcHandle, fn_GetAddrInfoEx);
+        SetAddrInfoEx := LoadLibFunction(hProcHandle, fn_SetAddrInfoEx);
+        FreeAddrInfoEx := LoadLibFunction(hProcHandle, fn_FreeAddrInfoEx);
         hfwpuclntDll := SafeLoadLibrary(fwpuclnt_dll);
         if hfwpuclntDll <> IdNilHandle then
         begin
@@ -1490,7 +1482,6 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
           WSASetSocketPeerTargetName := LoadLibFunction(hfwpuclntDll, 'WSASetSocketPeerTargetName'); {Do not localize}
           WSADeleteSocketPeerTargetName := LoadLibFunction(hfwpuclntDll, 'WSADeleteSocketPeerTargetName');  {Do not localize}
           WSAImpersonateSocketPeer := LoadLibFunction(hfwpuclntDll, 'WSAImpersonateSocketPeer'); {Do not localize}
-
           WSARevertImpersonation := LoadLibFunction(hfwpuclntDll, 'WSARevertImpersonation'); {Do not localize}
         end;
         {$ENDIF}

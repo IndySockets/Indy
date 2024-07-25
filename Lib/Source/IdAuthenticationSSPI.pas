@@ -1178,7 +1178,7 @@ function TIdSSPINTLMAuthentication.DoNext: TIdAuthWhatsNext;
 begin
   Result := wnDoRequest;
   case FCurrentStep of
-    //Authentication does the 2>3 progression
+    //Authentication() does the 2>3 progression
     0, 1, 3:
       begin
         Inc(FCurrentStep);

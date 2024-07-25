@@ -2,7 +2,7 @@
 
   // DCC is defined by the Delphi compiler in XE2 onwards, detect earlier versions
 
-  {$IFDEF CONDITIONALEXPRESSIONS}
+  {$IFDEF CONDITIONALEXPRESSIONS} // defined in Delphi 6+
 
     {$IF CompilerVersion >= 24}
       {$LEGACYIFEND ON}

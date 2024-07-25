@@ -456,7 +456,7 @@ type
     property Method: TIdHTTPMethod read FMethod write FMethod;
     property Source: TStream read FSourceStream write FSourceStream;
     property UseProxy: TIdHTTPConnectionType read FUseProxy;
-    property IPVersion: TIdIPversion read FIPVersion write FIPVersion;
+    property IPVersion: TIdIPVersion read FIPVersion write FIPVersion;
     property Destination: string read FDestination write FDestination;
   end;
 
@@ -617,7 +617,7 @@ type
     property AuthProxyRetries: Integer read FAuthProxyRetries;
     // maximum number of Authentication retries permitted
     property MaxAuthRetries: Integer read FMaxAuthRetries write FMaxAuthRetries default Id_TIdHTTP_MaxAuthRetries;
-    property AllowCookies: Boolean read FAllowCookies write SetAllowCookies;
+    property AllowCookies: Boolean read FAllowCookies write SetAllowCookies default True;
     {Do we handle redirect requests or simply raise an exception and let the
      developer deal with it}
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default Id_TIdHTTP_HandleRedirects;
@@ -1036,7 +1036,7 @@ var
   begin
     if AStrings.Count > 1 then begin
       // break trailing CR&LF
-      Result := ReplaceAll(Trim(AStrings.Text), sLineBreak, '&'); {do not localize}
+      Result := ReplaceAll(Trim(AStrings.Text), AStrings.LineBreak, '&'); {do not localize}
     end else begin
       Result := Trim(AStrings.Text);
     end;
@@ -2453,8 +2453,7 @@ begin
     case LAuth.Next of
       wnAskTheProgram: // Ask the user porgram to supply us with authorization information
         begin
-          if not Assigned(OnProxyAuthorization) then
-          begin
+          if not Assigned(OnProxyAuthorization) then begin
             Result := False;
             Break;
           end;

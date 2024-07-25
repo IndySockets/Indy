@@ -193,7 +193,7 @@ begin
         FCodingType := 'XXE'; {do not localize}
       end;
       else begin
-        raise EIdException.Create(RSUnrecognizedUUEEncodingScheme);
+        raise EIdException.Create(RSUnrecognizedUUEEncodingScheme); // TODO: create a new Exception class for this
       end;
     end;
   end;

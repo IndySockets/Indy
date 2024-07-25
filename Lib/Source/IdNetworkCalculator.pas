@@ -175,7 +175,7 @@ begin
   // range check
   for I := 0 to 3 do begin
     if not (cardBuffers[I] in [0..255]) then begin
-      raise EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]);
+      raise EIdException.CreateFmt(RSNETCALInvalidIPString, [Value]); // TODO: create a new Exception class for this
     end;
   end;
   Result := MakeLongWordIP(cardBuffers[0], cardBuffers[1], cardBuffers[2], cardBuffers[3]);
@@ -289,7 +289,7 @@ begin
   if IndyPos('1', sBuffer) > 0 then    {Do not Localize}
   begin
     NetworkMaskLength := InitialMaskLength;
-    raise EIdException.Create(RSNETCALCInvalidNetworkMask); //  'Invalid network mask'    {Do not Localize}
+    raise EIdException.Create(RSNETCALCInvalidNetworkMask); // TODO: create a new Exception class for this
   end;
   // set the net mask length
   NetworkMaskLength := 32 - Length(sBuffer);
@@ -481,7 +481,7 @@ begin
     Exit;
   end;
   if Length(Value) <> 32 then begin
-    raise EIdException.Create(RSNETCALCInvalidValueLength) // 'Invalid value length: Should be 32.'    {Do not Localize}
+    raise EIdException.Create(RSNETCALCInvalidValueLength); // TODO: create a new Exception class for this
   end;
   if not TextIsSame(Value, AsBinaryString) then
   begin

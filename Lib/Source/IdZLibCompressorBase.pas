@@ -299,7 +299,7 @@ begin
   AInStream.ReadBuffer(LBCmp, 1);
   AInStream.ReadBuffer(LFlags, 1);
   if (((LBCmp * 256) + LFlags) mod 31) <> 0 then begin
-    raise EIdException.Create('Error - invalid header'); {do not localize}
+    raise EIdException.Create('Error - invalid header'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   AInStream.ReadBuffer(LDict, 4);
   AInStream.Position := LOrgPos;
