@@ -229,6 +229,15 @@ begin
           Exit; // this mechanism is not supported
         end;
       end else begin
+        if TrimRight(AClient.LastCmdResult.Text.Text) = 'VXNlcm5hbWU6' then // 'Username:'
+        begin
+          // request for username --> Initial-Response failed, we have to send username again
+          AClient.SendCmd(AEncoder.Encode(S), []);//[334, 504]);
+          if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
+            ASASL.FinishAuthenticate;
+            Exit; // this mechanism is not supported
+          end;
+        end;
         AuthStarted := True;
       end;
     end;
