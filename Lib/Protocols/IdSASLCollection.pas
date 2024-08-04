@@ -224,6 +224,8 @@ begin
     if ASASL.TryStartAuthenticate(AHost, AProtocolName, S) then begin
       AClient.SendCmd(ACmd + ' ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S), []);//[334, 504]);
       if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
+        // TODO: re-attempt without IR unconditionally? Or add a callback
+        // to let the caller decide whether to re-attempt or not...
         if not TextIsSame(AProtocolName, IdGSKSSN_pop) then begin
           ASASL.FinishAuthenticate;
           Exit; // this mechanism is not supported
