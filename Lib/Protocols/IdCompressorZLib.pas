@@ -70,7 +70,7 @@ type
   TIdCompressorZLib = class(TIdZLibCompressorBase)
   protected
     function GetIsReady : Boolean; override;
-    procedure InternalDecompressStream(LZstream: TZStreamRec; AIOHandler : TIdIOHandler;
+    procedure InternalDecompressStream(var LZstream: TZStreamRec; AIOHandler : TIdIOHandler;
       AOutStream: TStream);
   public
 
@@ -105,7 +105,7 @@ const
 { TIdCompressorZLib }
 
 procedure TIdCompressorZLib.InternalDecompressStream(
-  LZstream: TZStreamRec; AIOHandler: TIdIOHandler; AOutStream: TStream);
+  var LZstream: TZStreamRec; AIOHandler: TIdIOHandler; AOutStream: TStream);
 {Note that much of this is taken from the ZLibEx unit and adapted to use the IOHandler}
 var
   zresult  : Integer;
@@ -172,7 +172,11 @@ begin
     repeat
       LZstream.next_out := @outBuffer[0];
       LZstream.avail_out := bufferSize;
-      DCheck(inflate(LZstream,Z_NO_FLUSH));
+      zresult := inflate(LZstream, Z_NO_FLUSH);
+      if zresult <> Z_BUF_ERROR then
+      begin
+        DCheck(zresult);
+      end;
       outSize := bufferSize - LZstream.avail_out;
       AOutStream.Write(outBuffer, outSize);
     until (LZstream.avail_in = 0) and (LZstream.avail_out > 0);
