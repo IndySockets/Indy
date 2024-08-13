@@ -77,7 +77,7 @@ type
     procedure SetValue(const Value: string); override;
   end;
 
-  {$IFDEF TSelectionEditor}
+  {$IFDEF HAS_TSelectionEditor}
     {$IFDEF USE_OPENSSL}
   TIdOpenSSLSelectionEditor = class(TSelectionEditor)
   public
@@ -136,7 +136,7 @@ begin
 end;
 {$ENDIF}
 
-{$IFDEF TSelectionEditor}
+{$IFDEF HAS_TSelectionEditor}
 
   {$IFDEF USE_OPENSSL}
 
