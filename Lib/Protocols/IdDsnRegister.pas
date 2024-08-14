@@ -103,7 +103,7 @@ uses
   {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   IdDsnSASLListEditorFormVCL,
   {$ENDIF}
-  {$IFDEF TSelectionEditor}
+  {$IFDEF HAS_TSelectionEditor}
     {$IFDEF USE_OPENSSL}
    IdSSLOpenSSL,
     {$ENDIF}
@@ -214,7 +214,7 @@ end;
 procedure Register;
 begin
   RegisterPropertyEditor(TypeInfo(TIdSASLEntries), nil, '', TIdPropEdSASL);
-  {$IFDEF TSelectionEditor}
+  {$IFDEF HAS_TSelectionEditor}
     {$IFDEF USE_OPENSSL}
   RegisterSelectionEditor(TIdServerIOHandlerSSLOpenSSL, TIdOpenSSLSelectionEditor);
   RegisterSelectionEditor(TIdSSLIOHandlerSocketOpenSSL, TIdOpenSSLSelectionEditor);
