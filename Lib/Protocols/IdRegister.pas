@@ -293,9 +293,6 @@ uses
   {$IFDEF DOTNET_2_OR_ABOVE}
   IdSSLDotNET,
   {$ENDIF}
-  {$IFDEF USE_OPENSSL}
-  IdSSLOpenSSL,
-  {$ENDIF}
   IdSysLog,
   IdSysLogMessage,
   IdSysLogServer,
@@ -574,12 +571,6 @@ begin
     TIdServerIOHandlerSSLNET
    ]);
   {$ENDIF}
-  {$IFDEF USE_OPENSSL}
-  RegisterComponents(RSRegIndyIOHandlers, [
-   TIdServerIOHandlerSSLOpenSSL,
-   TIdSSLIOHandlerSocketOpenSSL
-   ]);
-  {$ENDIF}
 
   RegisterComponents(RSRegSASL, [
    TIdSASLAnonymous,
@@ -743,13 +734,6 @@ begin
    TIdSASLSKey,
    TIdUserPassProvider
    ]);
-
-  {$IFDEF USE_OPENSSL}
-  RegisterComponents(RSRegIndyIOHandlers+RSProt, [
-   TIdServerIOHandlerSSLOpenSSL,
-   TIdSSLIOHandlerSocketOpenSSL
-   ]);
-  {$ENDIF}
 
   RegisterComponents(RSRegIndyMisc+RSProt, [
    TIdConnectThroughHttpProxy,

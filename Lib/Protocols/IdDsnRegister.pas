@@ -78,12 +78,6 @@ type
   end;
 
   {$IFDEF HAS_TSelectionEditor}
-    {$IFDEF USE_OPENSSL}
-  TIdOpenSSLSelectionEditor = class(TSelectionEditor)
-  public
-    procedure RequiresUnits(Proc: TGetStrProc); override;
-  end;
-    {$ENDIF}
   TIdFTPServerSelectionEditor = class(TSelectionEditor)
   public
     procedure RequiresUnits(Proc: TGetStrProc); override;
@@ -104,10 +98,7 @@ uses
   IdDsnSASLListEditorFormVCL,
   {$ENDIF}
   {$IFDEF HAS_TSelectionEditor}
-    {$IFDEF USE_OPENSSL}
-   IdSSLOpenSSL,
-    {$ENDIF}
-   IdFTPServer,
+  IdFTPServer,
   {$ENDIF}
   IdSASL, IdSASLCollection,
   SysUtils, TypInfo;
@@ -137,20 +128,6 @@ end;
 {$ENDIF}
 
 {$IFDEF HAS_TSelectionEditor}
-
-  {$IFDEF USE_OPENSSL}
-
-{TIdOpenSSLSelectionEditor}
-
-procedure TIdOpenSSLSelectionEditor.RequiresUnits(Proc: TGetStrProc);
-begin
-  inherited RequiresUnits(Proc);
-  //for new callback event
-  Proc('IdCTypes');
-  Proc('IdSSLOpenSSLHeaders');
-end;
-
-  {$ENDIF}
 
 {TIdFTPServerSelectionEditor}
 
@@ -215,10 +192,6 @@ procedure Register;
 begin
   RegisterPropertyEditor(TypeInfo(TIdSASLEntries), nil, '', TIdPropEdSASL);
   {$IFDEF HAS_TSelectionEditor}
-    {$IFDEF USE_OPENSSL}
-  RegisterSelectionEditor(TIdServerIOHandlerSSLOpenSSL, TIdOpenSSLSelectionEditor);
-  RegisterSelectionEditor(TIdSSLIOHandlerSocketOpenSSL, TIdOpenSSLSelectionEditor);
-    {$ENDIF}
   RegisterSelectionEditor(TIdFTPServer,TIdFTPServerSelectionEditor);
   {$ENDIF}
 end;
