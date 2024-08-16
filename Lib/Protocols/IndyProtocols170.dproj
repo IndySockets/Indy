@@ -276,8 +276,6 @@
         <DCCReference Include="IdSNPP.pas"/>
         <DCCReference Include="IdSNTP.pas"/>
         <DCCReference Include="IdSSL.pas"/>
-        <DCCReference Include="IdSSLOpenSSL.pas"/>
-        <DCCReference Include="IdSSLOpenSSLHeaders.pas"/>
         <DCCReference Include="IdSSPI.pas"/>
         <DCCReference Include="IdServerInterceptLogBase.pas"/>
         <DCCReference Include="IdServerInterceptLogEvent.pas"/>
