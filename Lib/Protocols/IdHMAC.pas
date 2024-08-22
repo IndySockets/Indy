@@ -96,8 +96,9 @@ begin
   inherited Create;
   SetLength(FKey, 0);
   SetHashVars;
-  if IsHMACAvail then begin
-     FHash := nil;
+  LoadHashLibrary;
+  if IsIntFAvail then begin
+    FHash := nil;
   end else begin
     InitHash;
   end;

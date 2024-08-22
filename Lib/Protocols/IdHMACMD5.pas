@@ -56,7 +56,7 @@ end;
 
 function TIdHMACMD5.IsIntFAvail: Boolean;
 begin
-  Result := inherited IsIntFAvail and IsHMACMD5Avail;
+  Result := (inherited IsIntFAvail) and IsHMACMD5Avail;
 end;
 
 procedure TIdHMACMD5.SetHashVars;
