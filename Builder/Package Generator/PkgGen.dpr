@@ -194,6 +194,7 @@ begin
         Generate(ctKylix3, [gfDesignTime] + LDebugFlag);
         //
         GenerateRC([ctUnversioned] + Delphi_Native, [gfRunTime, gfDesignTime] + LDebugFlag);
+        GenerateDsnCoreResourceStrings;
       finally Free; end;
 
       WriteLn('Generating Protocols Package...');
