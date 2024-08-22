@@ -257,7 +257,7 @@ end;
 
 class function TIdHashMessageDigest2.IsIntfAvailable: Boolean;
 begin
-  Result := IsHashingIntfAvail and  IsMD2HashIntfAvail;
+  Result := (inherited IsIntfAvailable) and IsMD2HashIntfAvail;
 end;
 
 { TIdHashMessageDigest4 }
@@ -422,7 +422,7 @@ end;
 
 class function TIdHashMessageDigest4.IsIntfAvailable: Boolean;
 begin
-  Result := IsHashingIntfAvail and IsMD4HashIntfAvail ;
+  Result := (inherited IsIntfAvailable) and IsMD4HashIntfAvail;
 end;
 
 { TIdHashMessageDigest5 }
@@ -457,7 +457,7 @@ end;
 
 class function TIdHashMessageDigest5.IsIntfAvailable: Boolean;
 begin
-  Result := IsHashingIntfAvail and IsMD5HashIntfAvail ;
+  Result := (inherited IsIntfAvailable) and IsMD5HashIntfAvail;
 end;
 
 procedure TIdHashMessageDigest5.MDCoder;
