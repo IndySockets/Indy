@@ -3639,6 +3639,7 @@ var
   procedure WriteToStream(AContext : TIdFTPServerContext; ACmdQueue : TStrings;
     ASrcStream : TStream; const AIgnoreCompression : Boolean = False);
   var
+    LBuffer : TIdBytes;
     LBufSize : Int64;
     LOutStream : TStream;
   begin
@@ -3654,18 +3655,17 @@ var
           AContext.ZLibMemLevel, AContext.ZLibStratagy);
         LOutStream.Position := 0;
       end;
-      repeat
-        LBufSize := LOutStream.Size - LOutStream.Position;
-        if LBufSize > DEF_BLOCKSIZE then begin
-           LBufSize := DEF_BLOCKSIZE;
-        end;
-        if LBufSize > 0 then begin
-          AContext.FDataChannel.FDataChannel.IOHandler.Write(LOutStream, LBufSize, False);
-          if LOutStream.Position < LOutStream.Size then begin
+      SetLength(LBuffer, DEF_BLOCKSIZE);
+      LBufSize := ReadTIdBytesFromStream(LOutStream, LBuffer, DEF_BLOCKSIZE);
+      if LBufSize > 0 then begin
+        repeat
+          AContext.FDataChannel.FDataChannel.IOHandler.Write(LBuffer, LBufSize);
+          LBufSize := ReadTIdBytesFromStream(LOutStream, LBuffer, DEF_BLOCKSIZE);
+          if LBufSize > 0 then begin
             CheckControlConnection(AContext, ACmdQueue);
           end;
-        end;
-      until (LBufSize = 0) or (not AContext.FDataChannel.FDataChannel.IOHandler.Connected);
+        until (LBufSize < 1) or (not AContext.FDataChannel.FDataChannel.IOHandler.Connected);
+      end;
     finally
       if AContext.DataMode = dmDeflate then begin
         LOutStream.Free;
