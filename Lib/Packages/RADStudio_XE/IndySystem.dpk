@@ -18,6 +18,7 @@ package IndySystem;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 11 System'}
+{$LIBSUFFIX '150'}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
@@ -42,8 +43,5 @@ contains
   IdStruct in '..\..\Source\IdStruct.pas',
   IdWinsock2 in '..\..\Source\IdWinsock2.pas',
   IdWship6 in '..\..\Source\IdWship6.pas';
-
-// the System unit is not accessible until after the 'contains' clause is closed
-{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

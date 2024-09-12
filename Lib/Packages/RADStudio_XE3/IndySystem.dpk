@@ -26,6 +26,7 @@ package IndySystem;
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 11 System'}
+{$LIBSUFFIX '170'}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
@@ -71,8 +72,5 @@ contains
   IdVCLPosixSupplemental in '..\..\Source\IdVCLPosixSupplemental.pas'
   {$ENDIF}
   ;
-
-// the System unit is not accessible until after the 'contains' clause is closed
-{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

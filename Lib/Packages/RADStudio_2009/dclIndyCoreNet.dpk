@@ -16,7 +16,8 @@ package dclIndyCoreNet;
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DESCRIPTION 'Indy 10 Core Design Time'}
+{$DESCRIPTION 'Indy 11 Core Design Time'}
+{$LIBSUFFIX '120'}
 {$DESIGNONLY}
 {$IMPLICITBUILD ON}
 
@@ -34,8 +35,5 @@ contains
   IdDsnPropEdBindingNET in '..\..\Source\IdDsnPropEdBindingNET.pas',
   IdRegisterCore in '..\..\Source\IdRegisterCore.pas';
 {$I ..\..\Source\IddclCore90ASM90.inc}
-
-// the System unit is not accessible until after the 'contains' clause is closed
-{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

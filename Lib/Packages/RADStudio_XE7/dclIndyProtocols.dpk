@@ -27,6 +27,7 @@ package dclIndyProtocols;
 {$DEFINE VER280}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 11 Protocols Design Time'}
+{$LIBSUFFIX '210'}
 {$DESIGNONLY}
 {$IMPLICITBUILD ON}
 
@@ -42,8 +43,5 @@ contains
   IdDsnResourceStrings in '..\..\Source\IdDsnResourceStrings.pas',
   IdDsnSASLListEditorFormVCL in '..\..\Source\IdDsnSASLListEditorFormVCL.pas',
   IdRegister in '..\..\Source\IdRegister.pas';
-
-// the System unit is not accessible until after the 'contains' clause is closed
-{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

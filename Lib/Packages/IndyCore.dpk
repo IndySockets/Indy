@@ -17,6 +17,7 @@ package IndyCore;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 11 Core'}
+{$LIBSUFFIX AUTO}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
@@ -83,8 +84,5 @@ contains
   IdUDPClient in '..\..\Source\IdUDPClient.pas',
   IdUDPServer in '..\..\Source\IdUDPServer.pas',
   IdYarn in '..\..\Source\IdYarn.pas';
-
-// the System unit is not accessible until after the 'contains' clause is closed
-{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

@@ -27,6 +27,7 @@ package dclIndyCore;
 {$DEFINE VER330}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 11 Core Design Time'}
+{$LIBSUFFIX AUTO}
 {$DESIGNONLY}
 {$IMPLICITBUILD ON}
 
@@ -42,8 +43,5 @@ contains
   IdDsnCoreResourceStrings in '..\..\Source\IdDsnCoreResourceStrings.pas',
   IdDsnPropEdBindingVCL in '..\..\Source\IdDsnPropEdBindingVCL.pas',
   IdRegisterCore in '..\..\Source\IdRegisterCore.pas';
-
-// the System unit is not accessible until after the 'contains' clause is closed
-{$I ..\..\Source\IdLibSuffix.inc}
 
 end.

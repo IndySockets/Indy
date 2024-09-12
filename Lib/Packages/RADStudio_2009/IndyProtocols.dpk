@@ -17,6 +17,7 @@ package IndyProtocols;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 11 Protocols'}
+{$LIBSUFFIX '120'}
 {$RUNONLY}
 {$IMPLICITBUILD ON}
 
@@ -266,8 +267,5 @@ contains
   IdZLibCompressorBase in '..\..\Source\IdZLibCompressorBase.pas',
   IdZLibConst in '..\..\Source\IdZLibConst.pas',
   IdZLibHeaders in '..\..\Source\IdZLibHeaders.pas';
-
-// the System unit is not accessible until after the 'contains' clause is closed
-{$I ..\..\Source\IdLibSuffix.inc}
 
 end.
