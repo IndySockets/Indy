@@ -83,10 +83,10 @@ type
     {This deletes lines which were folded}
     Procedure DeleteFoldedLines(Index : Integer);
     {This folds one line into several lines}
-    function FoldLine(AString : string): TStrings; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use FoldLineToList()'{$ENDIF};{$ENDIF}
-    procedure FoldLineToList(AString : string; ALines: TStrings);
+    function FoldLine(const AString : string): TStrings; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use FoldLineToList()'{$ENDIF};{$ENDIF}
+    procedure FoldLineToList(const AString : string; ALines: TStrings);
     {Folds lines and inserts them into a position, Index}
-    procedure FoldAndInsert(AString : String; Index : Integer);
+    procedure FoldAndInsert(const AString : String; Index : Integer);
     {Name property get method}
     function GetName(Index: Integer): string;
     {Value property get method}
@@ -261,7 +261,7 @@ begin
   end;
 end;
 
-procedure TIdHeaderList.FoldAndInsert(AString : String; Index: Integer);
+procedure TIdHeaderList.FoldAndInsert(const AString : String; Index: Integer);
 var
   LStrs : TStrings;
   idx : Integer;
@@ -284,7 +284,7 @@ begin
 end;
 
 {$I IdDeprecatedImplBugOff.inc}
-function TIdHeaderList.FoldLine(AString : string): TStrings;
+function TIdHeaderList.FoldLine(const AString : string): TStrings;
 {$I IdDeprecatedImplBugOn.inc}
 begin
   Result := TStringList.Create;
@@ -296,7 +296,7 @@ begin
   end;
 end;
 
-procedure TIdHeaderList.FoldLineToList(AString : string; ALines: TStrings);
+procedure TIdHeaderList.FoldLineToList(const AString : string; ALines: TStrings);
 var
   s : String;
 begin

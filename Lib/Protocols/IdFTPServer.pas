@@ -1019,7 +1019,7 @@ type
     //command reply common code
     procedure CmdNotImplemented(ASender : TIdCommand);
     procedure CmdFileActionAborted(ASender : TIdCommand);
-    procedure CmdSyntaxError(AContext: TIdContext; ALine: string; const AReply : TIdReply = nil); overload;
+    procedure CmdSyntaxError(AContext: TIdContext; const ALine: string; const AReply : TIdReply = nil); overload;
     procedure CmdSyntaxError(ASender : TIdCommand); overload;
     procedure CmdInvalidParams(ASender: TIdCommand);
     procedure CmdInvalidParamNum(ASender:TIdCommand);
@@ -1185,7 +1185,7 @@ type
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
     procedure InitComponent; override;
-    procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; const ALine: string); override;
     // overriden so we can close active transfers during a shutdown
     procedure DoTerminateContext(AContext: TIdContext); override;
     //overriden so we can handle telnet sequences
@@ -6671,7 +6671,7 @@ begin
   Result := BytesToString(LLine, 0, MaxInt, LContext.Connection.IOHandler.DefStringEncoding);
 end;
 
-procedure TIdFTPServer.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
+procedure TIdFTPServer.DoReplyUnknownCommand(AContext: TIdContext; const ALine: string);
 begin
   CmdSyntaxError(AContext, ALine);
 end;
@@ -6685,7 +6685,7 @@ begin
   end;
 end;
 
-procedure TIdFTPServer.CmdSyntaxError(AContext: TIdContext; ALine: string; const AReply : TIdReply = nil);
+procedure TIdFTPServer.CmdSyntaxError(AContext: TIdContext; const ALine: string; const AReply : TIdReply = nil);
 var
   LTmp : String;
   LReply : TIdReply;

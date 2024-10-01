@@ -403,7 +403,7 @@ type
   // TODO: IdStrings have optimized SplitColumns* functions, can we remove it?
   function ABNFToText(const AText : String) : String;
   function BinStrToInt(const ABinary: String): Integer;
-  function BreakApart(BaseString, BreakString: string; StringList: TStrings): TStrings;
+  function BreakApart(BaseString : String; const BreakString: string; StringList: TStrings): TStrings;
   function UInt32ToFourChar(AValue : UInt32): string;
   function LongWordToFourChar(AValue : UInt32): string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use UInt32ToFourChar()'{$ENDIF};{$ENDIF}
   function CharRange(const AMin, AMax : Char): String;
@@ -489,7 +489,7 @@ type
   function GetGMTOffsetStr(const S: string): string;
   function GmtOffsetStrToDateTime(const S: string): TDateTime;
   function GMTToLocalDateTime(S: string): TDateTime;
-  function CookieStrToLocalDateTime(S: string): TDateTime;
+  function CookieStrToLocalDateTime(const S: string): TDateTime;
   function IdGetDefaultCharSet : TIdCharSet;
   function IntToBin(Value: UInt32): string;
   function IndyComputerName : String; // DotNet: see comments regarding GDotNetComputerName below
@@ -1385,7 +1385,7 @@ begin
 end;
 
 
-function BreakApart(BaseString, BreakString: string; StringList: TStrings): TStrings;
+function BreakApart(BaseString : String; const BreakString: string; StringList: TStrings): TStrings;
 var
   EndOfCurrentString: integer;
 begin
@@ -2800,7 +2800,7 @@ end;
 {$ENDIF}
 
 { Using the algorithm defined in RFC 6265 section 5.1.1 }
-function CookieStrToLocalDateTime(S: string): TDateTime;
+function CookieStrToLocalDateTime(const S: string): TDateTime;
 const
   {
   delimiter       = %x09 / %x20-2F / %x3B-40 / %x5B-60 / %x7B-7E
