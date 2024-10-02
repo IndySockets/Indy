@@ -211,7 +211,7 @@ type
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
     procedure InitComponent; override;
-    procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; const ALine: string); override;
     procedure InitializeCommandHandlers; override;
     //
     procedure DoReset(AContext: TIdSMTPServerContext; AIsTLSReset: Boolean = False);
@@ -390,7 +390,7 @@ begin
   end;
 end;
 
-procedure TIdSMTPServer.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
+procedure TIdSMTPServer.DoReplyUnknownCommand(AContext: TIdContext; const ALine: string);
 begin
   CmdSyntaxError(AContext, ALine);
 end;

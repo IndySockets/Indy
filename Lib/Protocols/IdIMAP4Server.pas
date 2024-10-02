@@ -359,7 +359,7 @@ type
     procedure SendUnsupportedCommand(ASender: TIdCommand);
     procedure SendIncorrectNumberOfParameters(ASender: TIdCommand);
     procedure SendUnassignedDefaultMechanism(ASender: TIdCommand);
-    procedure DoReplyUnknownCommand(AContext: TIdContext; AText: string); override;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; const AText: string); override;
     procedure SendErrorOpenedReadOnly(ASender: TIdCommand);
     procedure SendOkReply(ASender: TIdCommand; const AText: string);
     procedure SendBadReply(ASender: TIdCommand; const AText: string); overload;
@@ -658,7 +658,7 @@ begin
   end;
 end;
 
-procedure TIdIMAP4Server.DoReplyUnknownCommand(AContext: TIdContext; AText: string);
+procedure TIdIMAP4Server.DoReplyUnknownCommand(AContext: TIdContext; const AText: string);
 //AText is ignored by TIdIMAP4Server
 var
   LText: string;
