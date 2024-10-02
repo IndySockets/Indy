@@ -380,7 +380,7 @@ type
     property RRDatas : TStrings read FRRDatas write SetRRDatas;
     property TTL : integer read FTTL write SetTTL;
     property TimeOut : string read FTimeOut write FTimeOut;
-    function ifAddFullName(AFullName: string; AGivenName: string = ''): boolean;
+    function ifAddFullName(const AFullName: string; const AGivenName: string = ''): boolean;
     function GetValue(const AName: String): String;
     procedure SetValue(const AName: String; const AValue: String);
     function ItemCount : Integer;
@@ -610,7 +610,7 @@ function ConvertToCanonical6IP(const OrgIP : String) : string;
 function IPv6AAAAToDNSStr(const AIPv6Address : String): TIdBytes;
 function GetErrorStr(const Code, Id: Integer): String;
 function GetRCodeStr(RCode : Integer): String;
-function ReplaceSpecString(Source, Target, NewString : string; ReplaceAll : boolean = True) : string;
+function ReplaceSpecString(const Source, Target, NewString : string; ReplaceAll : boolean = True) : string;
 function IsBig5(ch1, ch2: Char) : Boolean;
 
 implementation
@@ -1292,7 +1292,7 @@ begin
   RRDatas.Values[AName] := AValue;
 end;
 
-function TIdTextModeResourceRecord.ifAddFullName(AFullName, AGivenName: string): boolean;
+function TIdTextModeResourceRecord.ifAddFullName(const AFullName, AGivenName: string): boolean;
 var
   LTailString, LBackString, LDestination : string;
   LTS, LRR : integer;
@@ -1994,7 +1994,7 @@ begin
    inherited CreateInit('', TypeCode_Error); {do not localize}
 end;
 
-function ReplaceSpecString(Source, Target, NewString : string; ReplaceAll : boolean = True) : string;
+function ReplaceSpecString(const Source, Target, NewString : string; ReplaceAll : boolean = True) : string;
 var
   FixingString, MiddleString, FixedString : string;
 begin

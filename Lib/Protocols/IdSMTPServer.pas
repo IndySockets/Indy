@@ -179,7 +179,7 @@ type
     }
     //common reply procs
     procedure AuthFailed(ASender: TIdCommand);
-    procedure CmdSyntaxError(AContext: TIdContext; ALine: string; const AReply : TIdReply = nil); overload;
+    procedure CmdSyntaxError(AContext: TIdContext; const ALine: string; const AReply : TIdReply = nil); overload;
     procedure CmdSyntaxError(ASender: TIdCommand); overload;
 
     procedure BadSequenceError(ASender: TIdCommand);
@@ -309,7 +309,7 @@ begin
 end;
 {$ENDIF}
 
-procedure TIdSMTPServer.CmdSyntaxError(AContext: TIdContext; ALine: string;
+procedure TIdSMTPServer.CmdSyntaxError(AContext: TIdContext; const ALine: string;
   const AReply: TIdReply);
 var
   LTmp : String;

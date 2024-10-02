@@ -70,7 +70,7 @@ type
   protected
     FQuery: String;
     FVerboseOutput: Boolean;
-    Procedure SetCompleteQuery(AQuery: String);
+    Procedure SetCompleteQuery(const AQuery: String);
     Function GetCompleteQuery: String;
     Procedure InitComponent; override;
   public
@@ -133,7 +133,7 @@ begin
   Result := FQuery + '@' + Host;  {Do not Localize}
 end;
 
-procedure TIdFinger.SetCompleteQuery(AQuery: String);
+procedure TIdFinger.SetCompleteQuery(const AQuery: String);
 var
   p : Integer;
 begin

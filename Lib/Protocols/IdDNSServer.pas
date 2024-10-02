@@ -421,8 +421,8 @@ type
     procedure RemoveChild(Index : Integer);
     procedure SortChildren;
     procedure Clear;
-    procedure SaveToFile(Filename : String);
-    function IndexByLabel(CLabel : String): Integer;
+    procedure SaveToFile(const Filename : String);
+    function IndexByLabel(const CLabel : String): Integer;
     function IndexByNode(ANode : TIdDNTreeNode) : Integer;
   end;
 
@@ -460,11 +460,11 @@ type
       WildCardOrgName: string = '');
     procedure ExternalSearch(ADNSResolver: TIdDNSResolver; Header: TDNSHeader;
       Question: TIdBytes; var Answer: TIdBytes);
-    function CompleteQuery(DNSHeader: TDNSHeader; Question: string;
+    function CompleteQuery(DNSHeader: TDNSHeader; const Question: string;
       OriginalQuestion: TIdBytes; var Answer : TIdBytes; QType, QClass : UInt16;
       DNSResolver : TIdDNSResolver) : string;
-    procedure SaveToCache(ResourceRecord : TIdBytes; QueryName : string; OriginalQType : UInt16);
-    function SearchTree(Root : TIdDNTreeNode; QName : String; QType : UInt16): TIdDNTreeNode;
+    procedure SaveToCache(ResourceRecord : TIdBytes; const QueryName : string; OriginalQType : UInt16);
+    function SearchTree(Root : TIdDNTreeNode; const QName : String; QType : UInt16): TIdDNTreeNode;
 
     procedure Run; override;
     procedure QueryDomain;
@@ -522,8 +522,8 @@ type
     procedure SetHanded_DomainList(const Value: TStrings);
     procedure InternalSearch(Header: TDNSHeader; QName: string; QType: UInt16;
       var Answer: TIdBytes; IfMainQuestion: boolean; IsSearchCache: Boolean = False;
-      IsAdditional: Boolean = False; IsWildCard : Boolean = False;
-      WildCardOrgName: string = '');
+      IsAdditional: Boolean = False; const IsWildCard : Boolean = False;
+      const WildCardOrgName: string = '');
     procedure ExternalSearch(ADNSResolver: TIdDNSResolver; Header: TDNSHeader;
       Question: TIdBytes; var Answer: TIdBytes);
     //modified in May 2004 by Dennies Chang.
@@ -541,16 +541,16 @@ type
   public
     destructor Destroy; override;
     function AXFR(Header : TDNSHeader; Question : string; var Answer : TIdBytes) : string;
-    function CompleteQuery(DNSHeader: TDNSHeader; Question: string;
+    function CompleteQuery(DNSHeader: TDNSHeader; const Question: string;
       OriginalQuestion: TIdBytes; var Answer : TIdBytes; QType, QClass : UInt16;
       DNSResolver : TIdDNSResolver) : string; {$IFDEF HAS_DEPRECATED}deprecated;{$ENDIF}
-    function LoadZoneFromMasterFile(MasterFileName : String) : boolean;
+    function LoadZoneFromMasterFile(const MasterFileName : String) : boolean;
     function LoadZoneStrings(FileStrings: TStrings; Filename : String;
       TreeRoot : TIdDNTreeNode): Boolean;
-    function SearchTree(Root : TIdDNTreeNode; QName : String; QType : UInt16): TIdDNTreeNode;
+    function SearchTree(Root : TIdDNTreeNode; const QName : String; QType : UInt16): TIdDNTreeNode;
     procedure UpdateTree(TreeRoot : TIdDNTreeNode; RR : TIdTextModeResourceRecord); overload;
-    function FindNodeFullName(Root : TIdDNTreeNode; QName : String; QType : UInt16) : string;
-    function FindHandedNodeByName(QName : String; QType : UInt16) : TIdDNTreeNode;
+    function FindNodeFullName(Root : TIdDNTreeNode; const QName : String; QType : UInt16) : string;
+    function FindHandedNodeByName(const QName : String; QType : UInt16) : TIdDNTreeNode;
     procedure UpdateTree(TreeRoot : TIdDNTreeNode; RR : TResultRecord); overload;
 
     property RootDNS_NET : TStrings read FRootDNS_NET write SetRootDNS_NET;
@@ -858,7 +858,7 @@ begin
   Result := TIdDNTreeNode(SubTree.Items[Index]);
 end;
 
-function TIdDNTreeNode.IndexByLabel(CLabel: String): Integer;
+function TIdDNTreeNode.IndexByLabel(const CLabel: String): Integer;
 begin
   Result := FChildIndex.IndexOf(CLabel);
 end;
@@ -885,7 +885,7 @@ begin
   FChildIndex.Delete(Index);
 end;
 
-procedure TIdDNTreeNode.SaveToFile(Filename: String);
+procedure TIdDNTreeNode.SaveToFile(const Filename: String);
 var
   DNSs : TStrings;
 begin
@@ -934,7 +934,7 @@ end;
 { TIdDNSServer }
 
 {$I IdDeprecatedImplBugOff.inc}
-function TIdDNS_UDPServer.CompleteQuery(DNSHeader : TDNSHeader; Question: string;
+function TIdDNS_UDPServer.CompleteQuery(DNSHeader : TDNSHeader; const Question: string;
   OriginalQuestion: TIdBytes; var Answer: TIdBytes; QType, QClass: UInt16;
   DNSResolver : TIdDNSResolver): string;
 {$I IdDeprecatedImplBugOn.inc}
@@ -1115,12 +1115,12 @@ begin
   end;
 end;
 
-function TIdDNS_UDPServer.FindHandedNodeByName(QName: String; QType: UInt16): TIdDNTreeNode;
+function TIdDNS_UDPServer.FindHandedNodeByName(const QName: String; QType: UInt16): TIdDNTreeNode;
 begin
   Result := SearchTree(Handed_Tree, QName, QType);
 end;
 
-function TIdDNS_UDPServer.FindNodeFullName(Root: TIdDNTreeNode; QName: String; QType : UInt16): string;
+function TIdDNS_UDPServer.FindNodeFullName(Root: TIdDNTreeNode; const QName: String; QType : UInt16): string;
 var
   MyNode : TIdDNTreeNode;
 begin
@@ -1132,7 +1132,7 @@ begin
   end;
 end;
 
-function TIdDNS_UDPServer.LoadZoneFromMasterFile(MasterFileName: String): Boolean;
+function TIdDNS_UDPServer.LoadZoneFromMasterFile(const MasterFileName: String): Boolean;
 var
   FileStrings : TStrings;
 begin
@@ -1157,7 +1157,7 @@ function TIdDNS_UDPServer.LoadZoneStrings(FileStrings: TStrings; Filename : Stri
 var
   TagList : TStrings;
 
-  function IsMSDNSFileName(theFileName : String; var DN: string) : Boolean;
+  function IsMSDNSFileName(const theFileName : String; var DN: string) : Boolean;
   var
     namepart : TStrings;
     Fullname : string;
@@ -1947,7 +1947,7 @@ begin
   end;
 end;
 
-function TIdDNS_UDPServer.SearchTree(Root: TIdDNTreeNode; QName: String; QType : UInt16): TIdDNTreeNode;
+function TIdDNS_UDPServer.SearchTree(Root: TIdDNTreeNode; const QName: String; QType : UInt16): TIdDNTreeNode;
 var
   RRIndex : integer;
   NodeCursor : TIdDNTreeNode;
@@ -2648,10 +2648,11 @@ begin
   end;
 end;
 
-procedure TIdDNS_UDPServer.InternalSearch(Header: TDNSHeader; QName: string;
-  QType : UInt16; var Answer: TIdBytes; IfMainQuestion : Boolean;
-  IsSearchCache : Boolean = False; IsAdditional : Boolean = False;
-  IsWildCard : Boolean = False; WildCardOrgName : string = '');
+procedure TIdDNS_UDPServer.InternalSearch(Header: TDNSHeader; QName: string; QType: UInt16;
+      var Answer: TIdBytes; IfMainQuestion: boolean; IsSearchCache: Boolean = False;
+      IsAdditional: Boolean = False; const IsWildCard : Boolean = False;
+      const WildCardOrgName: string = '');
+
 var
   MoreAddrSearch : TStrings;
   TargetNode : TIdDNTreeNode;
@@ -3876,7 +3877,7 @@ procedure TIdDNS_ProcessThread.InternalSearch(Header: TDNSHeader; QName: string;
 begin
 end;
 
-procedure TIdDNS_ProcessThread.SaveToCache(ResourceRecord: TIdBytes; QueryName: string; OriginalQType: UInt16);
+procedure TIdDNS_ProcessThread.SaveToCache(ResourceRecord: TIdBytes; const QueryName: string; OriginalQType: UInt16);
 var
   TempResolver : TIdDNSResolver;
   Count : Integer;
@@ -3908,7 +3909,7 @@ begin
   end;
 end;
 
-function TIdDNS_ProcessThread.SearchTree(Root: TIdDNTreeNode; QName: String; QType: UInt16): TIdDNTreeNode;
+function TIdDNS_ProcessThread.SearchTree(Root: TIdDNTreeNode; const QName: String; QType: UInt16): TIdDNTreeNode;
 var
   RRIndex : integer;
   NodeCursor : TIdDNTreeNode;
@@ -3986,7 +3987,7 @@ begin
 end;
 
 function TIdDNS_ProcessThread.CompleteQuery(DNSHeader: TDNSHeader;
-  Question: string; OriginalQuestion: TIdBytes; var Answer : TIdBytes;
+  const Question: string; OriginalQuestion: TIdBytes; var Answer : TIdBytes;
   QType, QClass : UInt16; DNSResolver : TIdDNSResolver) : string;
 var
   IsMyDomains : boolean;

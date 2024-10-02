@@ -105,13 +105,13 @@ uses
 // Procs
   function EncodeAddressItem(EmailAddr: TIdEmailAddressItem; const HeaderEncoding: Char;
     const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False): string;
-  function EncodeHeader(const Header: string; Specials: String; const HeaderEncoding: Char;
+  function EncodeHeader(const Header: string; const Specials: String; const HeaderEncoding: Char;
    const MimeCharSet: string): string;
   function EncodeAddress(EmailAddr: TIdEMailAddressList; const HeaderEncoding: Char;
     const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False): string;
   function DecodeHeader(const Header: string): string;
   procedure DecodeAddress(EMailAddr: TIdEmailAddressItem);
-  procedure DecodeAddresses(AEMails: String; EMailAddr: TIdEmailAddressList);
+  procedure DecodeAddresses(const AEMails: String; EMailAddr: TIdEmailAddressList);
 
 implementation
 
@@ -385,7 +385,7 @@ begin
   EMailAddr.Name := UnquotedStr(DecodeHeader(EMailAddr.Name));
 end;
 
-procedure DecodeAddresses(AEMails : String; EMailAddr: TIdEmailAddressList);
+procedure DecodeAddresses(const AEMails : String; EMailAddr: TIdEmailAddressList);
 var
   idx : Integer;
 begin
@@ -412,7 +412,7 @@ begin
 end;
 
 { encode a header field if non-ASCII characters are used }
-function EncodeHeader(const Header: string; Specials: String; const HeaderEncoding: Char;
+function EncodeHeader(const Header: string; const Specials: String; const HeaderEncoding: Char;
   const MimeCharSet: string): string;
 const
   SPACES = [Ord(' '), 9, 13, 10];    {Do not Localize}

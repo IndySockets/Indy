@@ -47,9 +47,9 @@ type
 // Procs
 
 function MakeActPkt(const BlockNumber: Word): TIdBytes;
-procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; const ErrString: string); overload;
+procedure SendError(UDPBase: TIdUDPBase; const APeerIP: string; const APort: TIdPort; const ErrNumber: Word; const ErrString: string); overload;
 procedure SendError(UDPClient: TIdUDPClient; const ErrNumber: Word; const ErrString: string); overload;
-procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; E: Exception); overload;
+procedure SendError(UDPBase: TIdUDPBase; const APeerIP: string; const APort: TIdPort; E: Exception); overload;
 procedure SendError(UDPClient: TIdUDPClient; E: Exception); overload;
 
 const  // TFTP opcodes
@@ -88,7 +88,7 @@ begin
   CopyTIdUInt16(GStack.HostToNetwork(BlockNumber), Result, 2);
 end;
 
-procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; const ErrString: string);
+procedure SendError(UDPBase: TIdUDPBase; const APeerIP: string; const APort: TIdPort; const ErrNumber: Word; const ErrString: string);
 var
   Buffer, LErrStr: TIdBytes;
 begin
@@ -106,7 +106,7 @@ begin
   SendError(UDPClient, UDPClient.Host, UDPClient.Port, ErrNumber, ErrString);
 end;
 
-procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; E: Exception);
+procedure SendError(UDPBase: TIdUDPBase; const APeerIP: string; const APort: TIdPort; E: Exception);
 var
   ErrNumber: Word;
 begin
