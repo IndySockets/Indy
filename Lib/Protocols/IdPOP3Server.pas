@@ -293,7 +293,7 @@ type
     function CreateReplyUnknownCommand: TIdReply; override;
 
     procedure InitializeCommandHandlers; override;
-    procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; const ALine: string); override;
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
     procedure SendGreeting(AContext : TIdContext; AGreeting : TIdReply); override;
@@ -327,7 +327,7 @@ uses
   IdSSL,
   IdStack, SysUtils;
 
-procedure TIdPOP3Server.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
+procedure TIdPOP3Server.DoReplyUnknownCommand(AContext: TIdContext; const ALine: string);
 var
   LReply: TIdReply;
   LLine : String;

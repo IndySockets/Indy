@@ -415,8 +415,8 @@ type
     function GetWeekOfYear : Integer;
 
     procedure SetFromDOSDateTime(ADate, ATime : Word);
-    procedure SetFromISO8601(AString : String);
-    procedure SetFromRFC822(AString : String);
+    procedure SetFromISO8601(const AString : String);
+    procedure SetFromRFC822(const AString : String);
     procedure SetFromTDateTime(ADateTime : TDateTime);
     procedure SetFromTTimeStamp(ATimeStamp : TIdDateTimeStamp);
 
@@ -1154,7 +1154,7 @@ begin
   end;
 end;
 
-procedure TIdDateTimeStamp.SetFromISO8601(AString: String);
+procedure TIdDateTimeStamp.SetFromISO8601(const AString: String);
 var
   i : Integer;
 begin
@@ -1171,7 +1171,7 @@ begin
   end;
 end;
 
-procedure TIdDateTimeStamp.SetFromRFC822(AString: String);
+procedure TIdDateTimeStamp.SetFromRFC822(const AString: String);
 begin
   SetFromTDateTime(StrInternetToDateTime(AString))
 end;

@@ -68,7 +68,7 @@ type
     FAuthParams: TIdHeaderList;
     FCharset: string;
 
-    function ReadAuthInfo(AuthName: String): String;
+    function ReadAuthInfo(const AuthName: String): String;
     function DoNext: TIdAuthWhatsNext; virtual; abstract;
     procedure SetAuthParams(AValue: TIdHeaderList);
     function GetPassword: String;
@@ -226,7 +226,7 @@ begin
   FAuthParams.Assign(AValue);
 end;
 
-function TIdAuthentication.ReadAuthInfo(AuthName: String): String;
+function TIdAuthentication.ReadAuthInfo(const AuthName: String): String;
 Var
   i: Integer;
 begin

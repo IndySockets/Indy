@@ -231,7 +231,7 @@ uses
   IdSocketHandle,
   IdStack;
 
-function IPToBytes(AIP: string; const AIPVersion: TIdIPVersion): TIdBytes;
+function IPToBytes(const AIP: string; const AIPVersion: TIdIPVersion): TIdBytes;
 var
   LIP: TIdIPAddress;
 begin

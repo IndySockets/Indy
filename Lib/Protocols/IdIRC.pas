@@ -239,7 +239,7 @@ type
     procedure ParseDCC(AContext: TIdContext; const ADCC: String);
     //Command handlers
     procedure DoBeforeCmd(ASender: TIdCommandHandlers; var AData: string; AContext: TIdContext);
-    procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; const ALine: string); override;
     procedure DoBounce(ASender: TIdCommand; ALegacy: Boolean);
     procedure CommandPRIVMSG(ASender: TIdCommand);
     procedure CommandNOTICE(ASender: TIdCommand);
@@ -673,16 +673,21 @@ end;
 type
   TIdIRCCommandHandler = class(TIdCommandHandler)
   public
-    procedure DoParseParams(AUnparsedParams: string; AParams: TStrings); override;
+    procedure DoParseParams(const AUnparsedParams: string; AParams: TStrings); override;
   end;
 
-procedure TIdIRCCommandHandler.DoParseParams(AUnparsedParams: string; AParams: TStrings);
+procedure TIdIRCCommandHandler.DoParseParams(const AUnparsedParams: string; AParams: TStrings);
+var LParams : String;
 begin
+  LParams := AUnparsedParams;
   AParams.BeginUpdate;
   try
     AParams.Clear;
-    while AUnparsedParams <> '' do begin
-      AParams.Add(FetchIRCParam(AUnparsedParams));
+    if AUnparsedParams <> '' then begin
+      LParams := AUnparsedParams;
+      while LParams <> '' do begin
+        AParams.Add(FetchIRCParam(LParams));
+      end;
     end;
   finally
     AParams.EndUpdate;
@@ -1478,11 +1483,13 @@ begin
   end;
 end;
 
-procedure TIdIRC.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
+procedure TIdIRC.DoReplyUnknownCommand(AContext: TIdContext; const ALine: string);
 var
   ACmdCode: Integer;
+  LLine : String;
 begin
-  ACmdCode := IndyStrToInt(Fetch(ALine, ' '), -1);
+  LLine := ALine;
+  ACmdCode := IndyStrToInt(Fetch(LLine, ' '), -1);
   //
   case ACmdCode of
     6,

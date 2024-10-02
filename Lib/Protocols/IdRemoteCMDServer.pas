@@ -54,8 +54,8 @@ type
     procedure DoCMD(AThread: TIdContext; AStdError : TIdTCPClient;
         AParam1, AParam2, ACommand : String); virtual; abstract;
   public
-    procedure SendError(AThread : TIdContext;AStdErr : TIdTCPClient; AMsg : String);
-    procedure SendResults(AThread : TIdContext; AStdErr : TIdTCPClient; AMsg : String);
+    procedure SendError(AThread : TIdContext;AStdErr : TIdTCPClient; const AMsg : String);
+    procedure SendResults(AThread : TIdContext; AStdErr : TIdTCPClient; const AMsg : String);
   end;
 
 implementation
@@ -149,7 +149,7 @@ begin
 end;
 
 procedure TIdRemoteCMDServer.SendError(AThread: TIdContext;
-  AStdErr: TIdTCPClient; AMsg: String);
+  AStdErr: TIdTCPClient; const AMsg: String);
 begin
   AThread.Connection.IOHandler.Write(#1);
   if Assigned(AStdErr) then begin
@@ -160,7 +160,7 @@ begin
 end;
 
 procedure TIdRemoteCMDServer.SendResults(AThread: TIdContext;
-  AStdErr: TIdTCPClient; AMsg: String);
+  AStdErr: TIdTCPClient; const AMsg: String);
 begin
   AThread.Connection.IOHandler.Write(#0 + AMsg)
 end;

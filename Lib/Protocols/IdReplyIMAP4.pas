@@ -169,7 +169,7 @@ type
     //
     //CLIENT-SIDE (TIdIMAP4) FUNCTIONS...
     procedure RaiseReplyError; override;
-    procedure DoReplyError(ADescription: string; AnOffendingLine: string = ''); reintroduce;
+    procedure DoReplyError(const ADescription: string; const AnOffendingLine: string = ''); reintroduce;
     procedure RemoveUnsolicitedResponses(AExpectedResponses: array of String);
     function DoesLineHaveExpectedResponse(ALine: string; AExpectedResponses: array of string): Boolean;
     {CC: The following decides if AValue is a valid command sequence number
@@ -510,7 +510,7 @@ begin
   end;
 end;
 
-procedure TIdReplyIMAP4.DoReplyError(ADescription: string; AnOffendingLine: string);
+procedure TIdReplyIMAP4.DoReplyError(const ADescription: string; const AnOffendingLine: string);
 var
   LMsg: string;
 begin

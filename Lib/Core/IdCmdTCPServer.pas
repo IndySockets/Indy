@@ -200,7 +200,7 @@ type
     function DoExecute(AContext: TIdContext): Boolean; override;
     procedure DoMaxConnectionsExceeded(AIOHandler: TIdIOHandler); override;
     // This is here to allow servers to override this functionality, such as IMAP4 server
-    procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); virtual;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; const ALine: string); virtual;
     function GetExceptionReply: TIdReply;
     function GetGreeting: TIdReply;
     function GetHelpReply: TIdReply;
@@ -313,7 +313,7 @@ begin
   // the return value is used to determine if the DoExecute needs to be called again by the thread
 end;
 
-procedure TIdCmdTCPServer.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
+procedure TIdCmdTCPServer.DoReplyUnknownCommand(AContext: TIdContext; const ALine: string);
 var
   LReply: TIdReply;
 begin

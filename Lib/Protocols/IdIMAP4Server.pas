@@ -359,7 +359,7 @@ type
     procedure SendUnsupportedCommand(ASender: TIdCommand);
     procedure SendIncorrectNumberOfParameters(ASender: TIdCommand);
     procedure SendUnassignedDefaultMechanism(ASender: TIdCommand);
-    procedure DoReplyUnknownCommand(AContext: TIdContext; AText: string); override;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; const AText: string); override;
     procedure SendErrorOpenedReadOnly(ASender: TIdCommand);
     procedure SendOkReply(ASender: TIdCommand; const AText: string);
     procedure SendBadReply(ASender: TIdCommand; const AText: string); overload;
@@ -369,14 +369,14 @@ type
     //
     //The following are used internally by the default mechanism...
     function  ExpungeRecords(ASender: TIdCommand): Boolean;
-    function  MessageSetToMessageNumbers(AUseUID: Boolean; ASender: TIdCommand; AMessageNumbers: TStrings; AMessageSet: string): Boolean;
+    function  MessageSetToMessageNumbers(AUseUID: Boolean; ASender: TIdCommand; AMessageNumbers: TStrings; const AMessageSet: string): Boolean;
     function  GetRecordForUID(const AUID: String; AMailBox: TIdMailBox): Int64;
     procedure ProcessFetch(AUseUID: Boolean; ASender: TIdCommand; AParams: TStrings);
     procedure ProcessCopy(AUseUID: Boolean; ASender: TIdCommand; AParams: TStrings);
     function  ProcessStore(AUseUID: Boolean; ASender: TIdCommand; AParams: TStrings): Boolean;
     procedure ProcessSearch(AUseUID: Boolean; ASender: TIdCommand; AParams: TStrings);
-    function  FlagStringToFlagList(AFlagList: TStrings; AFlagString: string): Boolean;
-    function  StripQuotesIfNecessary(AName: string): string;
+    function  FlagStringToFlagList(AFlagList: TStrings; const AFlagString: string): Boolean;
+    function  StripQuotesIfNecessary(const AName: string): string;
     function  ReassembleParams(ASeparator: char; AParams: TStrings; AParamToReassemble: integer): Boolean;
     function  ReinterpretParamAsMailBox(AParams: TStrings; AMailBoxParam: integer): Boolean;
     function  ReinterpretParamAsFlags(AParams: TStrings; AFlagsParam: integer): Boolean;
@@ -658,7 +658,7 @@ begin
   end;
 end;
 
-procedure TIdIMAP4Server.DoReplyUnknownCommand(AContext: TIdContext; AText: string);
+procedure TIdIMAP4Server.DoReplyUnknownCommand(AContext: TIdContext; const AText: string);
 //AText is ignored by TIdIMAP4Server
 var
   LText: string;
@@ -697,7 +697,7 @@ begin
 end;
 
 function TIdIMAP4Server.MessageSetToMessageNumbers(AUseUID: Boolean; ASender: TIdCommand;
-  AMessageNumbers: TStrings; AMessageSet: string): Boolean;
+  AMessageNumbers: TStrings; const AMessageSet: string): Boolean;
 {AMessageNumbers may be '7' or maybe '2:4' (2, 3 & 4) or maybe '2,4,6' (2, 4 & 6)
 or maybe '1:*'}
 var
@@ -772,7 +772,7 @@ begin
   Result := -1;
 end;
 
-function TIdIMAP4Server.StripQuotesIfNecessary(AName: string): string;
+function TIdIMAP4Server.StripQuotesIfNecessary(const AName: string): string;
 begin
   if Length(AName) > 0 then begin
     if (AName[1] = '"') and (AName[Length(Result)] = '"') then begin  {Do not Localize}
@@ -864,7 +864,7 @@ begin
   Result := ReassembleParams('(', AParams, AFlagsParam);  {Do not Localize}
 end;
 
-function TIdIMAP4Server.FlagStringToFlagList(AFlagList: TStrings; AFlagString: string): Boolean;
+function TIdIMAP4Server.FlagStringToFlagList(AFlagList: TStrings; const AFlagString: string): Boolean;
 var
   LTemp: string;
 begin

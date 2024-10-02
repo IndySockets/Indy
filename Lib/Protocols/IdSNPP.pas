@@ -98,14 +98,14 @@ type
 
   TIdSNPP = class(TIdTCPClientCustom)
   protected
-    function Pager(APagerId: String): Boolean;
-    function SNPPMsg(AMsg: String): Boolean;
+    function Pager(const APagerId: String): Boolean;
+    function SNPPMsg(const AMsg: String): Boolean;
     procedure InitComponent; override;
   public
     procedure Connect; override;
     procedure DisconnectNotifyPeer; override;
     procedure Reset;
-    procedure SendMessage(APagerId, AMsg: String);
+    procedure SendMessage(const APagerId, AMsg: String);
   published
     property Port default 7777;
     property Host;
@@ -150,7 +150,7 @@ begin
   SendCmd('QUIT', 211);  {do not localize}
 end;
 
-function TIdSNPP.Pager(APagerId: String): Boolean;
+function TIdSNPP.Pager(const APagerId: String): Boolean;
 begin
   Result := False;
   if SendCmd('PAGER ' + APagerID) = 250 then begin {do not localize}
@@ -165,7 +165,7 @@ begin
   Writeln('RESET');    {do not localize}
 end;
 
-procedure TIdSNPP.SendMessage(APagerId, AMsg : String);
+procedure TIdSNPP.SendMessage(const APagerId, AMsg : String);
 begin
   if (Pos(CR,AMsg)>0) or (Pos(LF,AMsg)>0) then
   begin
@@ -181,7 +181,7 @@ begin
   end;
 end;
 
-function TIdSNPP.SNPPMsg(AMsg: String): Boolean;
+function TIdSNPP.SNPPMsg(const AMsg: String): Boolean;
 begin
   Result := False;
   if SendCmd('MESS ' + AMsg) = 250 then begin {do not localize}

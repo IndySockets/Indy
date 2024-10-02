@@ -545,11 +545,11 @@ type
     procedure ClearInternalQuery;
     destructor Destroy; override;
     procedure ParseAnswers(DNSHeader: TDNSHeader; Answer: TIdBytes; ResetResult: Boolean = True);
-    procedure CreateQuery(ADomain: string; SOARR : TIdRR_SOA; QueryClass:integer = Class_IN);
+    procedure CreateQuery(const ADomain: string; SOARR : TIdRR_SOA; QueryClass:integer = Class_IN);
     procedure FillResult(AResult: TIdBytes; checkID : boolean = true;
               ResetResult : boolean = true);
     procedure FillResultWithOutCheckId(AResult: TIdBytes); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use FillResult() with checkID=False'{$ENDIF};{$ENDIF}
-    procedure Resolve(ADomain: string; SOARR : TIdRR_SOA = nil; QClass: integer = Class_IN);
+    procedure Resolve(const ADomain: string; SOARR : TIdRR_SOA = nil; QClass: integer = Class_IN);
     property QueryResult: TQueryResult read FQueryResult;
     property InternalQuery: TIdBytes read FInternalQuery write SetInternalQuery;
     property PlainTextResult: TIdBytes read FPlainTextResult write SetPlainTextResult;
@@ -1202,13 +1202,14 @@ begin
   FQuestionLength := 0;
 end;
 
-procedure TIdDNSResolver.CreateQuery(ADomain: string; SOARR : TIdRR_SOA;
+procedure TIdDNSResolver.CreateQuery(const ADomain: string; SOARR : TIdRR_SOA;
           QueryClass:integer=1);
 
   function DoDomainName(ADNS : String): TIdBytes;
   var
     BufStr : String;
     LLen : Byte;
+    LDNS : String;
   begin
     SetLength(Result, 0);
     while Length(ADNS) > 0 do begin
@@ -1596,7 +1597,7 @@ begin
   end;
 end;
 
-procedure TIdDNSResolver.Resolve(ADomain: string; SOARR : TIdRR_SOA = nil;
+procedure TIdDNSResolver.Resolve(const ADomain: string; SOARR : TIdRR_SOA = nil;
   QClass: integer = Class_IN);
 var
   UDP_Tunnel : TIdUDPClient;
