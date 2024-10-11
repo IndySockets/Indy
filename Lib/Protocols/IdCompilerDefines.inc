@@ -17,7 +17,7 @@
 
 {$DEFINE INDY100}
 {$DEFINE 10_6_3}    //so developers can IFDEF for this product version
-{$DEFINE 10_6_3_5}  //so developers can IFDEF for this specific version
+{$DEFINE 10_6_3_6}  //so developers can IFDEF for this specific version
 
 // When generating C++Builder output files, certain workarounds to compiler
 // problems need to be enabled! When invoking DCC on the command-line, use
@@ -1620,7 +1620,7 @@
 {$IFDEF WIN32_OR_WIN64}
   {$DEFINE USE_ZLIB_UNIT}
   {$IFNDEF DCC_NEXTGEN}
-    {$DEFINE USE_OPENSSL} // !!!·MOVED·HERE·BY·EMBT
+    {$DEFINE USE_OPENSSL} // !!! MOVED HERE BY EMBT
     {$DEFINE USE_SSPI}
     {$IFDEF STRING_IS_UNICODE}
       {$DEFINE SSPI_UNICODE}
