@@ -166,7 +166,6 @@ type
     FOnOutboundData: TIdServerThreadEvent;
     FOnOutboundDisConnect: TIdServerThreadEvent;
     //
-    procedure ContextCreated(AContext:TIdContext); override;
     procedure DoBeforeConnect(AContext: TIdContext); virtual;
     procedure DoConnect(AContext: TIdContext); override;
     function  DoExecute(AContext: TIdContext): boolean; override;
@@ -210,11 +209,6 @@ constructor TIdMappedPortTCP.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FContextClass := TIdMappedPortContext;
-end;
-
-procedure TIdMappedPortTCP.ContextCreated(AContext: TIdContext);
-begin
-  TIdMappedPortContext(AContext).Server := Self;
 end;
 
 procedure TIdMappedPortTCP.DoBeforeConnect(AContext: TIdContext);
