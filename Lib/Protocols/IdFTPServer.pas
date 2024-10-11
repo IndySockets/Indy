@@ -2472,7 +2472,6 @@ var
   LContext : TIdFTPServerContext;
 begin
   LContext := (AContext as TIdFTPServerContext);
-  LContext.Server := Self;
   //from Before run method
   LContext.FDataPort := 0;
   LContext.FPasswordAttempts := 0;
@@ -2516,6 +2515,7 @@ begin
   if FDirFormat = ftpdfDOS then begin
     LContext.FMSDOSMode := True;
   end;
+  inherited ContextCreated(AContext);
 end;
 
 destructor TIdFTPServer.Destroy;
