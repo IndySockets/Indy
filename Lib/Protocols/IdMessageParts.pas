@@ -113,8 +113,8 @@ type
     constructor Create(Collection: TCollection); override;
     destructor Destroy; override;
     procedure Assign(Source: TPersistent); override;
-    function  GetCharSet(AHeader: string): String;
-    function  ResolveContentType(AContentType: string): string; //Fixes up ContentType
+    function  GetCharSet(const AHeader: string): String;
+    function  ResolveContentType(const AContentType: string): string; //Fixes up ContentType
     class function PartType: TIdMessagePartType; virtual;
     //
     property IsEncoded: Boolean read FIsEncoded;
@@ -235,15 +235,16 @@ begin
   Result := Headers.Values['Content-Transfer-Encoding']; {do not localize}
 end;
 
-function TIdMessagePart.GetCharSet(AHeader: string): String;
+function TIdMessagePart.GetCharSet(const AHeader: string): String;
 begin
   Result := ExtractHeaderSubItem(AHeader, 'charset', QuoteMIME); {do not localize}
 end;
 
-function TIdMessagePart.ResolveContentType(AContentType: string): string;
+function TIdMessagePart.ResolveContentType(const AContentType: string): string;
 var
   LMsg: TIdMessage;
   LParts: TIdMessageParts;
+  LContentType : String;
 begin
   //This extracts 'text/plain' from 'text/plain; charset="xyz"; boundary="123"'
   //or, if '', it finds the correct default value for MIME messages.
@@ -257,8 +258,8 @@ begin
       if Assigned(LMsg) and (LMsg.Encoding = meMIME) then begin
         //There is an exception if we are a child of multipart/digest...
         if ParentPart <> -1 then begin
-          AContentType := LParts.Items[ParentPart].Headers.Values['Content-Type'];  {do not localize}
-          if IsHeaderMediaType(AContentType, 'multipart/digest') then begin  {do not localize}
+          LContentType := LParts.Items[ParentPart].Headers.Values['Content-Type'];  {do not localize}
+          if IsHeaderMediaType(LContentType, 'multipart/digest') then begin  {do not localize}
             Result := 'message/rfc822';  {do not localize}
             Exit;
           end;

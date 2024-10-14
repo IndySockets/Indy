@@ -73,7 +73,7 @@ type
     FErrorMessage : String;
     FErrorReply : Boolean;
     //
-    function InternalExec(AParam1, AParam2, ACommand : String) : String; virtual;
+    function InternalExec(const AParam1, AParam2, ACommand : String) : String; virtual;
     procedure InitComponent; override;
   public
     destructor Destroy; override;
@@ -119,7 +119,7 @@ begin
   Result := '';    {Do not Localize}
 end;
 
-function TIdRemoteCMDClient.InternalExec(AParam1, AParam2, ACommand: String) : String;
+function TIdRemoteCMDClient.InternalExec(const AParam1, AParam2, ACommand: String) : String;
 var
   stdErr : TIdSimpleServer;
   thr : TIdStdErrThread;

@@ -942,7 +942,7 @@ type
     procedure FileStructure(AStructure: TIdFTPDataStructure);
     procedure Get(const ASourceFile: string; ADest: TStream; AResume: Boolean = false); overload;
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false; AResume: Boolean = false); overload;
-    procedure Help(AHelpContents: TStrings; ACommand: String = '');
+    procedure Help(AHelpContents: TStrings; const ACommand: String = '');
     procedure KillDataChannel; virtual;
     //.NET Overload
     procedure List; overload;
@@ -979,7 +979,7 @@ type
     procedure Site(const ACommand: string);
     function  Size(const AFileName: String): Int64;
     procedure Status(AStatusList: TStrings);
-    procedure StructureMount(APath: String);
+    procedure StructureMount(const APath: String);
     procedure TransferMode(ATransferMode: TIdFTPTransferMode);
     procedure ReInitialize(ADelay: UInt32 = 10);
     procedure SetLang(const ALangTag : String);
@@ -2415,7 +2415,7 @@ end;
 procedure TIdFTP.SendInternalPassive(const ACmd: String; var VIP: string;
   var VPort: TIdPort);
 
-  function IsRoutableAddress(AIP: string): Boolean;
+  function IsRoutableAddress(const AIP: string): Boolean;
   begin
   Result := not TextStartsWith(AIP, '127') and              // Loopback   127.0.0.0-127.255.255.255
      not TextStartsWith(AIP, '10.') and                     // Private    10.0.0.0-10.255.255.255
@@ -2620,7 +2620,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.Help(AHelpContents: TStrings; ACommand: String = ''); {do not localize}
+procedure TIdFTP.Help(AHelpContents: TStrings; const ACommand: String = ''); {do not localize}
 begin
   if SendCmd(TrimRight('HELP ' + ACommand), [211, 214, 500]) <> 500 then begin      {do not localize}
     AHelpContents.Text := LastCmdResult.Text.Text;
@@ -2635,7 +2635,7 @@ begin
   Result := FAccount <> '';
 end;
 
-procedure TIdFTP.StructureMount(APath: String);
+procedure TIdFTP.StructureMount(const APath: String);
 begin
   SendCmd('SMNT ' + APath, [202, 250, 500]);  {do not localize}
 end;

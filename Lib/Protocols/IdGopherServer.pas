@@ -91,11 +91,11 @@ type
     constructor Create(AOwner: TComponent); reintroduce; overload;
     {$ENDIF}
     function ReturnGopherItem(ItemType : Char;
-      UserFriendlyName, RealResourceName : String;
-      HostServer : String; HostPort : TIdPort): String;
+      const UserFriendlyName, RealResourceName : String;
+      const HostServer : String; HostPort : TIdPort): String;
     procedure SendDirectoryEntry(AContext:TIdContext;
-      ItemType : Char; UserFriendlyName, RealResourceName : String;
-      HostServer : String; HostPort : TIdPort);
+      ItemType : Char; const UserFriendlyName, RealResourceName : String;
+      const HostServer : String; HostPort : TIdPort);
   published
     property AdminEmail : String read fAdminEmail write fAdminEmail;
     property OnRequest: TRequestEvent read fOnRequest write fOnRequest;
@@ -159,15 +159,17 @@ begin
 end;
 
 function TIdGopherServer.ReturnGopherItem(ItemType : Char;
-  UserFriendlyName, RealResourceName : String;
-  HostServer : String; HostPort : TIdPort): String;
+  const UserFriendlyName, RealResourceName : String;
+  const HostServer : String; HostPort : TIdPort): String;
+var LUserFriendlyName : String;
 begin
+  LUserFriendlyName := UserFriendlyName;
   if fTruncateUserFriendly then begin
-    if (Length(UserFriendlyName) > fTruncateLength) and (fTruncateLength <> 0) then begin
-      UserFriendlyName := Copy(UserFriendlyName, 1, fTruncateLength);
+    if (Length(LUserFriendlyName) > fTruncateLength) and (fTruncateLength <> 0) then begin
+      LUserFriendlyName := Copy(LUserFriendlyName, 1, fTruncateLength);
     end;
   end;
-  Result := ItemType + UserFriendlyName +
+  Result := ItemType + LUserFriendlyName +
     TAB + RealResourceName + TAB + HostServer + TAB + IntToStr(HostPort);
 end;
 
