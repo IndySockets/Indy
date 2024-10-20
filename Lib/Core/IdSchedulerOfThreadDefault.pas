@@ -80,8 +80,6 @@ type
 implementation
 
 uses
-{$IFDEF USE_VCL_POSIX}
-{$ENDIF}
   IdGlobal;
 
 { TIdSchedulerOfThreadDefault }

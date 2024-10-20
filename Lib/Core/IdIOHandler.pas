@@ -413,6 +413,8 @@ uses
 (*$HPPEMIT '#pragma alias "@Idiohandler@TIdIOHandler@SetPortW$qqri"="@Idiohandler@TIdIOHandler@SetPort$qqri"' *)
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
+// TODO: when compiling with bcc64x, use this pragma instead:
+// #pragma comment(linker, "/alternatename:<name1>=<name2>")
 
 const
   GRecvBufferSizeDefault = 32 * 1024;

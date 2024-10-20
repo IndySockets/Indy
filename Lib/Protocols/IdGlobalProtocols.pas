@@ -3579,6 +3579,7 @@ begin
     KeyList := TStringList.create;
     try
       Reg.RootKey := HKEY_CLASSES_ROOT;
+      // TODO: use RegEnumKeyEx() directly to avoid wasting memory loading keys we don't care about...
       if Reg.OpenKeyReadOnly('\') then begin  {do not localize}
         Reg.GetKeyNames(KeyList);
         Reg.Closekey;

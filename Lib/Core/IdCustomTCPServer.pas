@@ -1007,6 +1007,9 @@ begin
     // TODO: on systems that support dual-stack sockets, create a single
     // Binding object that supports both IPv4 and IPv6 on the same socket...
 
+    // TODO: remove the CanCreateTwoBindings conditional and just attempt
+    // both IPv4 and IPv6 and ignore any failures...
+
     {$IFDEF CanCreateTwoBindings}LBinding := {$ENDIF}Bindings.Add; // IPv4 or IPv6 by default
 
     {$IFDEF CanCreateTwoBindings}

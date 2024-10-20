@@ -219,19 +219,26 @@ const
     '',               // .NET
     '');              // Kylix
 
-  //Fetch Defaults
-  IdFetchDelimDefault = ' ';    {Do not Localize}
-  IdFetchDeleteDefault = True;
-  IdFetchCaseSensitiveDefault = True;
-
 function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer;  overload;
 function iif(ATest: Boolean; const ATrue: string; const AFalse: string): string; overload;
 function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
 
-const
-  IndyVersion_Major   = 10;
-  IndyVersion_Minor   = 6;
-  IndyVersion_Patch   = 3;
+var
+  IndyVersion_Major_Str: string = '';
+  IndyVersion_Minor_Str: string = '';
+  IndyVersion_Release_Str: string = '';
+  IndyVersion_Build_Str: string = '';
+  IndyVersion_Build_Template: string = '';
+
+  IndyVersion_ProductVersion_Str: string = '';
+  IndyVersion_FileVersion_Str: string = '';
+  IndyVersion_FileVersion_Template: string = '';
+
+  IndyVersion_VersionInfo_ProductVersion_Str: string = '';
+  IndyVersion_VersionInfo_FileVersion_Str: string = '';
+  IndyVersion_VersionInfo_FileVersion_Template: string = '';
+
+procedure InitVersionNumbers;
 
 implementation
 
@@ -292,7 +299,7 @@ constructor TPackage.Create;
 begin
   FContainsClause := 'contains';
   FExt := '.dpk';
-  FVersion := IntToStr(IndyVersion_Major);
+  FVersion := IndyVersion_Major_Str;
   FCode := TStringList.Create;
   FDirs := TStringList.Create;
   FUnits := TStringList.Create;
@@ -556,28 +563,26 @@ end;
 
 procedure TPackage.GenResourceScript;
 var
-  ProductVersion: string;
   FileVersion : string;
-  TemplateStr: String;
 begin
   //We don't call many of the inherited Protected methods because
   //those are for Packages while I'm making a unit.
 
-  TemplateStr := iif(FTemplate,'$WCREV$','0');
-
-  FileVersion := Format('%d,%d,%d,%s', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Patch, TemplateStr]);
-  ProductVersion := FileVersion;
+  FileVersion := iif(FTemplate,
+    IndyVersion_VersionInfo_FileVersion_Template,
+    IndyVersion_VersionInfo_FileVersion_Str);
 
   Code('1 VERSIONINFO ');
   Code('FILEVERSION ' + FileVersion);
-  Code('PRODUCTVERSION ' + ProductVersion);
+  Code('PRODUCTVERSION ' + FileVersion);
   Code('FILEFLAGSMASK 0x3FL');
   Code('FILEFLAGS 0x00L');
   Code('FILEOS 0x40004L');
   Code('FILETYPE 0x1L');
 
-  ProductVersion := Format('%d.%d.%d', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Patch]);
-  FileVersion := ProductVersion + '.' + TemplateStr;
+  FileVersion := iif(FTemplate,
+    IndyVersion_FileVersion_Template,
+    IndyVersion_FileVersion_Str);
 
   Code('FILESUBTYPE 0x0L');
   Code('{');
@@ -586,13 +591,13 @@ begin
   Code('  BLOCK "000104E4"');
   Code('  {');
   Code('   VALUE "CompanyName", "Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"');
-  Code('   VALUE "FileDescription", "Internet Direct (Indy) ' + ProductVersion + ' - ' + FDesc + ' Package\0"');
+  Code('   VALUE "FileDescription", "Internet Direct (Indy) ' + IndyVersion_ProductVersion_Str + ' - ' + FDesc + ' Package\0"');
   Code('   VALUE "FileVersion", "' + FileVersion + '\0"');
   Code('   VALUE "InternalName", "' + FName + '\0"');
   Code('   VALUE "LegalCopyright", "Copyright © 1993 - ' + IntToStr(DateUtils.YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"');
   Code('   VALUE "OriginalFilename", "' + FName + '.bpl\0"');
   Code('   VALUE "ProductName", "Indy\0"');
-  Code('   VALUE "ProductVersion", "' + ProductVersion + '\0"');
+  Code('   VALUE "ProductVersion", "' + IndyVersion_ProductVersion_Str + '\0"');
   Code('  }');
   Code('');
   Code(' }');
@@ -603,6 +608,84 @@ begin
   Code(' }');
   Code('');
   Code('}');
+end;
+
+procedure InitVersionNumbers;
+var
+  LMajor, LMinor, LRelease, LBuild, LPos: Integer;
+  LVerNum, LTemp: string;
+begin
+  if FindCmdLineSwitch('version', LVerNum) then
+    LVerNum := Trim(LVerNum);
+
+  if LVerNum = '' then begin
+    with TMemIniFile.Create(DM.DataPath + 'PkgGen.ini') do try
+      LVerNum := Trim(ReadString('Settings', 'LastVersion', ''));
+    finally
+      Free;
+    end;
+    WriteLn;
+    if LVerNum <> '' then begin
+      WriteLn('Please enter a version number in #.#.#.# format');
+      Write  ('or leave blank to reuse last version (',LVerNum,'): ');
+    end else
+    begin
+      Write('Please enter a version number in #.#.#.# format: ');
+    end;
+    ReadLn(LTemp);
+    LTemp := Trim(LTemp);
+    if LTemp <> '' then begin
+      LVerNum := LTemp;
+    end
+    else if LVerNum = '' then begin
+      raise Exception.Create('Version number is missing');
+    end;
+  end;
+
+  try
+    LTemp := LVerNum;
+    LPos := Pos('.', LTemp);
+    LMajor := StrToInt(Copy(LTemp, 1, LPos-1));
+    Delete(LTemp, 1, LPos);
+
+    LPos := Pos('.', LTemp);
+    LMinor := StrToInt(Copy(LTemp, 1, LPos-1));
+    Delete(LTemp, 1, LPos);
+
+    LPos := Pos('.', LTemp);
+    LRelease := StrToInt(Copy(LTemp, 1, LPos-1));
+    Delete(LTemp, 1, LPos);
+
+    LBuild := StrToInt(LTemp);
+  except
+    Exception.RaiseOuterException(Exception.Create('Version number is invalid'));
+    Exit;
+  end;
+
+  IndyVersion_Major_Str := IntToStr(LMajor);
+  IndyVersion_Minor_Str := IntToStr(LMinor);
+  IndyVersion_Release_Str := IntToStr(LRelease);
+  IndyVersion_Build_Str := IntToStr(LBuild);
+  IndyVersion_Build_Template := '$WCREV$';
+
+  IndyVersion_ProductVersion_Str := Format('%d.%d.%d', [LMajor, LMinor, LRelease]);
+  IndyVersion_FileVersion_Str := Format('%d.%d.%d.%d', [LMajor, LMinor, LRelease, LBuild]);
+  IndyVersion_FileVersion_Template := Format('%d.%d.%d.%s', [LMajor, LMinor, LRelease, IndyVersion_Build_Template]);
+
+  IndyVersion_VersionInfo_ProductVersion_Str := Format('%d,%d,%d', [LMajor, LMinor, LRelease]);
+  IndyVersion_VersionInfo_FileVersion_Str := Format('%d,%d,%d,%d', [LMajor, LMinor, LRelease, LBuild]);
+  IndyVersion_VersionInfo_FileVersion_Template := Format('%d,%d,%d,%s', [LMajor, LMinor, LRelease, IndyVersion_Build_Template]);
+
+  with TMemIniFile.Create(DM.DataPath + 'PkgGen.ini') do
+  try
+    WriteString('Settings', 'LastVersion', LVerNum);
+    UpdateFile;
+  finally
+    Free;
+  end;
+
+  WriteLn;
+  WriteLn('Version Number set to ',LMajor,'.',LMinor,'.',LRelease,'.',LBuild);
 end;
 
 end.

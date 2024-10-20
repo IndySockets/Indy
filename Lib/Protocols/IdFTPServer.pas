@@ -2472,7 +2472,6 @@ var
   LContext : TIdFTPServerContext;
 begin
   LContext := (AContext as TIdFTPServerContext);
-  LContext.Server := Self;
   //from Before run method
   LContext.FDataPort := 0;
   LContext.FPasswordAttempts := 0;
@@ -2516,6 +2515,7 @@ begin
   if FDirFormat = ftpdfDOS then begin
     LContext.FMSDOSMode := True;
   end;
+  inherited ContextCreated(AContext);
 end;
 
 destructor TIdFTPServer.Destroy;
@@ -3596,6 +3596,8 @@ var
   var
     LLocalLine : String;
   begin
+    // TODO: rewrite this to wait on both control and data sockets at the same
+    // time and read a command only if the control socket is actually readable...
     LLocalLine := ReadCommandLine(AContext);
     if LLocalLine <> '' then begin
       if not FDataChannelCommands.HandleCommand(AContext, LLocalLine) then begin
@@ -3633,6 +3635,7 @@ var
   procedure WriteToStream(AContext : TIdFTPServerContext; ACmdQueue : TStrings;
     ASrcStream : TStream; const AIgnoreCompression : Boolean = False);
   var
+    LBuffer : TIdBytes;
     LBufSize : TIdStreamSize;
     LOutStream : TStream;
   begin
@@ -3648,18 +3651,17 @@ var
           AContext.ZLibMemLevel, AContext.ZLibStratagy);
         LOutStream.Position := 0;
       end;
-      repeat
-        LBufSize := LOutStream.Size - LOutStream.Position;
-        if LBufSize > DEF_BLOCKSIZE then begin
-           LBufSize := DEF_BLOCKSIZE;
-        end;
-        if LBufSize > 0 then begin
-          AContext.FDataChannel.FDataChannel.IOHandler.Write(LOutStream, LBufSize, False);
-          if LOutStream.Position < LOutStream.Size then begin
+      SetLength(LBuffer, DEF_BLOCKSIZE);
+      LBufSize := ReadTIdBytesFromStream(LOutStream, LBuffer, DEF_BLOCKSIZE);
+      if LBufSize > 0 then begin
+        repeat
+          AContext.FDataChannel.FDataChannel.IOHandler.Write(LBuffer, LBufSize);
+          LBufSize := ReadTIdBytesFromStream(LOutStream, LBuffer, DEF_BLOCKSIZE);
+          if LBufSize > 0 then begin
             CheckControlConnection(AContext, ACmdQueue);
           end;
-        end;
-      until (LBufSize = 0) or (not AContext.FDataChannel.FDataChannel.IOHandler.Connected);
+        until (LBufSize < 1) or (not AContext.FDataChannel.FDataChannel.IOHandler.Connected);
+      end;
     finally
       if AContext.DataMode = dmDeflate then begin
         FreeAndNil(LOutStream);

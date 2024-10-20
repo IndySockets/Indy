@@ -7,12 +7,12 @@ interface
 {
   IMPORTANT!!!
 
-  This unit does not directly provide FIPS support.  It centalizes some Indy
+  This unit does not directly provide FIPS support.  It centralizes some Indy
   encryption functions and exposes a function to get and set a FIPS mode that is
   implemented by the library that hooks this unit.
 
   The idea is that Indy will not have a FIPS certification per se but will be
-  able to utilize cryptographic modules that are FIPS complient.
+  able to utilize cryptographic modules that are FIPS compliant.
 
   In addition, this unit provides a way of centralizing all hashing and HMAC
   functions and to control dependancies in Indy.
@@ -34,6 +34,7 @@ type
 {$ENDIF}
 
   EIdFIPSAlgorithmNotAllowed = class(EIdException);
+
   TGetFIPSMode = function: Boolean;
   TSetFIPSMode = function(const AMode: Boolean): Boolean;
   TIsHashingIntfAvail = function: Boolean;
@@ -45,6 +46,13 @@ type
   TGetHMACInst = function (const AKey : TIdBytes) : TIdHMACIntCtx;
   TUpdateHMACInst = procedure(ACtx : TIdHMACIntCtx; const AIn: TIdBytes);
   TFinalHMACInst = function(ACtx: TIdHMACIntCtx): TIdBytes;
+
+  TLoadHashLibrary = function: Boolean;
+
+  TLoadNTLMLibrary = function: Boolean;
+  TIsNTLMFuncsAvail = function: Boolean;
+  TNTLMGetLmChallengeResponse = function(const APassword: String; const ANonce: TIdBytes): TIdBytes;
+  TNTLMGetNtChallengeResponse = function(const APassword: String; const ANonce: TIdBytes): TIdBytes;
 
 var
   GetFIPSMode: TGetFIPSMode;
@@ -83,6 +91,13 @@ var
   GetHMACSHA512HashInst: TGetHMACInst;
   UpdateHMACInst : TUpdateHMACInst;
   FinalHMACInst : TFinalHMACInst;
+
+  LoadHashLibrary : TLoadHashLibrary;
+
+  LoadNTLMLibrary : TLoadNTLMLibrary;
+  IsNTLMFuncsAvail : TIsNTLMFuncsAvail;
+  NTLMGetLmChallengeResponse: TNTLMGetLmChallengeResponse;
+  NTLMGetNtChallengeResponse: TNTLMGetNtChallengeResponse;
 
   procedure CheckMD2Permitted;
   procedure CheckMD4Permitted;
@@ -183,6 +198,31 @@ begin
   SetLength(Result, 0);
 end;
 
+function DefLoadHashLibrary: Boolean;
+begin
+  Result := False;
+end;
+
+function DefLoadNTLMLibrary: Boolean;
+begin
+  Result := False;
+end;
+
+function DefIsNTLMFuncsAvail: Boolean;
+begin
+  Result := False;
+end;
+
+function DefNTLMGetLmChallengeResponse(const APassword: String; const ANonce: TIdBytes): TIdBytes;
+begin
+  SetLength(Result, 0);
+end;
+
+function DefNTLMGetNtChallengeResponse(const APassword: String; const ANonce: TIdBytes): TIdBytes;
+begin
+  SetLength(Result, 0);
+end;
+
 initialization
 
   GetFIPSMode := DefGetFIPSMode;
@@ -212,18 +252,25 @@ initialization
   IsHMACAvail := DefIsHMACAvail;
   IsHMACMD5Avail := DefIsHMACIntfAvail;
   GetHMACMD5HashInst := DefGetHMACInst;
-  IsHMACSHA1Avail  := DefIsHMACIntfAvail;
+  IsHMACSHA1Avail := DefIsHMACIntfAvail;
   GetHMACSHA1HashInst := DefGetHMACInst;
-  IsHMACSHA224Avail  := DefIsHMACIntfAvail;
+  IsHMACSHA224Avail := DefIsHMACIntfAvail;
   GetHMACSHA224HashInst := DefGetHMACInst;
-  IsHMACSHA256Avail  :=  DefIsHMACIntfAvail;
+  IsHMACSHA256Avail :=  DefIsHMACIntfAvail;
   GetHMACSHA256HashInst := DefGetHMACInst;
-  IsHMACSHA384Avail  := DefIsHMACIntfAvail;
+  IsHMACSHA384Avail := DefIsHMACIntfAvail;
   GetHMACSHA384HashInst := DefGetHMACInst;
-  IsHMACSHA512Avail  := DefIsHMACIntfAvail;
+  IsHMACSHA512Avail := DefIsHMACIntfAvail;
   GetHMACSHA512HashInst := DefGetHMACInst;
 
   UpdateHMACInst := DefUpdateHMACInst;
   FinalHMACInst := DefFinalHMACInst;
+
+  LoadHashLibrary := DefLoadHashLibrary;
+
+  LoadNTLMLibrary := DefLoadNTLMLibrary;
+  IsNTLMFuncsAvail := DefIsNTLMFuncsAvail;
+  NTLMGetLmChallengeResponse := DefNTLMGetLmChallengeResponse;
+  NTLMGetNtChallengeResponse := DefNTLMGetNtChallengeResponse;
 
 end.

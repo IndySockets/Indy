@@ -5545,7 +5545,18 @@ begin
   ADestEncoding.GetBytes(LChars, 0, 1, VDest, ADestIndex);
   {$ELSE}
   EnsureEncoding(ASrcEncoding, encOSDefault);
-  LChars := ASrcEncoding.GetChars(RawToBytes(ASource, 1));
+  LChars := ASrcEncoding.GetChars(
+    {$IFNDEF VCL_6_OR_ABOVE}
+    // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+    // version of 'GetChars' that can be called with these arguments" compiler
+    // error if the PByte type-cast is used, even though GetChars() actually
+    // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+    // in Delphi 6.  So, converting to TIdBytes until I find a better solution...
+    RawToBytes(ASource, 1)
+    {$ELSE}
+    PByte(@ASource), 1
+    {$ENDIF}
+  );
   ADestEncoding.GetBytes(LChars, 0, Length(LChars), VDest, ADestIndex);
   {$ENDIF}
 end;
@@ -5769,7 +5780,19 @@ begin
     ADestEncoding.GetBytes(ASource, ASourceIndex, LLength, VDest, ADestIndex);
     {$ELSE}
     EnsureEncoding(ASrcEncoding, encOSDefault);
-    LTmp := ASrcEncoding.GetChars(RawToBytes(ASource[ASourceIndex], LLength)); // convert to Unicode
+    // convert to Unicode
+    LTmp := ASrcEncoding.GetChars(
+      {$IFNDEF VCL_6_OR_ABOVE}
+      // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+      // version of 'GetChars' that can be called with these arguments" compiler
+      // error if the PByte type-cast is used, even though GetChars() actually
+      // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+      // in Delphi 6.  So, converting to TIdBytes until I find a better solution...
+      RawToBytes(ASource[ASourceIndex], LLength)
+      {$ELSE}
+      PByte(@ASource[ASourceIndex]), LLength
+      {$ENDIF}
+    );
     ADestEncoding.GetBytes(LTmp, 0, Length(LTmp), VDest, ADestIndex);
     {$ENDIF}
   end;
@@ -6209,12 +6232,32 @@ end;
 
 function GetTickDiff64(const AOldTickCount, ANewTickCount: TIdTicks): TIdTicks;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFNDEF VCL_6_OR_ABOVE}
+var
+  // Delphi 5 seems to have a problem with the Int64 calculations
+  // below on a temporary, so breaking up the calculations...
+  d: TIdTicks;
+{$ENDIF}
 begin
   {This is just in case the TickCount rolled back to zero}
   if ANewTickCount >= AOldTickCount then begin
+    {$IFNDEF VCL_6_OR_ABOVE}
+    d := ANewTickCount;
+    Dec(d, AOldTickCount);
+    Result := d;
+    {$ELSE}
     Result := TIdTicks(ANewTickCount - AOldTickCount);
+    {$ENDIF}
   end else begin
+    {$IFNDEF VCL_6_OR_ABOVE}
+    d := High(TIdTicks);
+    Dec(d, AOldTickCount);
+    Inc(d, ANewTickCount);
+    Inc(d);
+    Result := d;
+    {$ELSE}
     Result := TIdTicks(((High(TIdTicks) - AOldTickCount) + ANewTickCount) + 1);
+    {$ENDIF}
   end;
 end;
 
@@ -8452,7 +8495,19 @@ begin
   LChars[0] := AValue;
   {$ELSE}
   EnsureEncoding(ASrcEncoding, encOSDefault);
-  LChars := ASrcEncoding.GetChars(RawToBytes(AValue, 1));  // convert to Unicode
+  // convert to Unicode
+  LChars := ASrcEncoding.GetChars(
+    {$IFNDEF VCL_6_OR_ABOVE}
+    // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+    // version of 'GetChars' that can be called with these arguments" compiler
+    // error if the PByte type-cast is used, even though GetChars() actually
+    // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+    // in Delphi 6.  So, converting to TIdBytes until I find a better solution...
+    RawToBytes(AValue, 1)
+    {$ELSE}
+    PByte(@AValue), 1
+    {$ENDIF}
+  );
   {$ENDIF}
   Assert(Length(Bytes) >= ADestEncoding.GetByteCount(LChars));
   ADestEncoding.GetBytes(LChars, 0, Length(LChars), Bytes, 0);
