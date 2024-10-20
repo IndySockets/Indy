@@ -224,6 +224,7 @@ uses
   Indy.Sockets.IdSASLDigest in 'Indy.Sockets.IdSASLDigest.pas',
   Indy.Sockets.IdSASLExternal in 'Indy.Sockets.IdSASLExternal.pas',
   Indy.Sockets.IdSASLLogin in 'Indy.Sockets.IdSASLLogin.pas',
+  Indy.Sockets.IdSASLOAuth in 'Indy.Sockets.IdSASLOAuth.pas',
   Indy.Sockets.IdSASLOTP in 'Indy.Sockets.IdSASLOTP.pas',
   Indy.Sockets.IdSASLPlain in 'Indy.Sockets.IdSASLPlain.pas',
   Indy.Sockets.IdSASLSKey in 'Indy.Sockets.IdSASLSKey.pas',
