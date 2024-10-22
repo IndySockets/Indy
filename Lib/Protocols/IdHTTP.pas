@@ -499,7 +499,7 @@ type
     procedure SetHost(const Value: string); override;
     procedure SetPort(const Value: integer); override;
 }
-    procedure DoRequest(const AMethod: TIdHTTPMethod; AURL: string;
+    procedure DoRequest(const AMethod: TIdHTTPMethod; const AURL: string;
       ASource, AResponseContent: TStream; AIgnoreReplies: array of Int16); virtual;
     function CreateProtocol: TIdHTTPProtocol; virtual;
     procedure InitComponent; override;
@@ -534,56 +534,56 @@ type
   public
     destructor Destroy; override;
 
-    procedure Delete(AURL: string; AResponseContent: TStream); overload;
-    function Delete(AURL: string
+    procedure Delete(const AURL: string; AResponseContent: TStream); overload;
+    function Delete(const AURL: string
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
 
-    procedure Options(AURL: string; AResponseContent: TStream); overload;
-    function Options(AURL: string
+    procedure Options(const AURL: string; AResponseContent: TStream); overload;
+    function Options(const AURL: string
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
 
-    procedure Get(AURL: string; AResponseContent: TStream); overload;
-    procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: array of Int16); overload;
-    function Get(AURL: string
+    procedure Get(const AURL: string; AResponseContent: TStream); overload;
+    procedure Get(const AURL: string; AResponseContent: TStream; AIgnoreReplies: array of Int16); overload;
+    function Get(const AURL: string
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
-    function Get(AURL: string; AIgnoreReplies: array of Int16
+    function Get(const AURL: string; AIgnoreReplies: array of Int16
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
 
-    procedure Trace(AURL: string; AResponseContent: TStream); overload;
-    function Trace(AURL: string
+    procedure Trace(const AURL: string; AResponseContent: TStream); overload;
+    function Trace(const AURL: string
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
-    procedure Head(AURL: string);
+    procedure Head(const AURL: string);
 
-    function Post(AURL: string; const ASourceFile: String
+    function Post(const AURL: string; const ASourceFile: String
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
-    function Post(AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil
+    function Post(const AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil
       {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil; ADestEncoding: IIdTextEncoding = nil{$ENDIF}): string; overload;
-    function Post(AURL: string; ASource: TStream
+    function Post(const AURL: string; ASource: TStream
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
-    function Post(AURL: string; ASource: TIdMultiPartFormDataStream
+    function Post(const AURL: string; ASource: TIdMultiPartFormDataStream
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
 
-    procedure Post(AURL: string; const ASourceFile: String; AResponseContent: TStream); overload;
-    procedure Post(AURL: string; ASource: TStrings; AResponseContent: TStream; AByteEncoding: IIdTextEncoding = nil
+    procedure Post(const AURL: string; const ASourceFile: String; AResponseContent: TStream); overload;
+    procedure Post(const AURL: string; ASource: TStrings; AResponseContent: TStream; AByteEncoding: IIdTextEncoding = nil
       {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}); overload;
-    procedure Post(AURL: string; ASource, AResponseContent: TStream); overload;
-    procedure Post(AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TStream); overload;
+    procedure Post(const AURL: string; ASource, AResponseContent: TStream); overload;
+    procedure Post(const AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TStream); overload;
 
-    function Put(AURL: string; ASource: TStream
+    function Put(const AURL: string; ASource: TStream
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
-    procedure Put(AURL: string; ASource, AResponseContent: TStream); overload;
+    procedure Put(const AURL: string; ASource, AResponseContent: TStream); overload;
 
-    procedure Patch(AURL: string; ASource, AResponseContent: TStream); overload;
-    function Patch(AURL: string; ASource: TStream
+    procedure Patch(const AURL: string; ASource, AResponseContent: TStream); overload;
+    function Patch(const AURL: string; ASource: TStream
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
     ): string; overload;
 
@@ -728,12 +728,12 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdCustomHTTP.Delete(AURL: string; AResponseContent: TStream);
+procedure TIdCustomHTTP.Delete(const AURL: string; AResponseContent: TStream);
 begin
   DoRequest(Id_HTTPMethodDelete, AURL, nil, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Delete(AURL: string
+function TIdCustomHTTP.Delete(const AURL: string
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
@@ -750,12 +750,12 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Options(AURL: string; AResponseContent: TStream);
+procedure TIdCustomHTTP.Options(const AURL: string; AResponseContent: TStream);
 begin
   DoRequest(Id_HTTPMethodOptions, AURL, nil, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Options(AURL: string
+function TIdCustomHTTP.Options(const AURL: string
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
@@ -772,22 +772,22 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream);
+procedure TIdCustomHTTP.Get(const AURL: string; AResponseContent: TStream);
 begin
   Get(AURL, AResponseContent, []);
 end;
 
-procedure TIdCustomHTTP.Trace(AURL: string; AResponseContent: TStream);
+procedure TIdCustomHTTP.Trace(const AURL: string; AResponseContent: TStream);
 begin
   DoRequest(Id_HTTPMethodTrace, AURL, nil, AResponseContent, []);
 end;
 
-procedure TIdCustomHTTP.Head(AURL: string);
+procedure TIdCustomHTTP.Head(const AURL: string);
 begin
   DoRequest(Id_HTTPMethodHead, AURL, nil, nil, []);
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string; ASource, AResponseContent: TStream);
+procedure TIdCustomHTTP.Post(const AURL: string; ASource, AResponseContent: TStream);
 var
   OldProtocol: TIdHTTPProtocolVersion;
 begin
@@ -1033,7 +1033,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; const ASourceFile: String
+function TIdCustomHTTP.Post(const AURL: string; const ASourceFile: String
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
@@ -1047,7 +1047,7 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string; const ASourceFile: String; AResponseContent: TStream);
+procedure TIdCustomHTTP.Post(const AURL: string; const ASourceFile: String; AResponseContent: TStream);
 var
   LSource: TStream;
 begin
@@ -1059,7 +1059,7 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AResponseContent: TStream;
+procedure TIdCustomHTTP.Post(const AURL: string; ASource: TStrings; AResponseContent: TStream;
   AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   );
@@ -1086,7 +1086,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil
+function TIdCustomHTTP.Post(const AURL: string; ASource: TStrings; AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
@@ -1103,7 +1103,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TStream
+function TIdCustomHTTP.Post(const AURL: string; ASource: TStream
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
@@ -1120,12 +1120,12 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Put(AURL: string; ASource, AResponseContent: TStream);
+procedure TIdCustomHTTP.Put(const AURL: string; ASource, AResponseContent: TStream);
 begin
   DoRequest(Id_HTTPMethodPut, AURL, ASource, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Put(AURL: string; ASource: TStream
+function TIdCustomHTTP.Put(const AURL: string; ASource: TStream
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
@@ -1142,14 +1142,14 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Get(AURL: string
+function TIdCustomHTTP.Get(const AURL: string
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 begin
   Result := Get(AURL, []{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
 
-function TIdCustomHTTP.Trace(AURL: string
+function TIdCustomHTTP.Trace(const AURL: string
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
@@ -2543,7 +2543,7 @@ begin
   FProxyParameters.Assign(AValue);
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string; ASource: TIdMultiPartFormDataStream;
+procedure TIdCustomHTTP.Post(const AURL: string; ASource: TIdMultiPartFormDataStream;
   AResponseContent: TStream);
 begin
   Assert(ASource<>nil);
@@ -2552,7 +2552,7 @@ begin
   Post(AURL, TStream(ASource), AResponseContent);
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TIdMultiPartFormDataStream
+function TIdCustomHTTP.Post(const AURL: string; ASource: TIdMultiPartFormDataStream
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
 ): string;
 begin
@@ -3130,7 +3130,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Get(AURL: string; AIgnoreReplies: array of Int16
+function TIdCustomHTTP.Get(const AURL: string; AIgnoreReplies: array of Int16
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
@@ -3147,14 +3147,14 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream;
+procedure TIdCustomHTTP.Get(const AURL: string; AResponseContent: TStream;
   AIgnoreReplies: array of Int16);
 begin
   DoRequest(Id_HTTPMethodGet, AURL, nil, AResponseContent, AIgnoreReplies);
 end;
 
 procedure TIdCustomHTTP.DoRequest(const AMethod: TIdHTTPMethod;
-  AURL: string; ASource, AResponseContent: TStream;
+  const AURL: string; ASource, AResponseContent: TStream;
   AIgnoreReplies: array of Int16);
 var
   LResponseLocation: TIdStreamSize;
@@ -3251,12 +3251,12 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Patch(AURL: string; ASource, AResponseContent: TStream);
+procedure TIdCustomHTTP.Patch(const AURL: string; ASource, AResponseContent: TStream);
 begin
   DoRequest(Id_HTTPMethodPatch, AURL, ASource, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Patch(AURL: string; ASource: TStream
+function TIdCustomHTTP.Patch(const AURL: string; ASource: TStream
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var

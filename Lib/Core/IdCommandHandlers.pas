@@ -204,8 +204,8 @@ type
     procedure SetResponse(AValue: TStrings);
   public
     function Check(const AData: string; AContext: TIdContext): boolean; virtual;
-    procedure DoCommand(const AData: string; AContext: TIdContext; AUnparsedParams: string); virtual;
-    procedure DoParseParams(AUnparsedParams: string; AParams: TStrings); virtual;
+    procedure DoCommand(const AData: string; AContext: TIdContext; const AUnparsedParams: string); virtual;
+    procedure DoParseParams(const AUnparsedParams: string; AParams: TStrings); virtual;
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
 //    function GetNamePath: string; override;
@@ -418,7 +418,7 @@ end;
 
 { TIdCommandHandler }
 
-procedure TIdCommandHandler.DoCommand(const AData: string; AContext: TIdContext; AUnparsedParams: string);
+procedure TIdCommandHandler.DoCommand(const AData: string; AContext: TIdContext; const AUnparsedParams: string);
 var
   LCommand: TIdCommand;
 begin
@@ -513,7 +513,7 @@ begin
   end;
 end;
 
-procedure TIdCommandHandler.DoParseParams(AUnparsedParams: string; AParams: TStrings);
+procedure TIdCommandHandler.DoParseParams(const AUnparsedParams: string; AParams: TStrings);
 // AUnparsedParams is not preparsed and is completely left up to the command handler. This will
 // allow for future expansion such as multiple delimiters etc, and allow the logic to properly
 // remain in each of the command handler implementations. In the future there may be a base type

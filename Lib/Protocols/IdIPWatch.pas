@@ -104,7 +104,7 @@ type
     FThread: TIdIPWatchThread;
     FWatchInterval: UInt32;
     //
-    procedure AddToIPHistoryList(Value: string);
+    procedure AddToIPHistoryList(const Value: string);
     procedure CheckStatus(Sender: TObject);
     procedure Loaded; override;
     procedure SetActive(Value: Boolean);
@@ -153,7 +153,7 @@ uses
 
 { TIdIPWatch }
 
-procedure TIdIPWatch.AddToIPHistoryList(Value: string);
+procedure TIdIPWatch.AddToIPHistoryList(const Value: string);
 begin
   if (Value = '') or (Value = '127.0.0.1') or (Value = '::1') then    {Do not Localize}
   begin

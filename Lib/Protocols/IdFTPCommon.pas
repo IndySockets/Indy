@@ -425,7 +425,7 @@ function IndyIsRelativePath(const APathName : String): Boolean;
 function IndyGetFileExt(const AFileName : String) : String;
 function StripInitPathDelim(const AStr : String): String;
 function IsNavPath(const APath : String): Boolean;
-function RemoveDuplicatePathSyms(APath : String): String;
+function RemoveDuplicatePathSyms(const APath : String): String;
 
 {***
 EPLF time stamp processing
@@ -501,7 +501,7 @@ platform specific parsing and testing
 ***}
 
 {Unix}
-function IsValidUnixPerms(AData : String; const AStrict : Boolean = False) : Boolean;
+function IsValidUnixPerms(const AData : String; const AStrict : Boolean = False) : Boolean;
 function IsUnixLsErr(const AData: String): Boolean;
 function IsUnixExec(const LUPer, LGPer, LOPer : String): Boolean;
 function IsUnixHiddenFile(const AFileName : String): Boolean;
@@ -530,7 +530,7 @@ function ExtractQVNETFileName(const AData : String): String;
 function ExtractRecFormat(const ARecFM : String): String;
 //Determines if the line is part of a VM/BFS list - also used by WindowsNT parser
 //because two columns are shared
-function IsVMBFS(AData : String) : Boolean;
+function IsVMBFS(const AData : String) : Boolean;
 {IBM VSE}
 function DispositionCodeToTIdVSEPQDisposition(const ADisp : Char) : TIdVSEPQDisposition;
 function TIdVSEPQDispositionDispositionCode(const ADisp : TIdVSEPQDisposition) : Char;
@@ -538,7 +538,7 @@ function TIdVSEPQDispositionDispositionCode(const ADisp : TIdVSEPQDisposition) :
 {EPLF and MLST/MLSD support}
 function ParseFacts(AData : String; AResults : TStrings;
   const AFactDelim : String = ';'; const ANameDelim : String=' '): String;
-function ParseFactsMLS(AData : String; AResults : TStrings;
+function ParseFactsMLS(const AData : String; AResults : TStrings;
   const AFactDelim : String = ';'; const ANameDelim : String = ' '): String;
 {Sterling Commerce support routines}
 
@@ -1120,7 +1120,7 @@ const
     ('/','\','/','/');
 }
 
-function RemoveDuplicatePathSyms(APath : String): String;
+function RemoveDuplicatePathSyms(const APath : String): String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
   //Result := StringsReplace(APath, TrailingPathCorrectionOrg, TrailingPathCorrectionNew);
@@ -1836,7 +1836,7 @@ end;
 //=== platform stuff
 //===== Unix
 
-function IsValidUnixPerms(AData : String; const AStrict : Boolean = False) : Boolean;
+function IsValidUnixPerms(const AData : String; const AStrict : Boolean = False) : Boolean;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 //Stict mode is for things such as Novell Netware Unix Print Services FTP Deamon
 //which are not quite like Unix.
@@ -2383,7 +2383,7 @@ begin
   end;
 end;
 
-function IsVMBFS(AData : String) : Boolean;
+function IsVMBFS(const AData : String) : Boolean;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var
   s : TStringList;
@@ -2425,7 +2425,7 @@ begin
 end;
 
 //===== MLSD Parse facts, this has to be different because of different charsets
-function ParseFactsMLS(AData : String; AResults : TStrings;
+function ParseFactsMLS(const AData : String; AResults : TStrings;
   const AFactDelim : String = ';'; const ANameDelim : String = ' '): String;
   {$IFDEF USE_INLINE} inline; {$ENDIF}
 var

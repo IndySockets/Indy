@@ -330,7 +330,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Push(ABoundary: string; AParentPart: integer);
+    procedure Push(const ABoundary: string; AParentPart: integer);
     procedure Pop;
     procedure Clear;
     function Count: integer;
@@ -594,7 +594,7 @@ begin
   end;
 end;
 
-procedure TIdMIMEBoundary.Push(ABoundary: string; AParentPart: integer);
+procedure TIdMIMEBoundary.Push(const ABoundary: string; AParentPart: integer);
 begin
   {CC: Changed implementation to a simple stack}
   FBoundaryList.Insert(0, ABoundary);

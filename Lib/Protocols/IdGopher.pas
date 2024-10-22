@@ -215,30 +215,30 @@ type
     {This fires an exception for Gopher+ errors}
     Procedure ProcessGopherError;
     {This takes parses a string and makes a Menu Item for it}
-    Function MenuItemFromString ( stLine : String; Menu : TIdGopherMenu)
+    Function MenuItemFromString ( const stLine : String; Menu : TIdGopherMenu)
       : TIdGopherMenuItem;
     {Process the menu while we retreive it}
-    Function ProcessDirectory ( PreviousData : String = '';    {Do not Localize}
+    Function ProcessDirectory ( const PreviousData : String = '';    {Do not Localize}
       const ExpectedLength: Integer = 0) : TIdGopherMenu;
     {This processes extended Gopher Menues}
-    Function LoadExtendedDirectory ( PreviousData : String = '';    {Do not Localize}
+    Function LoadExtendedDirectory ( const PreviousData : String = '';    {Do not Localize}
      const ExpectedLength: Integer = 0) : TIdGopherMenu;
     {This processes the file when we retreive it and puts it in ADestStream. }
-    procedure ProcessFile ( ADestStream : TStream; APreviousData : String = '';    {Do not Localize}
+    procedure ProcessFile ( ADestStream : TStream; const APreviousData : String = '';    {Do not Localize}
       const ExpectedLength : Integer = 0);
     {For Gopher +, we call this routine when we get a -2 length which means,
     read until you see EOL+.+EOL}
     Procedure ProcessTextFile ( ADestStream : TStream;
-      APreviousData: String = ''; const ExpectedLength: Integer = 0);    {Do not Localize}
+      const APreviousData: String = ''; const ExpectedLength: Integer = 0);    {Do not Localize}
     procedure InitComponent; override;
   public
     { Public declarations }
-    Function GetMenu (ASelector : String; IsGopherPlus : Boolean = False; AView : String = '' ) :    {Do not Localize}
+    Function GetMenu (const ASelector : String; IsGopherPlus : Boolean = False; const AView : String = '' ) :    {Do not Localize}
       TIdGopherMenu;
-    Function Search(ASelector, AQuery : String) : TIdGopherMenu;
-    procedure GetFile (ASelector : String; ADestStream : TStream; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
-    procedure GetTextFile(ASelector : String; ADestStream : TStream; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
-    Function GetExtendedMenu (ASelector : String; AView: String = '' ) : TIdGopherMenu;    {Do not Localize}
+    Function Search(const ASelector, AQuery : String) : TIdGopherMenu;
+    procedure GetFile (const ASelector : String; ADestStream : TStream; IsGopherPlus : Boolean = False; const AView: String = '');    {Do not Localize}
+    procedure GetTextFile(const ASelector : String; ADestStream : TStream; IsGopherPlus : Boolean = False; const AView: String = '');    {Do not Localize}
+    Function GetExtendedMenu (const ASelector : String; const AView: String = '' ) : TIdGopherMenu;    {Do not Localize}
   published
     { Published declarations }
     property OnMenuItem : TIdGopherMenuEvent read FOnMenuItem write FOnMenuItem;
@@ -279,11 +279,13 @@ begin
   LastCmdResult.RaiseReplyError;
 end;
 
-function TIdGopher.MenuItemFromString(stLine: String;
+function TIdGopher.MenuItemFromString(const stLine: String;
   Menu: TIdGopherMenu): TIdGopherMenuItem;
+var LLine : String;
 begin
+  LLine := stLine;
   {just in case a space thows things off}
-  stLine := Trim(stLine);
+  LLine := Trim(LLine);
   if Assigned ( Menu ) then
   begin
     Result := Menu.Add;
@@ -293,7 +295,7 @@ begin
     Result := TIdGopherMenuItem.Create( nil );
   end; // else .. if Assigned ( Menu ) then
   {title and Item Type}
-  Result.Title := Fetch ( stLine, TAB );
+  Result.Title := Fetch ( LLine, TAB );
   if Length ( Result.Title ) > 0 then
   begin
     Result.ItemType := Result.Title [ 1 ];
@@ -305,30 +307,32 @@ begin
   {drop first charactor because that was the item type indicator}
   Result.Title := Copy ( Result.Title, 2, Length ( Result.Title ) );
   {selector string}
-  Result.Selector := Fetch ( stLine, TAB );
+  Result.Selector := Fetch ( LLine, TAB );
   {server}
-  Result.Server  := Fetch ( stLine, TAB );
+  Result.Server  := Fetch ( LLine, TAB );
   {port}
-  Result.Port    := IndyStrToInt ( Fetch ( stLine, TAB ) );
+  Result.Port    := IndyStrToInt ( Fetch ( LLine, TAB ) );
   {is Gopher + Item}
-  stLine := Fetch ( stLine, TAB );
+  LLine := Fetch ( LLine, TAB );
   Result.GopherPlusItem := ( (Length ( stLine) > 0 ) and
      ( stLine [ 1 ] = '+' ) );    {Do not Localize}
 end;
 
-Function TIdGopher.LoadExtendedDirectory ( PreviousData : String = '';    {Do not Localize}
+Function TIdGopher.LoadExtendedDirectory ( const PreviousData : String = '';    {Do not Localize}
   const ExpectedLength: Integer = 0) : TIdGopherMenu;
 var
   stLine : String;
   gmnu : TIdGopherMenuItem;
+  LPreviousData : String;
 begin
+  LPreviousData := PreviousData;
   BeginWork(wmRead, ExpectedLength); try
     Result := TIdGopherMenu.Create;
     gmnu := nil;
     repeat
-      stLine := PreviousData + IOHandler.ReadLn;
+      stLine := LPreviousData + IOHandler.ReadLn;
       {we use the Previous data only ONCE}
-      PreviousData := '';    {Do not Localize}
+      LPreviousData := '';    {Do not Localize}
       {we process each line only if it is not the last and the
       OnMenuItem is assigned}
       if ( stLine <> '.' ) then    {Do not Localize}
@@ -366,17 +370,17 @@ begin
   finally EndWork(wmRead); end;
 end;
 
-Function TIdGopher.ProcessDirectory ( PreviousData : String = '';    {Do not Localize}
+Function TIdGopher.ProcessDirectory (const PreviousData : String = '';    {Do not Localize}
   const ExpectedLength: Integer = 0) : TIdGopherMenu;
 var stLine : String;
-
+ LPreviousData : String;
 begin
   BeginWork(wmRead,ExpectedLength); try
     Result := TIdGopherMenu.Create;
     repeat
-      stLine := PreviousData + IOHandler.ReadLn;
+      stLine := LPreviousData + IOHandler.ReadLn;
       {we use the Previous data only ONCE}
-      PreviousData := '';    {Do not Localize}
+      LPreviousData := '';    {Do not Localize}
       {we process each line only if it is not the last and the OnMenuItem
       is assigned}
       if ( stLine <> '.' ) then    {Do not Localize}
@@ -390,7 +394,7 @@ begin
   end; //try..finally
 end;
 
-procedure TIdGopher.ProcessTextFile(ADestStream : TStream; APreviousData: String = '';    {Do not Localize}
+procedure TIdGopher.ProcessTextFile(ADestStream : TStream; const APreviousData: String = '';    {Do not Localize}
   const ExpectedLength: Integer = 0);
 var
   LEnc: IIdTextEncoding;
@@ -405,7 +409,7 @@ begin
   end;  //try..finally
 end;
 
-procedure TIdGopher.ProcessFile ( ADestStream : TStream; APreviousData : String = '';    {Do not Localize}
+procedure TIdGopher.ProcessFile ( ADestStream : TStream; const APreviousData : String = '';    {Do not Localize}
   const ExpectedLength : Integer = 0);
 var
   LEnc: IIdTextEncoding;
@@ -421,7 +425,7 @@ begin
   end;
 end;
 
-Function TIdGopher.Search(ASelector, AQuery : String) : TIdGopherMenu;
+Function TIdGopher.Search(const ASelector, AQuery : String) : TIdGopherMenu;
 begin
   Connect;
   try
@@ -433,11 +437,12 @@ begin
   end; {try .. finally .. end }
 end;
 
-procedure TIdGopher.GetFile (ASelector : String; ADestStream : TStream;
+procedure TIdGopher.GetFile (const ASelector : String; ADestStream : TStream;
   IsGopherPlus : Boolean = False;
-  AView: String = '');    {Do not Localize}
+  const AView: String = '');    {Do not Localize}
 var
   Reply : Char;
+  LView : String;
   LengthBytes : Integer;  {legnth of the gopher items}
 begin
   Connect;
@@ -451,7 +456,7 @@ begin
     begin
       {I hope that this drops the size attribute and that this will cause the
        Views to work, I'm not sure}    {Do not Localize}
-      AView := Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
+      LView := Trim ( Fetch ( LView, ':' ) );    {Do not Localize}
       IOHandler.WriteLn ( ASelector + TAB +'+'+ AView );    {Do not Localize}
       {We read only one byte from the peer}
       Reply := Char(IOHandler.ReadByte);
@@ -486,7 +491,7 @@ begin
   end; {try .. finally .. end }
 end;
 
-function TIdGopher.GetMenu ( ASelector : String; IsGopherPlus : Boolean = False; AView : String = '' ) :    {Do not Localize}
+function TIdGopher.GetMenu ( const ASelector : String; IsGopherPlus : Boolean = False; const AView : String = '' ) :    {Do not Localize}
       TIdGopherMenu;
 var
   Reply : Char;
@@ -528,7 +533,7 @@ begin
   end;  {try .. finally .. end }
 end;
 
-Function TIdGopher.GetExtendedMenu(ASelector, AView: String) : TIdGopherMenu;
+Function TIdGopher.GetExtendedMenu(const ASelector, AView: String) : TIdGopherMenu;
 var
   Reply : Char;
   LengthBytes : Integer;  {legnth of the gopher items}
@@ -558,11 +563,12 @@ begin
   end;  {try .. finally .. end }
 end;
 
-procedure TIdGopher.GetTextFile(ASelector: String; ADestStream: TStream;
-  IsGopherPlus: Boolean; AView: String);
+procedure TIdGopher.GetTextFile(const ASelector: String; ADestStream: TStream;
+  IsGopherPlus: Boolean; const AView: String);
 var
   Reply : Char;
   LengthBytes : Integer;  {length of the gopher items}
+  LView : String;
 begin
   Connect;
   try
@@ -573,10 +579,11 @@ begin
     end  // if not IsGopherPlus then
     else
     begin
+      LView := AView;
       {I hope that this drops the size attribute and that this will cause the
        Views to work, I'm not sure}    {Do not Localize}
-      AView := Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
-      IOHandler.WriteLn ( ASelector + TAB +'+'+ AView );    {Do not Localize}
+      LView := Trim ( Fetch ( LView, ':' ) );    {Do not Localize}
+      IOHandler.WriteLn ( ASelector + TAB +'+'+ LView );    {Do not Localize}
       {We read only one byte from the peer}
       Reply := Char(IOHandler.ReadByte);
       {Get the additonal reply code for error or success}

@@ -241,8 +241,8 @@ type
     procedure DisconnectNotifyPeer; override;
     class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText: string); overload; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use ContentType overload of QuickSend()'{$ENDIF};{$ENDIF}
     class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText, AContentType, ACharset, AContentTransferEncoding: string); overload;
-    procedure Expand(AUserName : String; AResults : TStrings); virtual;
-    function Verify(AUserName : String) : String; virtual;
+    procedure Expand(const AUserName : String; AResults : TStrings); virtual;
+    function Verify(const AUserName : String) : String; virtual;
     //
     property DidAuthenticate: Boolean read FDidAuthenticate;
   published
@@ -398,7 +398,7 @@ begin
   SendCmd('QUIT', 221);    {Do not Localize}
 end;
 
-procedure TIdSMTP.Expand(AUserName: String; AResults: TStrings);
+procedure TIdSMTP.Expand(const AUserName: String; AResults: TStrings);
 begin
   SendCmd('EXPN ' + AUserName, [250, 251]);    {Do not Localize}
 end;
@@ -484,7 +484,7 @@ Begin
   end;
 End;
 
-function TIdSMTP.Verify(AUserName: string): string;
+function TIdSMTP.Verify(const AUserName: string): string;
 begin
   SendCmd('VRFY ' + AUserName, [250, 251]);    {Do not Localize}
   Result := LastCmdResult.Text[0];

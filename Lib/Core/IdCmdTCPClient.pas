@@ -154,7 +154,7 @@ type
     procedure DoAfterCommandHandler(ASender: TIdCommandHandlers; AContext: TIdContext);
     procedure DoBeforeCommandHandler(ASender: TIdCommandHandlers; var AData: string;
       AContext: TIdContext);
-    procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); virtual;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; const ALine: string); virtual;
     function GetCmdHandlerClass: TIdCommandHandlerClass; virtual;
     procedure InitComponent; override;
     procedure SetCommandHandlers(AValue: TIdCommandHandlers);
@@ -273,7 +273,7 @@ begin
   end;
 end;
 
-procedure TIdCmdTCPClient.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
+procedure TIdCmdTCPClient.DoReplyUnknownCommand(AContext: TIdContext; const ALine: string);
 begin
 end;
 
