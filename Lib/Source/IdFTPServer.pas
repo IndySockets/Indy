@@ -2489,6 +2489,12 @@ var
   LContext : TIdFTPServerContext;
 begin
   LContext := (AContext as TIdFTPServerContext);
+
+  // TODO: TIdFTPServerContext.Server is separate from TIdServerContext.Server.
+  // TIdFTPServerContext.Server should be removed and TIdFTPServerContext
+  // should be updated to return TIdServerContext.Server casted to TIdFTPServer...
+  LContext.Server := Self;
+
   //from Before run method
   LContext.FDataPort := 0;
   LContext.FPasswordAttempts := 0;
