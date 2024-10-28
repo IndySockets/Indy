@@ -217,6 +217,7 @@ uses
   Indy.Sockets.IdSASLDigest in '..\..\Source\Indy.Sockets.IdSASLDigest.pas',
   Indy.Sockets.IdSASLExternal in '..\..\Source\Indy.Sockets.IdSASLExternal.pas',
   Indy.Sockets.IdSASLLogin in '..\..\Source\Indy.Sockets.IdSASLLogin.pas',
+  Indy.Sockets.IdSASLOAuth in '..\..\Source\Indy.Sockets.IdSASLOAuth.pas',
   Indy.Sockets.IdSASLOTP in '..\..\Source\Indy.Sockets.IdSASLOTP.pas',
   Indy.Sockets.IdSASLPlain in '..\..\Source\Indy.Sockets.IdSASLPlain.pas',
   Indy.Sockets.IdSASLSKey in '..\..\Source\Indy.Sockets.IdSASLSKey.pas',

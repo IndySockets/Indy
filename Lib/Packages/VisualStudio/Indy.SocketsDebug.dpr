@@ -217,6 +217,7 @@ uses
   IdSASLDigest in '..\..\Source\IdSASLDigest.pas',
   IdSASLExternal in '..\..\Source\IdSASLExternal.pas',
   IdSASLLogin in '..\..\Source\IdSASLLogin.pas',
+  IdSASLOAuth in '..\..\Source\IdSASLOAuth.pas',
   IdSASLOTP in '..\..\Source\IdSASLOTP.pas',
   IdSASLPlain in '..\..\Source\IdSASLPlain.pas',
   IdSASLSKey in '..\..\Source\IdSASLSKey.pas',

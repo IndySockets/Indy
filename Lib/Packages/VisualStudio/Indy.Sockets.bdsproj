@@ -356,6 +356,7 @@
       <File FileName="Indy.Sockets.IdSASLCollection.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLCollection"/>
       <File FileName="Indy.Sockets.IdSASLExternal.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLExternal"/>
       <File FileName="Indy.Sockets.IdSASLLogin.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLLogin"/>
+      <File FileName="Indy.Sockets.IdSASLOAuth.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLOAuth"/>
       <File FileName="Indy.Sockets.IdSASLOTP.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLOTP"/>
       <File FileName="Indy.Sockets.IdSASLPlain.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLPlain"/>
       <File FileName="Indy.Sockets.IdSASLSKey.pas" ContainerId="" ModuleName="Indy.Sockets.IdSASLSKey"/>

@@ -356,6 +356,7 @@
       <File FileName="Protocols\IdSASLCollection.pas" ContainerId="" ModuleName="IdSASLCollection"/>
       <File FileName="Protocols\IdSASLExternal.pas" ContainerId="" ModuleName="IdSASLExternal"/>
       <File FileName="Protocols\IdSASLLogin.pas" ContainerId="" ModuleName="IdSASLLogin"/>
+      <File FileName="Protocols\IdSASLOAuth.pas" ContainerId="" ModuleName="IdSASLOAuth"/>
       <File FileName="Protocols\IdSASLOTP.pas" ContainerId="" ModuleName="IdSASLOTP"/>
       <File FileName="Protocols\IdSASLPlain.pas" ContainerId="" ModuleName="IdSASLPlain"/>
       <File FileName="Protocols\IdSASLSKey.pas" ContainerId="" ModuleName="IdSASLSKey"/>

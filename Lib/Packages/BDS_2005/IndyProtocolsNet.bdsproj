@@ -167,6 +167,7 @@
       <File FileName="IdSASLCollection.pas" ContainerId="" ModuleName="IdSASLCollection"/>
       <File FileName="IdSASLExternal.pas" ContainerId="" ModuleName="IdSASLExternal"/>
       <File FileName="IdSASLLogin.pas" ContainerId="" ModuleName="IdSASLLogin"/>
+      <File FileName="IdSASLOAuth.pas" ContainerId="" ModuleName="IdSASLOAuth"/>
       <File FileName="IdSASLOTP.pas" ContainerId="" ModuleName="IdSASLOTP"/>
       <File FileName="IdSASLPlain.pas" ContainerId="" ModuleName="IdSASLPlain"/>
       <File FileName="IdSASLSKey.pas" ContainerId="" ModuleName="IdSASLSKey"/>

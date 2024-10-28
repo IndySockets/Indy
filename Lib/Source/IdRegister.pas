@@ -273,6 +273,7 @@ uses
   IdSASLDigest,
   IdSASLExternal,
   IdSASLLogin,
+  IdSASLOAuth,
   IdSASLOTP,
   IdSASLPlain,
   IdSASLSKey,
@@ -443,9 +444,12 @@ begin
    TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,
+   TIdSASLOAuth10A,
+   TIdSASLOAuth2Bearer,
    TIdSASLOTP,
    TIdSASLPlain,
    TIdSASLSKey,
+   TIdSASLXOAuth2,
    TIdUserPassProvider
    ]);
 
@@ -589,9 +593,12 @@ begin
    TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,
+   TIdSASLOAuth10A,
+   TIdSASLOAuth2Bearer,
    TIdSASLOTP,
    TIdSASLPlain,
    TIdSASLSKey,
+   TIdSASLXOAuth2,
    TIdUserPassProvider
    ]);
 

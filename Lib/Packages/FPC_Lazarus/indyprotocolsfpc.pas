@@ -179,6 +179,7 @@ uses
   IdSASLDigest,
   IdSASLExternal,
   IdSASLLogin,
+  IdSASLOAuth,
   IdSASLOTP,
   IdSASLPlain,
   IdSASLSKey,
