@@ -68,7 +68,7 @@ type
     procedure SetValue(const Value: string); override;
   end;
 
-  {$IFDEF TSelectionEditor}
+  {$IFDEF HAS_TSelectionEditor}
 
   {$IFDEF USE_OPENSSL}
   TIdOpenSSLSelectionEditor = class(TSelectionEditor)
@@ -91,7 +91,7 @@ implementation
 uses
   IdDsnResourceStrings,
   IdDsnSASLListEditorFormVCL,
-  {$IFDEF TSelectionEditor}
+  {$IFDEF HAS_TSelectionEditor}
     {$IFDEF USE_OPENSSL}
   IdSSLOpenSSL,
     {$ENDIF}
@@ -107,7 +107,7 @@ type
 
 { TfrmSASLListEditor }
 
-{$IFDEF TSelectionEditor}
+{$IFDEF HAS_TSelectionEditor}
 
   {$IFDEF USE_OPENSSL}
 
@@ -181,7 +181,7 @@ end;
 procedure Register;
 begin
   RegisterPropertyEditor(TypeInfo(TIdSASLEntries), nil, '', TIdPropEdSASL);
-  {$IFDEF TSelectionEditor}
+  {$IFDEF HAS_TSelectionEditor}
     {$IFDEF USE_OPENSSL}
   RegisterSelectionEditor(TIdServerIOHandlerSSLOpenSSL, TIdOpenSSLSelectionEditor);
   RegisterSelectionEditor(TIdSSLIOHandlerSocketOpenSSL, TIdOpenSSLSelectionEditor);
