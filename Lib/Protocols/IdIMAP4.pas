@@ -746,10 +746,10 @@ varies between servers.  A typical line that gets parsed into this is:
     procedure ParseMessagePart(ABodyStructure: string; AMessageParts: TIdMessageParts;
           AThisMessagePart: TIdMessagePart; AParentMessagePart: TIdMessagePart;
           APartNumber: integer);
-    procedure ParseBodyStructureResult(ABodyStructure: string; ATheParts: TIdMessageParts; AImapParts: TIdImapMessageParts);
-    procedure ParseBodyStructurePart(APartString: string; AThePart: TIdMessagePart; AImapPart: TIdImapMessagePart);
-    procedure ParseTheLine(ALine: string; APartsList: TStrings);
-    procedure ParseIntoParts(APartString: string; AParams: TStrings);
+    procedure ParseBodyStructureResult(const ABodyStructure: string; ATheParts: TIdMessageParts; AImapParts: TIdImapMessageParts);
+    procedure ParseBodyStructurePart(const APartString: string; AThePart: TIdMessagePart; AImapPart: TIdImapMessagePart);
+    procedure ParseTheLine(const ALine: string; APartsList: TStrings);
+    procedure ParseIntoParts(const APartString: string; AParams: TStrings);
     procedure ParseIntoBrackettedQuotedAndUnquotedParts(APartString: string; AParams: TStrings; AKeepBrackets: Boolean);
     procedure BreakApartParamsInQuotes(const AParam: string; AParsedList: TStrings);
     function  GetNextWord(AParam: string): string;
@@ -757,14 +757,14 @@ varies between servers.  A typical line that gets parsed into this is:
     procedure ParseExpungeResult (AMB: TIdMailBox; ACmdResultDetails: TStrings);
     procedure ParseListResult (AMBList: TStrings; ACmdResultDetails: TStrings);
     procedure ParseLSubResult(AMBList: TStrings; ACmdResultDetails: TStrings);
-    procedure InternalParseListResult(ACmd: string; AMBList: TStrings; ACmdResultDetails: TStrings);
-    procedure ParseMailBoxAttributeString(AAttributesList: String; var AAttributes: TIdMailBoxAttributesSet);
-    procedure ParseMessageFlagString (AFlagsList: String; var AFlags: TIdMessageFlagsSet);
+    procedure InternalParseListResult(const ACmd: string; AMBList: TStrings; ACmdResultDetails: TStrings);
+    procedure ParseMailBoxAttributeString(const AAttributesList: String; var AAttributes: TIdMailBoxAttributesSet);
+    procedure ParseMessageFlagString (const AFlagsList: String; var AFlags: TIdMessageFlagsSet);
     procedure ParseSelectResult (AMB: TIdMailBox; ACmdResultDetails: TStrings);
     procedure ParseStatusResult (AMB: TIdMailBox; ACmdResultDetails: TStrings);
     procedure ParseSearchResult (AMB: TIdMailBox; ACmdResultDetails: TStrings);
     procedure ParseEnvelopeResult (AMsg: TIdMessage; ACmdResultStr: String);
-    function  ParseLastCmdResult(ALine: string; AExpectedCommand: string; AExpectedIMAPFunction: array of string): Boolean;
+    function  ParseLastCmdResult(ALine: string; const AExpectedCommand: string; AExpectedIMAPFunction: array of string): Boolean;
     procedure ParseLastCmdResultButAppendInfo(ALine: string);
     function  InternalRetrieve(const AMsgNum: UInt32; AUseUID: Boolean; AUsePeek: Boolean; AMsg: TIdMessage): Boolean;
     function  InternalRetrievePart(const AMsgNum: UInt32; const APartNum: string;
@@ -772,18 +772,18 @@ varies between servers.  A typical line that gets parsed into this is:
           ADestStream: TStream;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
           var ABufferLength: Integer; {NOTE: var args cannot have default params}
-          ADestFileNameAndPath: string = '';                     {Do not Localize}
-          AContentTransferEncoding: string = 'text'): Boolean;             {Do not Localize}
+          const ADestFileNameAndPath: string = '';                     {Do not Localize}
+          const AContentTransferEncoding: string = 'text'): Boolean;             {Do not Localize}
     //Retrieves the specified number of headers of the selected mailbox to the specified TIdMessageCollection.
     function  InternalRetrieveHeaders(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
     //Retrieves the specified number of messages of the selected mailbox to the specified TIdMessageCollection.
     function  InternalRetrieveMsgs(AMsgList: TIdMessageCollection; ACount: Integer): Boolean;
     function  InternalSearchMailBox(const ASearchInfo: array of TIdIMAP4SearchRec; AUseUID: Boolean; const ACharSet: string): Boolean;
-    function  ParseBodyStructureSectionAsEquates(AParam: string): string;
-    function  ParseBodyStructureSectionAsEquates2(AParam: string): string;
+    function  ParseBodyStructureSectionAsEquates(const AParam: string): string;
+    function  ParseBodyStructureSectionAsEquates2(const AParam: string): string;
     function  InternalRetrieveText(const AMsgNum: UInt32; var AText: string;
           AUseUID: Boolean; AUsePeek: Boolean; AUseFirstPartInsteadOfText: Boolean): Boolean;
-    function  IsCapabilityListed(ACapability: string): Boolean;
+    function  IsCapabilityListed(const ACapability: string): Boolean;
     function  InternalRetrieveEnvelope(const AMsgNum: UInt32; AMsg: TIdMessage; ADestList: TStrings): Boolean;
     function  UIDInternalRetrieveEnvelope(const AMsgUID: String; AMsg: TIdMessage; ADestList: TStrings): Boolean;
     function  InternalRetrievePartHeader(const AMsgNum: UInt32; const APartNum: string; const AUseUID: Boolean;
@@ -829,7 +829,7 @@ varies between servers.  A typical line that gets parsed into this is:
     function  AppendMsg(const AMBName: String; AMsg: TIdMessage; AAlternativeHeaders: TIdHeaderList;
           const AFlags: TIdMessageFlagsSet = []; const AInternalDateTimeGMT: TDateTime = 0.0): Boolean; overload;
     //The following are used for raw (unparsed) messages in a file or stream...
-    function  AppendMsgNoEncodeFromFile(const AMBName: String; ASourceFile: string; const AFlags: TIdMessageFlagsSet = [];
+    function  AppendMsgNoEncodeFromFile(const AMBName: String; const ASourceFile: string; const AFlags: TIdMessageFlagsSet = [];
           const AInternalDateTimeGMT: TDateTime = 0.0): Boolean;
     function  AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TStream; const AFlags: TIdMessageFlagsSet = [];
           const AInternalDateTimeGMT: TDateTime = 0.0): Boolean;
@@ -898,8 +898,8 @@ varies between servers.  A typical line that gets parsed into this is:
     //Retrieves a whole message while marking it read.
     function  Retrieve(const AMsgNum: UInt32; AMsg: TIdMessage): Boolean;
     //Retrieves a whole message "raw" and saves it to file, while marking it read.
-    function  RetrieveNoDecodeToFile(const AMsgNum: UInt32; ADestFile: string): Boolean;
-    function  RetrieveNoDecodeToFilePeek(const AMsgNum: UInt32; ADestFile: string): Boolean;
+    function  RetrieveNoDecodeToFile(const AMsgNum: UInt32; const ADestFile: string): Boolean;
+    function  RetrieveNoDecodeToFilePeek(const AMsgNum: UInt32; const ADestFile: string): Boolean;
     function  RetrieveNoDecodeToStream(const AMsgNum: UInt32; AStream: TStream): Boolean;
     function  RetrieveNoDecodeToStreamPeek(const AMsgNum: UInt32; AStream: TStream): Boolean;
     //Retrieves all envelope of the selected mailbox to the specified TIdMessageCollection.
@@ -928,7 +928,7 @@ varies between servers.  A typical line that gets parsed into this is:
     {CC2: Following added for retrieving individual parts of a message...}
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')...}
     function  RetrievePart(const AMsgNum: UInt32; const APartNum: string;
-          ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
+          ADestStream: TStream; const AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  RetrievePart(const AMsgNum: UInt32; const APartNum: string;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
@@ -940,7 +940,7 @@ varies between servers.  A typical line that gets parsed into this is:
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')
      without marking the message as "read"...}
     function  RetrievePartPeek(const AMsgNum: UInt32; const APartNum: string;
-          ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
+          ADestStream: TStream; const AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'
      without marking the message as "read"...}
     function  RetrievePartPeek(const AMsgNum: UInt32; const APartNum: string;
@@ -954,19 +954,19 @@ varies between servers.  A typical line that gets parsed into this is:
     {CC2: Following added for retrieving individual parts of a message...}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  RetrievePartToFile(const AMsgNum: UInt32; const APartNum: Integer;
-          ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
+          ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean; overload;
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  RetrievePartToFile(const AMsgNum: UInt32; const APartNum: string;
-          ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
+          ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean; overload;
     {CC2: Following added for retrieving individual parts of a message...}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)
      without marking the message as "read"...}
     function  RetrievePartToFilePeek(const AMsgNum: UInt32; const APartNum: Integer;
-          ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;  overload;
+          ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean;  overload;
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'
      without marking the message as "read"...}
     function  RetrievePartToFilePeek(const AMsgNum: UInt32; const APartNum: string;
-          ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
+          ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean; overload;
     {CC3: Following added for retrieving the text-only part of a message...}
     function  RetrieveText(const AMsgNum: UInt32; var AText: string): Boolean;
     {CC4: An alternative for retrieving the text-only part of a message which
@@ -1003,8 +1003,8 @@ varies between servers.  A typical line that gets parsed into this is:
     //Retrieves a whole message while marking it read.
     function  UIDRetrieve(const AMsgUID: String; AMsg: TIdMessage): Boolean;
     //Retrieves a whole message "raw" and saves it to file, while marking it read.
-    function  UIDRetrieveNoDecodeToFile(const AMsgUID: String; ADestFile: string): Boolean;
-    function  UIDRetrieveNoDecodeToFilePeek(const AMsgUID: String; ADestFile: string): Boolean;
+    function  UIDRetrieveNoDecodeToFile(const AMsgUID: String; const ADestFile: string): Boolean;
+    function  UIDRetrieveNoDecodeToFilePeek(const AMsgUID: String; const ADestFile: string): Boolean;
     function  UIDRetrieveNoDecodeToStream(const AMsgUID: String; AStream: TStream): Boolean;
     function  UIDRetrieveNoDecodeToStreamPeek(const AMsgUID: String; AStream: TStream): Boolean;
     //Retrieves the message envelope, parses it, and discards the envelope.
@@ -1022,7 +1022,7 @@ varies between servers.  A typical line that gets parsed into this is:
     function  UIDRetrieveStructure(const AMsgUID: String; AParts: TIdImapMessageParts): Boolean; overload;
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')...}
     function  UIDRetrievePart(const AMsgUID: String; const APartNum: string;
-          var ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ADestStream: TStream; const AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  UIDRetrievePart(const AMsgUID: String; const APartNum: string;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
@@ -1034,27 +1034,27 @@ varies between servers.  A typical line that gets parsed into this is:
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')
      without marking the message as "read"...}
     function  UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
-          var ADestStream: TStream; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ADestStream: TStream; const AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABufferLength: Integer; const AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  UIDRetrievePartPeek(const AMsgUID: String; const APartNum: Integer;
           var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-          var ABufferLength: Integer; AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
+          var ABufferLength: Integer; const AContentTransferEncoding: string = 'text'): Boolean; overload;  {Do not Localize}
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  UIDRetrievePartToFile(const AMsgUID: String; const APartNum: Integer;
-          ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
+          ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean; overload;
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  UIDRetrievePartToFile(const AMsgUID: String; const APartNum: string;
-          ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
+          ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean; overload;
     {Retrieve a specific individual part of a message where part is an integer (for backward compatibility)...}
     function  UIDRetrievePartToFilePeek(const AMsgUID: String; const APartNum: Integer;
-          ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
+          ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean; overload;
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     function  UIDRetrievePartToFilePeek(const AMsgUID: String; const APartNum: string;
-          ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean; overload;
+          ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean; overload;
     {Following added for retrieving the text-only part of a message...}
     function  UIDRetrieveText(const AMsgUID: String; var AText: string): Boolean;
     function  UIDRetrieveText2(const AMsgUID: String; var AText: string): Boolean;
@@ -2544,7 +2544,7 @@ begin
   SendCmd(NewCmdCounter, IMAP4Commands[cmdNoop], []);
 end;
 
-function TIdIMAP4.IsCapabilityListed(ACapability: string):Boolean;
+function TIdIMAP4.IsCapabilityListed(const ACapability: string):Boolean;
 begin
   if not FHasCapa then begin
     Capability;
@@ -3504,7 +3504,7 @@ begin
   end;
 end;
 
-function  TIdIMAP4.AppendMsgNoEncodeFromFile(const AMBName: String; ASourceFile: string; const AFlags: TIdMessageFlagsSet = [];
+function  TIdIMAP4.AppendMsgNoEncodeFromFile(const AMBName: String; const ASourceFile: string; const AFlags: TIdMessageFlagsSet = [];
   const AInternalDateTimeGMT: TDateTime = 0.0): Boolean;
 var
   LSourceStream: TIdReadFileExclusiveStream;
@@ -4081,7 +4081,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePart(const AMsgNum: UInt32; const APartNum: string;
-  ADestStream: TStream; AContentTransferEncoding: string): Boolean;
+  ADestStream: TStream; const AContentTransferEncoding: string): Boolean;
 var
   LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
@@ -4111,7 +4111,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePartPeek(const AMsgNum: UInt32; const APartNum: string;
-  ADestStream: TStream; AContentTransferEncoding: string): Boolean;
+  ADestStream: TStream; const AContentTransferEncoding: string): Boolean;
 var
   LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
@@ -4141,7 +4141,7 @@ end;
 
 // Retrieve a specific individual part of a message
 function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: string;
-  var ADestStream: TStream; AContentTransferEncoding: string): Boolean;
+  var ADestStream: TStream; const AContentTransferEncoding: string): Boolean;
 var
   LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
@@ -4171,7 +4171,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
-  var ADestStream: TStream; AContentTransferEncoding: string): Boolean;
+  var ADestStream: TStream; const AContentTransferEncoding: string): Boolean;
 var
   LDummy1: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   LDummy2: Integer;
@@ -4185,7 +4185,7 @@ end;
 
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: Integer;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABufferLength: Integer; const AContentTransferEncoding: string): Boolean;
 begin
   IsImapPartNumberValid(APartNum);
   Result := UIDRetrievePartPeek(AMsgUID, IntToStr(APartNum), ABuffer, ABufferLength, AContentTransferEncoding);
@@ -4193,14 +4193,14 @@ end;
 
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
-  var ABufferLength: Integer; AContentTransferEncoding: string): Boolean;
+  var ABufferLength: Integer; const AContentTransferEncoding: string): Boolean;
   //Retrieve a specific individual part of a message
 begin
   Result := InternalRetrievePart(UIDToUInt32(AMsgUID), APartNum, True, True, nil, ABuffer, ABufferLength, '', AContentTransferEncoding);  {Do not Localize}
 end;
 
 function TIdIMAP4.RetrievePartToFile(const AMsgNum: UInt32; const APartNum: Integer;
-  ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
+  ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean;
 begin
   IsImapPartNumberValid(APartNum);
   Result := RetrievePartToFile(AMsgNum, IntToStr(APartNum), ALength, ADestFileNameAndPath, AContentTransferEncoding);
@@ -4208,7 +4208,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePartToFile(const AMsgNum: UInt32; const APartNum: string;
-  ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
+  ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean;
 var
   LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
@@ -4221,7 +4221,7 @@ begin
 end;
 
 function TIdIMAP4.RetrievePartToFilePeek(const AMsgNum: UInt32; const APartNum: Integer;
-  ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
+  ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean;
 begin
   IsImapPartNumberValid(APartNum);
   Result := RetrievePartToFilePeek(AMsgNum, IntToStr(APartNum), ALength, ADestFileNameAndPath, AContentTransferEncoding);
@@ -4229,7 +4229,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePartToFilePeek(const AMsgNum: UInt32; const APartNum: string;
-  ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
+  ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean;
 var
   LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
@@ -4242,7 +4242,7 @@ begin
 end;
 
 function TIdIMAP4.UIDRetrievePartToFile(const AMsgUID: String; const APartNum: Integer;
-  ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
+  ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean;
 begin
   IsImapPartNumberValid(APartNum);
   Result := UIDRetrievePartToFile(AMsgUID, IntToStr(APartNum), ALength, ADestFileNameAndPath, AContentTransferEncoding);
@@ -4250,7 +4250,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.UIDRetrievePartToFile(const AMsgUID: String; const APartNum: string;
-  ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
+  ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean;
 var
   LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
@@ -4263,7 +4263,7 @@ begin
 end;
 
 function TIdIMAP4.UIDRetrievePartToFilePeek(const AMsgUID: String; const APartNum: Integer;
-  ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
+  ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean;
 begin
   IsImapPartNumberValid(APartNum);
   Result := UIDRetrievePartToFilePeek(AMsgUID, IntToStr(APartNum), ALength, ADestFileNameAndPath, AContentTransferEncoding);
@@ -4271,7 +4271,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.UIDRetrievePartToFilePeek(const AMsgUID: String; const APartNum: {Integer} string;
-  ALength: Integer; ADestFileNameAndPath: string; AContentTransferEncoding: string): Boolean;
+  ALength: Integer; const ADestFileNameAndPath: string; const AContentTransferEncoding: string): Boolean;
 var
   LDummy: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
 begin
@@ -4289,8 +4289,8 @@ function TIdIMAP4.InternalRetrievePart(const AMsgNum: UInt32; const APartNum: {I
   AUseUID: Boolean; AUsePeek: Boolean; ADestStream: TStream;
   var ABuffer: {$IFDEF DOTNET}TIdBytes{$ELSE}PByte{$ENDIF};
   var ABufferLength: Integer; {NOTE: var args cannot have default params}
-  ADestFileNameAndPath: string;
-  AContentTransferEncoding: string): Boolean;
+  const ADestFileNameAndPath: string;
+  const AContentTransferEncoding: string): Boolean;
 var
   LCmd: string;
   bCreatedStream: Boolean;
@@ -4701,7 +4701,7 @@ begin
 end;
 
 //Retrieves a whole message "raw" and saves it to file, while marking it read.
-function  TIdIMAP4.RetrieveNoDecodeToFile(const AMsgNum: UInt32; ADestFile: string): Boolean;
+function  TIdIMAP4.RetrieveNoDecodeToFile(const AMsgNum: UInt32; const ADestFile: string): Boolean;
 var
   LMsg: TIdMessage;
 begin
@@ -4733,7 +4733,7 @@ begin
 end;
 
 //Retrieves a whole message "raw" and saves it to file
-function  TIdIMAP4.RetrieveNoDecodeToFilePeek(const AMsgNum: UInt32; ADestFile: string): Boolean;
+function  TIdIMAP4.RetrieveNoDecodeToFilePeek(const AMsgNum: UInt32; const ADestFile: string): Boolean;
 var
   LMsg: TIdMessage;
 begin
@@ -4839,7 +4839,7 @@ begin
 end;
 
 //Retrieves a whole message "raw" and saves it to file, while marking it read.
-function  TIdIMAP4.UIDRetrieveNoDecodeToFile(const AMsgUID: String; ADestFile: string): Boolean;
+function  TIdIMAP4.UIDRetrieveNoDecodeToFile(const AMsgUID: String; const ADestFile: string): Boolean;
 var
   LMsg: TIdMessage;
 begin
@@ -4871,7 +4871,7 @@ begin
 end;
 
 //Retrieves a whole message "raw" and saves it to file.
-function  TIdIMAP4.UIDRetrieveNoDecodeToFilePeek(const AMsgUID: String; ADestFile: string): Boolean;
+function  TIdIMAP4.UIDRetrieveNoDecodeToFilePeek(const AMsgUID: String; const ADestFile: string): Boolean;
 var
   LMsg: TIdMessage;
 begin
@@ -5541,7 +5541,7 @@ end;
   "IdIMAP4.zip")) NIL) "mixed" ("boundary" "----=_NextPart_000_0026_01C33A37.33CFE220")
   NIL NIL) UID 62)
 }
-procedure TIdIMAP4.ParseBodyStructureResult(ABodyStructure: string; ATheParts: TIdMessageParts;  AImapParts: TIdImapMessageParts);
+procedure TIdIMAP4.ParseBodyStructureResult(const ABodyStructure: string; ATheParts: TIdMessageParts;  AImapParts: TIdImapMessageParts);
 begin
   {CC7: New code uses a different parsing method that allows for multisection parts.}
   if AImapParts <> nil then begin  //Just sort out the ImapParts version for now
@@ -5552,7 +5552,7 @@ begin
   end;
 end;
 
-procedure TIdIMAP4.ParseTheLine(ALine: string; APartsList: TStrings);
+procedure TIdIMAP4.ParseTheLine(const ALine: string; APartsList: TStrings);
 var
   LTempList: TStringList;
   LN: integer;
@@ -5575,7 +5575,7 @@ begin
   end;
 end;
 
-procedure TIdIMAP4.ParseBodyStructurePart(APartString: string; AThePart: TIdMessagePart;
+procedure TIdIMAP4.ParseBodyStructurePart(const APartString: string; AThePart: TIdMessagePart;
   AImapPart: TIdImapMessagePart);
   {CC3: Function added to support individual part retreival}
 var
@@ -5702,7 +5702,7 @@ begin
   Result := ReplaceAll(Result, '\\', '\');
 end;
 
-procedure TIdIMAP4.ParseIntoParts(APartString: string; AParams: TStrings);
+procedure TIdIMAP4.ParseIntoParts(const APartString: string; AParams: TStrings);
 var
   LInPart: Integer;
   LStartPos: Integer;
@@ -5915,7 +5915,7 @@ begin
   end;
 end;
 
-function TIdIMAP4.ParseBodyStructureSectionAsEquates(AParam: string): string;
+function TIdIMAP4.ParseBodyStructureSectionAsEquates(const AParam: string): string;
   {Convert:
    "Name1" "Value1" "Name2" "Value2"
    to:
@@ -5946,7 +5946,7 @@ begin
   end;
 end;
 
-function TIdIMAP4.ParseBodyStructureSectionAsEquates2(AParam: string): string;
+function TIdIMAP4.ParseBodyStructureSectionAsEquates2(const AParam: string): string;
   {Convert:
    "Name1" ("Name2" "Value2")
    to:
@@ -6102,7 +6102,7 @@ begin
   end;
 end;
 
-procedure TIdIMAP4.ParseMessageFlagString(AFlagsList: String; var AFlags: TIdMessageFlagsSet);
+procedure TIdIMAP4.ParseMessageFlagString(const AFlagsList: String; var AFlags: TIdMessageFlagsSet);
   {CC5: Note this only supports the system flags defined in RFC 2060.}
 var
   LSlFlags : TStringList;
@@ -6126,7 +6126,7 @@ begin
   end;
 end;
 
-procedure TIdIMAP4.ParseMailBoxAttributeString(AAttributesList: String; var AAttributes: TIdMailBoxAttributesSet);
+procedure TIdIMAP4.ParseMailBoxAttributeString(const AAttributesList: String; var AAttributes: TIdMailBoxAttributesSet);
 var
   LSlAttributes : TStringList;
   Ln : Integer;
@@ -6316,7 +6316,7 @@ begin
   InternalParseListResult(IMAP4Commands[cmdList], AMBList, ACmdResultDetails);
 end;
 
-procedure TIdIMAP4.InternalParseListResult(ACmd: string; AMBList: TStrings; ACmdResultDetails: TStrings);
+procedure TIdIMAP4.InternalParseListResult(const ACmd: string; AMBList: TStrings; ACmdResultDetails: TStrings);
 var Ln : Integer;
   LSlRetrieve : TStringList;
   LStr : String;
@@ -6623,7 +6623,7 @@ begin
   end;
 end;
 
-function TIdIMAP4.ParseLastCmdResult(ALine: string; AExpectedCommand: string; AExpectedIMAPFunction: array of string): Boolean;
+function TIdIMAP4.ParseLastCmdResult(ALine: string; const AExpectedCommand: string; AExpectedIMAPFunction: array of string): Boolean;
 var
   LPos: integer;
   LWord: string;

@@ -429,7 +429,7 @@ type
     procedure RaiseExceptionForLastCmdResult(AException: TClassIdException);
      overload; virtual;
     // These are extended GetResponses, so see the comments for GetResponse
-    function SendCmd(AOut: string; const AResponse: Int16 = -1;
+    function SendCmd(const AOut: string; const AResponse: Int16 = -1;
       AEncoding: IIdTextEncoding = nil): Int16; overload;
     function SendCmd(AOut: string; const AResponse: array of Int16;
       AEncoding: IIdTextEncoding = nil): Int16; overload; virtual;
@@ -794,7 +794,7 @@ begin
   end;
 end;
 
-function TIdTCPConnection.SendCmd(AOut: string; const AResponse: Int16 = -1;
+function TIdTCPConnection.SendCmd(const AOut: string; const AResponse: Int16 = -1;
   AEncoding: IIdTextEncoding = nil): Int16;
 begin
   if AResponse < 0 then begin

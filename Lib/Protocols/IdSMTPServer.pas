@@ -179,7 +179,7 @@ type
     }
     //common reply procs
     procedure AuthFailed(ASender: TIdCommand);
-    procedure CmdSyntaxError(AContext: TIdContext; ALine: string; const AReply : TIdReply = nil); overload;
+    procedure CmdSyntaxError(AContext: TIdContext; const ALine: string; const AReply : TIdReply = nil); overload;
     procedure CmdSyntaxError(ASender: TIdCommand); overload;
 
     procedure BadSequenceError(ASender: TIdCommand);
@@ -211,7 +211,7 @@ type
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
     procedure InitComponent; override;
-    procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; const ALine: string); override;
     procedure InitializeCommandHandlers; override;
     //
     procedure DoReset(AContext: TIdSMTPServerContext; AIsTLSReset: Boolean = False);
@@ -309,7 +309,7 @@ begin
 end;
 {$ENDIF}
 
-procedure TIdSMTPServer.CmdSyntaxError(AContext: TIdContext; ALine: string;
+procedure TIdSMTPServer.CmdSyntaxError(AContext: TIdContext; const ALine: string;
   const AReply: TIdReply);
 var
   LTmp : String;
@@ -390,7 +390,7 @@ begin
   end;
 end;
 
-procedure TIdSMTPServer.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
+procedure TIdSMTPServer.DoReplyUnknownCommand(AContext: TIdContext; const ALine: string);
 begin
   CmdSyntaxError(AContext, ALine);
 end;

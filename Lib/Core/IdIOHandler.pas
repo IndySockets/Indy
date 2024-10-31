@@ -652,7 +652,7 @@ type
     function ReadLn(AByteEncoding: IIdTextEncoding = nil
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload; // .Net overload
-    function ReadLn(ATerminator: string; AByteEncoding: IIdTextEncoding
+    function ReadLn(const ATerminator: string; AByteEncoding: IIdTextEncoding
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; overload;
     function ReadLn(ATerminator: string; ATimeout: Integer = IdTimeoutDefault;
@@ -672,7 +672,7 @@ type
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string; virtual;
     // Added for retrieving lines over 16K long}
-    function ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
+    function ReadLnSplit(var AWasSplit: Boolean; const ATerminator: string = LF;
       ATimeout: Integer = IdTimeoutDefault; AMaxLineLength: Integer = -1;
       AByteEncoding: IIdTextEncoding = nil
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
@@ -1428,7 +1428,7 @@ begin
     );
 end;
 
-function TIdIOHandler.ReadLn(ATerminator: string; AByteEncoding: IIdTextEncoding
+function TIdIOHandler.ReadLn(const ATerminator: string; AByteEncoding: IIdTextEncoding
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 {$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
@@ -1588,7 +1588,7 @@ begin
   VMsgEnd := False;
 end;
 
-function TIdIOHandler.ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
+function TIdIOHandler.ReadLnSplit(var AWasSplit: Boolean; const ATerminator: string = LF;
   ATimeout: Integer = IdTimeoutDefault; AMaxLineLength: Integer = -1;
   AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}

@@ -45,7 +45,7 @@ type
     procedure InitComponent; override;
   public
     {This sends Text to the peer and returns the reply from the peer}
-    Function Echo(AText: String): String;
+    Function Echo(const AText: String): String;
     {Time taken to send and receive data}
     Property EchoTime: UInt32 read FEchoTime;
   published
@@ -69,7 +69,7 @@ begin
   Port := IdPORT_ECHO;
 end;
 
-function TIdEchoUDP.Echo(AText: String): String;
+function TIdEchoUDP.Echo(const AText: String): String;
 var
   StartTime: TIdTicks;
   LEncoding: IIdTextEncoding;

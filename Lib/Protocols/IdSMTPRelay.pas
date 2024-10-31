@@ -212,7 +212,7 @@ type
     FSSLOptions : TIdSSLSupportOptions;
     FRelaySender: String;
     procedure Connect(AEMailAddress : TIdEMailAddressItem); reintroduce;
-    procedure ResolveMXServers(AAddress:String);
+    procedure ResolveMXServers(const AAddress:String);
     procedure SetDNSServer(const Value: String);
     procedure SetOnStatus(const Value: TIdSMTPRelayStatus);
     procedure SetUseEhlo(const AValue : Boolean); override;
@@ -364,7 +364,7 @@ begin
   end;
 end;
 
-procedure TIdSMTPRelay.ResolveMXServers(AAddress: String);
+procedure TIdSMTPRelay.ResolveMXServers(const AAddress: String);
 var
   IdDNSResolver1: TIdDNSResolver;
   DnsResource : TResultRecord;

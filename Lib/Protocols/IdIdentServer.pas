@@ -78,8 +78,8 @@ type
     procedure InitComponent; override;
   public
     Procedure ReplyError(AContext:TIdContext; AServerPort, AClientPort : TIdPort; AErr : TIdIdentErrorType);
-    Procedure ReplyIdent(AContext:TIdContext; AServerPort, AClientPort : TIdPort; AOS, AUserName : String; const ACharset : String = '');    {Do not Localize}
-    Procedure ReplyOther(AContext:TIdContext; AServerPort, AClientPort : TIdPort; AOther : String);
+    Procedure ReplyIdent(AContext:TIdContext; AServerPort, AClientPort : TIdPort; const AOS, AUserName : String; const ACharset : String = '');    {Do not Localize}
+    Procedure ReplyOther(AContext:TIdContext; AServerPort, AClientPort : TIdPort; const AOther : String);
   published
     property QueryTimeOut : Integer read FQueryTimeOut write FQueryTimeOut default IdDefIdentQueryTimeOut;
     Property OnIdentQuery : TIdIdentQueryEvent read FOnIdentQuery write FOnIdentQuery;
@@ -134,7 +134,7 @@ begin
 end;
 
 procedure TIdIdentServer.ReplyIdent(AContext:TIdContext; AServerPort,
-  AClientPort: TIdPort; AOS, AUserName: String; const ACharset: String);
+  AClientPort: TIdPort; const AOS, AUserName: String; const ACharset: String);
 var s : String;
 begin
   s := IntToStr(AServerPort)+', '+IntToStr(AClientPort) + ' : USERID : ';    {Do not Localize}
@@ -146,7 +146,7 @@ begin
 end;
 
 procedure TIdIdentServer.ReplyOther(AContext:TIdContext; AServerPort,
-  AClientPort: TIdPort; AOther: String);
+  AClientPort: TIdPort; const AOther: String);
 begin
   AContext.Connection.IOHandler.WriteLn(IntToStr(AServerPort)+', '+IntToStr(AClientPort) + ' : USERID : OTHER : '+AOther);    {Do not Localize}
 end;

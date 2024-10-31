@@ -78,7 +78,7 @@ type
     FOnTransferComplete: TTransferCompleteEvent;
     FOnReadFile,
     FOnWriteFile: TAccessFileEvent;
-    function StrToMode(mode: string): TIdTFTPMode;
+    function StrToMode(const mode: string): TIdTFTPMode;
   protected
     procedure DoReadFile(FileName: String; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; RequestedBlockSize: Integer; IncludeTransferSize: Boolean); virtual;
@@ -401,7 +401,7 @@ begin
   {$ENDIF}
 end;
 
-function TIdTrivialFTPServer.StrToMode(mode: string): TIdTFTPMode;
+function TIdTrivialFTPServer.StrToMode(const mode: string): TIdTFTPMode;
 begin
   case PosInStrArray(mode, ['octet', 'binary', 'netascii'], False) of    {Do not Localize}
     0, 1: Result := tfOctet;

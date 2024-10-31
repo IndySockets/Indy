@@ -513,7 +513,7 @@ begin
 end;
 
 {This only adds Value to strs if it is not zero}
-procedure AddValueToStrings(strs : TStrings; Value : String);
+procedure AddValueToStrings(strs : TStrings; const Value : String);
 begin
   if Length(Value) > 0 then begin
     strs.Add(Value);
@@ -1123,7 +1123,7 @@ begin
 end;
 
 {This parses  PhoneStr and places the attributes in PhoneObj }
-procedure ParseTelephone(PhoneObj : TIdCardPhoneNumber; PhoneStr : String);
+procedure ParseTelephone(PhoneObj : TIdCardPhoneNumber; const PhoneStr : String);
 const
   TelephoneTypePropertyParameter : array [0..13] of string  = (
     'HOME', 'MSG',   'WORK', 'PREF',  'VOICE',  'FAX',    {Do not Localize}
@@ -1180,7 +1180,7 @@ begin
 end;
 
 {This parses AddressStr and places the attributes in AddressObj }
-procedure ParseAddress(AddressObj : TIdCardAddressItem; AddressStr : String);
+procedure ParseAddress(AddressObj : TIdCardAddressItem; const AddressStr : String);
 const
   AttribsArray : array[0..6] of String = (
     'HOME', 'DOM', 'INTL', 'POSTAL', 'PARCEL', 'WORK', 'PREF'    {Do not Localize}
@@ -1226,7 +1226,7 @@ begin
 end;
 
 {This parses LabelStr and places the attributes in TIdVCardMailingLabelItem }
-procedure ParseMailingLabel(LabelObj : TIdVCardMailingLabelItem; LabelStr : String);
+procedure ParseMailingLabel(LabelObj : TIdVCardMailingLabelItem; const LabelStr : String);
 const
   AttribsArray : array[0..6] of String = (
     'HOME', 'DOM', 'INTL', 'POSTAL', 'PARCEL', 'WORK', 'PREF'    {Do not Localize}
@@ -1286,7 +1286,7 @@ begin
 end;
 
 {This parses EMailStr and places the attributes in EMailObj }
-procedure ParseEMailAddress(EMailObj : TIdVCardEMailItem; EMailStr : String);
+procedure ParseEMailAddress(EMailObj : TIdVCardEMailItem; const EMailStr : String);
 var
   Value : String;
   Attribs : TStringList;
@@ -1464,7 +1464,7 @@ var
     { TODO : Eliminate embedded vCard }
   end;
 
-  procedure ParseEmbeddedObject(EmObj : TIdVCardEmbeddedObject; StLn : String);
+  procedure ParseEmbeddedObject(EmObj : TIdVCardEmbeddedObject; const StLn : String);
   var
     Value : String;
     LAttribs : TStringList;
@@ -1503,7 +1503,7 @@ var
     end;
   end;
 
-  function GetDateTimeValue(St: String): TDateTime;
+  function GetDateTimeValue(const St: String): TDateTime;
   var
     LAttribs: String;
     LDate: TIdISO8601DateComps;

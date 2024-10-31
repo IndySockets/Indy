@@ -163,7 +163,7 @@ type
   protected
     FInterfaceName: String;
   public
-    constructor Create(AnInterfaceName, AMessage: String);
+    constructor Create(const AnInterfaceName, AMessage: String);
     property InterfaceName: String read FInterfaceName;
   end;
 
@@ -320,7 +320,7 @@ type
     function GetStatus: TIdHL7Status;
     function GetStatusDesc: String;
 
-    procedure InternalSetStatus(const AStatus: TIdHL7Status; ADesc: String);
+    procedure InternalSetStatus(const AStatus: TIdHL7Status; const ADesc: String);
 
     procedure CheckServerParameters;
     procedure StartServer;
@@ -592,7 +592,7 @@ end;
 
 { EHL7CommunicationError }
 
-constructor EHL7CommunicationError.Create(AnInterfaceName, AMessage: String);
+constructor EHL7CommunicationError.Create(const AnInterfaceName, AMessage: String);
 begin
   //Assert(AInterfaceName <> '', 'Attempt to create an exception for an unnamed interface')
   //Assert(AMessage <> '', 'Attempt to create an exception with an empty message')
@@ -860,7 +860,7 @@ begin
   end;
 end;
 
-procedure TIdHL7.InternalSetStatus(const AStatus: TIdHL7Status; ADesc: String);
+procedure TIdHL7.InternalSetStatus(const AStatus: TIdHL7Status; const ADesc: String);
 begin
   Assert(Assigned(Self));
   Assert((AStatus >= Low(TIdHL7Status)) and (AStatus <= High(TIdHL7Status)), 'Value for TIdHL7.CommunicationMode not in range'); {do not localize}

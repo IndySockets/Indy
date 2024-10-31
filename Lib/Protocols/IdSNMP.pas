@@ -138,12 +138,12 @@ type
     destructor  Destroy; override;
     function    EncodeTrap: Boolean;
     function    DecodeTrap: Boolean;
-    procedure   DecodeBuf(Buffer: string);
+    procedure   DecodeBuf(const Buffer: string);
     function    EncodeBuf: string;
     procedure   Clear;
-    procedure   MIBAdd(MIB, Value: string; ValueType: Integer = ASN1_OCTSTR);
+    procedure   MIBAdd(const MIB, Value: string; ValueType: Integer = ASN1_OCTSTR);
     procedure   MIBDelete(Index: integer);
-    function    MIBGet(MIB: string): string;
+    function    MIBGet(const MIB: string): string;
 
     property    Owner : TIdSNMP read fOwner;
     property    Community : string read fCommunity write SetCommunity;
@@ -337,7 +337,7 @@ end;
  | Parameters:                                                                |
  |   Buffer:string             The ASN buffer to decode                       |
  *----------------------------------------------------------------------------*)
-procedure TSNMPInfo.DecodeBuf(Buffer: string);
+procedure TSNMPInfo.DecodeBuf(const Buffer: string);
 var
   Pos: integer;
   endpos,vt: integer;
@@ -456,7 +456,7 @@ end;
  |  valueType : Integer         The Value's type.  Optional - defaults to     |    {Do not Localize}
  |                              ASN1_OCTSTR                                   |
  *----------------------------------------------------------------------------*)
-procedure TSNMPInfo.MIBAdd(MIB, Value: string; ValueType: Integer);
+procedure TSNMPInfo.MIBAdd(const MIB, Value: string; ValueType: Integer);
 {$IFNDEF HAS_GENERICS_TList}
 var
   x: integer;
@@ -510,7 +510,7 @@ end;
  |                                                                            |
  | The function returns the string representation of the value.               |
  *----------------------------------------------------------------------------*)
-function TSNMPInfo.MIBGet(MIB: string): string;
+function TSNMPInfo.MIBGet(const MIB: string): string;
 var
   x: integer;
 begin

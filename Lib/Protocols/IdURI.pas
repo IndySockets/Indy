@@ -99,7 +99,7 @@ type
     function GetFullURI(const AOptionalFields: TIdURIOptionalFieldsSet = [ofAuthInfo, ofBookmark]): String;
     function GetPathAndParams: String;
     class procedure NormalizePath(var APath: string);
-    class function URLDecode(ASrc: string; AByteEncoding: IIdTextEncoding = nil
+    class function URLDecode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
       {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
       ): string;
     class function URLEncode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
@@ -338,7 +338,7 @@ begin
   Result := GetFullURI([]);
 end;
 
-class function TIdURI.URLDecode(ASrc: string; AByteEncoding: IIdTextEncoding = nil
+class function TIdURI.URLDecode(const ASrc: string; AByteEncoding: IIdTextEncoding = nil
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 var
