@@ -744,14 +744,14 @@ type
     FServerName : String;
     FServerVersion : String;
     FServerVendor : String;
-    FOS : String;
-    FOSVer : String;
+    FPlatformDescription : String;
+    FPlatformVersion : String;
   published
     property ServerName : String read FServerName write FServerName;
     property ServerVersion : String read FServerVersion write FServerVersion;
     property ServerVendor : String read FServerVendor write FServerVendor;
-    property OS : String read FOS write FOS;
-    property OSVer : String read FOSVer write FOSVer;
+    property PlatformDescription : String read FPlatformDescription write FPlatformDescription;
+    property PlatformVersion : String read FPlatformVersion write FPlatformVersion;
   end;
   TIdFTPSecurityOptions = class(TPersistent)
   protected
@@ -6088,11 +6088,11 @@ begin
   if FServerInfo.FServerVendor <> '' then begin
     LServerInfo := LServerInfo + '; Vendor='+ FServerInfo.ServerVendor;
   end;
-  if FServerInfo.OS <> '' then begin
-    LServerInfo := LServerInfo + '; OS='+ FServerInfo.OS;
+  if FServerInfo.PlatformDescription <> '' then begin
+    LServerInfo := LServerInfo + '; OS='+ FServerInfo.PlatformDescription;
   end;
-  if FServerInfo.OSVer <> '' then begin
-    LServerInfo := LServerInfo + '; OSVer=' + FServerInfo.OSVer;
+  if FServerInfo.PlatformVersion <> '' then begin
+    LServerInfo := LServerInfo + '; OSVer=' + FServerInfo.PlatformVersion;
   end;
   LServerInfo := LServerInfo + '; CaseSensitive=';
   if FTPIsCaseSensitive then begin
@@ -6150,11 +6150,7 @@ begin
     ftppDOS : Result := False;
     ftpOSDependent :
       begin
-        if GOSType = otWindows then begin
-          Result := False;
-        end else begin
-          Result := True
-        end;
+        Result := (GOSType <> otWindows);
       end;
     else
       Result := True;
