@@ -680,6 +680,7 @@ type
     FClientName : String;
     FClientVersion : String;
     FPlatformDescription : String;
+    FVendor : String;
     procedure SetClientName(const AValue: String);
     procedure SetClientVersion(const AValue: String);
     procedure SetPlatformDescription(const AValue: String);
@@ -690,7 +691,25 @@ type
   published
     property ClientName : String read FClientName write SetClientName;
     property ClientVersion : String read FClientVersion write SetClientVersion;
-    property PlatformDescription : String read FPlatformDescription write SetPlatformDescription;
+    property Vendor : String read FVendor write FVendor;
+    property PlatformDescription : String read FPlatformDescription
+      write FPlatformDescription;
+  end;
+  TIdFTPServerIdentifier = class(TObject)
+  protected
+    FServerName : String;
+    FServerVersion : String;
+    FOS : String;
+    FOSVer : String;
+    FVendor : String;
+    FCaseSensitive : Boolean;
+  public
+    property ServerName : String read FServerName write FServerName;
+    property ServerVersion : String read FServerVersion write FServerVersion;
+    property OS : String read FOS write FOS;
+    property OSVer : String read FOSVer write FOSVer;
+    property Vendor : String read FVendor write FVendor;
+    property CaseSensitive : Boolean read FCaseSensitive write FCaseSensitive;
   end;
 
   TIdFtpProxySettings = class (TPersistent)
@@ -742,7 +761,7 @@ type
     FAutoIssueFEAT : Boolean;
     FCurrentTransferMode : TIdFTPTransferMode;
     FClientInfo : TIdFTPClientIdentifier;
-
+    FServerInfo : TIdFTPServerIdentifier;
     FDataSettingsSent: Boolean; // only send SSL data settings once per connection
     FUsingSFTP : Boolean; //enable SFTP internel flag
     FUsingCCC : Boolean; //are we using FTP with SSL on a clear control channel?
@@ -1017,7 +1036,7 @@ type
     property UsingSFTP : Boolean read FUsingSFTP;
     property CurrentTransferMode : TIdFTPTransferMode read FCurrentTransferMode write TransferMode;
     property DefStringEncoding : IIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
-
+    property ServerInfo : TIdFTPServerIdentifier read FServerInfo;
   published
     {$IFDEF DOTNET}
       {$IFDEF DOTNET_2_OR_ABOVE}
@@ -1195,6 +1214,7 @@ begin
   FResumeTested := False;
   FProxySettings:= TIdFtpProxySettings.Create; //APR
   FClientInfo := TIdFTPClientIdentifier.Create;
+  FServerInfo := TIdFTPServerIdentifier.Create;
   FTZInfo := TIdFTPTZInfo.Create;
   FTZInfo.FGMTOffsetAvailable := False;
   FUseMLIS := DEF_Id_TIdFTP_UseMIS;
@@ -2683,6 +2703,7 @@ end;
 
 destructor TIdFTP.Destroy;
 begin
+  FreeAndNil(FServerInfo);
   FreeAndNil(FClientInfo);
   FreeAndNil(FListResult);
   FreeAndNil(FLoginMsg);
@@ -2704,6 +2725,7 @@ procedure TIdFTP.IssueFEAT;
 var
   LClnt: String;
   LBuf : String;
+  LValName : String;
   i : Integer;
 begin
   //Feat data
@@ -2742,18 +2764,45 @@ begin
       Break;
     end;
   end;
-
+  if FClientInfo.ClientName <> '' then begin
+    if IsExtSupported('CSID') then begin {do not localize}
+      LClnt := 'Name='+FClientInfo.FClientName;
+      if FClientInfo.FClientVersion <> '' then begin
+        LClnt := LClnt + '; Version='+FClientInfo.FClientVersion;
+      end;
+      if FClientInfo.FVendor <> '' then begin
+        LClnt := LClnt + '; Vendor='+FClientInfo.FVendor;
+      end;
+      SendCmd('CSID ' + LClnt);  {do not localize}
+      LBuf := TrimRight(Self.LastCmdResult.Text.Text);
+      FServerInfo.CaseSensitive := True;
+      repeat
+         LClnt := Fetch(LBuf,';');
+         LValName := TrimLeft(Fetch(LClnt,'='));
+         case PosInStrArray(LValName,['Name','Version','Vendor','OS','OSVer','CaseSensitive']) of
+         0 : FServerInfo.FServerName := LClnt;
+         1 : FServerInfo.FServerVersion := LClnt;
+         2 : FServerInfo.FVendor := LClnt;
+         3 : FServerInfo.OS := LClnt;
+         4 : FServerInfo.OSVer := LClnt;
+         5 : FServerInfo.FCaseSensitive := ( LClnt <> '0');
+         end;
+       until LBuf = '';
+    end
+    else
+    begin
   // send the CLNT command before sending the OPTS UTF8 command.
   // some servers need this in order to work around a bug in
   // Microsoft Internet Explorer's UTF-8 handling
-  if IsExtSupported('CLNT') then begin {do not localize}
-    LClnt := FClientInfo.ClntOutput;
-    if LClnt = '' then begin
-      LClnt := gsIdProductName + ' ' + gsIdVersion;
+      if IsExtSupported('CLNT') then begin {do not localize}
+        LClnt := FClientInfo.ClntOutput;
+        if LClnt = '' then begin
+          LClnt := gsIdProductName + ' ' + gsIdVersion;
+        end;
+        SendCmd('CLNT ' + LClnt);  {do not localize}
+      end;
     end;
-    SendCmd('CLNT ' + LClnt);  {do not localize}
   end;
-
   // RLebeau 4/26/2019: per RFC 2640, if the server reports the 'UTF8'
   // capability, it is REQUIRED to detect and accept UTF-8 encoded
   // paths/filenames in commands.  But, it is not REQUIRED to send UTF-8

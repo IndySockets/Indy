@@ -739,6 +739,20 @@ type
 
   TIdFTPServer = class;
 
+  TIdFTPServerInfo = class(TPersistent)
+  protected
+    FServerName : String;
+    FServerVersion : String;
+    FServerVendor : String;
+    FOS : String;
+    FOSVer : String;
+  published
+    property ServerName : String read FServerName write FServerName;
+    property ServerVersion : String read FServerVersion write FServerVersion;
+    property ServerVendor : String read FServerVendor write FServerVendor;
+    property OS : String read FOS write FOS;
+    property OSVer : String read FOSVer write FOSVer;
+  end;
   TIdFTPSecurityOptions = class(TPersistent)
   protected
     // RFC 2577 Recommends these
@@ -960,6 +974,7 @@ type
     FOnRemoveDirectory: TOnDirectoryEvent;
     FOnStat : TIdOnFTPStatEvent;
     FFTPSecurityOptions : TIdFTPSecurityOptions;
+    FServerInfo : TIdFTPServerInfo;
     FOnCRCFile : TOnCheckSumFile;
     FOnCombineFiles : TOnCombineFiles;
     FOnSetModifiedTime : TOnSetFileDateEvent;
@@ -1009,6 +1024,7 @@ type
     function DoProcessPath(ASender : TIdFTPServerContext; const APath: TIdFTPFileName): TIdFTPFileName;
 
     function FTPNormalizePath(const APath: String) : String;
+    function FTPIsCaseSensitive : Boolean;
     function MLSFEATLine(const AFactMask : TIdMLSDAttrs; const AFacts : TIdFTPFactOutputs) : String;
 
     function HelpText(Cmds : TStrings) : String;
@@ -1092,6 +1108,7 @@ type
     procedure CommandCheckSum(ASender: TIdCommand);
     procedure CommandCOMB(ASender: TIdCommand);
 
+    procedure CommandCSID(ASender: TIdCommand);
     procedure CommandCLNT(ASender: TIdCommand);
     //SSCN Secure FTPX - http://www.raidenftpd.com/kb/kb000000037.htm
     procedure CommandSSCN(ASender: TIdCommand);
@@ -1162,6 +1179,7 @@ type
     procedure SetAnonymousAccounts(const AValue: TStrings);
     procedure SetUserAccounts(const AValue: TIdCustomUserManager);
     procedure SetFTPSecurityOptions(const AValue: TIdFTPSecurityOptions);
+    procedure SetServerInfo(const AValue: TIdFTPServerInfo);
     procedure SetPASVBoundPortMax(const AValue: TIdPort);
     procedure SetPASVBoundPortMin(const AValue: TIdPort);
     procedure SetReplyUnknownSITECommand(AValue: TIdReply);
@@ -1212,6 +1230,7 @@ type
     property PASVBoundPortMin : TIdPort read FPASVBoundPortMin write SetPASVBoundPortMin default DEF_PASV_BOUND_MIN;
     property PASVBoundPortMax : TIdPort read FPASVBoundPortMax write SetPASVBoundPortMax default DEF_PASV_BOUND_MAX;
     property UserAccounts: TIdCustomUserManager read FUserAccounts write SetUserAccounts;
+    property ServerInfo : TIdFTPServerInfo read FServerInfo write SetServerInfo;
     property SystemType: string read FSystemType write FSystemType;
     property OnGreeting : TIdOnBanner read FOnGreeting write FOnGreeting;
     property OnLoginSuccessBanner : TIdOnBanner read FOnLoginSuccessBanner write FOnLoginSuccessBanner;
@@ -1491,6 +1510,7 @@ begin
   FReplyUnknownSITECommand.SetReply(500, 'Invalid SITE command.'); {do not localize}
 
   FFTPSecurityOptions := TIdFTPSecurityOptions.Create;
+  FServerInfo := TIdFTPServerInfo.Create;
   FPASVBoundPortMin := DEF_PASV_BOUND_MIN;
   FPASVBoundPortMax := DEF_PASV_BOUND_MAX;
   FPathProcessing := DEF_PATHPROCESSING;
@@ -2277,6 +2297,12 @@ begin
   LCmd.NormalReply.SetReply(200, RSFTPClntNoted);  {Do not Localize}
   LCmd.Description.Text := 'Syntax: CLNT<space><clientname>'; {do not localize}
 
+  //https://www.ietf.org/archive/id/draft-peterson-streamlined-ftp-command-extensions-10.txt
+  LCmd := CommandHandlers.Add;
+  LCmd.Command := 'CSID'; {Do not localize}
+  LCmd.OnCommand := CommandCSID;
+  LCmd.Description.Text := 'Syntax: CSID<space>Name=<clientname>'; {Do not localize}
+
   //Informal - an old proposed solution to IPv6 support in FTP.
   //Mentioned at:  http://cr.yp.to/ftp/retr.html
   //and supported by PureFTPD.
@@ -2528,6 +2554,7 @@ destructor TIdFTPServer.Destroy;
 begin
   FreeAndNil(FAnonymousAccounts);
   FreeAndNil(FFTPSecurityOptions);
+  FreeAndNil(FServerInfo);
   FreeAndNil(FOPTSCommands);
   FreeAndNil(FDataChannelCommands);
   FreeAndNil(FSITECommands);
@@ -2666,6 +2693,11 @@ end;
 procedure TIdFTPServer.SetReplyUnknownSITECommand(AValue: TIdReply);
 begin
   FReplyUnknownSITECommand.Assign(AValue);
+end;
+
+procedure TIdFTPServer.SetServerInfo(const AValue: TIdFTPServerInfo);
+begin
+  FServerInfo.Assign(AValue);
 end;
 
 procedure TIdFTPServer.SetSITECommands(AValue: TIdCommandHandlers);
@@ -3947,6 +3979,9 @@ begin
   //CPSV is not supported in IPv6 - same problem as PASV
   if (UseTLS <> utNoTLSSupport) and (LContext.Binding.IPVersion = Id_IPv4) then begin
     ASender.Reply.Text.Add('CPSV');   {Do not translate}
+  end;
+  if Assigned(FOnClientID) and (FServerInfo.ServerName <> '') then begin
+    ASender.Reply.Text.Add('CSID');  {Do not localize}
   end;
   //DSIZ
   if Assigned(OnCompleteDirSize) then begin
@@ -6018,6 +6053,56 @@ begin
   end;
 end;
 
+function ParseCSIDParams(const AParams : String) : string;
+var LBuf,
+    LValueValue : String;
+    LValueName : String;
+    LCltName : String;
+    LCltVersion : String;
+begin
+   Result := '';
+   LBuf := AParams;
+   repeat
+      LValueValue := Fetch(LBuf,';');
+      LValueName := TrimLeft(Fetch(LValueValue,'='));
+      case PosInStrArray(LValueName,['Name','Version']) of
+        0 : LCltName := LValueValue;
+        1 : LCltVersion := LValueValue;
+      end;
+   until LBuf = '';
+   Result := Trim(LCltName + ' ' + LCltVersion);
+end;
+
+procedure TIdFTPServer.CommandCSID(ASender: TIdCommand);
+var LClientInfo : String;
+   LServerInfo : String;
+begin
+  if Assigned(FOnClientID) then begin
+    LClientInfo := ParseCSIDParams(ASender.UnparsedParams);
+    FOnClientID(ASender.Context as TIdFTPServerContext, LClientInfo);
+  end;
+  LServerInfo := 'Name='+FServerInfo.ServerName;
+  if FServerInfo.FServerVersion <> '' then begin
+    LServerInfo := LServerInfo + '; Version='+FServerInfo.ServerVersion;
+  end;
+  if FServerInfo.FServerVendor <> '' then begin
+    LServerInfo := LServerInfo + '; Vendor='+ FServerInfo.ServerVendor;
+  end;
+  if FServerInfo.OS <> '' then begin
+    LServerInfo := LServerInfo + '; OS='+ FServerInfo.OS;
+  end;
+  if FServerInfo.OSVer <> '' then begin
+    LServerInfo := LServerInfo + '; OSVer=' + FServerInfo.OSVer;
+  end;
+  LServerInfo := LServerInfo + '; CaseSensitive=';
+  if FTPIsCaseSensitive then begin
+    LServerInfo := LServerInfo + '1';
+  end else begin
+    LServerInfo := LServerInfo + '0';
+  end;
+  ASender.Reply.SetReply( 200, LServerInfo);
+end;
+
 procedure TIdFTPServer.CommandCLNT(ASender: TIdCommand);
 begin
   if Assigned(FOnClientID) then begin
@@ -6056,6 +6141,23 @@ procedure TIdFTPServer.DoOnDataPortBeforeBind(ASender: TIdFTPServerContext);
 begin
   if Assigned(FOnDataPortBeforeBind) then begin
     FOnDataPortBeforeBind(ASender);
+  end;
+end;
+
+function TIdFTPServer.FTPIsCaseSensitive: Boolean;
+begin
+  case FPathProcessing of
+    ftppDOS : Result := False;
+    ftpOSDependent :
+      begin
+        if GOSType = otWindows then begin
+          Result := False;
+        end else begin
+          Result := True
+        end;
+      end;
+    else
+      Result := True;
   end;
 end;
 
