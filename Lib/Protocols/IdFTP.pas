@@ -681,7 +681,7 @@ type
     FClientVersion : String;
     FPlatformDescription : String;
     FVendor : String;
-	function GetCSIDOutput: String;
+    function GetCSIDOutput: String;
     procedure SetClientName(const AValue: String);
     procedure SetClientVersion(const AValue: String);
     procedure SetPlatformDescription(const AValue: String);
@@ -2771,29 +2771,30 @@ begin
       Break;
     end;
   end;
-  if FClientInfo.ClientName <> '' then begin
-    if IsExtSupported('CSID') then begin {do not localize}
-
-      SendCmd('CSID ' + FClientInfo.GetCSIDOutput);  {do not localize}
+  if IsExtSupported('CSID') then begin {do not localize}
+      LClnt := FClientInfo.GetCSIDOutput;
+      if LClnt = '' then begin
+        LClnt := 'Name='+gsIdProductName + '; Version=' + gsIdVersion;
+      end;
+      SendCmd('CSID ' + LClnt);  {do not localize}
       if Self.LastCmdResult.NumericCode = 200 then begin
         LBuf := TrimRight(Self.LastCmdResult.Text.Text);
         repeat
            FServerInfo.ServerInfo.Add(TrimLeft(Fetch(LBuf,';')));
         until LBuf = '';
       end;
-    end
-    else
-    begin
+  end
+  else
+  begin
   // send the CLNT command before sending the OPTS UTF8 command.
   // some servers need this in order to work around a bug in
   // Microsoft Internet Explorer's UTF-8 handling
-      if IsExtSupported('CLNT') then begin {do not localize}
-        LClnt := FClientInfo.ClntOutput;
-        if LClnt = '' then begin
-          LClnt := gsIdProductName + ' ' + gsIdVersion;
-        end;
-        SendCmd('CLNT ' + LClnt);  {do not localize}
+    if IsExtSupported('CLNT') then begin {do not localize}
+      LClnt := FClientInfo.ClntOutput;
+      if LClnt = '' then begin
+        LClnt := gsIdProductName + ' ' + gsIdVersion;
       end;
+      SendCmd('CLNT ' + LClnt);  {do not localize}
     end;
   end;
   // RLebeau 4/26/2019: per RFC 2640, if the server reports the 'UTF8'
@@ -3988,7 +3989,10 @@ end;
 
 function TIdFTPClientIdentifier.GetCSIDOutput: String;
 begin
-  Result := 'Name='+FClientName;
+  Result := '';
+  if FClientName <> '' then begin
+    Result := 'Name='+FClientName;
+  end;
   if FClientVersion <> '' then begin
     Result := Result + '; Version='+FClientVersion;
   end;
