@@ -706,6 +706,7 @@ type
     function GetServerName: String;
     function GetServerVersion: String;
     function GetVendor: String;
+    function GetDirSeperator : String;
   public
     constructor Create;
     destructor Destroy; override;
@@ -716,6 +717,7 @@ type
     property PlatformDescription : String read GetPlatformDescription;
     property PlatformVer : String read GetPlatformVer;
     property CaseSensitive : Boolean read GetCaseSensitive;
+    property DirSeperator : String read GetDirSeperator;
   end;
 
   TIdFtpProxySettings = class (TPersistent)
@@ -4574,6 +4576,14 @@ end;
 function TIdFTPServerIdentifier.GetCaseSensitive: Boolean;
 begin
   Result := FServerInfo.Values['CaseSensitive'] <> '0';
+end;
+
+function TIdFTPServerIdentifier.GetDirSeperator: String;
+begin
+  Result := FServerInfo.Values['DirSep'];
+  if Result = '' then begin
+    Result := '/';
+  end;
 end;
 
 function TIdFTPServerIdentifier.GetPlatformDescription: String;

@@ -1030,6 +1030,7 @@ type
     function DoProcessPath(ASender : TIdFTPServerContext; const APath: TIdFTPFileName): TIdFTPFileName;
 
     function FTPNormalizePath(const APath: String) : String;
+    function GetPathSeperator : String;
     function FTPIsCaseSensitive : Boolean;
     function MLSFEATLine(const AFactMask : TIdMLSDAttrs; const AFacts : TIdFTPFactOutputs) : String;
 
@@ -6107,6 +6108,9 @@ begin
   end else begin
     LServerInfo := LServerInfo + '0';
   end;
+  //https://solarwindscore.my.site.com/SuccessCenter/s/article/CSID-FTP-command?language=en_US
+  //states that the DirSep fact is required to be reported.
+  LServerInfo := LServerInfo + '; DirSep='+GetPathSeperator;
   for i := 0 to FServerInfo.AdditionalFacts.Count -1 do
   begin
     LServerInfo := LServerInfo + '; '+TrimLeft(FServerInfo.AdditionalFacts[i]);
@@ -6152,6 +6156,21 @@ procedure TIdFTPServer.DoOnDataPortBeforeBind(ASender: TIdFTPServerContext);
 begin
   if Assigned(FOnDataPortBeforeBind) then begin
     FOnDataPortBeforeBind(ASender);
+  end;
+end;
+
+function TIdFTPServer.GetPathSeperator : String;
+begin
+  Result := '/';
+  case FPathProcessing of
+    ftppDOS : Result := '\';
+    ftpOSDependent :
+      begin
+        if (GOSType = otWindows) then
+        begin
+          Result := '\';
+        end;
+      end;
   end;
 end;
 
