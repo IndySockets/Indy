@@ -741,17 +741,23 @@ type
 
   TIdFTPServerInfo = class(TPersistent)
   protected
+    FAdditionalFacts : TStrings;
     FServerName : String;
     FServerVersion : String;
     FServerVendor : String;
     FPlatformDescription : String;
     FPlatformVersion : String;
+    procedure SetAdditionalFacts(const AValue: TStrings);
+  public
+    constructor Create;
+    destructor Destroy; override;
   published
     property ServerName : String read FServerName write FServerName;
     property ServerVersion : String read FServerVersion write FServerVersion;
     property ServerVendor : String read FServerVendor write FServerVendor;
     property PlatformDescription : String read FPlatformDescription write FPlatformDescription;
     property PlatformVersion : String read FPlatformVersion write FPlatformVersion;
+    property AdditionalFacts : TStrings read FAdditionalFacts write SetAdditionalFacts;
   end;
   TIdFTPSecurityOptions = class(TPersistent)
   protected
@@ -6076,6 +6082,7 @@ end;
 procedure TIdFTPServer.CommandCSID(ASender: TIdCommand);
 var LClientInfo : String;
    LServerInfo : String;
+   i : Integer;
 begin
   if Assigned(FOnClientID) then begin
     LClientInfo := ParseCSIDParams(ASender.UnparsedParams);
@@ -6099,6 +6106,10 @@ begin
     LServerInfo := LServerInfo + '1';
   end else begin
     LServerInfo := LServerInfo + '0';
+  end;
+  for i := 0 to FServerInfo.AdditionalFacts.Count -1 do
+  begin
+    LServerInfo := LServerInfo + '; '+TrimLeft(FServerInfo.AdditionalFacts[i]);
   end;
   ASender.Reply.SetReply( 200, LServerInfo);
 end;
@@ -7469,6 +7480,25 @@ begin
   FZLibWindowBits := DEF_ZLIB_WINDOW_BITS; //-15 - no extra headers
   FZLibMemLevel := DEF_ZLIB_MEM_LEVEL;
   FZLibStratagy := DEF_ZLIB_STRATAGY; // - default
+end;
+
+{ TIdFTPServerInfo }
+
+constructor TIdFTPServerInfo.Create;
+begin
+  inherited Create;
+  FAdditionalFacts := TStringList.Create;
+end;
+
+destructor TIdFTPServerInfo.Destroy;
+begin
+  FreeAndNil( FAdditionalFacts);
+  inherited Destroy;
+end;
+
+procedure TIdFTPServerInfo.SetAdditionalFacts(const AValue: TStrings);
+begin
+  FAdditionalFacts.Assign(AValue);
 end;
 
 end.
