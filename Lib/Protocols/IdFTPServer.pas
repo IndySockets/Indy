@@ -3987,7 +3987,7 @@ begin
   if (UseTLS <> utNoTLSSupport) and (LContext.Binding.IPVersion = Id_IPv4) then begin
     ASender.Reply.Text.Add('CPSV');   {Do not translate}
   end;
-  if Assigned(FOnClientID) and (FServerInfo.ServerName <> '') then begin
+  if Assigned(FOnClientID) then begin
     ASender.Reply.Text.Add('CSID');  {Do not localize}
   end;
   //DSIZ
@@ -6068,6 +6068,8 @@ var LBuf,
     LCltVersion : String;
 begin
    Result := '';
+   LCltName := '';
+   LCltVersion := '';
    LBuf := AParams;
    repeat
       LValueValue := Fetch(LBuf,';');
@@ -6089,7 +6091,9 @@ begin
     LClientInfo := ParseCSIDParams(ASender.UnparsedParams);
     FOnClientID(ASender.Context as TIdFTPServerContext, LClientInfo);
   end;
-  LServerInfo := 'Name='+FServerInfo.ServerName;
+  if FServerInfo.ServerName <> '' then begin
+    LServerInfo := 'Name='+FServerInfo.ServerName;
+  end;
   if FServerInfo.FServerVersion <> '' then begin
     LServerInfo := LServerInfo + '; Version='+FServerInfo.ServerVersion;
   end;
