@@ -6066,6 +6066,7 @@ var LBuf,
     LValueName : String;
     LCltName : String;
     LCltVersion : String;
+    LCltOS : String;
 begin
    Result := '';
    LCltName := '';
@@ -6074,12 +6075,16 @@ begin
    repeat
       LValueValue := Fetch(LBuf,';');
       LValueName := TrimLeft(Fetch(LValueValue,'='));
-      case PosInStrArray(LValueName,['Name','Version']) of
+      case PosInStrArray(LValueName,['Name','Version','OS']) of
         0 : LCltName := LValueValue;
         1 : LCltVersion := LValueValue;
+        2 : LCltOS := LValueValue;
       end;
    until LBuf = '';
    Result := Trim(LCltName + ' ' + LCltVersion);
+   if LCltVersion <> '' then begin
+     Result := Result + ' ' + LCltOS;
+   end;
 end;
 
 procedure TIdFTPServer.CommandCSID(ASender: TIdCommand);
