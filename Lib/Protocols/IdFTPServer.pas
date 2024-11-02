@@ -6119,6 +6119,10 @@ begin
   begin
     LServerInfo := LServerInfo + '; '+TrimLeft(FServerInfo.AdditionalFacts[i]);
   end;
+  if StartsWith(LServerInfo,'; ') then
+  begin
+    IdDelete(LServerInfo,1,2);
+  end;
   ASender.Reply.SetReply( 200, LServerInfo);
 end;
 
