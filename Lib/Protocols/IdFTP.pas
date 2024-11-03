@@ -2773,9 +2773,6 @@ begin
   end;
   if IsExtSupported('CSID') then begin {do not localize}
       LClnt := FClientInfo.GetCSIDOutput;
-      if LClnt = '' then begin
-        LClnt := 'Name='+gsIdProductName + '; Version=' + gsIdVersion;
-      end;
       SendCmd('CSID ' + LClnt);  {do not localize}
       if Self.LastCmdResult.NumericCode = 200 then begin
         LBuf := TrimRight(Self.LastCmdResult.Text.Text);
@@ -2792,9 +2789,6 @@ begin
   // Microsoft Internet Explorer's UTF-8 handling
     if IsExtSupported('CLNT') then begin {do not localize}
       LClnt := FClientInfo.ClntOutput;
-      if LClnt = '' then begin
-        LClnt := gsIdProductName + ' ' + gsIdVersion;
-      end;
       SendCmd('CLNT ' + LClnt);  {do not localize}
     end;
   end;
@@ -3975,6 +3969,7 @@ end;
 //214 Syntax: CLNT <sp> <client-name> <sp> <client-version> [<sp> <optional platform info>] (Set client name)
 function TIdFTPClientIdentifier.GetClntOutput: String;
 begin
+  Result := gsIdProductName + ' ' + gsIdVersion;
   if FClientName <> '' then begin
     Result := FClientName;
     if FClientVersion <> '' then begin
@@ -3983,22 +3978,20 @@ begin
         Result := Result + ' ' + FPlatformDescription;
       end;
     end;
-  end else begin
-    Result := '';
   end;
 end;
 
 function TIdFTPClientIdentifier.GetCSIDOutput: String;
 begin
-  Result := '';
+  Result := 'Name='+gsIdProductName + '; Version=' + gsIdVersion;
   if FClientName <> '' then begin
     Result := 'Name='+FClientName;
-  end;
-  if FClientVersion <> '' then begin
-    Result := Result + '; Version='+FClientVersion;
-  end;
-  if FVendor <> '' then begin
-    Result := Result + '; Vendor='+FVendor;
+    if FClientVersion <> '' then begin
+      Result := Result + '; Version='+FClientVersion;
+    end;
+    if FVendor <> '' then begin
+      Result := Result + '; Vendor='+FVendor;
+    end;
   end;
 end;
 
