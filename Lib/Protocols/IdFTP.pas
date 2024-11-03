@@ -2779,6 +2779,7 @@ begin
       SendCmd('CSID ' + LClnt);  {do not localize}
       if Self.LastCmdResult.NumericCode = 200 then begin
         LBuf := TrimRight(Self.LastCmdResult.Text.Text);
+        FServerInfo.ServerInfo.Clear;
         repeat
            FServerInfo.ServerInfo.Add(TrimLeft(Fetch(LBuf,';')));
         until LBuf = '';
