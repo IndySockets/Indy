@@ -3969,7 +3969,6 @@ end;
 //214 Syntax: CLNT <sp> <client-name> <sp> <client-version> [<sp> <optional platform info>] (Set client name)
 function TIdFTPClientIdentifier.GetClntOutput: String;
 begin
-  Result := gsIdProductName + ' ' + gsIdVersion;
   if FClientName <> '' then begin
     Result := FClientName;
     if FClientVersion <> '' then begin
@@ -3978,12 +3977,15 @@ begin
         Result := Result + ' ' + FPlatformDescription;
       end;
     end;
+  end
+  else
+  begin
+     Result := gsIdProductName + ' ' + gsIdVersion;
   end;
 end;
 
 function TIdFTPClientIdentifier.GetCSIDOutput: String;
 begin
-  Result := 'Name='+gsIdProductName + '; Version=' + gsIdVersion;
   if FClientName <> '' then begin
     Result := 'Name='+FClientName;
     if FClientVersion <> '' then begin
@@ -3992,6 +3994,10 @@ begin
     if FVendor <> '' then begin
       Result := Result + '; Vendor='+FVendor;
     end;
+  end
+  else
+  begin
+    Result := 'Name='+gsIdProductName + '; Version=' + gsIdVersion;
   end;
 end;
 
