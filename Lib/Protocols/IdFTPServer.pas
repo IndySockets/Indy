@@ -726,6 +726,8 @@ type
 
   //we don't parse CLNT parameters as they might be freeform for all we know
   TIdOnClientID = procedure(ASender: TIdFTPServerContext; const AID : String) of object;
+  //
+  TIdOnClientIDEx = procedure(ASender: TIdFTPServerContext; AClientInfo : TStrings ) of object;
   TIdOnFTPStatEvent = procedure(ASender: TIdFTPServerContext; AStatusInfo : TStrings) of object;
   TIdOnBanner = procedure(ASender: TIdFTPServerContext; AGreeting : TIdReply) of object;
   //This is for EPSV and PASV support - do not change the values unless you
@@ -954,6 +956,7 @@ type
     FCaseSensitive : Boolean;
     FDirSeparator : String;
     FOnClientID : TIdOnClientID;
+    FOnClientIDEx : TIdOnClientIDEx;
     FDataChannelCommands: TIdCommandHandlers;
     FSITECommands: TIdCommandHandlers;
     FOPTSCommands: TIdCommandHandlers;
@@ -1303,6 +1306,7 @@ type
     property SITECommands: TIdCommandHandlers read FSITECommands write SetSITECommands;
     property MLSDFacts : TIdMLSDAttrs read  FMLSDFacts write FMLSDFacts;
     property OnClientID : TIdOnClientID read FOnClientID write FOnClientID;
+    property OnClientIDEx : TIdOnClientIDEx read FOnClientIDEx write FOnClientIDEx;
     property ReplyUnknownSITCommand: TIdReply read FReplyUnknownSITECommand write SetReplyUnknownSITECommand;
 
     property OnQuerySSLPort: TIdOnQuerySSLPort read FOnQuerySSLPort write FOnQuerySSLPort;
@@ -3983,9 +3987,7 @@ begin
     ASender.Reply.Text.Add('CCC'); {Do not translate}
   end;
   //CLNT
-  if Assigned(FOnClientID) then begin
-    ASender.Reply.Text.Add('CLNT');  {Do not translate}
-  end;
+  ASender.Reply.Text.Add('CLNT');  {Do not translate}
   //COMB
   if Assigned(FOnCombineFiles) or Assigned(LFileSystem) then begin
     ASender.Reply.Text.Add('COMB target;source_list'); {Do not translate}
@@ -3995,9 +3997,8 @@ begin
   if (UseTLS <> utNoTLSSupport) and (LContext.Binding.IPVersion = Id_IPv4) then begin
     ASender.Reply.Text.Add('CPSV');   {Do not translate}
   end;
-  if Assigned(FOnClientID) then begin
-    ASender.Reply.Text.Add('CSID');  {Do not localize}
-  end;
+  //CSID
+  ASender.Reply.Text.Add('CSID');  {Do not localize}
   //DSIZ
   if Assigned(OnCompleteDirSize) then begin
     ASender.Reply.Text.Add('DSIZ'); {Do not localize}
@@ -6068,7 +6069,7 @@ begin
   end;
 end;
 
-function ParseCSIDParams(const AParams : String) : string;
+function ParseCSIDParams(const AParams : String; AClientInfo : TStrings) : string;
 var LBuf,
     LValueValue : String;
     LValueName : String;
@@ -6076,12 +6077,14 @@ var LBuf,
     LCltVersion : String;
     LCltOS : String;
 begin
+   AClientInfo.Clear;
    Result := '';
    LCltName := '';
    LCltVersion := '';
    LBuf := AParams;
    repeat
       LValueValue := Fetch(LBuf,';');
+      AClientInfo.Add(LValueValue);
       LValueName := TrimLeft(Fetch(LValueValue,'='));
       case PosInStrArray(LValueName,['Name','Version','OS']) of
         0 : LCltName := LValueValue;
@@ -6099,44 +6102,64 @@ procedure TIdFTPServer.CommandCSID(ASender: TIdCommand);
 var LClientInfo : String;
    LServerInfo : String;
    i : Integer;
+  LContext : TIdFTPServerContext;
+  LClientInfoEx : TStrings;
 begin
-  if Assigned(FOnClientID) then begin
-    LClientInfo := ParseCSIDParams(ASender.UnparsedParams);
-    FOnClientID(ASender.Context as TIdFTPServerContext, LClientInfo);
-  end;
-  if FServerInfo.ServerName <> '' then begin
-    LServerInfo := 'Name='+FServerInfo.ServerName;
-  end;
-  if FServerInfo.FServerVersion <> '' then begin
-    LServerInfo := LServerInfo + '; Version='+FServerInfo.ServerVersion;
-  end;
-  if FServerInfo.FServerVendor <> '' then begin
-    LServerInfo := LServerInfo + '; Vendor='+ FServerInfo.ServerVendor;
-  end;
-  if FServerInfo.PlatformDescription <> '' then begin
-    LServerInfo := LServerInfo + '; OS='+ FServerInfo.PlatformDescription;
-  end;
-  if FServerInfo.PlatformVersion <> '' then begin
-    LServerInfo := LServerInfo + '; OSVer=' + FServerInfo.PlatformVersion;
-  end;
-  LServerInfo := LServerInfo + '; CaseSensitive=';
-  if FTPIsCaseSensitive then begin
-    LServerInfo := LServerInfo + '1';
-  end else begin
-    LServerInfo := LServerInfo + '0';
-  end;
-  //https://solarwindscore.my.site.com/SuccessCenter/s/article/CSID-FTP-command?language=en_US
-  //states that the DirSep fact is required to be reported.
-  LServerInfo := LServerInfo + '; DirSep='+GetPathSeparator;
-  for i := 0 to FServerInfo.AdditionalFacts.Count -1 do
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then begin
+    LClientInfoEx := TStringList.Create;
+    try
+{$IFDEF HAS_TStringList_CaseSensitive}
+      TStringList(LClientInfoEx).CaseSensitive := False;
+{$ENDIF}
+      LClientInfo := ParseCSIDParams(ASender.UnparsedParams,LClientInfoEx);
+      if Assigned(FOnClientID) then begin
+        FOnClientID(ASender.Context as TIdFTPServerContext, LClientInfo);
+      end;
+      if Assigned(FOnClientIDEx) then begin
+        FOnClientIDEx(ASender.Context as TIdFTPServerContext, LClientInfoEx);
+      end;
+    finally
+      FreeAndNil(LClientInfoEx);
+    end;
+    if FServerInfo.ServerName <> '' then begin
+      LServerInfo := 'Name='+FServerInfo.ServerName;
+    end;
+    if FServerInfo.FServerVersion <> '' then begin
+      LServerInfo := LServerInfo + '; Version='+FServerInfo.ServerVersion;
+    end;
+    if FServerInfo.FServerVendor <> '' then begin
+      LServerInfo := LServerInfo + '; Vendor='+ FServerInfo.ServerVendor;
+    end;
+    if FServerInfo.PlatformDescription <> '' then begin
+      LServerInfo := LServerInfo + '; OS='+ FServerInfo.PlatformDescription;
+    end;
+    if FServerInfo.PlatformVersion <> '' then begin
+      LServerInfo := LServerInfo + '; OSVer=' + FServerInfo.PlatformVersion;
+    end;
+    LServerInfo := LServerInfo + '; CaseSensitive=';
+    if FTPIsCaseSensitive then begin
+      LServerInfo := LServerInfo + '1';
+    end else begin
+      LServerInfo := LServerInfo + '0';
+    end;
+    //https://solarwindscore.my.site.com/SuccessCenter/s/article/CSID-FTP-command?language=en_US
+    //states that the DirSep fact is required to be reported.
+    LServerInfo := LServerInfo + '; DirSep='+GetPathSeparator;
+    for i := 0 to FServerInfo.AdditionalFacts.Count -1 do
+    begin
+      LServerInfo := LServerInfo + '; '+TrimLeft(FServerInfo.AdditionalFacts[i]);
+    end;
+    if TextStartsWith(LServerInfo,'; ') then
+    begin
+      IdDelete(LServerInfo,1,2);
+    end;
+    ASender.Reply.SetReply( 200, LServerInfo);
+  end
+  else
   begin
-    LServerInfo := LServerInfo + '; '+TrimLeft(FServerInfo.AdditionalFacts[i]);
+    ASender.Reply.SetReply( 530, RSFTPUserNotLoggedIn);
   end;
-  if TextStartsWith(LServerInfo,'; ') then
-  begin
-    IdDelete(LServerInfo,1,2);
-  end;
-  ASender.Reply.SetReply( 200, LServerInfo);
 end;
 
 procedure TIdFTPServer.CommandCLNT(ASender: TIdCommand);
