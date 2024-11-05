@@ -656,6 +656,7 @@ const AAlwaysValidOpts : array [0..2] of string =
 
 type
   TIdFTPServerContext = class;
+  TIdFTPClientInfo = class;
   //The final parameter could've been one item but I decided against that
   //because occaisionally, you might have a situation where you need to specify
   //the "type" fact to be several different things.
@@ -727,7 +728,7 @@ type
   //we don't parse CLNT parameters as they might be freeform for all we know
   TIdOnClientID = procedure(ASender: TIdFTPServerContext; const AID : String) of object;
   //
-  TIdOnClientIDEx = procedure(ASender: TIdFTPServerContext; AClientInfo : TStrings ) of object;
+  TIdOnClientIDEx = procedure(ASender: TIdFTPServerContext; AClientInfo : TIdFTPClientInfo ) of object;
   TIdOnFTPStatEvent = procedure(ASender: TIdFTPServerContext; AStatusInfo : TStrings) of object;
   TIdOnBanner = procedure(ASender: TIdFTPServerContext; AGreeting : TIdReply) of object;
   //This is for EPSV and PASV support - do not change the values unless you
@@ -742,6 +743,35 @@ type
 
   TIdFTPServer = class;
 
+  TIdFTPClientInfo = class(TObject)
+  protected
+    FFacts : TStrings;
+    function GetClientName : String;
+    function GetClientVersion : String;
+    function GetVendor : String;
+    function GetPlatformDescription: String;
+    function GetPlatformVersion: String;
+    function GetCSIDParams : String;
+    function GetCLNTParams : String;
+    procedure SetClientName(const AValue : String);
+    procedure SetClientVersion(const AValue : String);
+    procedure SetVendor(const AValue : String);
+    procedure SetPlatformDescription(const AValue: String);
+    procedure SetPlatformVersion(const AValue: String);
+    procedure SetCSIDParams(const AValue : String);
+    procedure SetCLNTParams(const AValue : String);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Facts : TStrings read FFacts;
+    property ClientName : String read GetClientName write SetClientName;
+    property ClientVersion : String read GetClientVersion write SetClientVersion;
+    property Vendor : String read GetVendor write SetVendor;
+    property PlatformDescription : String read GetPlatformDescription write SetPlatformDescription;
+    property PlatformVersion : String read GetPlatformVersion write SetPlatformVersion;
+    property CSIDParams : String read GetCSIDParams write SetCSIDParams;
+    property CLNTParams : String read GetCLNTParams write SetCLNTParams;
+  end;
   TIdFTPServerInfo = class(TPersistent)
   protected
     FAdditionalFacts : TStrings;
@@ -6069,52 +6099,21 @@ begin
   end;
 end;
 
-function ParseCSIDParams(const AParams : String; AClientInfo : TStrings) : string;
-var LBuf,
-    LValueValue : String;
-    LValueName : String;
-    LCltName : String;
-    LCltVersion : String;
-    LCltOS : String;
-begin
-   AClientInfo.Clear;
-   Result := '';
-   LCltName := '';
-   LCltVersion := '';
-   LBuf := AParams;
-   repeat
-      LValueValue := Fetch(LBuf,';');
-      AClientInfo.Add(LValueValue);
-      LValueName := TrimLeft(Fetch(LValueValue,'='));
-      case PosInStrArray(LValueName,['Name','Version','OS']) of
-        0 : LCltName := LValueValue;
-        1 : LCltVersion := LValueValue;
-        2 : LCltOS := LValueValue;
-      end;
-   until LBuf = '';
-   Result := Trim(LCltName + ' ' + LCltVersion);
-   if LCltVersion <> '' then begin
-     Result := Result + ' ' + LCltOS;
-   end;
-end;
-
 procedure TIdFTPServer.CommandCSID(ASender: TIdCommand);
-var LClientInfo : String;
+var
    LServerInfo : String;
    i : Integer;
   LContext : TIdFTPServerContext;
-  LClientInfoEx : TStrings;
+  LClientInfoEx : TIdFTPClientInfo;
 begin
   LContext := ASender.Context as TIdFTPServerContext;
   if LContext.IsAuthenticated(ASender) then begin
-    LClientInfoEx := TStringList.Create;
+    LClientInfoEx := TIdFTPClientInfo.Create;
     try
-{$IFDEF HAS_TStringList_CaseSensitive}
-      TStringList(LClientInfoEx).CaseSensitive := False;
-{$ENDIF}
-      LClientInfo := ParseCSIDParams(ASender.UnparsedParams,LClientInfoEx);
+      LClientInfoEx.CSIDParams := ASender.UnparsedParams;
+
       if Assigned(FOnClientID) then begin
-        FOnClientID(ASender.Context as TIdFTPServerContext, LClientInfo);
+        FOnClientID(ASender.Context as TIdFTPServerContext, LClientInfoEx.CLNTParams );
       end;
       if Assigned(FOnClientIDEx) then begin
         FOnClientIDEx(ASender.Context as TIdFTPServerContext, LClientInfoEx);
@@ -6163,9 +6162,19 @@ begin
 end;
 
 procedure TIdFTPServer.CommandCLNT(ASender: TIdCommand);
+var LClnt : TIdFTPClientInfo;
 begin
   if Assigned(FOnClientID) then begin
     FOnClientID(ASender.Context as TIdFTPServerContext, ASender.UnparsedParams);
+  end;
+  if Assigned(FOnClientIDEx) then begin
+    LClnt := TIdFTPClientInfo.Create;
+    try
+      LClnt.CLNTParams := ASender.UnparsedParams;
+      FOnClientIDEx(ASender.Context as TIdFTPServerContext, LClnt);
+    finally
+      FreeAndNil(LClnt);
+    end;
   end;
 end;
 
@@ -7573,6 +7582,110 @@ end;
 procedure TIdFTPServerInfo.SetAdditionalFacts(const AValue: TStrings);
 begin
   FAdditionalFacts.Assign(AValue);
+end;
+
+{ TIdFTPClientInfo }
+
+constructor TIdFTPClientInfo.Create;
+begin
+  inherited Create;
+  FFacts := TStringList.Create;
+{$IFDEF HAS_TStringList_CaseSensitive}
+  TStringList(FFacts).CaseSensitive := False;
+{$ENDIF}
+end;
+
+destructor TIdFTPClientInfo.Destroy;
+begin
+  FreeAndNil(FFacts);
+  inherited;
+end;
+
+function TIdFTPClientInfo.GetClientName: String;
+begin
+  Result := FFacts.Values['Name'];
+end;
+
+function TIdFTPClientInfo.GetClientVersion: String;
+begin
+  Result := FFacts.Values['Version'];
+end;
+
+function TIdFTPClientInfo.GetCLNTParams: String;
+begin
+  Result := Trim(ClientName + ' '+ClientVersion + ' '+PlatformDescription);
+end;
+
+function TIdFTPClientInfo.GetCSIDParams: String;
+var i : Integer;
+begin
+  Result := '';
+  for i := 0 to FFacts.Count - 1 do
+  begin
+    Result := '; '+FFacts[i];
+  end;
+  IdDelete(Result,1,2);
+end;
+
+function TIdFTPClientInfo.GetPlatformDescription: String;
+begin
+  Result := FFacts.Values['OS'];
+end;
+
+function TIdFTPClientInfo.GetPlatformVersion: String;
+begin
+  Result := FFacts.Values['OSVer'];
+end;
+
+function TIdFTPClientInfo.GetVendor: String;
+begin
+  Result := FFacts.Values['Vendor'];
+end;
+
+procedure TIdFTPClientInfo.SetClientName(const AValue: String);
+begin
+  FFacts.Values['Name'] := AValue;
+end;
+
+procedure TIdFTPClientInfo.SetClientVersion(const AValue: String);
+begin
+  FFacts.Values['Version'] := AValue;
+end;
+
+procedure TIdFTPClientInfo.SetCLNTParams(const AValue: String);
+var LBuf : String;
+begin
+  LBuf := TrimLeft(Avalue);
+  ClientName := Fetch(LBuf);
+  ClientVersion := Fetch(LBuf);
+  PlatformDescription := Fetch(LBuf);
+end;
+
+procedure TIdFTPClientInfo.SetCSIDParams(const AValue: String);
+var LBuf,
+    LValue : String;
+begin
+   FFacts.Clear;
+   LBuf := AValue;
+   repeat
+      LValue := TrimLeft(Fetch(LBuf,';'));
+      FFacts.Add(LValue);
+   until LBuf = '';
+end;
+
+procedure TIdFTPClientInfo.SetPlatformDescription(const AValue: String);
+begin
+  FFacts.Values['OS'] := AValue;
+end;
+
+procedure TIdFTPClientInfo.SetPlatformVersion(const AValue: String);
+begin
+  FFacts.Values['OS'] := AValue;
+end;
+
+procedure TIdFTPClientInfo.SetVendor(const AValue: String);
+begin
+  FFacts.Values['Vendor'] := AValue;
 end;
 
 end.
