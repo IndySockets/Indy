@@ -7680,7 +7680,7 @@ end;
 
 procedure TIdFTPClientInfo.SetPlatformVersion(const AValue: String);
 begin
-  FFacts.Values['OS'] := AValue;
+  FFacts.Values['OSVer'] := AValue;
 end;
 
 procedure TIdFTPClientInfo.SetVendor(const AValue: String);
