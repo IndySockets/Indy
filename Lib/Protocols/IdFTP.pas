@@ -701,12 +701,12 @@ type
   protected
     FServerInfo : TStrings;
     function GetCaseSensitive: Boolean;
-    function GetPlatformVer: String;
+    function GetPlatformVersion: String;
     function GetPlatformDescription: String;
     function GetServerName: String;
     function GetServerVersion: String;
     function GetVendor: String;
-    function GetDirSeperator : String;
+    function GetDirSeparator : String;
   public
     constructor Create;
     destructor Destroy; override;
@@ -715,9 +715,9 @@ type
     property ServerVersion : String read GetServerVersion;
     property Vendor : String read GetVendor;
     property PlatformDescription : String read GetPlatformDescription;
-    property PlatformVer : String read GetPlatformVer;
+    property PlatformVersion : String read GetPlatformVersion;
     property CaseSensitive : Boolean read GetCaseSensitive;
-    property DirSeperator : String read GetDirSeperator;
+    property DirSeparator : String read GetDirSeparator;
   end;
 
   TIdFtpProxySettings = class (TPersistent)
@@ -2731,7 +2731,6 @@ end;
 
 procedure TIdFTP.IssueFEAT;
 var
-  LClnt: String;
   LBuf : String;
   i : Integer;
 begin
@@ -2771,12 +2770,11 @@ begin
       Break;
     end;
   end;
+  FServerInfo.ServerInfo.Clear;
   if IsExtSupported('CSID') then begin {do not localize}
-      LClnt := FClientInfo.GetCSIDOutput;
-      SendCmd('CSID ' + LClnt);  {do not localize}
+      SendCmd('CSID ' + FClientInfo.GetCSIDOutput);  {do not localize}
       if Self.LastCmdResult.NumericCode = 200 then begin
         LBuf := TrimRight(Self.LastCmdResult.Text.Text);
-        FServerInfo.ServerInfo.Clear;
         repeat
            FServerInfo.ServerInfo.Add(TrimLeft(Fetch(LBuf,';')));
         until LBuf = '';
@@ -2788,8 +2786,7 @@ begin
   // some servers need this in order to work around a bug in
   // Microsoft Internet Explorer's UTF-8 handling
     if IsExtSupported('CLNT') then begin {do not localize}
-      LClnt := FClientInfo.ClntOutput;
-      SendCmd('CLNT ' + LClnt);  {do not localize}
+      SendCmd('CLNT ' + FClientInfo.ClntOutput);  {do not localize}
     end;
   end;
   // RLebeau 4/26/2019: per RFC 2640, if the server reports the 'UTF8'
@@ -4569,6 +4566,9 @@ constructor TIdFTPServerIdentifier.Create;
 begin
   inherited Create;
   FServerInfo := TStringList.Create;
+{$IFDEF HAS_TStringList_CaseSensitive}
+  TStringList(FServerInfo).CaseSensitive := False;
+{$ENDIF}
 end;
 
 destructor TIdFTPServerIdentifier.Destroy;
@@ -4582,7 +4582,7 @@ begin
   Result := FServerInfo.Values['CaseSensitive'] <> '0';
 end;
 
-function TIdFTPServerIdentifier.GetDirSeperator: String;
+function TIdFTPServerIdentifier.GetDirSeparator: String;
 begin
   Result := FServerInfo.Values['DirSep'];
   if Result = '' then begin
@@ -4595,7 +4595,7 @@ begin
   Result := FServerInfo.Values['OS'];
 end;
 
-function TIdFTPServerIdentifier.GetPlatformVer: String;
+function TIdFTPServerIdentifier.GetPlatformVersion: String;
 begin
   Result := FServerInfo.Values['OSVer'];
 end;
