@@ -645,7 +645,8 @@ const
   DEF_PASV_BOUND_MIN = 0;
   DEF_PASV_BOUND_MAX = 0;
   DEF_PATHPROCESSING = ftpOSDependent;
-
+  DEF_DIRSEPARATOR = '/';
+  DEF_CASE_SENSITIVE = True;
   {Do not change these as it could break some clients}
   SYST_ID_UNIX = 'UNIX Type: L8';  {Do not translate}
   SYST_ID_NT = 'Windows_NT';   {Do not translate}
@@ -950,6 +951,8 @@ type
     FSupportXAUTH: Boolean;
     FDirFormat : TIdFTPDirFormat;
     FPathProcessing : TIdFTPPathProcessing;
+    FCaseSensitive : Boolean;
+    FDirSeparator : String;
     FOnClientID : TIdOnClientID;
     FDataChannelCommands: TIdCommandHandlers;
     FSITECommands: TIdCommandHandlers;
@@ -1030,7 +1033,7 @@ type
     function DoProcessPath(ASender : TIdFTPServerContext; const APath: TIdFTPFileName): TIdFTPFileName;
 
     function FTPNormalizePath(const APath: String) : String;
-    function GetPathSeperator : String;
+    function GetPathSeparator : String;
     function FTPIsCaseSensitive : Boolean;
     function MLSFEATLine(const AFactMask : TIdMLSDAttrs; const AFacts : TIdFTPFactOutputs) : String;
 
@@ -1224,6 +1227,9 @@ type
     property CustomSystID : String read FCustomSystID write FCustomSystID;
     property DirFormat : TIdFTPDirFormat read FDirFormat write FDirFormat default DEF_DIRFORMAT;
     property PathProcessing : TIdFTPPathProcessing read FPathProcessing write FPathProcessing default DEF_PATHPROCESSING;
+    {Only used if PathProcessing is ftppCustom }
+    property CaseSensitive : Boolean read FCaseSensitive write FCaseSensitive default DEF_CASE_SENSITIVE;
+    property DirSeparator : String read FDirSeparator write FDirSeparator;
     property UseTLS;
     property DefaultPort default IDPORT_FTP;
     property AllowAnonymousLogin: Boolean read FAllowAnonymousLogin write FAllowAnonymousLogin default Id_DEF_AllowAnon;
@@ -1521,6 +1527,8 @@ begin
   FPASVBoundPortMin := DEF_PASV_BOUND_MIN;
   FPASVBoundPortMax := DEF_PASV_BOUND_MAX;
   FPathProcessing := DEF_PATHPROCESSING;
+  FCaseSensitive := DEF_CASE_SENSITIVE;
+  FDirSeparator := DEF_DIRSEPARATOR;
   FDirFormat := DEF_DIRFORMAT;
 end;
 
@@ -6119,12 +6127,12 @@ begin
   end;
   //https://solarwindscore.my.site.com/SuccessCenter/s/article/CSID-FTP-command?language=en_US
   //states that the DirSep fact is required to be reported.
-  LServerInfo := LServerInfo + '; DirSep='+GetPathSeperator;
+  LServerInfo := LServerInfo + '; DirSep='+GetPathSeparator;
   for i := 0 to FServerInfo.AdditionalFacts.Count -1 do
   begin
     LServerInfo := LServerInfo + '; '+TrimLeft(FServerInfo.AdditionalFacts[i]);
   end;
-  if StartsWith(LServerInfo,'; ') then
+  if TextStartsWith(LServerInfo,'; ') then
   begin
     IdDelete(LServerInfo,1,2);
   end;
@@ -6172,7 +6180,7 @@ begin
   end;
 end;
 
-function TIdFTPServer.GetPathSeperator : String;
+function TIdFTPServer.GetPathSeparator : String;
 begin
   Result := '/';
   case FPathProcessing of
@@ -6184,19 +6192,27 @@ begin
           Result := '\';
         end;
       end;
+    ftppUnix : Result := '/';
+    ftppCustom :
+    begin
+      Result := FDirSeparator;
+    end;
   end;
 end;
 
 function TIdFTPServer.FTPIsCaseSensitive: Boolean;
 begin
+  Result := True;
   case FPathProcessing of
     ftppDOS : Result := False;
     ftpOSDependent :
       begin
         Result := (GOSType <> otWindows);
       end;
-    else
-      Result := True;
+    ftppCustom :
+    begin
+      Result := FCaseSensitive;
+    end;
   end;
 end;
 
@@ -7520,6 +7536,9 @@ constructor TIdFTPServerInfo.Create;
 begin
   inherited Create;
   FAdditionalFacts := TStringList.Create;
+{$IFDEF HAS_TStringList_CaseSensitive}
+  TStringList(FAdditionalFacts).CaseSensitive := False;
+{$ENDIF}
 end;
 
 destructor TIdFTPServerInfo.Destroy;
