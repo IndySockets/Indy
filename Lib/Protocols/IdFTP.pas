@@ -2774,10 +2774,7 @@ begin
   if IsExtSupported('CSID') then begin {do not localize}
       SendCmd('CSID ' + FClientInfo.GetCSIDOutput);  {do not localize}
       if Self.LastCmdResult.NumericCode = 200 then begin
-        LBuf := TrimRight(Self.LastCmdResult.Text.Text);
-        repeat
-           FServerInfo.ServerInfo.Add(TrimLeft(Fetch(LBuf,';')));
-        until LBuf = '';
+        SplitDelimitedString(LastCmdResult.Text.Text, FServerInfo.ServerInfo, True, ';')
       end;
   end
   else

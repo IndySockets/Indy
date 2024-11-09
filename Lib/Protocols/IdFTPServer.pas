@@ -7677,15 +7677,9 @@ begin
 end;
 
 procedure TIdFTPClientInfo.SetCSIDParams(const AValue: String);
-var LBuf,
-    LValue : String;
 begin
    FFacts.Clear;
-   LBuf := AValue;
-   repeat
-      LValue := TrimLeft(Fetch(LBuf,';'));
-      FFacts.Add(LValue);
-   until LBuf = '';
+   SplitDelimitedString(AValue, FFacts, True, ';');
 end;
 
 procedure TIdFTPClientInfo.SetPlatformDescription(const AValue: String);
