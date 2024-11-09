@@ -7613,7 +7613,22 @@ end;
 
 function TIdFTPClientInfo.GetCLNTParams: String;
 begin
-  Result := Trim(ClientName + ' '+ClientVersion + ' '+PlatformDescription);
+  if ClientName <> '' then
+  begin
+    Result := ClientName;
+    if ClientVersion <> '' then
+    begin
+      Result := Result + ' ' + ClientVersion;
+      if PlatformDescription <> '' then
+      begin
+        Result := Result + ' '+ PlatformDescription;
+      end;
+    end;
+  end
+  else
+  begin
+    Result := '';
+  end;
 end;
 
 function TIdFTPClientInfo.GetCSIDParams: String;
@@ -7658,7 +7673,7 @@ begin
   LBuf := TrimLeft(Avalue);
   ClientName := Fetch(LBuf);
   ClientVersion := Fetch(LBuf);
-  PlatformDescription := Fetch(LBuf);
+  PlatformDescription := LBuf;
 end;
 
 procedure TIdFTPClientInfo.SetCSIDParams(const AValue: String);
