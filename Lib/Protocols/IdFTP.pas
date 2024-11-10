@@ -694,9 +694,9 @@ type
   published
     property ClientName : String read FClientName write SetClientName;
     property ClientVersion : String read FClientVersion write SetClientVersion;
-    property Vendor : String read FVendor write SetVendor;
     property PlatformDescription : String read FPlatformDescription
       write SetPlatformDescription;
+    property Vendor : String read FVendor write SetVendor;
   end;
   TIdFTPServerIdentifier = class(TObject)
   protected
