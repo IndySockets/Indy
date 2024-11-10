@@ -685,6 +685,7 @@ type
     procedure SetClientName(const AValue: String);
     procedure SetClientVersion(const AValue: String);
     procedure SetPlatformDescription(const AValue: String);
+    procedure SetVendor(const AValue : String);
     function GetClntOutput: String;
   public
     procedure Assign(Source: TPersistent); override;
@@ -693,9 +694,9 @@ type
   published
     property ClientName : String read FClientName write SetClientName;
     property ClientVersion : String read FClientVersion write SetClientVersion;
-    property Vendor : String read FVendor write FVendor;
+    property Vendor : String read FVendor write SetVendor;
     property PlatformDescription : String read FPlatformDescription
-      write FPlatformDescription;
+      write SetPlatformDescription;
   end;
   TIdFTPServerIdentifier = class(TObject)
   protected
@@ -3954,6 +3955,7 @@ begin
     ClientName  := LSource.ClientName;
     ClientVersion := LSource.ClientVersion;
     PlatformDescription := LSource.PlatformDescription;
+    Vendor := LSource.Vendor;
   end else begin
     inherited Assign(Source);
   end;
@@ -4008,7 +4010,12 @@ end;
 
 procedure TIdFTPClientIdentifier.SetPlatformDescription(const AValue: String);
 begin
-  FPlatformDescription := AValue;
+  FPlatformDescription := Trim(AValue);
+end;
+
+procedure TIdFTPClientIdentifier.SetVendor(const AValue: String);
+begin
+  FVendor := Trim(AValue);
 end;
 
 {Note about SetTime procedures:
