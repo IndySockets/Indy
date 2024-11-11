@@ -2999,48 +2999,6 @@ var
   LMode: TIdSSLMode;
   LHost: string;
 
-  // TODO: move the following to TIdSSLIOHandlerSocketBase...
-
-  function GetURIHost: string;
-  var
-    LURI: TIdURI;
-  begin
-    Result := '';
-    if URIToCheck <> '' then
-    begin
-      LURI := TIdURI.Create(URIToCheck);
-      try
-        Result := LURI.Host;
-      finally
-        LURI.Free;
-      end;
-    end;
-  end;
-
-  function GetProxyTargetHost: string;
-  var
-    // under ARC, convert a weak reference to a strong reference before working with it
-    LTransparentProxy, LNextTransparentProxy: TIdCustomTransparentProxy;
-  begin
-    Result := '';
-    // RLebeau: not reading from the property as it will create a
-    // default Proxy object if one is not already assigned...
-    LTransparentProxy := FTransparentProxy;
-    if Assigned(LTransparentProxy) then
-    begin
-      if LTransparentProxy.Enabled then
-      begin
-        repeat
-          LNextTransparentProxy := LTransparentProxy.ChainedProxy;
-          if not Assigned(LNextTransparentProxy) then Break;
-          if not LNextTransparentProxy.Enabled then Break;
-          LTransparentProxy := LNextTransparentProxy;
-        until False;
-        Result := LTransparentProxy.Host;
-      end;
-    end;
-  end;
-
 begin
   Assert(Binding<>nil);
   if not Assigned(fSSLSocket) then begin
@@ -3086,7 +3044,7 @@ begin
     end;
   end;
   if LMode = sslmClient then begin
-    LHost := GetURIHost;
+    LHost := GetURIHost(URIToCheck);
     if LHost = '' then
     begin
       LHost := GetProxyTargetHost;
