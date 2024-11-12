@@ -3044,7 +3044,7 @@ begin
     end;
   end;
   if LMode = sslmClient then begin
-    LHost := GetURIHost(URIToCheck);
+    LHost := GetURIHost;
     if LHost = '' then
     begin
       LHost := GetProxyTargetHost;

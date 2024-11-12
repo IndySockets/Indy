@@ -77,7 +77,7 @@ type
     fIsPeer : Boolean;
     FURIToCheck : String;
     function GetProxyTargetHost: string;
-    function GetURIHost(const AURIToCheck: String): string;
+    function GetURIHost : string;
     procedure InitComponent; override;
     function RecvEnc(var ABuffer: TIdBytes): Integer; virtual; abstract;
     function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; virtual; abstract;
@@ -214,7 +214,7 @@ begin
 
 end;
 
-function TIdSSLIOHandlerSocketBase.GetURIHost(const AURIToCheck: String): string;
+function TIdSSLIOHandlerSocketBase.GetURIHost : string;
 var
   LURI: TIdURI;
 begin
