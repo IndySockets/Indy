@@ -693,8 +693,6 @@ uses
   IdExceptionCore,
   IdResourceStrings,
   IdThreadSafe,
-  IdCustomTransparentProxy,
-  IdURI,
   SysUtils,
   SyncObjs;
 
