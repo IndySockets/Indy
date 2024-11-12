@@ -79,6 +79,8 @@ type
     fPassThrough: Boolean;
     fIsPeer : Boolean;
     FURIToCheck : String;
+    function GetProxyTargetHost: string;
+    function GetURIHost : string;
     function RecvEnc(var ABuffer: TIdBytes): Integer; virtual; abstract;
     function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; virtual; abstract;
     function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
@@ -120,12 +122,57 @@ matches the identity information present in the server certificate.
 
 implementation
 
+uses
+  IdCustomTransparentProxy, IdURI;
+
 { TIdSSLIOHandlerSocketBase }
 
 constructor TIdSSLIOHandlerSocketBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   fPassThrough := True;
+end;
+
+function TIdSSLIOHandlerSocketBase.GetProxyTargetHost: string;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LTransparentProxy, LNextTransparentProxy: TIdCustomTransparentProxy;
+begin
+  Result := '';
+  // RLebeau: not reading from the property as it will create a
+  // default Proxy object if one is not already assigned...
+  LTransparentProxy := FTransparentProxy;
+  if Assigned(LTransparentProxy) then
+  begin
+    if LTransparentProxy.Enabled then
+    begin
+      repeat
+        LNextTransparentProxy := LTransparentProxy.ChainedProxy;
+        if not Assigned(LNextTransparentProxy) then
+          Break;
+        if not LNextTransparentProxy.Enabled then
+          Break;
+        LTransparentProxy := LNextTransparentProxy;
+      until False;
+      Result := LTransparentProxy.Host;
+    end;
+  end;
+end;
+
+function TIdSSLIOHandlerSocketBase.GetURIHost : string;
+var
+  LURI: TIdURI;
+begin
+  Result := '';
+  if URIToCheck <> '' then
+  begin
+    LURI := TIdURI.Create(URIToCheck);
+    try
+      Result := LURI.Host;
+    finally
+      LURI.Free;
+    end;
+  end;
 end;
 
 function TIdSSLIOHandlerSocketBase.ReadDataFromSource(var VBuffer: TIdBytes): Integer;
