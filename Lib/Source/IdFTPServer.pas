@@ -725,6 +725,7 @@ type
 
   //we don't parse CLNT parameters as they might be freeform for all we know
   TIdOnClientID = procedure(ASender: TIdFTPServerContext; const AID : String) of object;
+  TIdOnClientIDEx = procedure(ASender: TIdFTPServerContext; AClientInfo : TIdFTPClientIdentifier) of object;
   TIdOnFTPStatEvent = procedure(ASender: TIdFTPServerContext; AStatusInfo : TStrings) of object;
   TIdOnBanner = procedure(ASender: TIdFTPServerContext; AGreeting : TIdReply) of object;
   //This is for EPSV and PASV support - do not change the values unless you
@@ -931,6 +932,7 @@ type
     FDirFormat : TIdFTPDirFormat;
     FPathProcessing : TIdFTPPathProcessing;
     FOnClientID : TIdOnClientID;
+    FOnClientIDEx : TIdOnClientIDEx;
     FDataChannelCommands: TIdCommandHandlers;
     FSITECommands: TIdCommandHandlers;
     FOPTSCommands: TIdCommandHandlers;
@@ -964,6 +966,7 @@ type
     FOnRemoveDirectory: TOnDirectoryEvent;
     FOnStat : TIdOnFTPStatEvent;
     FFTPSecurityOptions : TIdFTPSecurityOptions;
+    FServerInfo : TIdFTPServerIdentifier;
     FOnCRCFile : TOnCheckSumFile;
     FOnCombineFiles : TOnCombineFiles;
     FOnSetModifiedTime : TOnSetFileDateEvent;
@@ -1017,6 +1020,8 @@ type
     function DoProcessPath(ASender : TIdFTPServerContext; const APath: TIdFTPFileName): TIdFTPFileName;
 
     function FTPNormalizePath(const APath: String) : String;
+    function FTPPathSeparator : Char;
+    function FTPIsCaseSensitive : Boolean;
     function MLSFEATLine(const AFactMask : TIdMLSDAttrs; const AFacts : TIdFTPFactOutputs) : String;
 
     function HelpText(Cmds : TStrings) : String;
@@ -1101,6 +1106,8 @@ type
     procedure CommandCOMB(ASender: TIdCommand);
 
     procedure CommandCLNT(ASender: TIdCommand);
+    procedure CommandCSID(ASender: TIdCommand);
+
     //SSCN Secure FTPX - http://www.raidenftpd.com/kb/kb000000037.htm
     procedure CommandSSCN(ASender: TIdCommand);
     //Informal - like PASV accept SSL is in client mode - used by FlashXP
@@ -1170,6 +1177,7 @@ type
     procedure SetAnonymousAccounts(const AValue: TStrings);
     procedure SetUserAccounts(const AValue: TIdCustomUserManager);
     procedure SetFTPSecurityOptions(const AValue: TIdFTPSecurityOptions);
+    procedure SetServerInfo(const AValue: TIdFTPServerIdentifier);
     procedure SetPASVBoundPortMax(const AValue: TIdPort);
     procedure SetPASVBoundPortMin(const AValue: TIdPort);
     procedure SetReplyUnknownSITECommand(AValue: TIdReply);
@@ -1199,6 +1207,12 @@ type
     procedure DoTerminateContext(AContext: TIdContext); override;
     //overriden so we can handle telnet sequences
     function ReadCommandLine(AContext: TIdContext): string; override;
+
+    function GetCaseSensitive: Boolean;
+    procedure SetCaseSensitive(const AValue : Boolean);
+
+    function GetDirSeparator : Char;
+    procedure SetDirSeparator(const AValue : Char);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -1209,6 +1223,9 @@ type
     property CustomSystID : String read FCustomSystID write FCustomSystID;
     property DirFormat : TIdFTPDirFormat read FDirFormat write FDirFormat default DEF_DIRFORMAT;
     property PathProcessing : TIdFTPPathProcessing read FPathProcessing write FPathProcessing default DEF_PATHPROCESSING;
+    {Only used if PathProcessing is ftppCustom }
+    property CaseSensitive : Boolean read GetCaseSensitive write SetCaseSensitive default DEF_CASE_SENSITIVE;
+    property DirSeparator : Char read GetDirSeparator write SetDirSeparator;
     property UseTLS;
     property DefaultPort default IDPORT_FTP;
     property AllowAnonymousLogin: Boolean read FAllowAnonymousLogin write FAllowAnonymousLogin default Id_DEF_AllowAnon;
@@ -1222,6 +1239,7 @@ type
     property PASVBoundPortMin : TIdPort read FPASVBoundPortMin write SetPASVBoundPortMin default DEF_PASV_BOUND_MIN;
     property PASVBoundPortMax : TIdPort read FPASVBoundPortMax write SetPASVBoundPortMax default DEF_PASV_BOUND_MAX;
     property UserAccounts: TIdCustomUserManager read FUserAccounts write SetUserAccounts;
+    property ServerInfo : TIdFTPServerIdentifier read FServerInfo write SetServerInfo;
     property SystemType: string read FSystemType write FSystemType;
     property OnGreeting : TIdOnBanner read FOnGreeting write FOnGreeting;
     property OnLoginSuccessBanner : TIdOnBanner read FOnLoginSuccessBanner write FOnLoginSuccessBanner;
@@ -1281,6 +1299,7 @@ type
     property SITECommands: TIdCommandHandlers read FSITECommands write SetSITECommands;
     property MLSDFacts : TIdMLSDAttrs read  FMLSDFacts write FMLSDFacts;
     property OnClientID : TIdOnClientID read FOnClientID write FOnClientID;
+    property OnClientIDEx : TIdOnClientIDEx read FOnClientIDEx write FOnClientIDEx;
     property ReplyUnknownSITCommand: TIdReply read FReplyUnknownSITECommand write SetReplyUnknownSITECommand;
 
     property OnQuerySSLPort: TIdOnQuerySSLPort read FOnQuerySSLPort write FOnQuerySSLPort;
@@ -1497,9 +1516,12 @@ begin
   FReplyUnknownSITECommand.SetReply(500, 'Invalid SITE command.'); {do not localize}
 
   FFTPSecurityOptions := TIdFTPSecurityOptions.Create;
+  FServerInfo := TIdFTPServerIdentifier.Create;
   FPASVBoundPortMin := DEF_PASV_BOUND_MIN;
   FPASVBoundPortMax := DEF_PASV_BOUND_MAX;
   FPathProcessing := DEF_PATHPROCESSING;
+  FServerInfo.CaseSensitive := DEF_CASE_SENSITIVE;
+  FServerInfo.DirSeparator := DEF_DIRSEPARATOR;
   FDirFormat := DEF_DIRFORMAT;
 end;
 
@@ -1507,6 +1529,7 @@ destructor TIdFTPServer.Destroy;
 begin
   FAnonymousAccounts.Free;
   FFTPSecurityOptions.Free;
+  FServerInfo.Free;
   FOPTSCommands.Free;
   FDataChannelCommands.Free;
   FSITECommands.Free;
@@ -2283,7 +2306,7 @@ begin
   LCmd.OnCommand := CommandRMDA;
   LCmd.ExceptionReply.NumericCode := 550;
   LCmd.Description.Text := 'RMDA <sp> pathname (deletes (removes) the '+
-     'specified directory and it s contents)';
+     'specified directory and its contents)';
 
   //informal but we might want to support this anyway
   //CLNT
@@ -2292,7 +2315,14 @@ begin
   LCmd.OnCommand := CommandCLNT;
   LCmd.ExceptionReply.NumericCode := 550;
   LCmd.NormalReply.SetReply(200, RSFTPClntNoted);  {Do not Localize}
-  LCmd.Description.Text := 'Syntax: CLNT<space><clientname>'; {do not localize}
+  LCmd.Description.Text := 'Syntax: CLNT <sp> <clientname> <sp> <clientversion> [ <sp> <platform> ]'; {do not localize}
+
+  //https://www.ietf.org/archive/id/draft-peterson-streamlined-ftp-command-extensions-10.txt
+  LCmd := CommandHandlers.Add;
+  LCmd.Command := 'CSID'; {Do not localize}
+  LCmd.OnCommand := CommandCSID;
+  LCmd.ExceptionReply.NumericCode := 550;
+  LCmd.Description.Text := 'Syntax: CSID <sp> Name=<clientname>; Version=<clientversion>;'; {Do not localize}
 
   //Informal - an old proposed solution to IPv6 support in FTP.
   //Mentioned at:  http://cr.yp.to/ftp/retr.html
@@ -2488,7 +2518,7 @@ procedure TIdFTPServer.ContextCreated(AContext: TIdContext);
 var
   LContext : TIdFTPServerContext;
 begin
-  LContext := (AContext as TIdFTPServerContext);
+  LContext := AContext as TIdFTPServerContext;
 
   // TODO: TIdFTPServerContext.Server is separate from TIdServerContext.Server.
   // TIdFTPServerContext.Server should be removed and TIdFTPServerContext
@@ -2593,6 +2623,7 @@ begin
         end;
       end;
       LDirectoryList.ExportTotalLine := True;
+      // TODO: use FTPPathSeparator here?
       LPathSep := '/';    {Do not Localize}
       if not TextEndsWith(ADirectory, LPathSep) then begin
         ADirectory := ADirectory + LPathSep;
@@ -2670,6 +2701,11 @@ end;
 procedure TIdFTPServer.SetReplyUnknownSITECommand(AValue: TIdReply);
 begin
   FReplyUnknownSITECommand.Assign(AValue);
+end;
+
+procedure TIdFTPServer.SetServerInfo(const AValue: TIdFTPServerIdentifier);
+begin
+  FServerInfo.Assign(AValue);
 end;
 
 procedure TIdFTPServer.SetSITECommands(AValue: TIdCommandHandlers);
@@ -2773,7 +2809,7 @@ var
   // under ARC, convert a weak reference to a strong reference before working with it
   LUserAccounts: TIdCustomUserManager;
 begin
-  LContext:= ASender.Context as TIdFTPServerContext;
+  LContext := ASender.Context as TIdFTPServerContext;
   try
     LContext.FAuthenticated := False;
     case LContext.FUserType of
@@ -2889,7 +2925,7 @@ procedure TIdFTPServer.CommandPASS(ASender: TIdCommand);
 var
   LContext: TIdFTPServerContext;
 begin
-  LContext:= ASender.Context as TIdFTPServerContext;
+  LContext := ASender.Context as TIdFTPServerContext;
   if (FUseTLS = utUseRequireTLS) and (LContext.AuthMechanism <> 'TLS') then begin {do not localize}
     DisconUser(ASender);
     Exit;
@@ -3940,7 +3976,7 @@ begin
     ASender.Reply.Text.Add('CCC'); {Do not translate}
   end;
   //CLNT
-  if Assigned(FOnClientID) then begin
+  if Assigned(FOnClientID) or Assigned(FOnClientIDEx) then begin
     ASender.Reply.Text.Add('CLNT');  {Do not translate}
   end;
   //COMB
@@ -3952,6 +3988,8 @@ begin
   if (UseTLS <> utNoTLSSupport) and (LContext.Binding.IPVersion = Id_IPv4) then begin
     ASender.Reply.Text.Add('CPSV');   {Do not translate}
   end;
+  //CSID
+  ASender.Reply.Text.Add('CSID');  {Do not localize}
   //DSIZ
   if Assigned(OnCompleteDirSize) then begin
     ASender.Reply.Text.Add('DSIZ'); {Do not localize}
@@ -4563,8 +4601,8 @@ var
 begin
   LContext := ASender.Context as TIdFTPServerContext;
   if (PosInStrArray(ASender.UnparsedParams, TLS_AUTH_NAMES) > -1) and
-    (ASender.Context.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and
-    (FUseTLS in ExplicitTLSVals) then
+     (ASender.Context.Connection.IOHandler is TIdSSLIOHandlerSocketBase) and
+     (FUseTLS in ExplicitTLSVals) then
   begin
     ASender.Reply.SetReply(234,RSFTPAuthSSL);
     ASender.SendReply;
@@ -4801,6 +4839,7 @@ end;
 procedure TIdFTPServer.DoConnect(AContext: TIdContext);
 var
   LGreeting : TIdReplyRFC;
+  LContext : TIdFTPServerContext;
 begin
   AContext.Connection.IOHandler.DefStringEncoding := IndyTextEncoding_8Bit;
 
@@ -4820,7 +4859,8 @@ begin
     end;
   end;
 
-  (AContext as TIdFTPServerContext).FXAUTKey := MakeXAUTKey;
+  LContext := AContext as TIdFTPServerContext;
+  LContext.FXAUTKey := MakeXAUTKey;
   if Assigned(OnGreeting) then begin
     LGreeting := TIdReplyRFC.Create(nil);
     try
@@ -4828,7 +4868,7 @@ begin
       OnGreeting(TIdFTPServerContext(AContext), LGreeting);
       ReplyTexts.UpdateText(LGreeting);
       if (not GetFIPSMode) and FSupportXAUTH and (LGreeting.NumericCode = 220) then begin
-        (AContext as TIdFTPServerContext).FXAUTKey := IdFTPCommon.MakeXAUTKey;
+        LContext.FXAUTKey := IdFTPCommon.MakeXAUTKey;
         XAutGreeting(AContext,LGreeting, GStack.HostName);
       end;
       AContext.Connection.IOHandler.Write(LGreeting.FormattedReply);
@@ -6019,14 +6059,77 @@ begin
     end;
   end;
   if Result <> '' then begin
-    SetLength(Result, Length(Result)-1);
+    SetLength(Result, Length(Result) - 1);
   end;
 end;
 
 procedure TIdFTPServer.CommandCLNT(ASender: TIdCommand);
+var
+  LClientInfo : TIdFTPClientIdentifier;
+  LContext: TIdFTPServerContext;
 begin
-  if Assigned(FOnClientID) then begin
-    FOnClientID(ASender.Context as TIdFTPServerContext, ASender.UnparsedParams);
+  LContext := ASender.Context as TIdFTPServerContext;
+  // TODO: store the client's info in LContext?
+  if ASender.UnparsedParams <> '' then begin
+    if Assigned(FOnClientID) then begin
+      FOnClientID(LContext, ASender.UnparsedParams);
+    end;
+    if Assigned(FOnClientIDEx) then begin
+      LClientInfo := TIdFTPClientIdentifier.Create;
+      try
+        LClientInfo.CLNTParams := ASender.UnparsedParams;
+        FOnClientIDEx(LContext, LClientInfo);
+      finally
+        LClientInfo.Free;
+      end;
+    end;
+  end else begin
+    CmdInvalidParams(ASender);
+  end;
+end;
+
+procedure TIdFTPServer.CommandCSID(ASender: TIdCommand);
+var
+  LContext : TIdFTPServerContext;
+  LClientInfo : TIdFTPClientIdentifier;
+  LServerInfo: TIdFTPServerIdentifier;
+begin
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then begin
+    // TODO: store the client's info in LContext?
+    if Assigned(FOnClientID) or Assigned(FOnClientIDEx) then begin
+      LClientInfo := TIdFTPClientIdentifier.Create;
+      try
+        LClientInfo.CSIDParams := ASender.UnparsedParams;
+        if (LClientInfo.ClientName = '') or
+           (LClientInfo.ClientVersion = '') then
+        begin
+          CmdInvalidParams(ASender);
+          Exit;
+        end;
+        if Assigned(FOnClientID) then begin
+          FOnClientID(LContext, LClientInfo.CLNTParams);
+        end;
+        if Assigned(FOnClientIDEx) then begin
+          FOnClientIDEx(LContext, LClientInfo);
+        end;
+      finally
+        LClientInfo.Free;
+      end;
+    end;
+    if FPathProcessing <> ftppCustom then begin
+      LServerInfo := TIdFTPServerIdentifier.Create;
+      try
+        LServerInfo.Assign(FServerInfo);
+        LServerInfo.CaseSensitive := FTPIsCaseSensitive;
+        LServerInfo.DirSeparator := FTPPathSeparator;
+        ASender.Reply.SetReply(200, LServerInfo.CSIDParams);
+      finally
+        LServerInfo.Free;
+      end;
+    end else begin
+      ASender.Reply.SetReply(200, FServerInfo.CSIDParams);
+    end;
   end;
 end;
 
@@ -6061,6 +6164,36 @@ procedure TIdFTPServer.DoOnDataPortBeforeBind(ASender: TIdFTPServerContext);
 begin
   if Assigned(FOnDataPortBeforeBind) then begin
     FOnDataPortBeforeBind(ASender);
+  end;
+end;
+
+function TIdFTPServer.FTPPathSeparator : Char;
+begin
+  case FPathProcessing of
+    ftppDOS: Result := '\'; {do not localize}
+    ftpOSDependent:
+      begin
+        if (GOSType = otWindows) then begin
+          Result := '\'; {do not localize}
+        end else begin
+          Result := '/'; {do not localize}
+        end;
+      end;
+    ftppUnix: Result := '/'; {do not localize}
+    ftppCustom: Result := FServerInfo.DirSeparator;
+  else
+    Result := '/'; {do not localize}
+  end;
+end;
+
+function TIdFTPServer.FTPIsCaseSensitive: Boolean;
+begin
+  case FPathProcessing of
+    ftppDOS        : Result := False;
+    ftpOSDependent : Result := (GOSType <> otWindows);
+    ftppCustom     : Result := FServerInfo.CaseSensitive;
+  else
+    Result := True;
   end;
 end;
 
@@ -7084,6 +7217,27 @@ begin
       end;
   end;
 end;
+
+function TIdFTPServer.GetCaseSensitive: Boolean;
+begin
+  Result := FServerInfo.CaseSensitive;
+end;
+
+procedure TIdFTPServer.SetCaseSensitive(const AValue : Boolean);
+begin
+  FServerInfo.CaseSensitive := AValue;
+end;
+
+function TIdFTPServer.GetDirSeparator : Char;
+begin
+  Result := FServerInfo.DirSeparator;
+end;
+
+procedure TIdFTPServer.SetDirSeparator(const AValue : Char);
+begin
+  FServerInfo.DirSeparator := AValue;
+end;
+
 
 { TIdFTPSecurityOptions }
 
