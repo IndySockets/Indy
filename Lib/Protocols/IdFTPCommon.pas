@@ -234,7 +234,7 @@ type
     property ClientVersion : String read FClientVersion write SetClientVersion;
     property ClientVendor : String read FClientVendor write SetClientVendor;
     property PlatformDescription : String read FPlatformDescription write SetPlatformDescription;
-    property ExtraFacts: TStrings read FExtraFacts;
+    property ExtraFacts: TStrings read FExtraFacts write SetExtraFacts;
   end;
 
   TIdFTPServerIdentifier = class(TPersistent)
@@ -2656,7 +2656,7 @@ begin
     Result := Result + 'Platform=' + FPlatformDescription + '; ';
   end;}
   for I := 0 to FExtraFacts.Count-1 do begin
-    Result := Result + ' ' + FExtraFacts[I] + '; '; {do not localize}
+    Result := Result + TrimLeft(FExtraFacts[I]) + '; '; {do not localize}
   end;
   if Result <> '' then begin
     SetLength(Result, Length(Result) - 1);
