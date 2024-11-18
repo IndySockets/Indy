@@ -3971,7 +3971,9 @@ begin
     ASender.Reply.Text.Add('CCC'); {Do not translate}
   end;
   //CLNT
-  ASender.Reply.Text.Add('CLNT');  {Do not translate}
+  if Assigned(FOnClientID) or Assigned(FOnClientIDEx) then begin
+    ASender.Reply.Text.Add('CLNT');  {Do not translate}
+  end;
   //COMB
   if Assigned(FOnCombineFiles) or Assigned(LFileSystem) then begin
     ASender.Reply.Text.Add('COMB target;source_list'); {Do not translate}
@@ -6062,17 +6064,21 @@ var
 begin
   LContext := ASender.Context as TIdFTPServerContext;
   // TODO: store the client's info in LContext?
-  if Assigned(FOnClientID) then begin
-    FOnClientID(LContext, ASender.UnparsedParams);
-  end;
-  if Assigned(FOnClientIDEx) then begin
-    LClientInfo := TIdFTPClientIdentifier.Create;
-    try
-      LClientInfo.CLNTParams := ASender.UnparsedParams;
-      FOnClientIDEx(LContext, LClientInfo);
-    finally
-      LClientInfo.Free;
+  if Length(ASender.UnparsedParams) > 0 then begin
+    if Assigned(FOnClientID) then begin
+      FOnClientID(LContext, ASender.UnparsedParams);
     end;
+    if Assigned(FOnClientIDEx) then begin
+      LClientInfo := TIdFTPClientIdentifier.Create;
+      try
+        LClientInfo.CLNTParams := ASender.UnparsedParams;
+        FOnClientIDEx(LContext, LClientInfo);
+      finally
+        LClientInfo.Free;
+      end;
+    end;
+  end else begin
+    CmdInvalidParams(ASender);
   end;
 end;
 
@@ -6089,17 +6095,17 @@ begin
       LClientInfo := TIdFTPClientIdentifier.Create;
       try
         LClientInfo.CSIDParams := ASender.UnparsedParams;
-        if LClientInfo.ClientName <> '' then begin
-          if Assigned(FOnClientID) then begin
-            FOnClientID(LContext, LClientInfo.CLNTParams);
-          end;
-          if Assigned(FOnClientIDEx) then begin
-            FOnClientIDEx(LContext, LClientInfo);
-          end;
-        end else
+        if (Length(LClientInfo.ClientName) = 0) or
+           (Length(LClientInfo.ClientVersion) = 0) then
         begin
           CmdInvalidParams(ASender);
           Exit;
+        end;
+        if Assigned(FOnClientID) then begin
+          FOnClientID(LContext, LClientInfo.CLNTParams);
+        end;
+        if Assigned(FOnClientIDEx) then begin
+          FOnClientIDEx(LContext, LClientInfo);
         end;
       finally
         LClientInfo.Free;
