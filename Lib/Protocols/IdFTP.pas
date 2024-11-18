@@ -1,4 +1,4 @@
-{
+﻿{
   $Project$
   $Workfile$
   $Revision$
@@ -674,52 +674,6 @@ type
   TIdNeedAccountEvent = procedure(ASender: TObject; var VAcct: string) of object;
 
   TIdFTPBannerEvent = procedure (ASender: TObject; const AMsg : String) of object;
-
-  TIdFTPClientIdentifier = class (TPersistent)
-  protected
-    FClientName : String;
-    FClientVersion : String;
-    FPlatformDescription : String;
-    FVendor : String;
-    function GetCSIDOutput: String;
-    procedure SetClientName(const AValue: String);
-    procedure SetClientVersion(const AValue: String);
-    procedure SetPlatformDescription(const AValue: String);
-    procedure SetVendor(const AValue : String);
-    function GetClntOutput: String;
-  public
-    procedure Assign(Source: TPersistent); override;
-    property ClntOutput : String read GetClntOutput;
-    property CSIDOutput : String read GetCSIDOutput;
-  published
-    property ClientName : String read FClientName write SetClientName;
-    property ClientVersion : String read FClientVersion write SetClientVersion;
-    property PlatformDescription : String read FPlatformDescription
-      write SetPlatformDescription;
-    property Vendor : String read FVendor write SetVendor;
-  end;
-  TIdFTPServerIdentifier = class(TObject)
-  protected
-    FServerInfo : TStrings;
-    function GetCaseSensitive: Boolean;
-    function GetPlatformVersion: String;
-    function GetPlatformDescription: String;
-    function GetServerName: String;
-    function GetServerVersion: String;
-    function GetVendor: String;
-    function GetDirSeparator : String;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    property ServerInfo : TStrings read FServerInfo;
-    property ServerName : String read GetServerName;
-    property ServerVersion : String read GetServerVersion;
-    property Vendor : String read GetVendor;
-    property PlatformDescription : String read GetPlatformDescription;
-    property PlatformVersion : String read GetPlatformVersion;
-    property CaseSensitive : Boolean read GetCaseSensitive;
-    property DirSeparator : String read GetDirSeparator;
-  end;
 
   TIdFtpProxySettings = class (TPersistent)
   protected
@@ -2712,8 +2666,8 @@ end;
 
 destructor TIdFTP.Destroy;
 begin
-  FreeAndNil(FServerInfo);
   FreeAndNil(FClientInfo);
+  FreeAndNil(FServerInfo);
   FreeAndNil(FListResult);
   FreeAndNil(FLoginMsg);
   FreeAndNil(FDirectoryListing);
@@ -2771,22 +2725,20 @@ begin
       Break;
     end;
   end;
-  FServerInfo.ServerInfo.Clear;
-  if IsExtSupported('CSID') then begin {do not localize}
-      SendCmd('CSID ' + FClientInfo.GetCSIDOutput);  {do not localize}
-      if Self.LastCmdResult.NumericCode = 200 then begin
-        SplitDelimitedString(LastCmdResult.Text.Text, FServerInfo.ServerInfo, True, ';')
-      end;
-  end
-  else
-  begin
-  // send the CLNT command before sending the OPTS UTF8 command.
+
+  // identify the client before sending the OPTS UTF8 command.
   // some servers need this in order to work around a bug in
   // Microsoft Internet Explorer's UTF-8 handling
-    if IsExtSupported('CLNT') then begin {do not localize}
-      SendCmd('CLNT ' + FClientInfo.ClntOutput);  {do not localize}
+  FServerInfo.Clear;
+  if IsExtSupported('CSID') then begin {do not localize}
+    if SendCmd('CSID ' + FClientInfo.CSIDParams) = 200 then begin {do not localize}
+      FServerInfo.CSIDParams := LastCmdResult.Text.Text;
     end;
+  end
+  else if IsExtSupported('CLNT') then begin {do not localize}
+    SendCmd('CLNT ' + FClientInfo.CLNTParams);  {do not localize}
   end;
+
   // RLebeau 4/26/2019: per RFC 2640, if the server reports the 'UTF8'
   // capability, it is REQUIRED to detect and accept UTF-8 encoded
   // paths/filenames in commands.  But, it is not REQUIRED to send UTF-8
@@ -3944,79 +3896,6 @@ begin
   end;
 end;
 
-{ TIdFTPClientIdentifier }
-
-procedure TIdFTPClientIdentifier.Assign(Source: TPersistent);
-var
-  LSource: TIdFTPClientIdentifier;
-begin
-  if Source is TIdFTPClientIdentifier then begin
-    LSource := TIdFTPClientIdentifier(Source);
-    ClientName  := LSource.ClientName;
-    ClientVersion := LSource.ClientVersion;
-    PlatformDescription := LSource.PlatformDescription;
-    Vendor := LSource.Vendor;
-  end else begin
-    inherited Assign(Source);
-  end;
-end;
-
-//assume syntax such as this:
-//214 Syntax: CLNT <sp> <client-name> <sp> <client-version> [<sp> <optional platform info>] (Set client name)
-function TIdFTPClientIdentifier.GetClntOutput: String;
-begin
-  if FClientName <> '' then begin
-    Result := FClientName;
-    if FClientVersion <> '' then begin
-      Result := Result + ' ' + FClientVersion;
-      if FPlatformDescription <> '' then begin
-        Result := Result + ' ' + FPlatformDescription;
-      end;
-    end;
-  end
-  else
-  begin
-     Result := gsIdProductName + ' ' + gsIdVersion;
-  end;
-end;
-
-function TIdFTPClientIdentifier.GetCSIDOutput: String;
-begin
-  if FClientName <> '' then begin
-    Result := 'Name='+FClientName;
-    if FClientVersion <> '' then begin
-      Result := Result + '; Version='+FClientVersion;
-    end;
-    if FVendor <> '' then begin
-      Result := Result + '; Vendor='+FVendor;
-    end;
-  end
-  else
-  begin
-    Result := 'Name='+gsIdProductName + '; Version=' + gsIdVersion;
-  end;
-end;
-
-procedure TIdFTPClientIdentifier.SetClientName(const AValue: String);
-begin
-  FClientName := Trim(AValue);
-  // Don't call Fetch;  it prevents multi-word client names
-end;
-
-procedure TIdFTPClientIdentifier.SetClientVersion(const AValue: String);
-begin
-  FClientVersion := Trim(AValue);
-end;
-
-procedure TIdFTPClientIdentifier.SetPlatformDescription(const AValue: String);
-begin
-  FPlatformDescription := Trim(AValue);
-end;
-
-procedure TIdFTPClientIdentifier.SetVendor(const AValue: String);
-begin
-  FVendor := Trim(AValue);
-end;
 
 {Note about SetTime procedures:
 
@@ -4564,61 +4443,4 @@ begin
   end;
 end;
 
-{ TIdFTPServerIdentifier }
-
-constructor TIdFTPServerIdentifier.Create;
-begin
-  inherited Create;
-  FServerInfo := TStringList.Create;
-{$IFDEF HAS_TStringList_CaseSensitive}
-  TStringList(FServerInfo).CaseSensitive := False;
-{$ENDIF}
-end;
-
-destructor TIdFTPServerIdentifier.Destroy;
-begin
-  FreeAndNil(FServerInfo);
-  inherited;
-end;
-
-function TIdFTPServerIdentifier.GetCaseSensitive: Boolean;
-begin
-  Result := FServerInfo.Values['CaseSensitive'] <> '0';
-end;
-
-function TIdFTPServerIdentifier.GetDirSeparator: String;
-begin
-  Result := FServerInfo.Values['DirSep'];
-  if Result = '' then begin
-    Result := '/';
-  end;
-end;
-
-function TIdFTPServerIdentifier.GetPlatformDescription: String;
-begin
-  Result := FServerInfo.Values['OS'];
-end;
-
-function TIdFTPServerIdentifier.GetPlatformVersion: String;
-begin
-  Result := FServerInfo.Values['OSVer'];
-end;
-
-function TIdFTPServerIdentifier.GetServerName: String;
-begin
-  Result := FServerInfo.Values['Name'];
-end;
-
-function TIdFTPServerIdentifier.GetServerVersion: String;
-begin
-  Result := FServerInfo.Values['Version'];
-end;
-
-function TIdFTPServerIdentifier.GetVendor: String;
-begin
-  Result := FServerInfo.Values['Vendor'];
-end;
-
 end.
-
-
