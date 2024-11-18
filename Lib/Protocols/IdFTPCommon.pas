@@ -2651,7 +2651,7 @@ begin
   if FClientVendor <> '' then begin
     Result := Result + 'Vendor=' + FClientVendor + '; '; {do not localize}
   end;
-  // PlatformDescription is used onl with CLNT not CSID...
+  // PlatformDescription is used only with CLNT not CSID...
   {if FPlatformDescription <> '' then begin
     Result := Result + 'Platform=' + FPlatformDescription + '; ';
   end;}
