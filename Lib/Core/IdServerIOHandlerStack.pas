@@ -59,7 +59,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdGlobal, IdIOHandler,
+  IdIOHandler,
   IdIOHandlerStack, IdServerIOHandlerSocket, IdYarn;
 
 type

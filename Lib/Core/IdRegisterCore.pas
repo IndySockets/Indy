@@ -137,7 +137,6 @@ uses
   IdGlobal,
   {$ENDIF}
 
-  IdBaseComponent,
   IdComponent,
   IdDsnCoreResourceStrings,
   IdAntiFreeze,
@@ -155,10 +154,8 @@ uses
   IdLogEvent,
   IdLogFile,
   IdLogStream,
-  IdSchedulerOfThread,
   IdSchedulerOfThreadDefault,
   IdSchedulerOfThreadPool,
-  IdServerIOHandlerSocket,
   IdServerIOHandlerStack,
   IdSimpleServer,
   IdThreadComponent,
@@ -167,7 +164,6 @@ uses
   {$ENDIF}
   IdUDPClient,
   IdUDPServer,
-  IdIOHandlerSocket,
   IdIOHandlerStack,
   IdIntercept,
   IdTCPServer,

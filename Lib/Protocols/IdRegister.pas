@@ -273,6 +273,7 @@ uses
   IdSASLPlain,
   IdSASLSKey,
   IdSASL_CRAM_MD5,
+  IdSASL_CRAM_SHA1,
   IdServerInterceptLogEvent,
   IdServerInterceptLogFile,
   IdSMTP,
@@ -316,6 +317,7 @@ uses
   IdUserAccounts,
   IdUserPassProvider,
   IdVCard,
+  IdWebDav,
   IdWhois,
   IdWhoIsServer;
 
@@ -669,6 +671,7 @@ begin
    TIdTrivialFTP,
    TIdUnixTime,
    TIdUnixTimeUDP,
+   TIdWebDAV,
    TIdWhois]);
 
   RegisterComponents(RSRegIndyServers+RSProtam, [
@@ -734,6 +737,7 @@ begin
   RegisterComponents(RSRegSASL+RSProt, [
    TIdSASLAnonymous,
    TIdSASLCRAMMD5,
+   TIdSASLCRAMSHA1,
    TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,
