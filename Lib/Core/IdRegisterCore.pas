@@ -137,6 +137,9 @@ uses
   IdGlobal,
   {$ENDIF}
 
+  {$IFDEF HAS_TSelectionEditor}
+  IdBaseComponent,
+  {$ENDIF}
   IdComponent,
   IdDsnCoreResourceStrings,
   IdAntiFreeze,
