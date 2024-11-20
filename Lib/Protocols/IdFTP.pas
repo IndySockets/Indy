@@ -612,10 +612,10 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdGlobal, IdCustomTransparentProxy, IdExceptionCore,
+  IdAssignedNumbers, IdGlobal, IdExceptionCore,
   IdExplicitTLSClientServerBase, IdFTPCommon, IdFTPList, IdFTPListParseBase,
-  IdException, IdIOHandler, IdIOHandlerSocket, IdReplyFTP, IdBaseComponent,
-  IdReplyRFC, IdReply, IdSocketHandle, IdTCPConnection, IdTCPClient,
+  IdException, IdIOHandler, IdIOHandlerSocket, IdReply, IdReplyFTP, IdBaseComponent,
+  IdSocketHandle, IdTCPConnection, IdTCPClient,
   IdThreadSafe, IdZLibCompressorBase;
 
 type

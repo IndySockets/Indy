@@ -65,7 +65,6 @@ uses
   IdIOHandler,
   IdIOHandlerSocket,
   IdIOHandlerStack,
-  IdScheduler,
   IdServerIOHandler,
   IdYarn;
 
