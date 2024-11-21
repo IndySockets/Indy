@@ -262,8 +262,8 @@ uses
   IdBaseComponent,
   IdComponent,IdContext, IdGlobal, IdException,
   IdIntercept, IdIOHandler, IdIOHandlerStack,
-  IdReply, IdScheduler, IdSchedulerOfThread, IdServerIOHandler,
-  IdServerIOHandlerStack, IdSocketHandle, IdStackConsts, IdTCPConnection,
+  IdReply, IdScheduler, IdServerIOHandler,
+  IdServerIOHandlerStack, IdSocketHandle, IdTCPConnection,
   IdThread, IdYarn, SysUtils;
 
 const
@@ -436,7 +436,7 @@ uses
   Windows,
   {$IFEND}
   IdGlobalCore,
-  IdResourceStringsCore, IdReplyRFC,
+  IdResourceStringsCore,
   IdSchedulerOfThreadDefault, IdStack,
   IdThreadSafe;
 

@@ -43,7 +43,7 @@ interface
 
 uses
   Classes,
-  IdIntercept, IdGlobal, IdSocketHandle, IdBaseComponent;
+  IdIntercept, IdGlobal, IdBaseComponent;
 
 type
   TIdLogBase = class(TIdConnectionIntercept)

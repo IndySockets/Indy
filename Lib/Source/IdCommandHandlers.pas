@@ -144,7 +144,7 @@ interface
 
 uses
   Classes,
-  IdBaseComponent, IdComponent, IdReply, IdGlobal,
+  IdComponent, IdReply, IdGlobal,
   IdContext, IdReplyRFC;
 
 const

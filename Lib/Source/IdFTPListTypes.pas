@@ -258,7 +258,6 @@ const
 implementation
 
 uses
-  IdException,
   IdFTPCommon, SysUtils;
 
 { TIdMinimalFTPListItem }

@@ -44,7 +44,6 @@ implementation
 
 {$IFNDEF HAS_ConvertToUtf32}
 uses
-  IdResourceStringsProtocols,
   IdResourceStringsUriUtils;
 {$ENDIF}
 

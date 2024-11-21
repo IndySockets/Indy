@@ -245,7 +245,6 @@ implementation
 
 uses
   IdGlobal,
-  IdResourceStringsCore,
   IdReplyRFC;
 
 function TIdCmdTCPServer.GetReplyClass: TIdReplyClass;

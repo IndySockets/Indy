@@ -64,10 +64,8 @@ uses
   IdException,
   IdExplicitTLSClientServerBase,
   IdReply,
-  IdReplyRFC,
   IdReplySMTP,
   IdTCPConnection,
-  IdTCPServer,
   IdYarn,
   IdStack,
   IdGlobal;

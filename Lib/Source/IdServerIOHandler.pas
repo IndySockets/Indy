@@ -52,7 +52,7 @@ interface
 
 uses
   Classes,
-  IdSocketHandle, IdComponent, IdIOHandlerStack, IdStackConsts,
+  IdSocketHandle, IdComponent, IdIOHandlerStack,
   IdIOHandler, IdThread, IdScheduler, IdYarn;
 
 type

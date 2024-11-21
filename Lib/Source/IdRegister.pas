@@ -194,7 +194,6 @@ uses
   IdBlockCipherIntercept,
   IdChargenServer,
   IdChargenUDPServer,
-  IdCoder3to4,
   IdCoderBinHex4,
   IdCoderMIME,
   IdCoderQuotedPrintable,
@@ -206,7 +205,6 @@ uses
   {$ENDIF}
   IdConnectThroughHttpProxy,
   IdCookieManager,
-  IdResourceStringsCore,
   IdDateTimeStamp,
   IdDayTime,
   IdDayTimeServer,
@@ -216,7 +214,6 @@ uses
   IdDICTServer,
   IdDiscardServer,
   IdDiscardUDPServer,
-  IdDsnRegister,
   IdDNSResolver,
   IdDNSServer,
   IdDsnCoreResourceStrings,
@@ -231,7 +228,6 @@ uses
   IdFTPServer,
   IdGopher,
   IdGopherServer,
-  IdHashMessageDigest,
   IdHL7,
   IdHTTP,
   IdHTTPProxyServer,
@@ -263,7 +259,6 @@ uses
   IdQotdServer,
   IdQOTDUDP,
   IdQOTDUDPServer,
-  IdResourceStrings,
   IdResourceStringsProtocols,
   IdRexec,
   IdRexecServer,
@@ -277,7 +272,6 @@ uses
   IdSASLOTP,
   IdSASLPlain,
   IdSASLSKey,
-  IdSASLUserPass,
   IdSASL_CRAM_MD5,
   IdSASL_CRAM_SHA1,
   IdServerInterceptLogEvent,
@@ -525,6 +519,7 @@ begin
    TIdTrivialFTP,
    TIdUnixTime,
    TIdUnixTimeUDP,
+   TIdWebDAV,
    TIdWhois]);
 
   RegisterComponents(RSRegIndyServers+RSProtam, [
@@ -590,6 +585,7 @@ begin
   RegisterComponents(RSRegSASL+RSProt, [
    TIdSASLAnonymous,
    TIdSASLCRAMMD5,
+   TIdSASLCRAMSHA1,
    TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,

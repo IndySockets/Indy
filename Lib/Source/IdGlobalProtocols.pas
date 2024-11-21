@@ -329,7 +329,6 @@ uses
   Windows,
   {$ENDIF}
   IdCharsets,
-  IdBaseComponent,
   IdGlobal,
   IdException,
   SysUtils;
@@ -549,7 +548,6 @@ uses
   {$IF DEFINED(USE_VCL_POSIX) AND DEFINED(OSX)}
   Macapi.CoreServices,
   {$IFEND}
-  IdIPAddress,
   {$IFDEF UNIX}
     {$IF DEFINED(USE_VCL_POSIX)}
   Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
@@ -566,8 +564,6 @@ uses
   Messages,
   Registry,
   {$ENDIF}
-  IdAssignedNumbers,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdStack
   {$IFDEF HAS_IOUtils_TPath}

@@ -132,7 +132,7 @@ interface
 
 uses
   Classes,
-  IdException, IdBaseComponent, IdGlobal, IdScheduler, 
+  IdException, IdGlobal, IdScheduler,
   IdThread, IdTask, IdYarn;
 
 type
@@ -173,7 +173,7 @@ uses
   {$IFDEF KYLIXCOMPAT}
   Libc,
   {$ENDIF}
-  IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore, SysUtils;
+  IdResourceStringsCore, IdThreadSafe, IdExceptionCore, SysUtils;
 
 { TIdSchedulerOfThread }
 

@@ -137,7 +137,9 @@ uses
   IdGlobal,
   {$ENDIF}
 
+  {$IFDEF HAS_TSelectionEditor}
   IdBaseComponent,
+  {$ENDIF}
   IdComponent,
   IdDsnCoreResourceStrings,
   IdAntiFreeze,
@@ -153,17 +155,14 @@ uses
   IdLogEvent,
   IdLogFile,
   IdLogStream,
-  IdSchedulerOfThread,
   IdSchedulerOfThreadDefault,
   IdSchedulerOfThreadPool,
-  IdServerIOHandlerSocket,
   IdServerIOHandlerStack,
   IdSimpleServer,
   IdThreadComponent,
   IdTraceRoute,
   IdUDPClient,
   IdUDPServer,
-  IdIOHandlerSocket,
   IdIOHandlerStack,
   IdIntercept,
   IdTCPServer,
