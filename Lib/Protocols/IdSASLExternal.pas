@@ -24,12 +24,12 @@
 
 unit IdSASLExternal;
 
-interface
-
 {$i IdCompilerDefines.inc}
 
+interface
+
 uses
-  IdSASL, IdTCPConnection;
+  IdSASL;
 
 {
   Implements RFC 2222: External SASL Mechanism

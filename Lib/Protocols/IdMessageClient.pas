@@ -397,9 +397,9 @@ unit IdMessageClient;
     Added support for generating encoded message body.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -409,8 +409,7 @@ uses
   IdHeaderList,
   IdIOHandlerStream,
   IdBaseComponent,
-  IdMessage,
-  IdTCPClient;
+  IdMessage;
 
 type
   TIdIOHandlerStreamMsg = class(TIdIOHandlerStream)
@@ -476,18 +475,17 @@ uses
   {$IFDEF DOTNET}
   System.IO,
   IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
   {$ENDIF}
   //TODO: Remove these references and make it completely pluggable. Check other spots in Indy as well
   IdMessageCoderBinHex4, IdMessageCoderQuotedPrintable, IdMessageCoderMIME,
   IdMessageCoderUUE, IdMessageCoderXXE,
   //
   IdGlobalProtocols,
-  IdCoder, IdCoder3to4, IdCoderBinHex4,
+  IdCoderBinHex4,
   IdCoderHeader, IdHeaderCoderBase, IdMessageCoder, IdComponent, IdException,
   IdResourceStringsProtocols, IdTCPConnection, IdTCPStream, IdIOHandler,
-  IdAttachmentFile, IdText, IdAttachment,
+  IdAttachment,
+  IdText,
   SysUtils;
 
 const

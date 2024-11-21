@@ -162,16 +162,15 @@
 
 unit IdDNSCommon;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
   IdContainers,
   IdException,
   IdGlobal,
-  IdResourceStrings,
   IdResourceStringsProtocols;
 
 const

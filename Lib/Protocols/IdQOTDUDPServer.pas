@@ -33,11 +33,12 @@
 
 unit IdQOTDUDPServer;
 
-interface
 {$i IdCompilerDefines.inc}
 
+interface
+
 uses
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
 type
   TIdQotdUDPGetEvent = procedure (ABinding: TIdSocketHandle; var AQuote : String) of object;

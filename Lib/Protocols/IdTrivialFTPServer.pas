@@ -39,9 +39,9 @@
 
 unit IdTrivialFTPServer;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -115,10 +115,12 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  {$IFDEF DOTNET}
+  {$IFNDEF FPC}
+    {$IFDEF DOTNET}
   IdStreamNET,
-  {$ELSE}
+    {$ELSE}
   IdStreamVCL,
+    {$ENDIF}
   {$ENDIF}
   IdExceptionCore,
   IdGlobalProtocols,

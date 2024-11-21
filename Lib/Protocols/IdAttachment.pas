@@ -45,14 +45,13 @@
 
 unit IdAttachment;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
-  IdMessageParts,
-  IdBaseComponent;
+  IdMessageParts;
 
 type
   TIdAttachment = class(TIdMessagePart)

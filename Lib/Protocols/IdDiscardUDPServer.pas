@@ -24,11 +24,12 @@
 
 unit IdDiscardUDPServer;
 
-interface
 {$i IdCompilerDefines.inc}
 
+interface
+
 uses
-  IdAssignedNumbers, IdSocketHandle, IdUDPBase, IdUDPServer;
+  IdAssignedNumbers, IdUDPServer;
 
 type
    TIdDiscardUDPServer = class(TIdUDPServer)

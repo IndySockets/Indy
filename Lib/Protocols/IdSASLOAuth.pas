@@ -18,9 +18,9 @@
 
 unit IdSASLOAuth;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal,

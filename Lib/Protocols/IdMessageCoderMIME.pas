@@ -153,9 +153,9 @@ unit IdMessageCoderMIME;
 // TODO: Predict output sizes and presize outputs, then use move on
 // presized outputs when possible, or presize only and reposition if stream
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -215,7 +215,7 @@ var
 implementation
 
 uses
-  IdCoder, IdCoderMIME, IdException, IdGlobalProtocols, IdResourceStrings,
+  IdCoder, IdCoderMIME, IdGlobalProtocols,
   IdCoderQuotedPrintable, IdCoderBinHex4, IdCoderHeader, SysUtils;
 
 type

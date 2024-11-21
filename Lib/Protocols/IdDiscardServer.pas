@@ -58,8 +58,9 @@ unit IdDiscardServer;
 Original Author: Ozz Nixon
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdAssignedNumbers,

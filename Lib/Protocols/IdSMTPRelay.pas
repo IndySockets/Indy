@@ -126,13 +126,13 @@ unit IdSMTPRelay;
     to keep track of the status as the sending is in progress.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdException, IdExceptionCore,
+  IdException, IdExceptionCore,
   IdEMailAddress, IdGlobal, IdHeaderList,
   IdDNSResolver, IdMessage, IdMessageClient, IdBaseComponent,
   IdSMTPBase, IdReplySMTP, SysUtils;

@@ -394,6 +394,7 @@ unit IdIMAP4;
   IMAP 4 (Internet Message Access Protocol - Version 4 Rev 1)
   By Idan Cohen i_cohen@yahoo.com
 }
+{$I IdCompilerDefines.inc}
 
 interface
 
@@ -427,8 +428,6 @@ to avoid ending up with ""INBOX""
 {CC3: WARNING - if the following gives a "File not found" error on compilation,
 you need to add the path "C:\Program Files\Borland\Delphi7\Source\Indy" in
 Project -> Options -> Directories/Conditionals -> Search Path}
-
-{$I IdCompilerDefines.inc}
 
 uses
   Classes,
@@ -1166,7 +1165,6 @@ uses
   {$ENDIF}
   IdCoder,
   IdEMailAddress,
-  IdResourceStrings,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols,
   IdExceptionCore,

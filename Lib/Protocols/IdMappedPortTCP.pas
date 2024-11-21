@@ -114,16 +114,15 @@
 
 unit IdMappedPortTCP;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
-  IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer,
-  IdGlobal, IdStack, IdTCPConnection, IdTCPServer, IdYarn, SysUtils;
+  IdGlobal, IdStack, IdTCPConnection, IdYarn, SysUtils;
 
 type
   TIdMappedPortTCP = class;
@@ -201,8 +200,7 @@ type
 Implementation
 
 uses
-  IdException,
-  IdIOHandler, IdIOHandlerSocket, IdResourceStrings,IdStackConsts, IdTCPClient;
+  IdIOHandler, IdIOHandlerSocket, IdTCPClient;
 
 procedure TIdMappedPortTCP.InitComponent;
 begin

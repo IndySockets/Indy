@@ -42,9 +42,9 @@
 
 unit IdTrivialFTP;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -90,7 +90,9 @@ uses
   {$IFDEF DOTNET}
   IdStreamNET,
   {$ELSE}
+    {$IFNDEF FPC}
   IdStreamVCL,
+    {$ENDIF}
   {$ENDIF}
   IdComponent,
   IdExceptionCore,

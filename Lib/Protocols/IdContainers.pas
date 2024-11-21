@@ -60,9 +60,9 @@
 
 unit IdContainers;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes

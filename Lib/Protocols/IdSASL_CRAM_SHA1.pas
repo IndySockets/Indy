@@ -57,13 +57,13 @@ unit IdSASL_CRAM_SHA1;
   IETF draft draft-ietf-ipsec-hmac-md5-txt.00
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdSASL,
-  IdSASL_CRAMBase,
-  IdSASLUserPass;
+  IdSASL_CRAMBase;
 
 type
 

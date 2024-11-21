@@ -18,9 +18,9 @@
 
 unit IdStruct;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal;

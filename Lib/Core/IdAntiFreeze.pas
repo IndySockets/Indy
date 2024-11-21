@@ -51,14 +51,16 @@ unit IdAntiFreeze;
     restriction.
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
-  IdAntiFreezeBase,
-  IdBaseComponent;
+  IdAntiFreezeBase
+  {$IFNDEF FPC}
+  , IdBaseComponent
+  {$ENDIF};
 
 { Directive needed for generating a legacy non-UnitScoped C++Builder HPP }
 
@@ -145,7 +147,9 @@ uses
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFNDEF FMX}
+       {$IFNDEF FPC}
   Messages,
+       {$ENDIF}
   Windows,
     {$ENDIF}
   {$ENDIF}

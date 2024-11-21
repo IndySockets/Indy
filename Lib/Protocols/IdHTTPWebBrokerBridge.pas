@@ -48,9 +48,9 @@ Modified by: Grahame Grieve
 Modified by: Chad Z. Hower (Kudzu)
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

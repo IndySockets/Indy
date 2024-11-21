@@ -39,9 +39,9 @@ unit IdRSH;
   Original author J. Peter Mugaas
   2001-February-15
 }
+{$i IdCompilerDefines.inc}
 
 interface
-{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers, IdGlobal, IdRemoteCMDClient, IdTCPClient;
@@ -68,8 +68,6 @@ implementation
 uses
   IdComponent,
   IdGlobalProtocols,
-  IdSimpleServer,
-  IdTCPConnection,
   IdThread;
 
 { TIdRSH }

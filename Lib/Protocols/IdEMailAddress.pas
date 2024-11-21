@@ -109,9 +109,9 @@ unit IdEMailAddress;
     Allen O'Neill
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -179,8 +179,7 @@ implementation
 uses
   IdGlobal,
   IdGlobalProtocols,
-  IdExceptionCore,
-  IdResourceStringsProtocols, SysUtils;
+  SysUtils;
 
 const
   // ATEXT without the double quote and space characters

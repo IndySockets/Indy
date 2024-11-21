@@ -210,9 +210,9 @@ Prior to this, it was a simple wrapper class with a few problems.
   UIDs or flags!
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 {$IFDEF DOTNET}
 {$I IdUnitPlatformOff.inc}
@@ -493,10 +493,8 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdMessageCollection,
-  IdResourceStrings,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStream,
   SysUtils;
 
 function TIdIMAP4Server.GetReplyClass: TIdReplyClass;

@@ -36,8 +36,9 @@
 
 unit IdInterceptThrottler;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdComponent, IdIntercept, IdGlobal;
@@ -61,7 +62,7 @@ type
 implementation
 
 uses
-  IdAntiFreezeBase, IdException;
+  IdAntiFreezeBase;
 
 { TIdInterceptThrottler }
 

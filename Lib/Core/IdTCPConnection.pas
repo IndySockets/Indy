@@ -308,9 +308,9 @@
 }
 unit IdTCPConnection;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 {
 2003-12-14 - Ciaran Costelloe
@@ -356,9 +356,7 @@ uses
   IdIntercept,
   IdIOHandler,
   IdIOHandlerSocket,
-  IdIOHandlerStack,
   IdReply,
-  IdSocketHandle,
   IdBaseComponent;
 
 type

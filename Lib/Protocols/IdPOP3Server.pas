@@ -174,8 +174,9 @@
 
 unit IdPOP3Server;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 {
  Indy POP3 Server
@@ -203,11 +204,8 @@ uses
   IdExplicitTLSClientServerBase,
   IdGlobal,
   IdReply,
-  IdTCPServer,
-  IdServerIOHandler,
   IdMailBox,
-  IdBaseComponent,
-  IdTCPConnection, IdYarn;
+  IdTCPConnection;
 
 {
   We can not port APOP to NET due to the use of GetSystemClock and a process ID

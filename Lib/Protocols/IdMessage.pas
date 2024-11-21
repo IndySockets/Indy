@@ -297,9 +297,9 @@ unit IdMessage;
     is the encoded raw message part.  Otherwise, it is the (decoded) text.
     }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -533,7 +533,7 @@ uses
   IdMessageCoderMIME, // Here so the 'MIME' in create will always suceed
   IdCharSets, IdGlobalProtocols, IdMessageCoder, IdResourceStringsProtocols,
   IdMessageClient, IdAttachmentFile,
-  IdText, SysUtils;
+  SysUtils;
 
 const
   cPriorityStrs: array[TIdMessagePriority] of string = ('urgent', 'urgent', 'normal', 'non-urgent', 'non-urgent');

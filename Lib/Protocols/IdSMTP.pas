@@ -184,15 +184,14 @@
 
 unit IdSMTP;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
   IdAssignedNumbers,
   IdEMailAddress,
-  IdException,
   IdExplicitTLSClientServerBase,
   IdHeaderList,
   IdMessage,
@@ -266,9 +265,7 @@ implementation
 uses
   IdCoderMIME,
   IdGlobalProtocols,
-  IdReplySMTP,
   IdSSL,
-  IdResourceStringsProtocols,
   IdTCPConnection;
 
 { TIdSMTP }

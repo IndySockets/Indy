@@ -55,9 +55,9 @@ unit IdCookieManager;
   Copyright: (c) Chad Z. Hower and The Indy Team.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -112,7 +112,7 @@ uses
   {$IFDEF HAS_UNIT_Generics_Defaults}
   System.Generics.Defaults,
   {$ENDIF}
-  IdAssignedNumbers, IdException, IdGlobal, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdCookieManager }
 

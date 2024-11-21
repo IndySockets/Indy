@@ -168,9 +168,9 @@
 
 unit IdFTPCommon;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -736,12 +736,11 @@ const
 
 implementation
 
-uses 
   {$IFDEF USE_VCL_POSIX}
+uses
   Posix.SysTime,
-  Posix.Time,
+  Posix.Time;
   {$ENDIF}
-  IdException;
 
 {WS_FTP Pro XAUT Support}
 

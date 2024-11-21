@@ -45,12 +45,12 @@ unit IdRexecServer;
   This is based on the IdRexec.pas unit and
   programming comments at http://www.abandoned.org/nemon/rexeclib.py
 }
-
-interface
 {$i IdCompilerDefines.inc}
 
+interface
+
 uses
-  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient, IdTCPServer;
+  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient;
 
 type
   TIdRexecCommandEvent = procedure (AThread: TIdContext;

@@ -87,9 +87,10 @@ unit IdCompressionIntercept;
    Sofware Corporation.  No warranties, express or implied are given with
    this source file.
 }
-interface
 
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -97,10 +98,7 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdIntercept,
-  IdTCPClient,
-  IdTCPConnection,
-  IdZLibHeaders,
-  IdZLib;
+  IdZLibHeaders;
 
 type
   EIdCompressionException = class(EIdException);

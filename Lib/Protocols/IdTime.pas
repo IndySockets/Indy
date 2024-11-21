@@ -83,9 +83,9 @@ unit IdTime;
    to be more consistant with TIdSNTP.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}

@@ -63,9 +63,9 @@ unit IdHeaderList;
         and are private.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes, IdGlobalProtocols;
@@ -145,7 +145,6 @@ type
 implementation
 
 uses
-  IdException,
   IdGlobal,
   SysUtils;
 

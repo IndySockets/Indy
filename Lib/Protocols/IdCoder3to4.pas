@@ -152,9 +152,9 @@
 }
 unit IdCoder3to4;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -195,7 +195,7 @@ type
 implementation
 
 uses
-  IdException, IdResourceStrings, IdStream;
+  IdStream;
 
 { TIdDecoder4to3 }
 

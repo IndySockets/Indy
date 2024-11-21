@@ -67,9 +67,9 @@ REFERENCES
             http://www.ietf.org/id/draft-pettersen-cookie-v2-05.txt
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -203,11 +203,10 @@ function CanonicalizeHostName(const AHost: String): String;
 
 implementation
 
-uses
   {$IFDEF VCL_XE3_OR_ABOVE}
-  System.Types,
+uses
+  System.Types;
   {$ENDIF}
-  IdAssignedNumbers, IdResourceStringsProtocols;
 
 function GetDefaultPath(const AURL: TIdURI): String;
 var

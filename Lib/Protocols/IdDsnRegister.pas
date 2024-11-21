@@ -43,9 +43,9 @@
 
 unit IdDsnRegister;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -95,7 +95,6 @@ procedure Register;
 implementation
 
 uses
-  IdDsnResourceStrings,
   {$IFDEF WIDGET_WINFORMS}
   IdDsnSASLListEditorFormNET,
   {$R 'IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources' 'IdDsnSASLListEditorFormNET.resx'}

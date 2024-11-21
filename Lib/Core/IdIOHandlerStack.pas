@@ -177,9 +177,9 @@
 
 unit IdIOHandlerStack;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -211,8 +211,8 @@ uses
   {$IFDEF WINDOWS}
   Windows,
   {$ENDIF}
-  IdAntiFreezeBase, IdResourceStringsCore, IdResourceStrings, IdStackConsts, IdException,
-  IdTCPConnection, IdComponent, IdIOHandler, IdCustomTransparentProxy;
+  IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdException,
+  IdComponent, IdIOHandler, IdCustomTransparentProxy;
 
 type
   TIdConnectThread = class(TThread)

@@ -67,16 +67,15 @@
 
 unit IdMessageCoder;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
   IdComponent,
   IdGlobal,
-  IdMessage,
-  IdBaseComponent;
+  IdMessage;
 
 type
   TIdMessageCoderPartType = (mcptText, mcptAttachment, mcptIgnore, mcptEOF);

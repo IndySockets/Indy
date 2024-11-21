@@ -606,9 +606,9 @@ unit IdFTP;
   TODO: Change the FTP demo to demonstrate the use of the new events and add proxy support
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -1106,8 +1106,10 @@ uses
   Posix.Unistd,
   {$ENDIF}
   {$IFDEF WINDOWS}
+    {$IFNDEF FPC}
   //facilitate inlining only.
   Windows,
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF DOTNET}
     {$IFDEF USE_INLINE}

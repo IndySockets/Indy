@@ -52,9 +52,9 @@ unit IdRexec;
   Original author Laurence LIew
   2000-October-24
  }
+{$i IdCompilerDefines.inc}
 
 interface
-{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers,
@@ -79,8 +79,6 @@ implementation
 uses
   IdComponent,
   IdGlobal,
-  IdSimpleServer,
-  IdTCPConnection,
   IdThread;
 
 procedure TIdRexec.InitComponent;

@@ -283,23 +283,21 @@
 }
 unit IdDNSServer;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
   IdContainers,
   IdAssignedNumbers,
   IdSocketHandle,
-  IdIOHandlerSocket,
   IdGlobal,
   IdGlobalProtocols,
   IdBaseComponent,
   IdComponent,
   IdContext,
   IdUDPBase,
-  IdResourceStrings,
   IdExceptionCore,
   IdDNSResolver,
   IdUDPServer,

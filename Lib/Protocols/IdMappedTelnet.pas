@@ -35,14 +35,13 @@
 
 unit IdMappedTelnet;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdAssignedNumbers,
-  IdMappedPortTCP,
-  IdTCPServer;
+  IdMappedPortTCP;
 
 type
   TIdMappedTelnetContext = class(TIdMappedPortContext)
@@ -88,7 +87,7 @@ implementation
 
 uses
   IdGlobal, IdException, IdResourceStringsProtocols,
-  IdIOHandlerSocket, IdTCPClient, SysUtils;
+  IdTCPClient, SysUtils;
 
 const
   NAMESEP = #0+#9+' :'; {do not localize}

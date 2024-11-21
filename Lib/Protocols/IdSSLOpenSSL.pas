@@ -197,9 +197,9 @@ additional AError parameter (patch courtesy of "jvlad", dmda@yandex.ru).
 This helps user code distinquish between Self-signed and invalid certificates.
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 {$IFNDEF USE_OPENSSL}
   {$message error Should not compile if USE_OPENSSL is not defined!!!}
@@ -213,7 +213,6 @@ uses
   Windows,
   {$ENDIF}
   Classes,
-  IdBuffer,
   IdCTypes,
   IdGlobal,
   IdException,
@@ -223,14 +222,9 @@ uses
   IdComponent,
   IdIOHandler,
   IdGlobalProtocols,
-  IdTCPServer,
   IdThread,
-  IdTCPConnection,
-  IdIntercept,
   IdIOHandlerSocket,
   IdSSL,
-  IdSocks,
-  IdScheduler,
   IdYarn;
 
 type
@@ -684,14 +678,9 @@ uses
   Posix.Unistd,
   {$ENDIF}
   IdFIPS,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdResourceStringsOpenSSL,
   IdStack,
-  IdStackBSDBase,
-  IdAntiFreezeBase,
-  IdExceptionCore,
-  IdResourceStrings,
   IdThreadSafe,
   SysUtils,
   SyncObjs;

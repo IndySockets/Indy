@@ -36,11 +36,11 @@ unit IdAuthenticationSSPI;
   Copyright: (c) Chad Z. Hower and The Winshoes Working Group.
 }
 
+{$i IdCompilerDefines.inc}
+
 {$DEFINE SET_ENCRYPT_IN_FT_WITH_GETPROCADDRESS_FUDGE}
 
 interface
-
-{$i IdCompilerDefines.inc}
 
 uses
   IdGlobal,
@@ -433,9 +433,7 @@ type
 implementation
 
 uses
-  IdGlobalCore,
   IdGlobalProtocols,
-  IdException,
   IdCoderMIME,
   IdResourceStringsSSPI,
   IdHeaderList;

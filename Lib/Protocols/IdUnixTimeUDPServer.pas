@@ -22,9 +22,9 @@
 
 unit IdUnixTimeUDPServer;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}

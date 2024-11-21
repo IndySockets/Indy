@@ -36,8 +36,10 @@
 
 unit IdSASLSKey;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
+
 uses
   IdSASLUserPass, IdSASL;
 
@@ -66,7 +68,7 @@ type
 implementation
 
 uses
-  IdBaseComponent, IdFIPS, IdGlobal, IdGlobalProtocols, IdOTPCalculator,  IdUserPassProvider, SysUtils;
+  IdFIPS, IdGlobal, IdGlobalProtocols, IdOTPCalculator, SysUtils;
 
 const
   SKEYSERVICENAME = 'SKEY'; {do not localize}

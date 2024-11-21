@@ -40,8 +40,10 @@ unit IdSystatUDP;
   Note that this protocol is officially called Active User
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
+
 uses Classes, IdAssignedNumbers, IdUDPBase, IdUDPClient;
 
 const DefIdSysUDPTimeout =  1000; //one second

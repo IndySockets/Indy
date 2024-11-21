@@ -594,17 +594,17 @@ TODO:
     Change events to use DoXXXX
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
   IdAssignedNumbers, IdCommandHandlers, IdGlobal, IdContext, IdException,
   IdExplicitTLSClientServerBase, IdFTPBaseFileSystem, IdFTPCommon,
   IdBaseComponent, IdFTPList, IdFTPListOutput, IdFTPServerContextBase,
-  IdReply, IdReplyFTP, IdReplyRFC, IdScheduler, IdServerIOHandler,
-  IdTCPConnection, IdCmdTCPServer,  IdTCPServer, IdThread, IdUserAccounts,
+  IdReply, IdReplyFTP, IdReplyRFC,  IdServerIOHandler,
+  IdTCPConnection, IdCmdTCPServer, IdThread, IdUserAccounts,
   IdYarn, IdZLibCompressorBase, SysUtils;
 
 type
@@ -1314,7 +1314,7 @@ uses
   IdFIPS,
   IdHash, IdHashCRC, IdHashMessageDigest, IdHashSHA, IdIOHandlerSocket,
   IdResourceStringsProtocols, IdGlobalProtocols, IdSimpleServer, IdSSL,
-  IdIOHandlerStack, IdSocketHandle, IdStrings, IdTCPClient, IdEMailAddress,
+  IdIOHandlerStack, IdSocketHandle, IdTCPClient, IdEMailAddress,
   IdStack, IdFTPListTypes, IdStream;
 
 const

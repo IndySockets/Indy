@@ -27,11 +27,12 @@
 
 unit IdMessageCoderXXE;
 
-interface
 {$i IdCompilerDefines.inc}
 
+interface
+
 uses
-  IdMessageCoderUUE, IdMessageCoder, IdMessage;
+  IdMessageCoderUUE, IdMessageCoder;
 
 type
   // No Decoder - UUE handles XXE decoding

@@ -68,9 +68,9 @@
 
 unit IdStackConsts;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 { This should be the only unit except OS Stack units that reference
   Winsock or lnxsock }

@@ -102,6 +102,8 @@
 
 unit IdRegisterCore;
 
+{$I IdCompilerDefines.inc}
+
 interface
 
 // Procedures
@@ -109,8 +111,6 @@ interface
   procedure Register;
 
 implementation
-
-{$I IdCompilerDefines.inc}
 
 uses
   Classes,

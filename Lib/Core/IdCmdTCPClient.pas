@@ -94,10 +94,9 @@ unit IdCmdTCPClient;
   Original author: Sergio Perry
   Description: TCP client that uses CommandHandlers
 }
+{$I IdCompilerDefines.inc}
 
 interface
-
-{$I IdCompilerDefines.inc}
 
 uses
   IdContext,
@@ -177,9 +176,7 @@ type
   EIdCmdTCPClientConnectError = class(EIdCmdTCPClientError);
 
 implementation
-
-uses
-  IdReplyRFC, SysUtils;
+uses SysUtils;
 
 type
   TIdCmdClientContextAccess = class(TIdCmdClientContext)

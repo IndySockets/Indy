@@ -54,11 +54,12 @@ unit IdRSHServer;
     agonized over writing this component at all due to these risks.
 }
 
-interface
 {$i IdCompilerDefines.inc}
 
+interface
+
 uses
-  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient, IdTCPServer;
+  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient;
 
 const
   RSH_FORCEPORTSINRANGE = True;

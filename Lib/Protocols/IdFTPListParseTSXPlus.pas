@@ -32,9 +32,9 @@ unit IdFTPListParseTSXPlus;
   http://www.gweep.net/~shifty/music/miragehack/gcc/xasm/cug292.lst
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

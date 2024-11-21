@@ -41,16 +41,15 @@
 
 unit IdMessageCoderQuotedPrintable;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 // Written by C Costelloe, 23rd September 2003
 
 uses
   Classes,
   IdMessageCoder,
-  IdMessage,
   IdGlobal;
 
 { Note: Decoding handled by IdMessageDecoderMIME }
@@ -69,7 +68,7 @@ type
 implementation
 
 uses
-  IdCoder, IdCoderMIME, IdException, IdGlobalProtocols, IdResourceStrings, IdCoderQuotedPrintable,
+  IdCoderMIME, IdGlobalProtocols, IdCoderQuotedPrintable,
   IdCoderHeader, SysUtils;
 
 { TIdMessageEncoderInfoQuotedPrintable }

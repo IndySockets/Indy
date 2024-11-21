@@ -67,9 +67,9 @@
 
 unit IdMessageCoderYenc;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -120,11 +120,6 @@ const
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdHashCRC,
   IdResourceStringsProtocols,
   SysUtils;

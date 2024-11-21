@@ -45,9 +45,9 @@ unit IdAuthentication;
   Author: Doychin Bondzhev (doychin@dsoft-bg.com)
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -119,7 +119,7 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdGlobalProtocols, IdResourceStringsProtocols,
+  IdCoderMIME, IdGlobalProtocols,
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}

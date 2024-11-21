@@ -67,18 +67,17 @@ unit IdIcmpClient;
 
 // SG 25/1/02: Modified the component to support multithreaded PING and traceroute
 
-interface
-
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
+interface
 
 uses
   Classes,
   IdGlobal,
   IdRawBase,
   IdRawClient,
-  IdStackConsts,
-  IdBaseComponent;
+  IdStackConsts;
 
 const
   DEF_PACKET_SIZE = 32;
@@ -210,9 +209,11 @@ type
 implementation
 
 uses
+  {$IFNDEF FPC}
   //facilitate inlining only.
-  {$IFDEF WINDOWS}
-  Windows,
+    {$IFDEF WINDOWS}
+     Windows,
+    {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF OSX}

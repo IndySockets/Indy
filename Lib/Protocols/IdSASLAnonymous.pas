@@ -26,12 +26,12 @@
 
 unit IdSASLAnonymous;
 
-interface
-
 {$i IdCompilerDefines.inc}
 
+interface
+
 uses
-  IdSASL, IdTCPConnection;
+  IdSASL;
 
 {
 Implements RFC 2245

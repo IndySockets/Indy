@@ -43,16 +43,15 @@ unit IdUserAccounts;
    - universal TIdUserManagerAuthenticationEvent> Sender: TObject
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
-  IdException,
   IdGlobal,
   IdBaseComponent,
-  IdComponent,
-  IdStrings;
+  IdComponent;
 
 type
   TIdUserHandle = UInt32;//ptr,object,collection.item.id or THandle

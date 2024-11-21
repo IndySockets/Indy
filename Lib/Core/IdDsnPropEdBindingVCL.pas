@@ -56,9 +56,9 @@
 
 unit IdDsnPropEdBindingVCL;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -68,11 +68,13 @@ uses
 {$IFDEF WIDGET_VCL_LIKE}
   ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
 {$ENDIF}
-{$IFDEF HAS_UNIT_Types}
+{$IFNDEF FPC}
+  {$IFDEF HAS_UNIT_Types}
   Types,
-{$ENDIF}
-{$IFDEF WINDOWS}
+  {$ENDIF}
+  {$IFDEF WINDOWS}
   Windows,
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF LCL}
   LResources,

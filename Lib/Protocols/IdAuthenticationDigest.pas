@@ -45,17 +45,16 @@ unit IdAuthenticationDigest;
   Copyright: (c) Chad Z. Hower and The Winshoes Working Group.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
   IdAuthentication,
   IdException,
   IdGlobal,
-  IdHashMessageDigest,
-  IdHeaderList;
+  IdHashMessageDigest;
 
 type
   EIdInvalidAlgorithm = class(EIdException);
@@ -97,7 +96,7 @@ type
 implementation
 
 uses
-  IdGlobalProtocols, IdFIPS, IdHash, IdResourceStrings, IdResourceStringsProtocols,
+  IdGlobalProtocols, IdFIPS, IdHash, IdResourceStringsProtocols,
   SysUtils;
 
 { TIdDigestAuthentication }

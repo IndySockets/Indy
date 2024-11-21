@@ -42,22 +42,19 @@
 
 unit IdSysLogServer;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdAssignedNumbers,
   IdBaseComponent,
   IdComponent,
   IdGlobal,
-  IdException,
   IdSocketHandle,
-  IdStackConsts,
   IdThread,
-  IdUDPBase,
   IdUDPServer,
-  IdSysLogMessage,
-  IdSysLog;
+  IdSysLogMessage;
 
 type
   TOnSyslogEvent = procedure(Sender: TObject; ASysLogMessage: TIdSysLogMessage;

@@ -46,17 +46,16 @@
 
 unit IdMappedPOP3;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
   {$ENDIF}
   IdAssignedNumbers,
-  IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3,
-  IdTCPServer;
+  IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3;
 
 type
   TIdMappedPOP3Context = class (TIdMappedTelnetContext)
@@ -96,7 +95,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdIOHandlerSocket, IdResourceStringsProtocols,
+  IdGlobal, IdException, IdResourceStringsProtocols,
   IdTCPClient, IdTCPConnection, SysUtils;
 
 { TIdMappedPOP3 }

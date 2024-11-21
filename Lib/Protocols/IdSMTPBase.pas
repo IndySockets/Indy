@@ -85,9 +85,9 @@
 
 unit IdSMTPBase;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal,
@@ -180,7 +180,7 @@ uses
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.Classes,
   {$ENDIF}
-  IdAssignedNumbers, IdException,
+  IdAssignedNumbers,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols, IdIOHandler, IdReplySMTP,
   IdSSL,

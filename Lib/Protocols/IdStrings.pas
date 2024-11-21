@@ -50,9 +50,9 @@
 
 unit IdStrings;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 {
   IsWhiteString

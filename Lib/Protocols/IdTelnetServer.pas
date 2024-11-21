@@ -60,14 +60,13 @@
 
 unit IdTelnetServer;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
   IdGlobal,
-  IdBaseComponent,
   IdAssignedNumbers, IdContext,
   IdCustomTCPServer,
   IdTCPConnection, IdYarn;

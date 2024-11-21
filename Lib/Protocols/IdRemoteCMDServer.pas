@@ -38,12 +38,12 @@
 
 unit IdRemoteCMDServer;
 
-interface
-
 {$i IdCompilerDefines.inc}
 
+interface
+
 uses
-  IdAssignedNumbers, IdContext,IdTCPClient, IdCustomTCPServer;
+  IdContext,IdTCPClient, IdCustomTCPServer;
 
 type
   TIdRemoteCMDServer = class(TIdCustomTCPServer)
@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  IdSocketHandle, IdException, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket, IdStack, SysUtils;
+  IdSocketHandle, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket, IdStack, SysUtils;
 
 { TIdRemoteCMDServer }
 

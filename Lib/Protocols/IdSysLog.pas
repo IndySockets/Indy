@@ -51,9 +51,9 @@ unit IdSysLog;
   in UDP Client.  This will probably require some changes to the Indy core
   units though. }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses IdAssignedNumbers, IdSocketHandle, IdSysLogMessage, IdUDPBase, IdUDPClient;
 
@@ -80,7 +80,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdStackConsts, SysUtils;
+  IdGlobal, SysUtils;
 
 { TIdSysLog }
 

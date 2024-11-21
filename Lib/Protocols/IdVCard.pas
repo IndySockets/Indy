@@ -69,9 +69,9 @@ unit IdVCard;
  - Added QP Check & Decode of individual properties
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
@@ -460,7 +460,6 @@ implementation
 
 uses
   IdCoderQuotedPrintable,
-  IdException,
   IdGlobalProtocols, SysUtils;
 
 const VCardProperties : array [0..27] of string = (

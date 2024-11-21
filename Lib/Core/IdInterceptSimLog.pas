@@ -48,13 +48,13 @@ unit IdInterceptSimLog;
 
   TODO: Can also change it to detect several EOLs and non binary and use :Lines:x
 }
+{$i IdCompilerDefines.inc}
 
 interface
-{$i IdCompilerDefines.inc}
 
 uses
   Classes,
-  IdGlobal, IdIntercept, IdBaseComponent;
+  IdGlobal, IdIntercept;
 
 type
   TIdInterceptSimLog = class(TIdConnectionIntercept)
@@ -77,10 +77,12 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
+  {$IFNDEF FPC}
+    {$IFDEF DOTNET}
   IdStreamNET,
     {$ELSE}
   IdStreamVCL,
+    {$ENDIF}
   {$ENDIF}
   IdException, IdResourceStringsCore, SysUtils;
 
