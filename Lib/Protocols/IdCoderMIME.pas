@@ -80,9 +80,6 @@ var
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ENDIF}
   SysUtils;
 
 { TIdDecoderMIMELineByLine }

@@ -48,7 +48,8 @@ uses
   IdGlobal
   {$IFDEF DOTNET}
   , IdStruct
-  {$ENDIF};
+  {$ENDIF}
+  ;
 
 type
   {$IFDEF DOTNET}

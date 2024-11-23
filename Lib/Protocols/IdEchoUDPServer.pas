@@ -38,7 +38,7 @@ unit IdEchoUDPServer;
 interface
 
 uses
-  IdAssignedNumbers, IdGlobal, IdSocketHandle,  IdUDPServer;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
 type
   TIdEchoUDPServer = class(TIdUDPServer)

@@ -316,7 +316,7 @@ uses
   IdUserAccounts,
   IdUserPassProvider,
   IdVCard,
-  IdWebDav,
+  IdWebDAV,
   IdWhois,
   IdWhoIsServer;
 

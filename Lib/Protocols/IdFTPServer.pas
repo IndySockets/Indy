@@ -603,7 +603,7 @@ uses
   IdAssignedNumbers, IdCommandHandlers, IdGlobal, IdContext, IdException,
   IdExplicitTLSClientServerBase, IdFTPBaseFileSystem, IdFTPCommon,
   IdBaseComponent, IdFTPList, IdFTPListOutput, IdFTPServerContextBase,
-  IdReply, IdReplyFTP, IdReplyRFC,  IdServerIOHandler,
+  IdReply, IdReplyFTP, IdReplyRFC, IdServerIOHandler,
   IdTCPConnection, IdCmdTCPServer, IdThread, IdUserAccounts,
   IdYarn, IdZLibCompressorBase, SysUtils;
 

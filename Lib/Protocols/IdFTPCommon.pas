@@ -736,11 +736,11 @@ const
 
 implementation
 
-  {$IFDEF USE_VCL_POSIX}
+{$IFDEF USE_VCL_POSIX}
 uses
   Posix.SysTime,
   Posix.Time;
-  {$ENDIF}
+{$ENDIF}
 
 {WS_FTP Pro XAUT Support}
 

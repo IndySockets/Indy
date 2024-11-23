@@ -143,7 +143,7 @@ uses
   Classes,
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdYarn, IdCommandHandlers, IdException,
   IdGlobal, IdCmdTCPServer, IdExplicitTLSClientServerBase,
-   IdTCPConnection, IdReply;
+  IdTCPConnection, IdReply;
 
 (*
  For more information on NNTP visit http://www.faqs.org/rfcs/

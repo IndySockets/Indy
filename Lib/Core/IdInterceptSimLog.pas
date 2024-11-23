@@ -77,13 +77,6 @@ type
 implementation
 
 uses
-  {$IFNDEF FPC}
-    {$IFDEF DOTNET}
-  IdStreamNET,
-    {$ELSE}
-  IdStreamVCL,
-    {$ENDIF}
-  {$ENDIF}
   IdException, IdResourceStringsCore, SysUtils;
 
 { TIdInterceptSimLog }

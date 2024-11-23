@@ -176,7 +176,9 @@ type
   EIdCmdTCPClientConnectError = class(EIdCmdTCPClientError);
 
 implementation
-uses SysUtils;
+
+uses
+  SysUtils;
 
 type
   TIdCmdClientContextAccess = class(TIdCmdClientContext)

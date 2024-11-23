@@ -474,7 +474,6 @@ uses
   //facilitate inlining only.
   {$IFDEF DOTNET}
   System.IO,
-  IdStreamNET,
   {$ENDIF}
   //TODO: Remove these references and make it completely pluggable. Check other spots in Indy as well
   IdMessageCoderBinHex4, IdMessageCoderQuotedPrintable, IdMessageCoderMIME,
@@ -484,8 +483,7 @@ uses
   IdCoderBinHex4,
   IdCoderHeader, IdHeaderCoderBase, IdMessageCoder, IdComponent, IdException,
   IdResourceStringsProtocols, IdTCPConnection, IdTCPStream, IdIOHandler,
-  IdAttachment,
-  IdText,
+  IdAttachment, IdText,
   SysUtils;
 
 const

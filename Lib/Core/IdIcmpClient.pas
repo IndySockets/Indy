@@ -209,12 +209,7 @@ type
 implementation
 
 uses
-  {$IFNDEF FPC}
   //facilitate inlining only.
-    {$IFDEF WINDOWS}
-     Windows,
-    {$ENDIF}
-  {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF OSX}
   Macapi.CoreServices,
