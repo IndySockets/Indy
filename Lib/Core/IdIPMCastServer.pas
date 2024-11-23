@@ -51,10 +51,10 @@ unit IdIPMCastServer;
   Dr. Harley J. Mackenzie, Initial revision.
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
+interface
 
 uses
   IdComponent,
