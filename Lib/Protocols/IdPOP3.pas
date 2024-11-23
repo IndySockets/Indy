@@ -201,9 +201,7 @@ uses
   IdMessageClient,
   IdReply,
   IdSASL,
-  IdSASLCollection,
-  IdBaseComponent,
-  IdUserPassProvider;
+  IdSASLCollection;
 
 type
   TIdPOP3AuthenticationType = (patUserPass, patAPOP, patSASL);

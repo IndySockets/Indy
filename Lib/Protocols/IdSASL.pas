@@ -60,9 +60,7 @@ interface
 uses
   Classes,
   IdGlobal,
-  IdBaseComponent,
-  IdTCPConnection,
-  IdException;
+  IdBaseComponent;
 
 type
   TIdSASLResult = (srSuccess, srFailure, srAborted);

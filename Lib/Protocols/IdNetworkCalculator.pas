@@ -40,8 +40,7 @@ interface
 uses
   Classes,
   IdGlobal,
-  IdBaseComponent,
-  IdStruct;
+  IdBaseComponent;
   
 type
   TNetworkClass = (

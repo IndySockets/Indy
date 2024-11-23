@@ -74,7 +74,7 @@ interface
 uses
   Classes,
   IdAssignedNumbers, IdGlobal, IdException, IdTCPClient,
-  IdComponent, IdBaseComponent;
+  IdComponent;
 
 type
   TIdLPRFileFormat =
@@ -189,11 +189,6 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStackConsts,
   SysUtils;
 

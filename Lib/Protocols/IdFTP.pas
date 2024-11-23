@@ -1105,10 +1105,6 @@ uses
   Posix.SysTime,
   Posix.Unistd,
   {$ENDIF}
-  {$IFDEF WINDOWS}
-  //facilitate inlining only.
-  Windows,
-  {$ENDIF}
   {$IFDEF DOTNET}
     {$IFDEF USE_INLINE}
   System.IO,

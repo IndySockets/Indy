@@ -203,12 +203,6 @@ function CanonicalizeHostName(const AHost: String): String;
 
 implementation
 
-uses
-  {$IFDEF VCL_XE3_OR_ABOVE}
-  System.Types,
-  {$ENDIF}
-  IdAssignedNumbers, IdResourceStringsProtocols;
-
 function GetDefaultPath(const AURL: TIdURI): String;
 var
   LUrlPath: string;

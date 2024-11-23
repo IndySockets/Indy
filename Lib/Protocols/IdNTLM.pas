@@ -45,8 +45,11 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdGlobal,
-  IdStruct;
+  IdGlobal
+  {$IFDEF DOTNET}
+  , IdStruct
+  {$ENDIF}
+  ;
 
 type
   {$IFDEF DOTNET}
@@ -282,8 +285,6 @@ uses
   {$ENDIF}
   IdFIPS,
   IdGlobalProtocols,
-  IdHash,
-  IdHashMessageDigest,
   IdCoderMIME
   {$IFDEF HAS_GENERICS_TArray_Copy}
     {$IFDEF HAS_UNIT_Generics_Collections}

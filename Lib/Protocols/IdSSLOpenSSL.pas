@@ -213,7 +213,6 @@ uses
   Windows,
   {$ENDIF}
   Classes,
-  IdBuffer,
   IdCTypes,
   IdGlobal,
   IdException,
@@ -223,14 +222,9 @@ uses
   IdComponent,
   IdIOHandler,
   IdGlobalProtocols,
-  IdTCPServer,
   IdThread,
-  IdTCPConnection,
-  IdIntercept,
   IdIOHandlerSocket,
   IdSSL,
-  IdSocks,
-  IdScheduler,
   IdYarn;
 
 type
@@ -684,14 +678,9 @@ uses
   Posix.Unistd,
   {$ENDIF}
   IdFIPS,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdResourceStringsOpenSSL,
   IdStack,
-  IdStackBSDBase,
-  IdAntiFreezeBase,
-  IdExceptionCore,
-  IdResourceStrings,
   IdThreadSafe,
   SysUtils,
   SyncObjs;

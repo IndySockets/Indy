@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  IdAntiFreezeBase, IdException;
+  IdAntiFreezeBase;
 
 { TIdInterceptThrottler }
 

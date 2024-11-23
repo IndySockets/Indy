@@ -51,8 +51,7 @@ interface
 
 uses
   Classes,
-  IdMessageParts,
-  IdBaseComponent;
+  IdMessageParts;
 
 type
   TIdAttachment = class(TIdMessagePart)
