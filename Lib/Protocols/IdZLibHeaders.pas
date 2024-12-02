@@ -897,7 +897,7 @@ const
   //Note that this is not an official ZLIB .DLL.  It was created by running
   //CMake in Visual Studio 2022.
 const
-  zlib.dllzlib1.dll';
+  libzlib = 'zlib.dll';
   {$ENDIF}
   {$IFDEF WIN64}
   //Note that this is not an official ZLIB .DLL.  It was created by running
