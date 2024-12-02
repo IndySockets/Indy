@@ -117,6 +117,10 @@ type
   TIdClientSSLClass = class of TIdSSLIOHandlerSocketBase;
   TIdServerSSLClass = class of TIdServerIOHandlerSSLBase;
 
+type
+  TIdTLSVersion = (tlsvTLS_flexible, tlsvTLSv1_0, tlsvTLSv1_1, tlsvTLSv1_2, tlsvTLSv1_3);
+  TIdTLSVersions = set of TIdTLSVersion;
+
 Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;
   const AClientClass : TIdClientSSLClass; const AServerClass : TIdServerSSLClass); {$IFDEF HAS_DEPRECATED}deprecated;{$ENDIF}
