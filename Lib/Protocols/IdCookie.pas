@@ -203,6 +203,11 @@ function CanonicalizeHostName(const AHost: String): String;
 
 implementation
 
+{$IFNDEF FPC}
+//facilitate inlining
+uses System.Types;
+{$ENDIF}
+
 function GetDefaultPath(const AURL: TIdURI): String;
 var
   LUrlPath: string;
