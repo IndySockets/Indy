@@ -206,7 +206,7 @@ implementation
 {$IFDEF VCL_XE3_OR_ABOVE}
 uses
   //facilitate inlining only.
-  System.Types,
+  System.Types;
 {$ENDIF}
 
 function GetDefaultPath(const AURL: TIdURI): String;
