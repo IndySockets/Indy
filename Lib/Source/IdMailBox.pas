@@ -53,7 +53,6 @@ uses
   Classes,
   IdBaseComponent,
   IdMessage,
-  IdException,
   IdMessageCollection;
 
 type

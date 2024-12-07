@@ -46,15 +46,15 @@ type
     constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
 
-    function TryStartAuthenticate(const AHost: string; APort: TIdPort; const AProtocolName : string; var VInitialResponse: String): Boolean; override;
-    function StartAuthenticate(const AChallenge, AHost: string; APort: TIdPort; const AProtocolName : string) : String; override;
-    function ContinueAuthenticate(const ALastResponse, AHost: string; APort: TIdPort; const AProtocolName : String): String; override;
+    function TryStartAuthenticate(const AHost, AProtocolName : string; var VInitialResponse: String): Boolean; override;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : string) : String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdUserPassProvider, IdBaseComponent;
+  IdGlobal;
 
 function IsUsernameChallenge(const AChallenge: string): Boolean;
 begin
@@ -87,15 +87,14 @@ begin
   FSecurityLevel := 200;
 end;
 
-function TIdSASLLogin.TryStartAuthenticate(const AHost: string; APort: TIdPort;
-  const AProtocolName: string; var VInitialResponse: String): Boolean;
+function TIdSASLLogin.TryStartAuthenticate(const AHost, AProtocolName: string;
+  var VInitialResponse: String): Boolean;
 begin
   VInitialResponse := GetUsername;
   Result := True;
 end;
 
-function TIdSASLLogin.StartAuthenticate(const AChallenge, AHost: string; APort: TIdPort;
-  const AProtocolName: string): String;
+function TIdSASLLogin.StartAuthenticate(const AChallenge, AHost, AProtocolName: string): String;
 begin
   if IsUsernameChallenge(AChallenge) then begin // the usual case
     Result := GetUsername;
@@ -104,8 +103,7 @@ begin
   end;
 end;
 
-function TIdSASLLogin.ContinueAuthenticate(const ALastResponse, AHost: string;
-  APort: TIdPort; const AProtocolName: String): String;
+function TIdSASLLogin.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName: String): String;
 begin
   // RLebeau 8/26/2022: TIdSMTP calls TIdSASLEntries.LoginSASL() with ACanAttemptIR=True,
   // so the Username will be sent in the AUTH command's optional Initial-Response parameter.
@@ -119,7 +117,7 @@ begin
   if IsPasswordChallenge(ALastResponse) then begin // the usual case, so check it first
     Result := GetPassword;
   end else begin // if the Initial-Response is ignored
-    Result := StartAuthenticate(ALastResponse, AHost, APort, AProtocolName);
+    Result := StartAuthenticate(ALastResponse, AHost, AProtocolName);
   end;
 end;
 

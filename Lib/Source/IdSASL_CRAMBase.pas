@@ -61,7 +61,6 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdHMACSHA1,
   IdSASL,
   IdSASLUserPass;
 

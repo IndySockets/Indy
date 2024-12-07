@@ -80,8 +80,6 @@ implementation
 uses
   IdComponent,
   IdGlobal,
-  IdSimpleServer,
-  IdTCPConnection,
   IdThread;
 
 constructor TIdRexec.Create(AOwner: TComponent);

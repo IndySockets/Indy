@@ -7,7 +7,6 @@ interface
 uses
   Classes,
   IdMessageCoder,
-  IdMessage,
   IdGlobal;
 
 type
@@ -24,7 +23,7 @@ type
 implementation
 
 uses
-  IdCoder, IdCoderBinHex4, SysUtils;
+  IdCoderBinHex4, SysUtils;
 
 { TIdMessageEncoderInfoBinHex4 }
 

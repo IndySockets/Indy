@@ -38,7 +38,7 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
 type
   TIdDayTimeUDPServer = class(TIdUDPServer)

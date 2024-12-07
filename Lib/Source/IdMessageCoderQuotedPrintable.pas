@@ -50,7 +50,6 @@ interface
 uses
   Classes,
   IdMessageCoder,
-  IdMessage,
   IdGlobal;
 
 { Note: Decoding handled by IdMessageDecoderMIME }
@@ -69,7 +68,7 @@ type
 implementation
 
 uses
-  IdCoder, IdCoderMIME, IdException, IdGlobalProtocols, IdResourceStrings, IdCoderQuotedPrintable,
+  IdCoderMIME, IdGlobalProtocols, IdCoderQuotedPrintable,
   IdCoderHeader, SysUtils;
 
 { TIdMessageEncoderInfoQuotedPrintable }

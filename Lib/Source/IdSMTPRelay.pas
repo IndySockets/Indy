@@ -132,7 +132,7 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdException, IdExceptionCore,
+  IdException, IdExceptionCore,
   IdEMailAddress, IdGlobal, IdHeaderList,
   IdDNSResolver, IdMessage, IdMessageClient, IdBaseComponent,
   IdSMTPBase, IdReplySMTP, SysUtils;

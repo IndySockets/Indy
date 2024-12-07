@@ -45,7 +45,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, IdAssignedNumbers, IdGlobal, IdRemoteCMDClient, IdTCPClient;
+  Classes,
+  IdAssignedNumbers, IdGlobal, IdRemoteCMDClient, IdTCPClient;
 
 type
   TIdRSH = class(TIdRemoteCMDClient)
@@ -69,8 +70,6 @@ implementation
 uses
   IdComponent,
   IdGlobalProtocols,
-  IdSimpleServer,
-  IdTCPConnection,
   IdThread;
 
 { TIdRSH }

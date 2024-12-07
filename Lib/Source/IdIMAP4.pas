@@ -1141,7 +1141,6 @@ uses
   {$ENDIF}
   IdCoder,
   IdEMailAddress,
-  IdResourceStrings,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols,
   IdExceptionCore,

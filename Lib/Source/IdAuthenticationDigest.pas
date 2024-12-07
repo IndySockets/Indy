@@ -54,8 +54,7 @@ uses
   IdAuthentication,
   IdException,
   IdGlobal,
-  IdHashMessageDigest,
-  IdHeaderList;
+  IdHashMessageDigest;
 
 type
   EIdInvalidAlgorithm = class(EIdException);
@@ -97,7 +96,7 @@ type
 implementation
 
 uses
-  IdGlobalProtocols, IdFIPS, IdHash, IdResourceStrings, IdResourceStringsProtocols,
+  IdGlobalProtocols, IdFIPS, IdHash, IdResourceStringsProtocols,
   SysUtils;
 
 { TIdDigestAuthentication }

@@ -178,7 +178,7 @@ type
 implementation
 
 uses
-  IdAssignedNumbers, IdException,
+  IdAssignedNumbers,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols, IdIOHandler, IdReplySMTP,
   IdSSL,

@@ -89,7 +89,6 @@ procedure Register;
 implementation
 
 uses
-  IdDsnResourceStrings,
   IdDsnSASLListEditorFormVCL,
   {$IFDEF HAS_TSelectionEditor}
     {$IFDEF USE_OPENSSL}

@@ -63,10 +63,6 @@ interface
 uses
   Classes,
   ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
-  Types,
-  {$IFDEF WINDOWS}
-  Windows,
-  {$ENDIF}
   {$IFDEF LCL}
   LResources,
   {$ENDIF}

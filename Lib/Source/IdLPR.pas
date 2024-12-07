@@ -74,7 +74,7 @@ interface
 uses
   Classes,
   IdAssignedNumbers, IdGlobal, IdException, IdTCPClient,
-  IdComponent, IdBaseComponent;
+  IdComponent;
 
 type
   TIdLPRFileFormat =

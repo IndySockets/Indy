@@ -31,7 +31,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, IdSASL, IdTCPConnection;
+  Classes, IdSASL;
 
 {
 Implements RFC 2245

@@ -112,7 +112,7 @@ uses
   {$IFDEF HAS_UNIT_Generics_Defaults}
   System.Generics.Defaults,
   {$ENDIF}
-  IdAssignedNumbers, IdException, IdGlobal, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdCookieManager }
 

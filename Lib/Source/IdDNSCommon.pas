@@ -171,7 +171,6 @@ uses
   IdContainers,
   IdException,
   IdGlobal,
-  IdResourceStrings,
   IdResourceStringsProtocols;
 
 const

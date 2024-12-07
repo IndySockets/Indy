@@ -88,7 +88,6 @@ type
 implementation
 
 uses
-  IdException,
   SysUtils;
 
 constructor TIdTCPStream.Create(AConnection: TIdTCPConnection; const AWriteThreshold: Integer = 0);

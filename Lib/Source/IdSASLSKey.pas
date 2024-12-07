@@ -41,7 +41,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, IdSASLUserPass, IdSASL;
+  Classes,
+  IdSASLUserPass, IdSASL;
 
 {
 S/KEY SASL mechanism based on RFC 2222.
@@ -59,15 +60,15 @@ type
     constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
     function IsReadyToStart: Boolean; override;
-    function TryStartAuthenticate(const AHost: string; APort: TIdPort; const AProtocolName : String; var VInitialResponse: String): Boolean; override;
-    function StartAuthenticate(const AChallenge, AHost: string; APort: TIdPort; const AProtocolName : String) : String; override;
-    function ContinueAuthenticate(const ALastResponse, AHost: string; APort: TIdPort; const AProtocolName : String): String; override;
+    function TryStartAuthenticate(const AHost, AProtocolName : String; var VInitialResponse: String): Boolean; override;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : String) : String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
   end;
 
 implementation
 
 uses
-  IdBaseComponent, IdFIPS, IdGlobal, IdGlobalProtocols, IdOTPCalculator,  IdUserPassProvider, SysUtils;
+  IdFIPS, IdGlobal, IdGlobalProtocols, IdOTPCalculator, SysUtils;
 
 const
   SKEYSERVICENAME = 'SKEY'; {do not localize}
@@ -81,8 +82,7 @@ begin
   FSecurityLevel := 900;
 end;
 
-function TIdSASLSKey.ContinueAuthenticate(const ALastResponse, AHost: string;
-  APort: TIdPort; const AProtocolName : String): String;
+function TIdSASLSKey.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String;
 var
   LBuf, LSeed : String;
   LCount : UInt32;
@@ -102,7 +102,7 @@ begin
     LSeed := Fetch(LBuf);
     Result := TIdOTPCalculator.GenerateSixWordKey('md4', LSeed, GetPassword, LCount); {do not localize}
   end else begin // if the Initial-Response is ignored
-    Result := StartAuthenticate(ALastResponse, AHost, APort, AProtocolName);
+    Result := StartAuthenticate(ALastResponse, AHost, AProtocolName);
   end;
 end;
 
@@ -116,15 +116,14 @@ begin
   Result := SKEYSERVICENAME;
 end;
 
-function TIdSASLSKey.TryStartAuthenticate(const AHost: string; APort: TIdPort;
-  const AProtocolName : String; var VInitialResponse: String): Boolean;
+function TIdSASLSKey.TryStartAuthenticate(const AHost, AProtocolName : String;
+  var VInitialResponse: String): Boolean;
 begin
   VInitialResponse := GetUsername;
   Result := True;
 end;
 
-function TIdSASLSKey.StartAuthenticate(const AChallenge, AHost: string;
-  APort: TIdPort; const AProtocolName : String): String;
+function TIdSASLSKey.StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String;
 begin
   Result := GetUsername;
 end;

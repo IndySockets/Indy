@@ -194,9 +194,6 @@ type
 
 implementation
 
-uses
-  IdException, IdResourceStrings;
-
 { TIdDecoder4to3 }
 
 class procedure TIdDecoder4to3.ConstructDecodeTable(const ACodingTable: string;

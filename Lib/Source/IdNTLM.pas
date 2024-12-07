@@ -33,7 +33,7 @@
 {
   Implementation of the NTLM authentication as specified in
   http://www.innovation.ch/java/ntlm.html with some fixes
-                  
+
   Author: Doychin Bondzhev (doychin@dsoft-bg.com)
   Copyright: (c) Chad Z. Hower and The Winshoes Working Group.
 }
@@ -45,8 +45,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdGlobal,
-  IdStruct;
+  IdGlobal;
 
 type
   type_1_message_header = packed record
@@ -138,7 +137,6 @@ uses
   SysUtils,
   IdFIPS,
   IdGlobalProtocols,
-  IdHash,
   IdHashMessageDigest,
   IdCoderMIME
   {.$IFDEF USE_OPENSSL}

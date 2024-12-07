@@ -68,7 +68,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdBaseComponent, IdBuffer, IdException;
+  IdGlobal, IdBaseComponent, IdException;
 
 type
   EIdInterceptCircularLink = class(EIdException);

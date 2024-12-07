@@ -119,7 +119,7 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdGlobalProtocols, IdResourceStringsProtocols,
+  IdCoderMIME, IdGlobalProtocols,
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}

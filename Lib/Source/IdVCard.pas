@@ -458,7 +458,6 @@ implementation
 
 uses
   IdCoderQuotedPrintable,
-  IdException,
   IdGlobalProtocols, SysUtils;
 
 const VCardProperties : array [0..27] of string = (

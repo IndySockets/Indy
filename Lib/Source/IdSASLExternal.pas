@@ -29,7 +29,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, IdSASL, IdTCPConnection;
+  Classes, IdSASL;
 
 {
   Implements RFC 2222: External SASL Mechanism

@@ -1096,8 +1096,6 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   Posix.Unistd,
-  {$ELSEIF DEFINED(WINDOWS)}
-  Windows,
   {$IFEND}
   IdComponent,
   IdFIPS,

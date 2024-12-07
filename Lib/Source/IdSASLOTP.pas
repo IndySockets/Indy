@@ -43,7 +43,6 @@ interface
 
 uses
   Classes,
-  IdException,
   IdSASL,
   IdSASLUserPass;
 
@@ -54,15 +53,15 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     class function ServiceName: TIdSASLServiceName; override;
-    function TryStartAuthenticate(const AHost: string; APort: TIdPort; const AProtocolName : String; var VInitialResponse: String): Boolean; override;
-    function StartAuthenticate(const AChallenge, AHost: string; APort: TIdPort; const AProtocolName : String): String; override;
-    function ContinueAuthenticate(const ALastResponse, AHost: string; APort: TIdPort; const AProtocolName : String): String; override;
+    function TryStartAuthenticate(const AHost, AProtocolName : String; var VInitialResponse: String): Boolean; override;
+    function StartAuthenticate(const AChallenge, AHost, AProtocolName : String): String; override;
+    function ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String; override;
   end;
 
 implementation
 
 uses
-  IdBaseComponent, IdGlobal, IdOTPCalculator, IdUserPassProvider;
+  IdGlobal, IdOTPCalculator;
 
 { TIdSASLOTP }
 
@@ -72,7 +71,7 @@ begin
   FSecurityLevel := 1000;
 end;
 
-function TIdSASLOTP.ContinueAuthenticate(const ALastResponse, AHost: string; APort: TIdPort; const AProtocolName : String): String;
+function TIdSASLOTP.ContinueAuthenticate(const ALastResponse, AHost, AProtocolName : String): String;
 begin
   // RLebeau 4/17/2018: TIdSMTP calls TIdSASLEntries.LoginSASL() with ACanAttemptIR=True,
   // so the Username will be sent in the AUTH command's optional Initial-Response parameter.
@@ -86,7 +85,7 @@ begin
   if TextStartsWith(ALastResponse, 'otp-') then begin // the usual case, so check it first...
     Result := GenerateOTP(ALastResponse, GetPassword);
   end else begin // if the Initial-Response is ignored
-    Result := StartAuthenticate(ALastResponse, AHost, APort, AProtocolName);
+    Result := StartAuthenticate(ALastResponse, AHost, AProtocolName);
   end;
 end;
 
@@ -95,14 +94,14 @@ begin
   Result := 'OTP'; {Do not translate}
 end;
 
-function TIdSASLOTP.TryStartAuthenticate(const AHost: string; APort: TIdPort; const AProtocolName : string;
+function TIdSASLOTP.TryStartAuthenticate(const AHost, AProtocolName : string;
   var VInitialResponse: String): Boolean;
 begin
   VInitialResponse := GetUsername;
   Result := True;
 end;
 
-function TIdSASLOTP.StartAuthenticate(const AChallenge, AHost: string; APort: TIdPort; const AProtocolName : string): String;
+function TIdSASLOTP.StartAuthenticate(const AChallenge, AHost, AProtocolName : string): String;
 begin
   Result := GetUsername;
 end;

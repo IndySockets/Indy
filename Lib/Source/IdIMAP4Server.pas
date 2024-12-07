@@ -484,7 +484,6 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdMessageCollection,
-  IdResourceStrings,
   IdResourceStringsProtocols,
   IdSSL,
   SysUtils;

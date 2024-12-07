@@ -528,7 +528,7 @@ uses
   IdMessageCoderMIME, // Here so the 'MIME' in create will always suceed
   IdCharSets, IdGlobalProtocols, IdMessageCoder, IdResourceStringsProtocols,
   IdMessageClient, IdAttachmentFile,
-  IdText, SysUtils;
+  SysUtils;
 
 const
   cPriorityStrs: array[TIdMessagePriority] of string = ('urgent', 'urgent', 'normal', 'non-urgent', 'non-urgent');

@@ -52,7 +52,7 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient, IdTCPServer;
+  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient;
 
 type
   TIdRexecCommandEvent = procedure (AThread: TIdContext;

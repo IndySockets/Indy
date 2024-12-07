@@ -215,12 +215,9 @@ uses
   Windows,
   {$ENDIF}
   Classes,
-  {$IFDEF SNI_SUPPORT}
-    {$IFDEF HAS_UNIT_Generics_Collections}
+  {$IF DEFINED(SNI_SUPPORT) AND DEFINED(HAS_UNIT_Generics_Collections)}
   System.Generics.Collections,
-    {$ENDIF}
-  {$ENDIF}
-  IdBuffer,
+  {$IFEND}
   IdCTypes,
   IdGlobal,
   IdException,
@@ -230,14 +227,9 @@ uses
   IdComponent,
   IdIOHandler,
   IdGlobalProtocols,
-  IdTCPServer,
   IdThread,
-  IdTCPConnection,
-  IdIntercept,
   IdIOHandlerSocket,
   IdSSL,
-  IdSocks,
-  IdScheduler,
   IdYarn;
 
 type

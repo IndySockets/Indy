@@ -23,7 +23,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdGlobal, IdIcmpClient, IdRawBase, IdRawClient, IdThread;
+  IdGlobal, IdIcmpClient, IdRawBase, IdThread;
 
 type
   TIdTraceRoute = class(TIdCustomICMPClient)

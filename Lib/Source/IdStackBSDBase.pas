@@ -351,7 +351,6 @@ uses
   IdStackUnix,
     {$IFEND}
   {$IFEND}
-  IdResourceStrings,
   SysUtils;
 
 { TIdStackBSDBase }

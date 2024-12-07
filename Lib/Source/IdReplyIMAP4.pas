@@ -115,8 +115,7 @@ interface
 
 uses
   Classes,
-  IdReply,
-  IdReplyRFC;
+  IdReply;
 
 const
   IMAP_OK      = 'OK';      {Do not Localize}

@@ -55,7 +55,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdIntercept, IdBaseComponent;
+  IdGlobal, IdIntercept;
 
 type
   TIdInterceptSimLog = class(TIdConnectionIntercept)

@@ -65,7 +65,6 @@ uses
   System.Generics.Collections,
   {$ENDIF}
   IdASN1Util,
-  IdException,
   IdGlobal,
   IdUDPBase,
   IdUDPClient,

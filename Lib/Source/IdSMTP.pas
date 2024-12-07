@@ -192,7 +192,6 @@ uses
   Classes,
   IdAssignedNumbers,
   IdEMailAddress,
-  IdException,
   IdExplicitTLSClientServerBase,
   IdHeaderList,
   IdMessage,
@@ -265,9 +264,7 @@ implementation
 uses
   IdCoderMIME,
   IdGlobalProtocols,
-  IdReplySMTP,
   IdSSL,
-  IdResourceStringsProtocols,
   IdTCPConnection;
 
 { TIdSMTP }

@@ -116,7 +116,7 @@ uses
   IdAssignedNumbers,
   IdEMailAddress,
   IdGlobal,
-  IdHeaderList, IdTCPClient, IdBaseComponent;
+  IdHeaderList, IdTCPClient;
 
 type
   TIdGopherMenuItem = class(TCollectionItem)
@@ -249,8 +249,8 @@ type
 implementation
 
 uses
-  IdComponent, IdException,
-  IdGlobalProtocols, IdGopherConsts, IdReplyRFC,
+  IdComponent,
+  IdGlobalProtocols, IdGopherConsts,
   IdTCPConnection, SysUtils;
 
 { TIdGopher }

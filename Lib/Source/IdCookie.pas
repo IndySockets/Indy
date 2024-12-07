@@ -202,11 +202,11 @@ function CanonicalizeHostName(const AHost: String): String;
 
 implementation
 
+{$IFDEF DCC_XE3_OR_ABOVE}
 uses
-  {$IFDEF DCC_XE3_OR_ABOVE}
-  System.Types,
-  {$ENDIF}
-  IdAssignedNumbers, IdResourceStringsProtocols;
+  //facilitate inlining only.
+  System.Types;
+{$ENDIF}
 
 function GetDefaultPath(const AURL: TIdURI): String;
 var

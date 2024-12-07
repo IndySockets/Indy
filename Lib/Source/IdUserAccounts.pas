@@ -48,11 +48,9 @@ interface
 
 uses
   Classes,
-  IdException,
   IdGlobal,
   IdBaseComponent,
-  IdComponent,
-  IdStrings;
+  IdComponent;
 
 type
   TIdUserHandle = UInt32;//ptr,object,collection.item.id or THandle
@@ -150,6 +148,9 @@ type
     // When ARC is enabled, object references MUST be valid objects.
     // It is common for users to store non-object values, though, so
     // we will provide separate properties for those purposes
+    //
+    // TODO; use TValue instead of separating them
+    //
     FDataObject: TObject;
     FDataValue: PtrInt;
     //
@@ -166,7 +167,7 @@ type
     //
     function  CheckPassword(const APassword: String): Boolean; virtual;
     //
-    property  Data: TObject read FDataObject write FDataObject;
+    property  DataObject: TObject read FDataObject write FDataObject;
     property  DataValue: PtrInt read FDataValue write FDataValue;
     {$IFNDEF USE_OBJECT_ARC}
     property  Data: TObject read FDataObject write FDataObject; // deprecated 'Use DataObject or DataValue property.';

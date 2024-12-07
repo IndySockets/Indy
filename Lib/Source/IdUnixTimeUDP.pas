@@ -28,7 +28,7 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdTimeUDP, IdUDPClient;
+  IdAssignedNumbers, IdTimeUDP;
 
 {
   This is based on a description at

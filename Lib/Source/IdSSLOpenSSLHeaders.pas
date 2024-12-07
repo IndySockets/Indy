@@ -24690,6 +24690,7 @@ begin
   time_str := TMarshal.ReadStringAsAnsi(TPtrWrapper.Create(UCTtime^.data), UCTtime^.length);
   {$ELSE}
   SetString(LTemp, UCTtime^.data, UCTtime^.length);
+  // TODO: do we need to use SetCodePage() here?
   time_str := String(LTemp); // explicit convert to Unicode
   {$ENDIF}
   // Check if first 14 chars (4-digit year) are numbers

@@ -142,8 +142,8 @@ Original Author: Ozz Nixon (Winshoes 7)
 uses
   Classes,
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdYarn, IdCommandHandlers, IdException,
-  IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase,
-   IdTCPConnection, IdTCPServer, IdReply;
+  IdGlobal, IdCmdTCPServer, IdExplicitTLSClientServerBase,
+  IdTCPConnection, IdReply;
 
 (*
  For more information on NNTP visit http://www.faqs.org/rfcs/

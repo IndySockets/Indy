@@ -84,7 +84,8 @@ end;
 
 function TIdSASLNTLM.IsReadyToStart: Boolean;
 begin
-  Result := (not GetFIPSMode) and (inherited IsReadyToStart) and NTLMFunctionsLoaded;
+  Result := (not GetFIPSMode) and (inherited IsReadyToStart) and
+     NTLMFunctionsLoaded;
 end;
 
 class function TIdSASLNTLM.ServiceName: TIdSASLServiceName;

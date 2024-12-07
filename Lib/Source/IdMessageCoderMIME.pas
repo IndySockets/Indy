@@ -215,7 +215,7 @@ var
 implementation
 
 uses
-  IdCoder, IdCoderMIME, IdException, IdGlobalProtocols, IdResourceStrings,
+  IdCoder, IdCoderMIME, IdGlobalProtocols,
   IdCoderQuotedPrintable, IdCoderBinHex4, IdCoderHeader, SysUtils;
 
 type

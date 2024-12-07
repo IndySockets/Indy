@@ -409,8 +409,7 @@ uses
   IdHeaderList,
   IdIOHandlerStream,
   IdBaseComponent,
-  IdMessage,
-  IdTCPClient;
+  IdMessage;
 
 type
   TIdIOHandlerStreamMsg = class(TIdIOHandlerStream)
@@ -469,10 +468,10 @@ uses
   IdMessageCoderUUE, IdMessageCoderXXE,
   //
   IdGlobalProtocols,
-  IdCoder, IdCoder3to4, IdCoderBinHex4,
+  IdCoderBinHex4,
   IdCoderHeader, IdHeaderCoderBase, IdMessageCoder, IdComponent, IdException,
   IdResourceStringsProtocols, IdTCPConnection, IdTCPStream, IdIOHandler,
-  IdAttachmentFile, IdText, IdAttachment,
+  IdAttachment, IdText,
   SysUtils;
 
 const

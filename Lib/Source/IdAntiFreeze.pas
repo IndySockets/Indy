@@ -57,8 +57,7 @@ interface
 
 uses
   Classes,
-  IdAntiFreezeBase,
-  IdBaseComponent;
+  IdAntiFreezeBase;
 
 { Directive needed for generating a legacy non-UnitScoped C++Builder HPP }
 

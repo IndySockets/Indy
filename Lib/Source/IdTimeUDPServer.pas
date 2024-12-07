@@ -42,7 +42,7 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
 type
   TIdCustomTimeUDPServer = class(TIdUDPServer)

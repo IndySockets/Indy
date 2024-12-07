@@ -67,7 +67,6 @@ interface
 uses
   Classes,
   IdGlobal,
-  IdBaseComponent,
   IdAssignedNumbers, IdContext,
   IdCustomTCPServer,
   IdTCPConnection, IdYarn;

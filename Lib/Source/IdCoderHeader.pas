@@ -115,7 +115,6 @@ uses
 implementation
 
 uses
-  IdException,
   IdGlobal,
   IdGlobalProtocols,
   SysUtils;

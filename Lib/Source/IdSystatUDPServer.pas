@@ -52,7 +52,7 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
 type
   TIdUDPSystatEvent = procedure (ABinding: TIdSocketHandle; AResults : TStrings) of object;
