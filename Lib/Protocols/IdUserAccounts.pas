@@ -171,7 +171,7 @@ type
     function  CheckPassword(const APassword: String): Boolean; virtual;
     //
     {$IFDEF USE_OBJECT_ARC}
-    property  Data: TObject read FDataObject write FDataObject;
+    property  DataObject: TObject read FDataObject write FDataObject;
     property  DataValue: PtrInt read FDataValue write FDataValue;
     {$ELSE}
     property  Data: TObject read FData write FData;
