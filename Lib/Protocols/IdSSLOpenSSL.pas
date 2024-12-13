@@ -687,9 +687,9 @@ uses
 
 const
   sslvSSLv2 = IdSSL.sslvSSLv2;
-  sslvSSLv3 = IdSSL.sslvSSLv3
+  sslvSSLv3 = IdSSL.sslvSSLv3;
   sslvSSLv23 = IdSSL.sslvSSLv23;
-  sslvTLSv1 = IdSSL.sslvTLSv1
+  sslvTLSv1 = IdSSL.sslvTLSv1;
   sslvTLSv1_1 = IdSSL.sslvTLSv1_1;
   sslvTLSv1_2 = IdSSL.sslvTLSv1_2;
 
