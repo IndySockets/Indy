@@ -54,7 +54,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdIntercept, IdBaseComponent;
+  IdGlobal, IdIntercept;
 
 type
   TIdInterceptSimLog = class(TIdConnectionIntercept)
@@ -77,11 +77,6 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-    {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdException, IdResourceStringsCore, SysUtils;
 
 { TIdInterceptSimLog }
@@ -117,7 +112,7 @@ end;
 procedure TIdInterceptSimLog.SetFilename(const AValue: string);
 begin
   if Assigned(FStream) then begin
-    raise EIdException.Create(RSLogFileAlreadyOpen);
+    raise EIdException.Create(RSLogFileAlreadyOpen); // TODO: create a new Exception class for this
   end;
   FFilename := AValue;
 end;

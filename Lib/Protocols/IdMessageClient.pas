@@ -409,8 +409,7 @@ uses
   IdHeaderList,
   IdIOHandlerStream,
   IdBaseComponent,
-  IdMessage,
-  IdTCPClient;
+  IdMessage;
 
 type
   TIdIOHandlerStreamMsg = class(TIdIOHandlerStream)
@@ -475,19 +474,16 @@ uses
   //facilitate inlining only.
   {$IFDEF DOTNET}
   System.IO,
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
   {$ENDIF}
   //TODO: Remove these references and make it completely pluggable. Check other spots in Indy as well
   IdMessageCoderBinHex4, IdMessageCoderQuotedPrintable, IdMessageCoderMIME,
   IdMessageCoderUUE, IdMessageCoderXXE,
   //
   IdGlobalProtocols,
-  IdCoder, IdCoder3to4, IdCoderBinHex4,
+  IdCoderBinHex4,
   IdCoderHeader, IdHeaderCoderBase, IdMessageCoder, IdComponent, IdException,
   IdResourceStringsProtocols, IdTCPConnection, IdTCPStream, IdIOHandler,
-  IdAttachmentFile, IdText, IdAttachment,
+  IdAttachment, IdText,
   SysUtils;
 
 const
@@ -1226,7 +1222,7 @@ begin
       if AMsg.MessageParts.Count > 0 then begin
         //CC2: We cannot deal with parts within a body encoding (user has to do
         //this manually, if the user really wants to). Note this should have been trapped in TIdMessage.GenerateHeader.
-        raise EIdException.Create(RSMsgClientInvalidForTransferEncoding);
+        raise EIdException.Create(RSMsgClientInvalidForTransferEncoding); // TODO: create a new Exception class for this
       end;
       IOHandler.WriteLn;     //This is the blank line after the headers
       DoStatus(hsStatusText, [RSMsgClientEncodingText]);

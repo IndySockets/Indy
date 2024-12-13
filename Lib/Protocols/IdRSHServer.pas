@@ -58,7 +58,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient, IdTCPServer;
+  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient;
 
 const
   RSH_FORCEPORTSINRANGE = True;

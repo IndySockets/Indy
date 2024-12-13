@@ -71,6 +71,7 @@ uses
 
 type
 
+  // TODO: move this class into the implementation section! It is not used outside of this unit
   TIdSocketListLinux = class (TIdSocketList)
   protected
     FCount: integer;
@@ -500,8 +501,8 @@ function TIdStackLinux.ReceiveMsg(ASocket: TIdStackSocketHandle;
 begin
   //we call the macro twice because we specified two possible structures.
   //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
-  LSize := CMSG_LEN(CMSG_LEN(Length(VBuffer)));
-  SetLength( LControl,LSize);
+  LSize := CMSG_SPACE(SizeOf(Byte)) + CMSG_SPACE(SizeOf(in6_pktinfo));
+  SetLength(LControl, LSize);
 
   LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
   LMsgBuf.buf := @VBuffer[0]; // @VMsgData[0];
@@ -801,6 +802,7 @@ var
   LAddrList, LAddrInfo: pifaddrs;
   LSubNetStr: string;
   LAddress: TIdStackLocalAddress;
+  LName: string;
   {$ELSE}
   Li: Integer;
   LAHost: PHostEnt;
@@ -842,10 +844,15 @@ begin
             end;
           end;
           if LAddress <> nil then begin
-            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LAddrInfo^.ifa_name;
+            LName := LAddrInfo^.ifa_name;
+            {$I IdObjectChecksOff.inc}
+            TIdStackLocalAddressAccess(LAddress).FDescription := LName;
+            TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
+            TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
             {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}
+            {$I IdObjectChecksOn.inc}
           end;
         end;
         LAddrInfo := LAddrInfo^.ifa_next;
@@ -1160,7 +1167,7 @@ begin
   Lock;
   try
     if not FD_ISSET(AHandle, FFDSet) then begin
-      if Count >= __FD_SETSIZE then begin
+      if AHandle >= __FD_SETSIZE{MaxLongint} then begin
         raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
       end;
       FD_SET(AHandle, FFDSet);
@@ -1217,7 +1224,8 @@ begin
     LTimePtr := @LTime;
   end;
   // TODO: calculate the actual nfds value based on the Sets provided...
-  Result := Libc.select(MaxLongint, AReadSet, AWriteSet, AExceptSet, LTimePtr);
+  // TODO: use poll() instead of select() to remove limit on how many sockets can be queried
+  Result := Libc.select({__FD_SETSIZE}MaxLongint, AReadSet, AWriteSet, AExceptSet, LTimePtr);
 end;
 
 procedure TIdSocketListLinux.GetFDSet(var VSet: TFDSet);

@@ -358,7 +358,6 @@ uses
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
-  IdResourceStrings,
   SysUtils;
 
 { TIdStackBSDBase }

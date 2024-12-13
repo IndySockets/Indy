@@ -717,7 +717,6 @@ varies between servers.  A typical line that gets parsed into this is:
     FHasCapa : Boolean;
     FSASLMechanisms : TIdSASLEntries;
     FAuthType : TIdIMAP4AuthenticationType;
-    FCapabilities: TStrings;
     FLineStruct: TIdIMAPLineStruct;
     function  GetReplyClass:TIdReplyClass; override;
     function  GetSupportsTLS: Boolean; override;
@@ -1100,6 +1099,8 @@ varies between servers.  A typical line that gets parsed into this is:
     function  ReadLnWait: string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.ReadLnWait()'{$ENDIF};{$ENDIF}
     procedure WriteLn(const AOut: string = ''); {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IOHandler.WriteLn()'{$ENDIF};{$ENDIF}
   { IdTCPConnection Commands }
+
+    property IPVersion;
   published
     property  OnAlert: TIdAlertEvent read FOnAlert write FOnAlert;
     property  Password;
@@ -1165,7 +1166,6 @@ uses
   {$ENDIF}
   IdCoder,
   IdEMailAddress,
-  IdResourceStrings,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols,
   IdExceptionCore,
@@ -1194,7 +1194,9 @@ uses
   {$ENDIF}
 {$ENDIF}
 {$IFDEF FPC}
-  {$DEFINE HAS_CLASS_HELPER} // TODO: when were class helpers introduced?
+  {$IFDEF FPC_2_6_0_OR_ABOVE}
+    {$DEFINE HAS_CLASS_HELPER}
+  {$ENDIF}
 {$ENDIF}
 
 type
@@ -1383,8 +1385,11 @@ var
 begin
   Result := False;
   AuthStarted := False;
+
+  // TODO: use UTF-8 when base64-encoding strings...
+
   if AClient.IsCapabilityListed('SASL-IR') then begin {Do not localize}
-    if ASASL.TryStartAuthenticate(AClient.Host, IdGSKSSN_imap, S) then begin
+    if ASASL.TryStartAuthenticate(AClient.Host, AClient.Port, IdGSKSSN_imap, S) then begin
       AClient.SendCmd(AClient.NewCmdCounter, 'AUTHENTICATE ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S), [], True); {Do not Localize}
       if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
         ASASL.FinishAuthenticate;
@@ -1409,7 +1414,7 @@ begin
   // must be a continue reply...
   if not AuthStarted then begin
     S := ADecoder.DecodeString(TrimRight(TIdReplyIMAP4(AClient.LastCmdResult).Extra.Text));
-    S := ASASL.StartAuthenticate(S, AClient.Host, IdGSKSSN_imap);
+    S := ASASL.StartAuthenticate(S, AClient.Host, AClient.Port, IdGSKSSN_imap);
     AClient.IOHandler.WriteLn(AEncoder.Encode(S));
     AClient.GetInternalResponse(AClient.LastCmdCounter, [], True);
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
@@ -1420,7 +1425,7 @@ begin
   end;
   while PosInStrArray(AClient.LastCmdResult.Code, AContinueReplies) > -1 do begin
     S := ADecoder.DecodeString(TrimRight(TIdReplyIMAP4(AClient.LastCmdResult).Extra.Text));
-    S := ASASL.ContinueAuthenticate(S, AClient.Host, IdGSKSSN_imap);
+    S := ASASL.ContinueAuthenticate(S, AClient.Host, AClient.Port, IdGSKSSN_imap);
     AClient.IOHandler.WriteLn(AEncoder.Encode(S));
     AClient.GetInternalResponse(AClient.LastCmdCounter, [], True);
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
@@ -2420,7 +2425,7 @@ begin
       if not FHasCapa then begin
         Capability;
       end;
-      // FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, IdGSKSSN_imap, [IMAP_OK], [IMAP_CONT], Self, FCapabilities, 'AUTH', IsCapabilityListed('SASL-IR'));     {Do not Localize}
+      // FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, FPort, IdGSKSSN_imap, [IMAP_OK], [IMAP_CONT], Self, FCapabilities, 'AUTH', IsCapabilityListed('SASL-IR'));     {Do not Localize}
       TIdSASLEntriesIMAP4(FSASLMechanisms).LoginSASL_IMAP(Self);
     end;
     FConnectionState := csAuthenticated;
@@ -2493,9 +2498,8 @@ begin
   FSASLMechanisms := TIdSASLEntriesIMAP4.Create(Self);
   Port := IdPORT_IMAP4;
   FLineStruct := TIdIMAPLineStruct.Create;
-  FCapabilities := TStringList.Create;
   {$IFDEF HAS_TStringList_CaseSensitive}
-  TStringList(FCapabilities).CaseSensitive := False;
+  TStringList(FCapabilities).CaseSensitive := False; // TODO: move this to TIdExplicitTLSClient.InitComponent()
   {$ENDIF}
   FMUTF7 := TIdMUTF7.Create;
 
@@ -2602,7 +2606,6 @@ begin
   FreeAndNil(FMailBox);
   FreeAndNil(FSASLMechanisms);
   FreeAndNil(FLineStruct);
-  FreeAndNil(FCapabilities);
   FreeAndNil(FMUTF7);
   inherited Destroy;
 end;
@@ -3861,6 +3864,7 @@ var
   LCharSet: String;
   LContentTransferEncoding: string;
   LTextPart: integer;
+  LTextPartNum: string;
   LHelper: TIdIMAP4WorkHelper;
 
   procedure DoDecode(ADecoderClass: TIdDecoderClass = nil; AStripCRLFs: Boolean = False);
@@ -3924,7 +3928,6 @@ begin
   AText := '';                                {Do not Localize}
   IsNumberValid(AMsgNum);
   CheckConnectionState(csSelected);
-  LTextPart := 0;  {The text part is usually part 1 but could be part 2}
   if AUseFirstPartInsteadOfText then begin
     {In this case, we need the body structure to find out what
     encoding has been applied to part 1...}
@@ -3942,16 +3945,27 @@ begin
 
       {Get the info we want out of LParts...}
       {Some emails have their first parts empty, so search for the first non-empty part.}
-      repeat
+      LTextPartNum := '';
+      for LTextPart := 0 to LParts.Count-1 do begin
         LThePart := LParts.Items[LTextPart];
-        if (LThePart.FSize <> 0) then begin
+        if (LThePart.ImapPartNumber <> '') and (LThePart.FSize <> 0) then begin
+          LTextPartNum := LThePart.ImapPartNumber;
+          LCharSet := LThePart.CharSet;
+          LContentTransferEncoding := LThePart.ContentTransferEncoding;
           Break;
         end;
-        Inc(LTextPart);
-      until LTextPart >= LParts.Count - 1;
+      end;
 
-      LCharSet := LThePart.CharSet;
-      LContentTransferEncoding := LThePart.ContentTransferEncoding;
+      // RLebeau 7/27/2021: for backwards compatibility, if no item was selected above,
+      // use the last item in the structure.  This is likely wrong, but it is what the
+      // previous logic was doing, so preserving it...
+      if (LTextPartNum = '') and (LParts.Count > 0) then begin
+        LThePart := LParts.Items[LParts.Count-1];
+        LTextPartNum := LThePart.ImapPartNumber;
+        LCharSet := LThePart.CharSet;
+        LContentTransferEncoding := LThePart.ContentTransferEncoding;
+      end;
+
     finally
       FreeAndNil(LParts);
     end;
@@ -3971,7 +3985,7 @@ begin
   if not AUseFirstPartInsteadOfText then begin
     LCmd := LCmd + '[TEXT])';                         {Do not Localize}
   end else begin
-    LCmd := LCmd + '[' + IntToStr(LTextPart+1) + '])';            {Do not Localize}
+    LCmd := LCmd + '[' + LTextPartNum + '])';            {Do not Localize}
   end;
 
   SendCmd(NewCmdCounter, LCmd, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], True, False);
@@ -3980,7 +3994,7 @@ begin
       {For an invalid request (non-existent part or message), NIL is returned as the size...}
       if (LastCmdResult.Text.Count < 1)
         or (not ParseLastCmdResult(LastCmdResult.Text[0], IMAP4Commands[cmdFetch],
-          [IMAP4FetchDataItem[fdBody]+'[TEXT]' , IMAP4FetchDataItem[fdBody]+'['+IntToStr(LTextPart+1)+']']))             {do not localize}
+          [IMAP4FetchDataItem[fdBody]+'[TEXT]' , IMAP4FetchDataItem[fdBody]+'['+LTextPartNum+']']))             {do not localize}
         or (PosInStrArray(FLineStruct.IMAPValue, ['NIL', '""'], False) <> -1) {do not localize}
         or (FLineStruct.ByteCount < 1) then
       begin

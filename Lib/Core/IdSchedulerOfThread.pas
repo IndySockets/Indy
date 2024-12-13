@@ -131,7 +131,7 @@ interface
 
 uses
   Classes,
-  IdException, IdBaseComponent, IdGlobal, IdScheduler, 
+  IdException, IdGlobal, IdScheduler,
   IdThread, IdTask, IdYarn;
 
 type
@@ -172,7 +172,7 @@ uses
   {$IFDEF KYLIXCOMPAT}
   Libc,
   {$ENDIF}
-  IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore, SysUtils;
+  IdResourceStringsCore, IdThreadSafe, IdExceptionCore, SysUtils;
 
 { TIdSchedulerOfThread }
 
@@ -206,7 +206,7 @@ end;
 function TIdSchedulerOfThread.NewYarn(AThread: TIdThreadWithTask): TIdYarnOfThread;
 begin
   if not Assigned(AThread) then begin
-    raise EIdException.Create(RSThreadSchedulerThreadRequired);
+    raise EIdException.Create(RSThreadSchedulerThreadRequired); // TODO: create a new Exception class for this
   end;
   // Create Yarn
   Result := TIdYarnOfThread.Create(Self, AThread);

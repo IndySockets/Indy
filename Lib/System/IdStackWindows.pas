@@ -201,6 +201,7 @@ uses
 type
   EIdIPv6Unavailable = class(EIdException);
 
+  // TODO: move this class into the implementation section! It is not used outside of this unit
   TIdSocketListWindows = class(TIdSocketList)
   protected
     FFDSet: TFDSet;
@@ -320,6 +321,7 @@ implementation
 {$DEFINE USE_IPHLPAPI}
 
 {$IFDEF USE_IPHLPAPI}
+  // TODO: Move this to IdCompilerDefines.inc
   {$IFDEF VCL_XE2_OR_ABOVE}
     {$DEFINE HAS_UNIT_IpTypes}
     {$DEFINE HAS_UNIT_IpHlpApi}
@@ -330,10 +332,10 @@ uses
   IdIDN, IdResourceStrings, IdWship6
   {$IFDEF USE_IPHLPAPI}
     {$IFDEF HAS_UNIT_IpTypes}
-  , IpTypes
+  , Winapi.IpTypes
     {$ENDIF}
     {$IFDEF HAS_UNIT_IpHlpApi}
-  , IpHlpApi
+  , Winapi.IpHlpApi
     {$ENDIF}
   {$ENDIF}
   ;
@@ -1384,7 +1386,7 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
       repeat
         // TODO: include GAA_FLAG_INCLUDE_PREFIX on XPSP1+?
         // TODO: include GAA_FLAG_INCLUDE_ALL_INTERFACES on Vista+?
-        Ret := GetAdaptersAddresses(PF_UNSPEC, GAA_FLAG_SKIP_ANYCAST or GAA_FLAG_SKIP_MULTICAST or GAA_FLAG_SKIP_DNS_SERVER or GAA_FLAG_SKIP_FRIENDLY_NAME, nil, Adapters, BufLen);
+        Ret := GetAdaptersAddresses(PF_UNSPEC, GAA_FLAG_SKIP_ANYCAST or GAA_FLAG_SKIP_MULTICAST or GAA_FLAG_SKIP_DNS_SERVER, nil, Adapters, BufLen);
         case Ret of
           ERROR_SUCCESS:
           begin
@@ -1428,6 +1430,7 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                 begin
                   if UnicastAddr^.DadState = IpDadStatePreferred then
                   begin
+                    LAddress := nil;
                     case UnicastAddr^.Address.lpSockaddr.sin_family of
                       AF_INET: begin
                         IPAddr := TranslateTInAddrToString(PSockAddrIn(UnicastAddr^.Address.lpSockaddr)^.sin_addr, Id_IPv4);
@@ -1450,18 +1453,27 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                           SubNetStr := SubNetMasks.Values[IPAddr];
                         end;
                         LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, IPAddr, SubNetStr);
-                        TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
+                        {$I IdObjectChecksOff.inc}
                         TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Union.IfIndex;
+                        {$I IdObjectChecksOn.inc}
                       end;
                       AF_INET6: begin
                         LAddress := TIdStackLocalAddressIPv6.Create(AAddresses,
                           TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
-                        TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
                         // The Ipv6IfIndex member is only available on Windows XP SP1 and later
                         if IndyCheckWindowsVersion(5, 2) or (IndyCheckWindowsVersion(5, 1) {TODO: and SP1+}) then begin
+                          {$I IdObjectChecksOff.inc}
                           TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Ipv6IfIndex;
+                          {$I IdObjectChecksOn.inc}
                         end;
                       end;
+                    end;
+                    if LAddress <> nil then begin
+                      {$I IdObjectChecksOff.inc}
+                      TIdStackLocalAddressAccess(LAddress).FDescription := String(Adapter^.Description);
+                      TIdStackLocalAddressAccess(LAddress).FFriendlyName := String(Adapter^.FriendlyName);
+                      TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
+                      {$I IdObjectChecksOn.inc}
                     end;
                   end;
                   UnicastAddr := UnicastAddr^.Next;
@@ -1606,8 +1618,12 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                   MaskStr := String(IPAddr^.IpMask.S);
                   {$ENDIF}
                   LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, IPStr, MaskStr);
+                  {$I IdObjectChecksOff.inc}
+                  TIdStackLocalAddressAccess(LAddress).FDescription := String(Adapter^.Description);
+                  TIdStackLocalAddressAccess(LAddress).FFriendlyName := String(Adapter^.AdapterName);
                   TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
                   TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Index;
+                  {$I IdObjectChecksOn.inc}
                 end;
                 IPAddr := IPAddr^.Next;
               until IPAddr = nil;
@@ -1680,8 +1696,12 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
           // TODO: implement this...
           {
           if LAddress <> nil then begin
+            ($I IdObjectChecksOff.inc)
+            TIdStackLocalAddressAccess(LAddress).FDescription := ?;
+            TIdStackLocalAddressAccess(LAddress).FFriendlyName := ?;
             TIdStackLocalAddressAccess(LAddress).FInterfaceName := ?;
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := ?;
+            ($I IdObjectChecksOn.inc)
           end;
           }
           LAddrInfo := LAddrInfo^.ai_next;
@@ -1754,11 +1774,22 @@ procedure TIdSocketListWindows.Add(AHandle: TIdStackSocketHandle);
 begin
   Lock;
   try
-    if FFDSet.fd_count >= FD_SETSIZE then begin
-      raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
+    // TODO: on Windows, the number of sockets that select() can query is limited only
+    // by available memory, unlike other platforms which are limited to querying sockets
+    // whose descriptors are less than FD_SETSIZE (1024). However, the Winsock SDK does
+    // define FD_SETSIZE for compatibilty with other platforms, but it is a meesely 64
+    // by default, and the IdWinSock2 unit does use FD_SETSIZE in its definition of
+    // TFDSet. C/C++ programs can freely override the value of FD_SETSIZE at compile-time,
+    // but that is not an option for Pascal programs.  So, we need to find a way to make
+    // this more dynamic/configurable. For instance, by having this class hold a dynamic
+    // byte array that is casted to PFDSet when needed...
+    if not fd_isset(AHandle, FFDSet) then begin
+      if FFDSet.fd_count >= u_int(Length(FFDSet.fd_array)){FD_SETSIZE} then begin
+        raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
+      end;
+      FFDSet.fd_array[FFDSet.fd_count] := AHandle;
+      Inc(FFDSet.fd_count);
     end;
-    FFDSet.fd_array[FFDSet.fd_count] := AHandle;
-    Inc(FFDSet.fd_count);
   finally
     Unlock;
   end;
@@ -1796,19 +1827,23 @@ end;
 
 function TIdSocketListWindows.GetItem(AIndex: Integer): TIdStackSocketHandle;
 begin
+  // keep the compiler happy (when was this fixed exactly?)
+  {$IFDEF DCC}{$IFNDEF VCL_8_OR_ABOVE}  
+  Result := INVALID_SOCKET;
+  {$ENDIF}{$ENDIF}
+
   Lock;
   try
     //We can't redefine AIndex to be a UInt32 because the libc Interface
     //and DotNET define it as a LongInt.  OS/2 defines it as a UInt16.
-    if (AIndex >= 0) and (u_int(AIndex) < FFDSet.fd_count) then begin
-      Result := FFDSet.fd_array[AIndex];
-    end else begin
+    if (AIndex < 0) or (u_int(AIndex) >= FFDSet.fd_count) then begin
       // TODO: just return 0/invalid, like most of the other Stack classes do?
       raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
     end;
+    Result := FFDSet.fd_array[AIndex];
   finally
     Unlock;
-   end;
+  end;
 end;
 
 procedure TIdSocketListWindows.Remove(AHandle: TIdStackSocketHandle);
@@ -2309,11 +2344,11 @@ begin
   SetLength(LTmp, 40+Length(VBuffer));
 
   //16
-  Move(LSource, LTmp[0], SIZE_TSOCKADDRIN6);
-  LIdx := SIZE_TSOCKADDRIN6;
+  Move(LSource, LTmp[0], SIZE_TIN6ADDR);
+  LIdx := SIZE_TIN6ADDR;
   //32
-  Move(LDest, LTmp[LIdx], SIZE_TSOCKADDRIN6);
-  Inc(LIdx, SIZE_TSOCKADDRIN6);
+  Move(LDest, LTmp[LIdx], SIZE_TIN6ADDR);
+  Inc(LIdx, SIZE_TIN6ADDR);
   //use a word so you don't wind up using the wrong network byte order function
   LC := UInt32(Length(VBuffer));
   CopyTIdUInt32(HostToNetwork(LC), LTmp, LIdx);
@@ -2359,7 +2394,7 @@ begin
   begin
     //we call the macro twice because we specified two possible structures.
     //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
-    LSize := WSA_CMSG_LEN(WSA_CMSG_LEN(Length(VBuffer)));
+    LSize := WSA_CMSG_SPACE(SizeOf(Byte)) + WSA_CMSG_SPACE(SizeOf(IN6_PKTINFO));
     SetLength(LControl, LSize);
 
     LMsgBuf.len := Length(VBuffer); // Length(VMsgData);

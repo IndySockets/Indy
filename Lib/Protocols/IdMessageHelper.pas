@@ -16,7 +16,9 @@ uses
   {$ENDIF}
 {$ENDIF}
 {$IFDEF FPC}
-  {$DEFINE HAS_CLASS_HELPER} // TODO: when were class helpers introduced?
+  {$IFDEF FPC_2_6_0_OR_ABOVE}
+    {$DEFINE HAS_CLASS_HELPER}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF HAS_CLASS_HELPER}
@@ -205,6 +207,7 @@ procedure Internal_TIdMessageHelper_SaveToFile(AMsg: TIdMessage; const AFileName
   const AHeadersOnly: Boolean; const AUseDotTransparency: Boolean);
 var
   LStream : TFileStream;
+  LMsgAccess: TIdMessageAccess;
 begin
   if AUseDotTransparency then begin
     AMsg.SaveToFile(AFileName, AHeadersOnly);
@@ -212,11 +215,15 @@ begin
   begin
     LStream := TIdFileCreateStream.Create(AFileName);
     try
-      TIdMessageAccess(AMsg).FSavingToFile := True;
+      {$I IdObjectChecksOff.inc}
+      LMsgAccess := TIdMessageAccess(AMsg);
+      {$I IdObjectChecksOn.inc}
+
+      LMsgAccess.FSavingToFile := True;
       try
         Internal_TIdMessageHelper_SaveToStream(AMsg, LStream, AHeadersOnly, False);
       finally
-        TIdMessageAccess(AMsg).FSavingToFile := False;
+        LMsgAccess.FSavingToFile := False;
       end;
     finally
       LStream.Free;

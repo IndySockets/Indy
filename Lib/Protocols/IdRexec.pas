@@ -79,8 +79,6 @@ implementation
 uses
   IdComponent,
   IdGlobal,
-  IdSimpleServer,
-  IdTCPConnection,
   IdThread;
 
 procedure TIdRexec.InitComponent;

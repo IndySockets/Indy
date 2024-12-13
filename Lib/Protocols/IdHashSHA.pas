@@ -156,7 +156,7 @@ end;
 
 class function TIdHashSHA1.IsIntfAvailable: Boolean;
 begin
-  Result := IsHashingIntfAvail and  IsSHA1HashIntfAvail;
+  Result := (inherited IsIntfAvailable) and IsSHA1HashIntfAvail;
 end;
 
 {$i IdOverflowCheckingOff.inc} // Operations performed modulo $100000000
@@ -478,7 +478,7 @@ end;
 
 class function TIdHashSHA224.IsAvailable: Boolean;
 begin
-  Result := IsHashingIntfAvail and IsSHA224HashIntfAvail;
+  Result := IsIntfAvailable and IsSHA224HashIntfAvail;
 end;
 {$ENDIF}
 
@@ -491,7 +491,7 @@ end;
 
 class function TIdHashSHA256.IsAvailable : Boolean;
 begin
-  Result := IsHashingIntfAvail and  IsSHA256HashIntfAvail;
+  Result := IsIntfAvailable and IsSHA256HashIntfAvail;
 end;
 
 { TIdHashSHA384 }
@@ -503,7 +503,7 @@ end;
 
 class function TIdHashSHA384.IsAvailable: Boolean;
 begin
-  Result := IsHashingIntfAvail and  IsSHA384HashIntfAvail;
+  Result := IsIntfAvailable and IsSHA384HashIntfAvail;
 end;
 
 { TIdHashSHA512 }
@@ -515,7 +515,7 @@ end;
 
 class function TIdHashSHA512.IsAvailable: Boolean;
 begin
-  Result := IsHashingIntfAvail and  IsSHA512HashIntfAvail;
+  Result := IsIntfAvailable and IsSHA512HashIntfAvail;
 end;
 
 end.

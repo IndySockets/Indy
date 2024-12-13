@@ -31,7 +31,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdMessageCoderUUE, IdMessageCoder, IdMessage;
+  IdMessageCoderUUE, IdMessageCoder;
 
 type
   // No Decoder - UUE handles XXE decoding

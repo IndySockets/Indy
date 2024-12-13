@@ -113,16 +113,16 @@ const
   ST_ERR_IN_USE = 'IN-USE';     {Do not translate}  //already in use by another program
   ST_ERR_LOGIN_DELAY = 'LOGIN-DELAY';  {Do not translate}  //login delay time
   // RFC 3206
-  ST_ERR_SYS_TEMP = 'SYS/PERM';  {Do not translate}  //system failure - permenent
-  ST_ERR_SYS_PERM = 'SYS/TEMP'; {Do not translate} //system failure - temporary
+  ST_ERR_SYS_TEMP = 'SYS/TEMP';  {Do not translate}  //system failure - temporary
+  ST_ERR_SYS_PERM = 'SYS/PERM'; {Do not translate} //system failure - permenent
   ST_ERR_AUTH = 'AUTH'; {Do not translate}  //authentication credential problem
 
 const
   VALID_ENH_CODES : array[0..4] of string = (
     ST_ERR_IN_USE,
     ST_ERR_LOGIN_DELAY,
-    ST_ERR_SYS_TEMP,
     ST_ERR_SYS_PERM,
+    ST_ERR_SYS_TEMP,
     ST_ERR_AUTH
   );
 
@@ -144,6 +144,7 @@ type
       AReplyTexts: TIdReplies = nil
       ); override;
     procedure Assign(ASource: TPersistent); override;
+    procedure Clear; override;
     procedure RaiseReplyError; override;
     class function IsEndMarker(const ALine: string): Boolean; override;
   published
@@ -211,6 +212,12 @@ begin
   Result := (LOrd > -1) or (Trim(ACode) = '');
 end;
 
+procedure TIdReplyPOP3.Clear;
+begin
+  inherited Clear;
+  FEnhancedCode := '';
+end;
+
 constructor TIdReplyPOP3.CreateWithReplyTexts(ACollection: TCollection = nil; AReplyTexts: TIdReplies = nil);
 begin
   inherited CreateWithReplyTexts(ACollection, AReplyTexts);
@@ -232,6 +239,8 @@ begin
   //we do things this way because a line can start with a minus as in
   //-ERR [IN-USE] Mail box in use
   LBuf := AText;
+  // TODO: use PosEx() instead, then we can just skip
+  // past the '-' without physically removing it...
   if TextStartsWith(LBuf, '-') then begin
     Delete(LBuf, 1, 1);
     LAddBackFlag := True;
@@ -316,7 +325,7 @@ begin
         if AStrict then begin
           Result := PosInStrArray(LBuf, VALID_ENH_CODES) > -1;
         end else begin
-          {We don't use PosInStrArray because we only want the fist
+          {We don't use PosInStrArray because we only want the first
           charactors in our string to match.  This is necessary because
           the POP3 enhanced codes will be hierarchical as time goes on.
           }
@@ -365,10 +374,19 @@ var
   i: Integer;
   idx : Integer;
   LOrd : Integer;
-  LBuf : String;
+  LBuf, LEnh : String;
+  LText : TStringList;
 begin
   Clear;
   if AValue.Count > 0 then begin
+    // RLebeau: what is the purpose of this ExtractTextPosArray() shenanigans? Why
+    // are we allowing the status code to appear outside of the 1st line? That does
+    // not conform to the POP3 protocol spec. Are any servers actually doing this
+    // in practice? None of the other TIdReply classes handle this possibility...
+    //
+    // Note: Microsoft's Outlook365 POP3 server DOES send a greeting WITHOUT a
+    // status code if a client connects using implicit TLS 1.0 or 1.1!  That was
+    // apparently allowed by RFC 1725, but not anymore by RFC 1939!
     LOrd := ExtractTextPosArray(AValue[0]);
     if LOrd > -1 then begin
       Code := VALID_POP3_STR[LOrd];
@@ -388,7 +406,20 @@ begin
       Text.Add(LBuf);
     end;
     if LOrd = -1 then begin
-      Code := ST_ERR;
+      // RLebeau 4/30/2023: warning - TIdReply.SetCode() calls Clear(),
+      // which will LOSE any EnhancedCode and Text values already assigned
+      // above!  We need to preserve them here. This wouldn't be an issue
+      // anymore if we get rid of the ExtractTextPosArray() nonsense above...
+      LText := TStringList.Create;
+      try
+        LText.Assign(Text);
+        LEnh := FEnhancedCode;
+        Code := ST_ERR;
+        Text.Assign(LText);
+        FEnhancedCode := LEnh;
+      finally
+        LText.Free;
+      end;
     end;
   end;
 end;

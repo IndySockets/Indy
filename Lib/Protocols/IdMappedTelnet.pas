@@ -41,8 +41,7 @@ interface
 
 uses
   IdAssignedNumbers,
-  IdMappedPortTCP,
-  IdTCPServer;
+  IdMappedPortTCP;
 
 type
   TIdMappedTelnetContext = class(TIdMappedPortContext)
@@ -88,7 +87,7 @@ implementation
 
 uses
   IdGlobal, IdException, IdResourceStringsProtocols,
-  IdIOHandlerSocket, IdTCPClient, SysUtils;
+  IdTCPClient, SysUtils;
 
 const
   NAMESEP = #0+#9+' :'; {do not localize}
@@ -176,7 +175,7 @@ begin
       LServer.ExtractHostAndPortFromLine(Self, LHostPort);
 
       if Length(LClient.Host) < 1 then begin
-        raise EIdException.Create(RSEmptyHost);
+        raise EIdException.Create(RSEmptyHost); // TODO: create a new Exception class for this
       end;
 
       LClient.ConnectTimeout := Self.FConnectTimeOut;

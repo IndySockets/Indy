@@ -481,7 +481,6 @@ implementation
 
 uses
   IdGlobalProtocols,
-  IdStrings,
   SysUtils;
 
 const

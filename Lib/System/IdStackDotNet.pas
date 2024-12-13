@@ -163,6 +163,7 @@ uses
   System.Collections, System.IO, System.Net, System.Net.Sockets;
 
 type
+  // TODO: move this class into the implementation section! It is not used outside of this unit
   TIdSocketListDotNet = class(TIdSocketList)
   protected
     FSockets: ArrayList;

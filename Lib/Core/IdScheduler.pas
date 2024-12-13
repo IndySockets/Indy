@@ -78,7 +78,7 @@ uses
   Classes,
     {$ENDIF}
   {$ENDIF}
-  IdBaseComponent, IdThread, IdTask, IdYarn, IdThreadSafe;
+  IdBaseComponent, IdTask, IdYarn, IdThreadSafe;
 
 type
   {$IFDEF HAS_GENERICS_TThreadList}

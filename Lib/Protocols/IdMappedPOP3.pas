@@ -55,8 +55,7 @@ uses
   Classes,
   {$ENDIF}
   IdAssignedNumbers,
-  IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3,
-  IdTCPServer;
+  IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3;
 
 type
   TIdMappedPOP3Context = class (TIdMappedTelnetContext)
@@ -96,7 +95,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdIOHandlerSocket, IdResourceStringsProtocols,
+  IdGlobal, IdException, IdResourceStringsProtocols,
   IdTCPClient, IdTCPConnection, SysUtils;
 
 { TIdMappedPOP3 }
@@ -183,7 +182,7 @@ Begin
       end;//if
 
       if Length(TIdTCPClient(FOutboundClient).Host) < 1 then begin
-        raise EIdException.Create(RSEmptyHost);
+        raise EIdException.Create(RSEmptyHost); // TODO: create a new Exception class for this
       end;
 
       TIdTCPClient(FOutboundClient).ConnectTimeout := FConnectTimeOut;

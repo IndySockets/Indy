@@ -20,7 +20,7 @@ type
   public
     procedure Assign(Source: TPersistent); override;
     property ContentID: String read FContentID write FContentID;
-    property ContentTransfer: String read FContentTransfer;
+    property ContentTransfer: String read FContentTransfer write FContentTransfer;
     property ContentType: String read FContentType write FContentType;
     property Data: TStream read FData write FData;
     property FileName: String read FFileName write FFileName;

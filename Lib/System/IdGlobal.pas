@@ -710,8 +710,12 @@ type
   end;
   {$NODEFINE TIdUInt64}
 
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+  {$HPPEMIT OPENNAMESPACE}
+  {$ELSE}
   (*$HPPEMIT 'namespace Idglobal'*)
   (*$HPPEMIT '{'*)
+  {$ENDIF}
   (*$HPPEMIT '    #pragma pack(push, 1)' *)
   (*$HPPEMIT '    struct TIdUInt64'*)
   (*$HPPEMIT '    {'*)
@@ -733,7 +737,11 @@ type
   (*$HPPEMIT '        TIdUInt64& operator=(unsigned __int64 value) { QuadPart = value; return *this; }'*)
   (*$HPPEMIT '    };'*)
   (*$HPPEMIT '    #pragma pack(pop)' *)
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+  {$HPPEMIT CLOSENAMESPACE}
+  {$ELSE}
   (*$HPPEMIT '}'*)
+  {$ENDIF}
 {$ENDIF}
 
 const
@@ -925,6 +933,7 @@ type
   {$ELSE}
   PPIdAnsiChar = ^PIdAnsiChar;
   {$ENDIF}
+  PPPIdAnsiChar = ^PPIdAnsiChar;
 
   {$IFDEF HAS_SetCodePage}
     {$IFNDEF HAS_PRawByteString}
@@ -1341,8 +1350,13 @@ type
   // don't want to use a bunch of IFDEF's trying to figure out where
   // UInt16 is coming from...
   //
+
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+  {$HPPEMIT OPENNAMESPACE}
+  {$ELSE}
   (*$HPPEMIT 'namespace Idglobal'*)
   (*$HPPEMIT '{'*)
+  {$ENDIF}
   (*$HPPEMIT '    struct TIdIPv6Address'*)
   (*$HPPEMIT '    {'*)
   (*$HPPEMIT '        ::System::Word data[8];'*)
@@ -1351,7 +1365,11 @@ type
   (*$HPPEMIT '        operator const ::System::Word*() const { return data; }'*)
   (*$HPPEMIT '        operator ::System::Word*() { return data; }'*)
   (*$HPPEMIT '    };'*)
+  {$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+  {$HPPEMIT CLOSENAMESPACE}
+  {$ELSE}
   (*$HPPEMIT '}'*)
+  {$ENDIF}
 
   {This way instead of a boolean for future expansion of other actions}
   TIdMaxLineAction = (maException, maSplit);
@@ -3056,7 +3074,7 @@ begin
     end;
   end;
   if LError then begin
-    raise EIdException.CreateResFmt(PResStringRec(@RSInvalidCodePage), [FCodePage]);
+    raise EIdException.CreateResFmt(PResStringRec(@RSInvalidCodePage), [FCodePage]); // TODO: create a new Exception class for this
   end;
 
   {$IFNDEF WINCE}
@@ -3084,7 +3102,7 @@ begin
   else
     FMaxCharSize := LocaleCharsFromUnicode(FCodePage, FWCharToMBFlags, @cValue[0], 2, nil, 0, nil, nil);
     if FMaxCharSize < 1 then begin
-      raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]);
+      raise EIdException.CreateResFmt(@RSInvalidCodePage, [FCodePage]); // TODO: create a new Exception class for this
     end;
     // Not all charsets support all codepoints.  For example, ISO-8859-1 does
     // not support U+10FFFF.  If LocaleCharsFromUnicode() fails above,
@@ -3165,9 +3183,9 @@ begin
   );
   if Result = iconv_t(-1) then begin
     if LFlags <> '' then begin
-      raise EIdException.CreateResFmt(@RSInvalidCharSetConvWithFlags, [ACharSet, cUTF16CharSet, LFlags]);
+      raise EIdException.CreateResFmt(@RSInvalidCharSetConvWithFlags, [ACharSet, cUTF16CharSet, LFlags]); // TODO: create a new Exception class for this
     end else begin
-      raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
+      raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]); // TODO: create a new Exception class for this
     end;
   end;
 end;
@@ -3327,7 +3345,7 @@ begin
     LConverted := ConvertEncodingFromUTF8(LUTF8, ACharSet, LEncoded);
     if not LEncoded then begin
       // TODO: uncomment this?
-      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
+      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]); // TODO: create a new Exception class for this
       Exit;
     end;
   end;
@@ -3531,7 +3549,7 @@ begin
     LConverted := ConvertEncodingToUTF8(LBytes, ACharSet, LEncoded);
     if not LEncoded then begin
       // TODO: uncomment this?
-      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]);
+      //raise EIdException.CreateResFmt(@RSInvalidCharSetConv, [ACharSet, cUTF16CharSet]); // TODO: create a new Exception class for this
       Exit;
     end;
   end;
@@ -4156,24 +4174,32 @@ end;
 
 function TIdVCLEncoding.GetByteCount(const AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
+  {$I IdObjectChecksOff.inc}
   Result := TEncodingAccess(FEncoding).IndyGetByteCount(AChars, ACharCount);
+  {$I IdObjectChecksOn.inc}
 end;
 
 function TIdVCLEncoding.GetBytes(const AChars: PIdWideChar; ACharCount: Integer;
   ABytes: PByte; AByteCount: Integer): Integer;
 begin
+  {$I IdObjectChecksOff.inc}
   Result := TEncodingAccess(FEncoding).IndyGetBytes(AChars, ACharCount, ABytes, AByteCount);
+  {$I IdObjectChecksOn.inc}
 end;
 
 function TIdVCLEncoding.GetCharCount(const ABytes: PByte; AByteCount: Integer): Integer;
 begin
+  {$I IdObjectChecksOff.inc}
   Result := TEncodingAccess(FEncoding).IndyGetCharCount(ABytes, AByteCount);
+  {$I IdObjectChecksOn.inc}
 end;
 
 function TIdVCLEncoding.GetChars(const ABytes: PByte; AByteCount: Integer;
   AChars: PIdWideChar; ACharCount: Integer): Integer;
 begin
+  {$I IdObjectChecksOff.inc}
   Result := TEncodingAccess(FEncoding).IndyGetChars(ABytes, AByteCount, AChars, ACharCount);
+  {$I IdObjectChecksOn.inc}
 end;
 
 function TIdVCLEncoding.GetMaxByteCount(ACharCount: Integer): Integer;
@@ -4231,7 +4257,7 @@ begin
     Result := TIdVCLEncoding.Create(ACodepage);
       {$ELSE}
     Result := nil;
-    raise EIdException.CreateResFmt(@RSUnsupportedCodePage, [ACodepage]);
+    raise EIdException.CreateResFmt(@RSUnsupportedCodePage, [ACodepage]); // TODO: create a new Exception class for this
       {$ENDIF}
     {$ENDIF}
   end;
@@ -4273,7 +4299,7 @@ begin
       // CharsetToCodePage() here, at least until CharsetToEncoding() can be moved
       // to this unit once IdCharsets has been moved to the System package...
       Result := nil;
-      raise EIdException.CreateFmt(RSUnsupportedCharSet, [ACharSet]);
+      raise EIdException.CreateFmt(RSUnsupportedCharSet, [ACharSet]); // TODO: create a new Exception class for this
         {$ENDIF}
       {$ENDIF}
     end;
@@ -5519,7 +5545,18 @@ begin
   ADestEncoding.GetBytes(LChars, 0, 1, VDest, ADestIndex);
   {$ELSE}
   EnsureEncoding(ASrcEncoding, encOSDefault);
-  LChars := ASrcEncoding.GetChars(RawToBytes(ASource, 1));
+  LChars := ASrcEncoding.GetChars(
+    {$IFNDEF VCL_6_OR_ABOVE}
+    // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+    // version of 'GetChars' that can be called with these arguments" compiler
+    // error if the PByte type-cast is used, even though GetChars() actually
+    // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+    // in Delphi 6.  So, converting to TIdBytes until I find a better solution...
+    RawToBytes(ASource, 1)
+    {$ELSE}
+    PByte(@ASource), 1
+    {$ENDIF}
+  );
   ADestEncoding.GetBytes(LChars, 0, Length(LChars), VDest, ADestIndex);
   {$ENDIF}
 end;
@@ -5743,7 +5780,19 @@ begin
     ADestEncoding.GetBytes(ASource, ASourceIndex, LLength, VDest, ADestIndex);
     {$ELSE}
     EnsureEncoding(ASrcEncoding, encOSDefault);
-    LTmp := ASrcEncoding.GetChars(RawToBytes(ASource[ASourceIndex], LLength)); // convert to Unicode
+    // convert to Unicode
+    LTmp := ASrcEncoding.GetChars(
+      {$IFNDEF VCL_6_OR_ABOVE}
+      // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+      // version of 'GetChars' that can be called with these arguments" compiler
+      // error if the PByte type-cast is used, even though GetChars() actually
+      // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+      // in Delphi 6.  So, converting to TIdBytes until I find a better solution...
+      RawToBytes(ASource[ASourceIndex], LLength)
+      {$ELSE}
+      PByte(@ASource[ASourceIndex]), LLength
+      {$ENDIF}
+    );
     ADestEncoding.GetBytes(LTmp, 0, Length(LTmp), VDest, ADestIndex);
     {$ENDIF}
   end;
@@ -6183,12 +6232,32 @@ end;
 
 function GetTickDiff64(const AOldTickCount, ANewTickCount: TIdTicks): TIdTicks;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
+{$IFNDEF VCL_6_OR_ABOVE}
+var
+  // Delphi 5 seems to have a problem with the Int64 calculations
+  // below on a temporary, so breaking up the calculations...
+  d: TIdTicks;
+{$ENDIF}
 begin
   {This is just in case the TickCount rolled back to zero}
   if ANewTickCount >= AOldTickCount then begin
+    {$IFNDEF VCL_6_OR_ABOVE}
+    d := ANewTickCount;
+    Dec(d, AOldTickCount);
+    Result := d;
+    {$ELSE}
     Result := TIdTicks(ANewTickCount - AOldTickCount);
+    {$ENDIF}
   end else begin
+    {$IFNDEF VCL_6_OR_ABOVE}
+    d := High(TIdTicks);
+    Dec(d, AOldTickCount);
+    Inc(d, ANewTickCount);
+    Inc(d);
+    Result := d;
+    {$ELSE}
     Result := TIdTicks(((High(TIdTicks) - AOldTickCount) + ANewTickCount) + 1);
+    {$ENDIF}
   end;
 end;
 
@@ -7514,7 +7583,7 @@ end;
 procedure ToDo(const AMsg: string);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  raise EIdException.Create(AMsg);
+  raise EIdException.Create(AMsg); // TODO: create a new Exception class for this
 end;
 
 // RLebeau: the following three functions are utility functions
@@ -7851,7 +7920,13 @@ begin
   // RLebeau: Note that on Linux/Unix, this information may be inaccurate around
   // the DST time changes (for optimization). In that case, the unix.ReReadLocalTime()
   // function must be used to re-initialize the timezone information...
-  Result := GetLocalTimeOffset() / 60 / 24;
+
+  // RLebeau 1/15/2022: the value returned by OffsetFromUTC() is meant to be *subtracted*
+  // from a local time, and *added* to a UTC time.  However, the value returned by
+  // FPC's GetLocalTimeOffset() is the opposite - it is meant to be *added* to local time,
+  // and *subtracted* from UTC time.  So, we need to flip its sign here... 
+
+  Result := -1 * (GetLocalTimeOffset() / 60 / 24);
     {$ELSE}
       {$IFDEF HAS_DateUtils_TTimeZone}
   Result := TTimeZone.Local.UtcOffset.TotalMinutes / 60 / 24;
@@ -8420,7 +8495,19 @@ begin
   LChars[0] := AValue;
   {$ELSE}
   EnsureEncoding(ASrcEncoding, encOSDefault);
-  LChars := ASrcEncoding.GetChars(RawToBytes(AValue, 1));  // convert to Unicode
+  // convert to Unicode
+  LChars := ASrcEncoding.GetChars(
+    {$IFNDEF VCL_6_OR_ABOVE}
+    // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+    // version of 'GetChars' that can be called with these arguments" compiler
+    // error if the PByte type-cast is used, even though GetChars() actually
+    // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+    // in Delphi 6.  So, converting to TIdBytes until I find a better solution...
+    RawToBytes(AValue, 1)
+    {$ELSE}
+    PByte(@AValue), 1
+    {$ENDIF}
+  );
   {$ENDIF}
   Assert(Length(Bytes) >= ADestEncoding.GetByteCount(LChars));
   ADestEncoding.GetBytes(LChars, 0, Length(LChars), Bytes, 0);
@@ -8877,7 +8964,7 @@ var
   function ReadByte: Byte;
   begin
     if AStream.Read(Result{$IFNDEF DOTNET}, 1{$ENDIF}) <> 1 then begin
-      raise EIdException.Create('Unable to read byte'); {do not localize}
+      raise EIdException.Create('Unable to read byte'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
     end;
   end;
 
@@ -9471,7 +9558,7 @@ var
 begin
   Result := 0;
   if ACharPos < 1 then begin
-    raise EIdException.Create('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize } // TODO: add a resource string, and create a new Exception class for this
   end;
   if ACharPos <= Length(AString) then begin
     {$IFDEF DOTNET}
@@ -9511,7 +9598,7 @@ function CharEquals(const AString: string; const ACharPos: Integer; const AValue
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if ACharPos < 1 then begin
-    raise EIdException.Create('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize } // TODO: add a resource string, and create a new Exception class for this
   end;
   Result := ACharPos <= Length(AString);
   if Result then begin
@@ -9538,7 +9625,7 @@ var
 begin
   Result := 0;
   if ACharPos < 1 then begin
-    raise EIdException.Create('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize } // TODO: add a resource string, and create a new Exception class for this
   end;
   if ACharPos <= ASB.Length then begin
     {$IFDEF HAS_String_IndexOf}
@@ -9578,7 +9665,7 @@ function CharEquals(const ASB: TIdStringBuilder; const ACharPos: Integer; const 
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if ACharPos < 1 then begin
-    raise EIdException.Create('Invalid ACharPos');{ do not localize }
+    raise EIdException.Create('Invalid ACharPos');{ do not localize } // TODO: add a resource string, and create a new Exception class for this
   end;
   Result := ACharPos <= ASB.Length;
   if Result then begin
@@ -9605,7 +9692,7 @@ function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet:
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   if AIndex < 0 then begin
-    raise EIdException.Create('Invalid AIndex'); {do not localize}
+    raise EIdException.Create('Invalid AIndex'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   if AIndex < Length(ABytes) then begin
     Result := ByteIndex(ABytes[AIndex], ASet);
@@ -9639,7 +9726,7 @@ begin
     {$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF}
     )) and AExceptionIfEOF then
 begin
-    raise EIdEndOfStream.CreateFmt(RSEndOfStream, ['ReadLnFromStream', AStream.Position]);
+    raise EIdEndOfStream.CreateFmt(RSEndOfStream, ['ReadLnFromStream', AStream.Position]); {do not localize}
   end;
 end;
 

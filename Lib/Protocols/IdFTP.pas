@@ -1,4 +1,4 @@
-{
+﻿{
   $Project$
   $Workfile$
   $Revision$
@@ -612,10 +612,10 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdGlobal, IdCustomTransparentProxy, IdExceptionCore,
+  IdAssignedNumbers, IdGlobal, IdExceptionCore,
   IdExplicitTLSClientServerBase, IdFTPCommon, IdFTPList, IdFTPListParseBase,
-  IdException, IdIOHandler, IdIOHandlerSocket, IdReplyFTP, IdBaseComponent,
-  IdReplyRFC, IdReply, IdSocketHandle, IdTCPConnection, IdTCPClient,
+  IdException, IdIOHandler, IdIOHandlerSocket, IdReply, IdReplyFTP, IdBaseComponent,
+  IdSocketHandle, IdTCPConnection, IdTCPClient,
   IdThreadSafe, IdZLibCompressorBase;
 
 type
@@ -675,24 +675,6 @@ type
 
   TIdFTPBannerEvent = procedure (ASender: TObject; const AMsg : String) of object;
 
-  TIdFTPClientIdentifier = class (TPersistent)
-  protected
-    FClientName : String;
-    FClientVersion : String;
-    FPlatformDescription : String;
-    procedure SetClientName(const AValue: String);
-    procedure SetClientVersion(const AValue: String);
-    procedure SetPlatformDescription(const AValue: String);
-    function GetClntOutput: String;
-  public
-    procedure Assign(Source: TPersistent); override;
-    property ClntOutput : String read GetClntOutput;
-  published
-    property ClientName : String read FClientName write SetClientName;
-    property ClientVersion : String read FClientVersion write SetClientVersion;
-    property PlatformDescription : String read FPlatformDescription write SetPlatformDescription;
-  end;
-
   TIdFtpProxySettings = class (TPersistent)
   protected
     FHost, FUserName, FPassword: String;
@@ -742,7 +724,7 @@ type
     FAutoIssueFEAT : Boolean;
     FCurrentTransferMode : TIdFTPTransferMode;
     FClientInfo : TIdFTPClientIdentifier;
-
+    FServerInfo : TIdFTPServerIdentifier;
     FDataSettingsSent: Boolean; // only send SSL data settings once per connection
     FUsingSFTP : Boolean; //enable SFTP internel flag
     FUsingCCC : Boolean; //are we using FTP with SSL on a clear control channel?
@@ -1017,7 +999,7 @@ type
     property UsingSFTP : Boolean read FUsingSFTP;
     property CurrentTransferMode : TIdFTPTransferMode read FCurrentTransferMode write TransferMode;
     property DefStringEncoding : IIdTextEncoding read FDefStringEncoding write SetDefStringEncoding;
-
+    property ServerInfo : TIdFTPServerIdentifier read FServerInfo;
   published
     {$IFDEF DOTNET}
       {$IFDEF DOTNET_2_OR_ABOVE}
@@ -1123,10 +1105,6 @@ uses
   Posix.SysTime,
   Posix.Unistd,
   {$ENDIF}
-  {$IFDEF WINDOWS}
-  //facilitate inlining only.
-  Windows,
-  {$ENDIF}
   {$IFDEF DOTNET}
     {$IFDEF USE_INLINE}
   System.IO,
@@ -1195,6 +1173,7 @@ begin
   FResumeTested := False;
   FProxySettings:= TIdFtpProxySettings.Create; //APR
   FClientInfo := TIdFTPClientIdentifier.Create;
+  FServerInfo := TIdFTPServerIdentifier.Create;
   FTZInfo := TIdFTPTZInfo.Create;
   FTZInfo.FGMTOffsetAvailable := False;
   FUseMLIS := DEF_Id_TIdFTP_UseMIS;
@@ -1797,6 +1776,7 @@ begin
 
           DoOnDataChannelCreate;
 
+          // TODO: if Connect() fails and PassiveUseControlHost is false, try connecting to the command host...
           LPasvCl.Connect;
         end;
         try
@@ -2035,6 +2015,7 @@ begin
 
         DoOnDataChannelCreate;
 
+        // TODO: if Connect() fails and PassiveUseControlHost is false, try connecting to the command host...
         LPasvCl.Connect;
       end;
       try
@@ -2121,7 +2102,7 @@ begin
           LSocketList.Add(Socket.Binding.Handle);
           LSocketList.Add(LDataSocket);
 
-          IOHandler.Write(ACommand);
+          IOHandler.WriteLn(ACommand);
 
           LReadList := nil;
           if not LSocketList.SelectReadList(LReadList, ListenTimeout) then begin
@@ -2682,6 +2663,7 @@ end;
 destructor TIdFTP.Destroy;
 begin
   FreeAndNil(FClientInfo);
+  FreeAndNil(FServerInfo);
   FreeAndNil(FListResult);
   FreeAndNil(FLoginMsg);
   FreeAndNil(FDirectoryListing);
@@ -2700,7 +2682,6 @@ end;
 
 procedure TIdFTP.IssueFEAT;
 var
-  LClnt: String;
   LBuf : String;
   i : Integer;
 begin
@@ -2741,15 +2722,17 @@ begin
     end;
   end;
 
-  // send the CLNT command before sending the OPTS UTF8 command.
+  // identify the client before sending the OPTS UTF8 command.
   // some servers need this in order to work around a bug in
   // Microsoft Internet Explorer's UTF-8 handling
-  if IsExtSupported('CLNT') then begin {do not localize}
-    LClnt := FClientInfo.ClntOutput;
-    if LClnt = '' then begin
-      LClnt := gsIdProductName + ' ' + gsIdVersion;
+  FServerInfo.Clear;
+  if IsExtSupported('CSID') then begin {do not localize}
+    if SendCmd('CSID ' + FClientInfo.CSIDParams) = 200 then begin {do not localize}
+      FServerInfo.CSIDParams := LastCmdResult.Text.Text;
     end;
-    SendCmd('CLNT ' + LClnt);  {do not localize}
+  end
+  else if IsExtSupported('CLNT') then begin {do not localize}
+    SendCmd('CLNT ' + FClientInfo.CLNTParams);  {do not localize}
   end;
 
   // RLebeau 4/26/2019: per RFC 2640, if the server reports the 'UTF8'
@@ -3300,7 +3283,6 @@ begin
     InternalGet(TrimRight('MLSD ' + ADirectory), LDest);  {do not localize}
     FreeAndNil(FDirectoryListing);
     FDirFormat := '';
-    DoOnRetrievedDir;
     LDest.Position := 0;
     // RLebeau: using IndyTextEncoding_8Bit here.  TIdFTPListParseBase will
     // decode UTF-8 sequences later on...
@@ -3316,6 +3298,7 @@ begin
   if Assigned(ADest) then begin //APR: User can use ListResult and DirectoryListing
     ADest.Assign(FListResult);
   end;
+  DoOnRetrievedDir;
 end;
 
 procedure TIdFTP.ExtListItem(ADest: TStrings; AFList : TIdFTPListItems; const AItem: string);
@@ -3909,54 +3892,6 @@ begin
   end;
 end;
 
-{ TIdFTPClientIdentifier }
-
-procedure TIdFTPClientIdentifier.Assign(Source: TPersistent);
-var
-  LSource: TIdFTPClientIdentifier;
-begin
-  if Source is TIdFTPClientIdentifier then begin
-    LSource := TIdFTPClientIdentifier(Source);
-    ClientName  := LSource.ClientName;
-    ClientVersion := LSource.ClientVersion;
-    PlatformDescription := LSource.PlatformDescription;
-  end else begin
-    inherited Assign(Source);
-  end;
-end;
-
-//assume syntax such as this:
-//214 Syntax: CLNT <sp> <client-name> <sp> <client-version> [<sp> <optional platform info>] (Set client name)
-function TIdFTPClientIdentifier.GetClntOutput: String;
-begin
-  if FClientName <> '' then begin
-    Result := FClientName;
-    if FClientVersion <> '' then begin
-      Result := Result + ' ' + FClientVersion;
-      if FPlatformDescription <> '' then begin
-        Result := Result + ' ' + FPlatformDescription;
-      end;
-    end;
-  end else begin
-    Result := '';
-  end;
-end;
-
-procedure TIdFTPClientIdentifier.SetClientName(const AValue: String);
-begin
-  FClientName := Trim(AValue);
-  // Don't call Fetch;  it prevents multi-word client names
-end;
-
-procedure TIdFTPClientIdentifier.SetClientVersion(const AValue: String);
-begin
-  FClientVersion := Trim(AValue);
-end;
-
-procedure TIdFTPClientIdentifier.SetPlatformDescription(const AValue: String);
-begin
-  FPlatformDescription := AValue;
-end;
 
 {Note about SetTime procedures:
 
@@ -4505,5 +4440,3 @@ begin
 end;
 
 end.
-
-
