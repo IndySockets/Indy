@@ -1153,10 +1153,6 @@
     {$DEFINE HAS_NAMED_THREADS}
     {$DEFINE HAS_TStrings_NameValueSeparator}
     {$DEFINE HAS_TStrings_ValueFromIndex}
-    // Note: there is a ZLib unit available, but it doesn't have everything
-    // that is available in the System.ZLib unit in Delphi XE2+, so we are
-    // not going to use this ZLib unit yet...
-    {.$DEFINE HAS_UNIT_ZLib}
   {$ENDIF}
   {$DEFINE HAS_TFormatSettings}
   {$DEFINE HAS_PosEx}
@@ -1182,6 +1178,9 @@
     // parameters until Delphi 2005, when it was switched to Longint parameters
     // instead to match the actual Win32 API declaration.
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
+    // class helpers were first introduced in D2005, but were buggy and not
+    // officially supported until D2006...
+    {.$DEFINE HAS_CLASS_HELPER}
   {$ENDIF}
 {$ENDIF}
 
@@ -1189,6 +1188,7 @@
   {$DEFINE USE_INLINE}
   {$DEFINE HAS_2PARAM_FileAge}
   {$DEFINE HAS_TStrings_LineBreak} // TODO: when was LineBreak introduced?
+  {$DEFINE HAS_CLASS_HELPER}
   {$IFDEF WINDOWS}
     // System.RegisterExpectedMemoryLeak() is only available on Windows at this time
     {$DEFINE HAS_System_RegisterExpectedMemoryLeak}
@@ -1306,7 +1306,6 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_OSX32}
   {$DEFINE HAS_System_ReturnAddress}
   {$DEFINE HAS_DIRECTIVE_WARN_DEFAULT}
-  {$DEFINE HAS_UNIT_System_ZLib}
 {$ENDIF}
 
 {$IFDEF VCL_XE3_OR_ABOVE}
@@ -1520,6 +1519,7 @@
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
     {$DEFINE HAS_NativeUInt}
+    {$DEFINE HAS_CLASS_HELPER}
   {$ENDIF}
   {$IFDEF FPC_2_6_2_OR_ABOVE}
     {$DEFINE HAS_Int8}

@@ -41,11 +41,6 @@ interface
 uses
   SysUtils,
   Classes,
-  {$IFDEF HAS_UNIT_System_ZLib}
-    {$IFDEF USE_INLINE}
-  System.ZLib, // here to facilitate inlining
-    {$ENDIF}
-  {$ENDIF}
   IdCTypes,
   IdGlobal,
   IdZLibHeaders;
@@ -250,7 +245,7 @@ begin
         P := OutBuf;
         Inc(OutBytes, 256);
         ReallocMem(OutBuf, OutBytes);
-        strm.next_out := PByte(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
+        strm.next_out := PIdAnsiChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
         strm.avail_out := 256;
       end;
     finally
@@ -317,12 +312,12 @@ end;
 
 function TryStreamType(var strm: TZStreamRec; gzheader: PgzHeaderRec; const AWinBitsValue : Integer): boolean;
 var
-  InitBuf: PByte;
+  InitBuf: PIdAnsiChar;
   InitIn : TIdC_UINT;
 begin
   InitBuf := strm.next_in;
   InitIn  := strm.avail_in;
-  DCheck(inflateInit2(strm, AWinBitsValue));
+  DCheck(inflateInit2_(strm, AWinBitsValue, zlib_version, SizeOf(TZStreamRec)));
 
   if (AWinBitsValue = GZIP_WINBITS) and (gzheader <> nil) then begin
     DCheck(inflateGetHeader(strm, gzheader^));
@@ -345,7 +340,7 @@ end;
 //strm should not contain an initialized inflate
 function CheckInitInflateStream(var strm: TZStreamRec; gzheader: gz_headerp): TZStreamType; overload;
 var
-  InitBuf: PByte;
+  InitBuf: PIdAnsiChar;
   InitIn: Integer;
 
   function LocalTryStreamType(AStreamType: TZStreamType): Boolean;
@@ -446,10 +441,10 @@ type
   TZBack = record
     InStream  : TStream;
     OutStream : TStream;
-    InMem     : Pointer; //direct memory access
+    InMem     : PIdAnsiChar; //direct memory access
     InMemSize : TIdC_UINT;
-    ReadBuf   : array[Word] of Byte;
-    Window    : array[0..WindowSize] of Byte;
+    ReadBuf   : array[Word] of TIdAnsiChar;
+    Window    : array[0..WindowSize] of TIdAnsiChar;
   end;
 
 function Strm_in_func(opaque: Pointer; var buf: PByte): TIdC_UNSIGNED; cdecl;
@@ -457,12 +452,12 @@ var
   S : TStream;
   BackObj : PZBack;
 begin
-  BackObj := PZBack( opaque );
+   BackObj := PZBack( opaque );
   S := BackObj.InStream; //help optimizations
   if BackObj.InMem <> nil then
   begin
     //direct memory access if available!
-    buf := PByte(BackObj.InMem);
+    buf := Pointer(BackObj.InMem);
     //handle integer overflow
     {$IFDEF STREAM_SIZE_64}
     Result := TIdC_UNSIGNED(IndyMin(S.Size - S.Position, High(TIdC_UNSIGNED)));
@@ -472,7 +467,7 @@ begin
     TIdStreamHelper.Seek(S, Result, soCurrent);
   end else
   begin
-    buf    := @BackObj.ReadBuf;
+    buf    := PByte(@BackObj.ReadBuf);
     Result := S.Read(buf^, SizeOf(BackObj.ReadBuf));
   end;
 end;
@@ -501,7 +496,7 @@ begin
 
     //use our own function for reading
     strm.avail_in := Strm_in_func(BackObj, PByte(strm.next_in));
-    strm.next_out := @BackObj.Window[0];
+    strm.next_out := PIdAnsiChar(@BackObj.Window[0]);
     strm.avail_out := 0;
 
     CheckInitInflateStream(strm, nil);
@@ -542,7 +537,7 @@ begin
 
     //use our own function for reading
     strm.avail_in := Strm_in_func(BackObj, PByte(strm.next_in));
-    strm.next_out := @BackObj.Window[0];
+    strm.next_out := PIdAnsiChar(@BackObj.Window[0]);
     strm.avail_out := 0;
 
     //note that you can not use a WinBits parameter greater than 32 with
@@ -565,7 +560,8 @@ begin
     end;
     strm.next_out := nil;
     strm.avail_out := 0;
-    DCheck(inflateBackInit(strm, LWindowBits, @BackObj.Window[0]));
+    DCheck(inflateBackInit_(strm,LWindowBits, @BackObj.Window[0],
+      zlib_version, SizeOf(TZStreamRec)));
     try
       DCheck(inflateBack(strm, Strm_in_func, BackObj, Strm_out_func, BackObj));
       //seek back when unused data
@@ -600,8 +596,8 @@ const
   BufSize = 65536;
 
 var
-  InBuf, OutBuf : array of Byte;
-  pLastOutBuf : PByte;
+  InBuf, OutBuf : array of TIdAnsiChar;
+  pLastOutBuf : PIdAnsiChar;
   UseInBuf, UseOutBuf : boolean;
   LastOutCount : TIdC_UINT;
 
@@ -623,7 +619,7 @@ var
   begin
     if UseOutBuf then
     begin
-      strm.next_out  := PByte(OutBuf);
+      strm.next_out  := PIdAnsiChar(OutBuf);
       strm.avail_out := Length(OutBuf);
     end else
     begin
@@ -709,7 +705,7 @@ begin
     begin
       if UseInBuf then
       begin
-        strm.next_in  := PByte(InBuf);
+        strm.next_in  := PIdAnsiChar(InBuf);
         strm.avail_in := InStream.Read(strm.next_in^, Length(InBuf));
         // TODO: if Read() returns < 0, raise an exception
       end;
@@ -743,7 +739,7 @@ var
   strm : z_stream;
 begin
   FillChar(strm, SizeOf(strm), 0);
-  CCheck(deflateInit2(strm, level, Z_DEFLATED, WinBits, MemLevel, Stratagy));
+  CCheck(deflateInit2_(strm, level, Z_DEFLATED, WinBits, MemLevel, Stratagy, zlib_version, SizeOf(TZStreamRec)));
   try
     DoCompressStream(strm, InStream, OutStream, True);
   finally
@@ -822,7 +818,7 @@ begin
         P := OutBuf;
         Inc(OutBytes, BufInc);
         ReallocMem(OutBuf, OutBytes);
-        strm.next_out := PByte(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
+        strm.next_out := PIdAnsiChar(PtrUInt(OutBuf) + (PtrUInt(strm.next_out) - PtrUInt(P)));
         strm.avail_out := BufInc;
       end;
     finally
@@ -996,7 +992,7 @@ end;
 
 function TCompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
-  FZRec.next_in := @ABuffer[AOffset];
+  FZRec.next_in := PIdAnsiChar(@ABuffer[AOffset]);
   FZRec.avail_in := ACount;
   if FStrm.Position <> FStrmPos then begin
     FStrm.Position := FStrmPos;
@@ -1081,7 +1077,7 @@ end;
 function TDecompressionStream.IdRead(var VBuffer: TIdBytes; AOffset,
   ACount: Longint): Longint;
 begin
-  FZRec.next_out := @VBuffer[AOffset];
+  FZRec.next_out := PIdAnsiChar(@VBuffer[AOffset]);
   FZRec.avail_out := ACount;
   if FStrm.Position <> FStrmPos then begin
     FStrm.Position := FStrmPos;

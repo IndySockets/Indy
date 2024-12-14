@@ -130,6 +130,7 @@ uses
   Indy.Sockets.IdHMACSHA1 in 'Indy.Sockets.IdHMACSHA1.pas',
   Indy.Sockets.IdHTTP in 'Indy.Sockets.IdHTTP.pas',
   Indy.Sockets.IdHTTPHeaderInfo in 'Indy.Sockets.IdHTTPHeaderInfo.pas',
+  Indy.Sockets.IdHTTPHelper in 'Indy.Sockets.IdHTTPHelper.pas',
   Indy.Sockets.IdHTTPProxyServer in 'Indy.Sockets.IdHTTPProxyServer.pas',
   Indy.Sockets.IdHTTPServer in 'Indy.Sockets.IdHTTPServer.pas',
   Indy.Sockets.IdHash in 'Indy.Sockets.IdHash.pas',

@@ -61,11 +61,6 @@ interface
 
 uses
   Classes,
-  {$IFDEF HAS_UNIT_System_ZLib}
-    {$IFDEF USE_INLINE}
-  System.ZLib, // here to facilitate inlining
-    {$ENDIF}
-  {$ENDIF}
   IdException,
   IdIOHandler,
   IdZLibCompressorBase,
@@ -171,7 +166,7 @@ begin
       Break;
     end;
 
-    LZstream.next_in := @LBuf[0];
+    LZstream.next_in := PIdAnsiChar(@LBuf[0]);
     LZstream.avail_in := inSize;
 
     repeat

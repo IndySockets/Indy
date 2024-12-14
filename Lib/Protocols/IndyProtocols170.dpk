@@ -159,6 +159,7 @@ contains
   IdHMACSHA1 in 'IdHMACSHA1.pas',
   IdHTTP in 'IdHTTP.pas',
   IdHTTPHeaderInfo in 'IdHTTPHeaderInfo.pas',
+  IdHTTPHelper in 'IdHTTPHelper.pas',
   IdHTTPProxyServer in 'IdHTTPProxyServer.pas',
   IdHTTPServer in 'IdHTTPServer.pas',
   IdHash in 'IdHash.pas',
@@ -220,6 +221,7 @@ contains
   IdReplyIMAP4 in 'IdReplyIMAP4.pas',
   IdReplyPOP3 in 'IdReplyPOP3.pas',
   IdReplySMTP in 'IdReplySMTP.pas',
+  IdResourceStringsOpenSSL in 'IdResourceStringsOpenSSL.pas',
   IdResourceStringsProtocols in 'IdResourceStringsProtocols.pas',
   IdResourceStringsSSPI in 'IdResourceStringsSSPI.pas',
   IdResourceStringsUriUtils in 'IdResourceStringsUriUtils.pas',
@@ -247,6 +249,8 @@ contains
   IdSNPP in 'IdSNPP.pas',
   IdSNTP in 'IdSNTP.pas',
   IdSSL in 'IdSSL.pas',
+  IdSSLOpenSSL in 'IdSSLOpenSSL.pas',
+  IdSSLOpenSSLHeaders in 'IdSSLOpenSSLHeaders.pas',
   {$IFDEF WINDOWS}
   IdSSPI in 'IdSSPI.pas',
   {$ENDIF}
