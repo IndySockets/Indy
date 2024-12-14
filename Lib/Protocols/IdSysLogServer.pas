@@ -50,14 +50,10 @@ uses
   IdBaseComponent,
   IdComponent,
   IdGlobal,
-  IdException,
   IdSocketHandle,
-  IdStackConsts,
   IdThread,
-  IdUDPBase,
   IdUDPServer,
-  IdSysLogMessage,
-  IdSysLog;
+  IdSysLogMessage;
 
 type
   TOnSyslogEvent = procedure(Sender: TObject; ASysLogMessage: TIdSysLogMessage;

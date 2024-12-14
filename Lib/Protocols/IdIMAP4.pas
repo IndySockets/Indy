@@ -1166,7 +1166,6 @@ uses
   {$ENDIF}
   IdCoder,
   IdEMailAddress,
-  IdResourceStrings,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols,
   IdExceptionCore,
@@ -1390,7 +1389,7 @@ begin
   // TODO: use UTF-8 when base64-encoding strings...
 
   if AClient.IsCapabilityListed('SASL-IR') then begin {Do not localize}
-    if ASASL.TryStartAuthenticate(AClient.Host, IdGSKSSN_imap, S) then begin
+    if ASASL.TryStartAuthenticate(AClient.Host, AClient.Port, IdGSKSSN_imap, S) then begin
       AClient.SendCmd(AClient.NewCmdCounter, 'AUTHENTICATE ' + String(ASASL.ServiceName) + ' ' + AEncoder.Encode(S), [], True); {Do not Localize}
       if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
         ASASL.FinishAuthenticate;
@@ -1415,7 +1414,7 @@ begin
   // must be a continue reply...
   if not AuthStarted then begin
     S := ADecoder.DecodeString(TrimRight(TIdReplyIMAP4(AClient.LastCmdResult).Extra.Text));
-    S := ASASL.StartAuthenticate(S, AClient.Host, IdGSKSSN_imap);
+    S := ASASL.StartAuthenticate(S, AClient.Host, AClient.Port, IdGSKSSN_imap);
     AClient.IOHandler.WriteLn(AEncoder.Encode(S));
     AClient.GetInternalResponse(AClient.LastCmdCounter, [], True);
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
@@ -1426,7 +1425,7 @@ begin
   end;
   while PosInStrArray(AClient.LastCmdResult.Code, AContinueReplies) > -1 do begin
     S := ADecoder.DecodeString(TrimRight(TIdReplyIMAP4(AClient.LastCmdResult).Extra.Text));
-    S := ASASL.ContinueAuthenticate(S, AClient.Host, IdGSKSSN_imap);
+    S := ASASL.ContinueAuthenticate(S, AClient.Host, AClient.Port, IdGSKSSN_imap);
     AClient.IOHandler.WriteLn(AEncoder.Encode(S));
     AClient.GetInternalResponse(AClient.LastCmdCounter, [], True);
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
@@ -2426,7 +2425,7 @@ begin
       if not FHasCapa then begin
         Capability;
       end;
-      // FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, IdGSKSSN_imap, [IMAP_OK], [IMAP_CONT], Self, FCapabilities, 'AUTH', IsCapabilityListed('SASL-IR'));     {Do not Localize}
+      // FSASLMechanisms.LoginSASL('AUTHENTICATE', FHost, FPort, IdGSKSSN_imap, [IMAP_OK], [IMAP_CONT], Self, FCapabilities, 'AUTH', IsCapabilityListed('SASL-IR'));     {Do not Localize}
       TIdSASLEntriesIMAP4(FSASLMechanisms).LoginSASL_IMAP(Self);
     end;
     FConnectionState := csAuthenticated;

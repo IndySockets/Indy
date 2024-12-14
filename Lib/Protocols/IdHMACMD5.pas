@@ -29,7 +29,8 @@ interface
 uses
   IdFIPS,
   IdGlobal,
-  IdHash, IdHashMessageDigest, IdHMAC;
+  IdHashMessageDigest,
+  IdHMAC;
 
 type
   TIdHMACMD5 = class(TIdHMAC)

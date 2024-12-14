@@ -80,7 +80,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-	Classes,
+  Classes,
   IdGlobal,
   IdUDPClient;
 

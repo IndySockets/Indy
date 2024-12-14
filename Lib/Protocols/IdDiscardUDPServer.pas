@@ -28,7 +28,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdAssignedNumbers, IdSocketHandle, IdUDPBase, IdUDPServer;
+  IdAssignedNumbers, IdUDPServer;
 
 type
    TIdDiscardUDPServer = class(TIdUDPServer)

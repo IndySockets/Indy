@@ -132,7 +132,8 @@ implementation
 
 uses
   IdAssignedNumbers,
-  IdResourceStringsCore, IdStackConsts, SysUtils;
+  IdResourceStringsCore,
+  SysUtils;
 
 { TIdIPMCastBase }
 

@@ -16,8 +16,8 @@
 {.$IFDEF IdIPv6} // use IPv6 by default
 
 {$DEFINE INDY100}
-{$DEFINE 10_6_4}    //so developers can IFDEF for this product version
-{$DEFINE 10_6_4_0}  //so developers can IFDEF for this specific version
+{$DEFINE 10_6_3}    //so developers can IFDEF for this product version
+{$DEFINE 10_6_3_8}  //so developers can IFDEF for this specific version
 
 // When generating C++Builder output files, certain workarounds to compiler
 // problems need to be enabled! When invoking DCC on the command-line, use
@@ -28,6 +28,9 @@
 {$ELSE}
   {$DEFINE DELPHI}
 {$ENDIF}
+
+{$UNDEF USE_OPENSSL}
+{$UNDEF STATICLOAD_OPENSSL}
 
 {$UNDEF USE_ZLIB_UNIT}
 {$UNDEF USE_SSPI}
@@ -448,6 +451,20 @@
     {$ENDIF}
   {$ENDIF}
 
+  //Delphi & CBuilder 13.0+ (?)
+  {$IFDEF CONDITIONALEXPRESSIONS}
+    {$IF CompilerVersion >= 37}
+      {$MESSAGE WARN 'Unknown compiler version detected! Assuming >= 13.x '}
+      {$DEFINE VCL_UNKNOWN_VERSION}
+      {$DEFINE VCL_13}
+      {$IFDEF CBUILDER}
+        {$DEFINE CBUILDER_13}
+      {$ELSE}
+        {$DEFINE DELPHI_13}
+      {$ENDIF}
+    {$IFEND}
+  {$ENDIF}
+
   // Kylix
   //
   //Important:  Don't use CompilerVersion here as IF's are evaluated before
@@ -534,11 +551,6 @@
   // {$MODE DelphiUnicode} anyway, and then deal with any RTL function issues
   // on an as-needed basis...
   {$MODE Delphi}
-  {$IFDEF FPC_2_7_1_OR_ABOVE}
-    {.$MODE DelphiUnicode}
-    {.$MODESWITCH UnicodeStrings}
-    {.$CODEPAGE UTF8} // needed for Unicode string literals to work properly
-  {$ENDIF}
   //note that we may need further defines for widget types depending on
   //what we do and what platforms we support in FPC.
   //I'll let Marco think about that one.
@@ -737,6 +749,9 @@
 
   {.$IFDEF FPC_2_7_1_OR_ABOVE}
     // support for RawByteString and UnicodeString
+    {.$MODE DelphiUnicode}
+    {.$MODESWITCH UnicodeStrings}
+    {.$CODEPAGE UTF8} // needed for Unicode string literals to work properly
     {.$DEFINE VCL_2009}
     {.$DEFINE DELPHI_2009}
   {.$ELSE}
@@ -747,8 +762,16 @@
 
 // end FPC
 
-{$IFDEF VCL_12}
+{$IFDEF VCL_13}
+  {$DEFINE VCL_13_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_13_OR_ABOVE}
   {$DEFINE VCL_12_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_12}
+    {$DEFINE VCL_12_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_12_OR_ABOVE}
@@ -1617,6 +1640,7 @@
 {$IFDEF WIN32_OR_WIN64}
   {$DEFINE USE_ZLIB_UNIT}
   {$IFNDEF DCC_NEXTGEN}
+    {$DEFINE USE_OPENSSL} // !!! MOVED HERE BY EMBT
     {$DEFINE USE_SSPI}
     {$IFDEF STRING_IS_UNICODE}
       {$DEFINE SSPI_UNICODE}
@@ -1624,6 +1648,7 @@
   {$ENDIF}
 {$ENDIF}
 {$IFDEF WINCE}
+  {$DEFINE USE_OPENSSL}
   // RLebeau: not sure if the above Win32/64 defines also apply to WinCE,
   // so keeping them separate for now...
 {$ENDIF}
@@ -1641,6 +1666,7 @@
 {$ENDIF}
 
 {$IFDEF UNIX}
+  {$DEFINE USE_OPENSSL}
   {$DEFINE USE_ZLIB_UNIT}
   {$DEFINE HAS_getifaddrs}
 {$ENDIF}
@@ -1659,6 +1685,21 @@
 
 {$IFDEF IOS}
   {$DEFINE HAS_getifaddrs}
+  {$DEFINE USE_OPENSSL}
+
+  // Support for 64-bit ARM iOS Simulator was added in Delphi 11.2
+  // TODO: how to detect iOS Simulator in FPC? Does it support 64-bit ARM?
+  {$IFDEF CPUARM}
+    {$IFNDEF IOSSIMULATOR}
+      // RLebeau: For iOS devices, OpenSSL cannot be used as an external library,
+      // it must be statically linked into the app.  For the iOS simulator, this
+      // is not true.  Users who want to use OpenSSL in iOS device apps will need
+      // to add the static OpenSSL library to the project and then include the
+      // IdSSLOpenSSLHeaders_static unit in their uses clause. It hooks up the
+      // statically linked functions for the IdSSLOpenSSLHeaders unit to use...
+      {$DEFINE STATICLOAD_OPENSSL}
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF FREEBSD}

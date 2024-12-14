@@ -67,7 +67,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdThread, IdSchedulerOfThread, IdScheduler, IdYarn, IdContext;
+  IdThread, IdSchedulerOfThread, IdScheduler, IdYarn;
 
 type
   TIdSchedulerOfThreadDefault = class(TIdSchedulerOfThread)

@@ -76,7 +76,6 @@ uses
   {$ELSE}
   Classes,
   {$ENDIF}
-  IdContext,
   IdScheduler,
   IdSchedulerOfThread,
   IdThread,

@@ -37,7 +37,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
 type
   TIdEchoUDPServer = class(TIdUDPServer)

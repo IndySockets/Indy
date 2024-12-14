@@ -40,7 +40,6 @@ unit IdSASLOTP;
 interface
 {$i IdCompilerDefines.inc}
 uses
-  IdException,
   IdSASL,
   IdSASLUserPass;
 
@@ -59,7 +58,7 @@ type
 implementation
 
 uses
-  IdBaseComponent, IdGlobal, IdOTPCalculator, IdUserPassProvider;
+   IdGlobal, IdOTPCalculator;
 
 { TIdSASLOTP }
 

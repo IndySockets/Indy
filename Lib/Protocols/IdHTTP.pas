@@ -340,7 +340,7 @@ uses
   Classes,
   IdException, IdExceptionCore, IdAssignedNumbers, IdHeaderList, IdHTTPHeaderInfo, IdReplyRFC,
   IdSSL, IdZLibCompressorBase,
-  IdTCPClient, IdURI, IdCookie, IdCookieManager, IdAuthentication, IdAuthenticationManager,
+  IdTCPClient, IdURI, IdCookieManager, IdAuthentication, IdAuthenticationManager,
   IdMultipartFormData, IdGlobal, IdBaseComponent, IdUriUtils;
 
 type
