@@ -26,9 +26,9 @@
 
 unit IdTunnelSlave;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   SysUtils, Classes, SyncObjs,
