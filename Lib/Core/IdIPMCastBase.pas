@@ -52,6 +52,8 @@ uses
 (*$HPPEMIT '#pragma alias "@Idipmcastbase@TIdIPMCastBase@SetPortW$qqrxi"="@Idipmcastbase@TIdIPMCastBase@SetPort$qqrxi"' *)
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
+// TODO: when compiling with bcc64x, use this pragma instead:
+// #pragma comment(linker, "/alternatename:<name1>=<name2>")
 
 const
   IPMCastLo = 224;
@@ -130,7 +132,8 @@ implementation
 
 uses
   IdAssignedNumbers,
-  IdResourceStringsCore, IdStackConsts, SysUtils;
+  IdResourceStringsCore,
+  SysUtils;
 
 { TIdIPMCastBase }
 

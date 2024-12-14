@@ -68,8 +68,6 @@ implementation
 uses
   IdComponent,
   IdGlobalProtocols,
-  IdSimpleServer,
-  IdTCPConnection,
   IdThread;
 
 { TIdRSH }

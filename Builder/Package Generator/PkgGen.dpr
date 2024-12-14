@@ -95,120 +95,186 @@ uses
   PackageProtocols in 'PackageProtocols.pas',
   PackageFTPParsers in 'PackageFTPParsers.pas',
   PackageSecurity in 'PackageSecurity.pas',
+  PackageBuildRes in 'PackageBuildRes.pas',
+  PackageVersInc in 'PackageVersInc.pas',
+  PackageCleanCmd in 'PackageCleanCmd.pas',
+  PackageLazarus in 'PackageLazarus.pas',
   DModule in 'DModule.pas';
 
-
-
 procedure Main;
+var
+  LDebugFlag: TGenerateFlags;
 begin
   DM := TDM.Create(nil); try
     with DM do begin
-      WriteLn('Path: '+ Ini.FileName );
+      WriteLn('INI Path: ' + Ini.FileName );
 
       if FindCmdLineSwitch('checkini') then begin
+        WriteLn('Checking for missing files to add to INI...');
         CheckForMissingFiles;
         Exit;
       end;
 
+      InitVersionNumbers;
+
+      LDebugFlag := [];
+      if FindCmdLineSwitch('debugPkgs') then begin
+        Include(LDebugFlag, gfDebug);
+        WriteLn('Will Generate Debug Packages');
+      end else begin
+        WriteLn('Will Not Generate Debug Packages');
+      end;
+
+      WriteLn;
+      WriteLn('Generating Visual Studio Package...');
+
       with TPackageVisualStudio.Create do try
         Load('DotNet=True, DesignUnit=False', True);
         Generate(ctDotNet);
+
+        Load('DotNet=True, DesignUnit=False', True);
+        Generate(ctDotNet, [gfDebug]{LDebugFlag});
       finally Free; end;
 
-      // Debug version
-      with TPackageVisualStudio.Create do try
-        Debug := True;
-        Load('DotNet=True, DesignUnit=False', True);
-        Generate(ctDotNet);
+      WriteLn('Generating Lazarus Package...');
+
+      with TPackageLazarus.Create do try
+        // nothing to load from the database...
+        //Load('FPC=True, FPCListInPkg=True');
+        Generate(ctUnversioned, []{LDebugFlag});
       finally Free; end;
+
+      WriteLn('Generating D8 Master Package...');
 
       with TPackageD8Master.Create do try
         Load('DelphiDotNet=True, DesignUnit=False', True);
-        Generate(DelphiNet);
+        Generate(Delphi_DotNet, LDebugFlag);
       finally Free; end;
+
+      WriteLn('Generating System Package...');
 
       with TPackageSystem.Create do try
         Load('VCL=True, Pkg=System, DesignUnit=False');
-        Generate(DelphiNative);
+        Generate(Delphi_Native, LDebugFlag);
         //
         Load('DelphiDotNet=True, DotNet2_0OrAboveOnly=False, Pkg=System, DesignUnit=False');
-        Generate(DelphiNet1_1);
+        Generate(Delphi_DotNet_1_1, LDebugFlag);
          //
         Load('DelphiDotNet=True, Pkg=System, DesignUnit=False');
-        Generate(DelphiNet2OrLater);
+        Generate(Delphi_DotNet_2_Or_Later, LDebugFlag);
         //
         Load('Kylix=True, Pkg=System');
-        Generate(ctKylix3);
+        Generate(ctKylix3, LDebugFlag);
+        //
+        GenerateRC([ctUnversioned] + Delphi_Native, [gfRunTime, gfDesignTime] + LDebugFlag);
       finally Free; end;
+
+      WriteLn('Generating Core Package...');
 
       with TPackageCore.Create do try
         Load('VCL=True, Pkg=Core, DesignUnit=False');
-        Generate(DelphiNative);
+        Generate(Delphi_Native, LDebugFlag);
         //
         Load('DelphiDotNet=True, DotNet2_0OrAboveOnly=False, Pkg=Core, DesignUnit=False');
-        Generate(DelphiNet1_1);
+        Generate(Delphi_DotNet_1_1, LDebugFlag);
         //
         Load('DelphiDotNet=True, Pkg=Core, DesignUnit=False');
-        Generate(DelphiNet2OrLater);
+        Generate(Delphi_DotNet_2_Or_Later, LDebugFlag);
         //
         Load('Kylix=True, Pkg=Core, DesignUnit=False');
-        Generate(ctKylix3);
+        Generate(ctKylix3, LDebugFlag);
         //
         Load('VCL=True, Pkg=Core, DesignUnit=True');
-        GenerateDT(DelphiNative);
+        Generate(Delphi_Native, [gfDesignTime] + LDebugFlag);
         //
         Load('DelphiDotNet=True, Pkg=Core, DesignUnit=True');
-        GenerateDT(DelphiNet);
+        Generate(Delphi_DotNet, [gfDesignTime] + LDebugFlag);
         //
         Load('Kylix=True, Pkg=Core, DesignUnit=True');
-        GenerateDT(ctKylix3);
+        Generate(ctKylix3, [gfDesignTime] + LDebugFlag);
+        //
+        GenerateRC([ctUnversioned] + Delphi_Native, [gfRunTime, gfDesignTime] + LDebugFlag);
+        GenerateDsnCoreResourceStrings;
       finally Free; end;
+
+      WriteLn('Generating Protocols Package...');
 
       with TPackageProtocols.Create do try
         Load('VCL=True, Pkg=Protocols, DesignUnit=False');
-        Generate(DelphiNative);
+        Generate(Delphi_Native, LDebugFlag);
         //
         Load('DelphiDotNet=True, DotNet2_0OrAboveOnly=False, Pkg=Protocols, DesignUnit=False');
-        Generate(DelphiNet1_1);
+        Generate(Delphi_DotNet_1_1, LDebugFlag);
         //
         Load('DelphiDotNet=True, Pkg=Protocols, DesignUnit=False');
-        Generate(DelphiNet2OrLater);
+        Generate(Delphi_DotNet_2_Or_Later, LDebugFlag);
         //
         Load('Kylix=True, Pkg=Protocols, DesignUnit=False');
-        Generate(ctKylix3);
+        Generate(ctKylix3, LDebugFlag);
         //
         Load('VCL=True, Pkg=Protocols, DesignUnit=True');
-        GenerateDT(DelphiNative);
+        Generate(Delphi_Native, [gfDesignTime] + LDebugFlag);
         //
         Load('DelphiDotNet=True, DotNet2_0OrAboveOnly=False, Pkg=Protocols, DesignUnit=True');
-        GenerateDT(DelphiNet1_1);
+        Generate(Delphi_DotNet_1_1, [gfDesignTime] + LDebugFlag);
         //
         Load('DelphiDotNet=True, Pkg=Protocols, DesignUnit=True');
-        GenerateDT(DelphiNet2OrLater);
+        Generate(Delphi_DotNet_2_Or_Later, [gfDesignTime] + LDebugFlag);
         //
         Load('Kylix=True, Pkg=Protocols, DesignUnit=True');
-        GenerateDT(ctKylix3);
+        Generate(ctKylix3, [gfDesignTime] + LDebugFlag);
+        //
+        GenerateRC([ctUnversioned] + Delphi_Native, [gfRunTime, gfDesignTime] + LDebugFlag);
       finally Free; end;
+
+      WriteLn('Generating Security Package...');
 
       with TPackageSecurity.Create do try
         //We are not going to support the Security package in NET 2.0.
         Load('DelphiDotNet=True, Pkg=Security, DesignUnit=False');
-        Generate(DelphiNet1_1);
+        Generate(Delphi_DotNet_1_1, LDebugFlag);
         //
         Load('DelphiDotNet=True, Pkg=Security, DesignUnit=True');
-        GenerateDT(DelphiNet1_1);
+        Generate(Delphi_DotNet_1_1, [gfDesignTime] + LDebugFlag);
       finally Free; end;
+
+      WriteLn('Generating SuperCore Package...');
 
       with TPackageSuperCore.Create do try
         Load('VCL=True, Pkg=SuperCore');
-        Generate(ctDelphi7);
+        Generate(ctDelphi7, LDebugFlag);
       finally Free; end;
+
+      WriteLn('Generating FTP Parsers unit...');
 
       // FTP Parsers
       with TFTPParsers.Create do try
         Load('VCL=True, Pkg=Protocols, FTPParser=True, DesignUnit=False');
-        Generate(ctDelphi7);
+        Generate(ctUnversioned, LDebugFlag);
       finally Free; end;
+
+      WriteLn('Generating Version include files...');
+
+      with TVersInc.Create do try
+        // nothing to load from the database...
+        Generate(ctUnversioned, [gfRunTime, gfDesignTime, gfTemplate]);
+      finally Free; end;
+
+      WriteLn('Generating Resource files...');
+
+      with TBuildRes.Create do try
+        // nothing to load from the database...
+        Generate(Delphi_Native);
+      finally Free; end;
+
+      WriteLn('Generating Clean.cmd scripts...');
+
+      with TCleanCmd.Create do try
+        // nothing to load from the database...
+        Generate([ctDelphiXE3..Delphi_Native_Highest]);
+      finally Free; end;
+
+      // TODO: generate FULLC_xxx.bat scripts...
     end;
   finally
     FreeAndNil(DM);
@@ -225,6 +291,7 @@ begin
     end;
   end;
 
+  WriteLn;
   WriteLn('Done! Press ENTER to exit...');
   ReadLn;
 end.

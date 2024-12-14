@@ -262,8 +262,8 @@ uses
   IdBaseComponent,
   IdComponent,IdContext, IdGlobal, IdException,
   IdIntercept, IdIOHandler, IdIOHandlerStack,
-  IdReply, IdScheduler, IdSchedulerOfThread, IdServerIOHandler,
-  IdServerIOHandlerStack, IdSocketHandle, IdStackConsts, IdTCPConnection,
+  IdReply, IdScheduler, IdServerIOHandler,
+  IdServerIOHandlerStack, IdSocketHandle, IdTCPConnection,
   IdThread, IdYarn, SysUtils;
 
 const
@@ -429,7 +429,7 @@ uses
     {$ENDIF}
   {$ENDIF}
   IdGlobalCore,
-  IdResourceStringsCore, IdReplyRFC,
+  IdResourceStringsCore,
   IdSchedulerOfThreadDefault, IdStack,
   IdThreadSafe;
 
@@ -678,7 +678,7 @@ begin
     // gets called by Notification() if the Scheduler is freed while
     // the server is still Active?
     if Active then begin
-      raise EIdException.Create(RSTCPServerSchedulerAlreadyActive);
+      raise EIdException.Create(RSTCPServerSchedulerAlreadyActive); // TODO: create a new Exception class for this
     end;
 
     // under ARC, all weak references to a freed object get nil'ed automatically
@@ -733,7 +733,7 @@ begin
     // IOHandler is freed while the server is still Active?
     {
     if Active then begin
-      raise EIdException.Create(RSTCPServerIOHandlerAlreadyActive);
+      raise EIdException.Create(RSTCPServerIOHandlerAlreadyActive); // TODO: create a new Exception class for this
     end;
     }
 
@@ -929,11 +929,16 @@ procedure TIdCustomTCPServer.DoTerminateContext(AContext: TIdContext);
 begin
   // Dont call disconnect with true. Otherwise it frees the IOHandler and the thread
   // is still running which often causes AVs and other.
-  AContext.Connection.Disconnect(False);
-  // TODO: use AContext.Binding.CloseSocket() instead. Just close the socket without
+  //AContext.Connection.Disconnect(False);
+
+  // RLebeau 9/10/2021: not calling disconnect here anymore. Just close the socket without
   // closing the IOHandler itself.  Doing so can cause AVs and other, such as in
   // TIdSSLIOHandlerSocketOpenSSL, when Disconnect() calls IOHandler.Close() which
   // frees internal objects that may still be in use...
+  AContext.Binding.CloseSocket;
+
+  // TODO: since we are in the mist of a server shutdown, should the socket's SO_LINGER
+  // option to enabled and set to 0 seconds to force an abortive (RSET) closure?
 end;
 
 procedure TIdCustomTCPServer.InitComponent;
@@ -1001,6 +1006,9 @@ begin
   if Bindings.Count = 0 then begin
     // TODO: on systems that support dual-stack sockets, create a single
     // Binding object that supports both IPv4 and IPv6 on the same socket...
+
+    // TODO: remove the CanCreateTwoBindings conditional and just attempt
+    // both IPv4 and IPv6 and ignore any failures...
 
     {$IFDEF CanCreateTwoBindings}LBinding := {$ENDIF}Bindings.Add; // IPv4 or IPv6 by default
 
@@ -1151,7 +1159,9 @@ begin
       // RLebeau 1/11/07: TIdContext owns the Peer by default so
       // take away ownership here so the Peer is not freed twice
       if LContext <> nil then begin
+        {$I IdObjectChecksOff.inc}
         TIdServerContextAccess(LContext).FOwnsConnection := False;
+        {$I IdObjectChecksOn.inc}
       end;
       FreeAndNil(LContext);
       FreeAndNil(LPeer);

@@ -59,6 +59,7 @@ type
     procedure SetDataPath(const AValue : String);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure CheckForMissingFiles;
     procedure GetFileList(const ACriteria: String; AFiles: TStrings);
     property DataPath : String read FDataPath write SetDataPath;
@@ -106,10 +107,16 @@ end;
 constructor TDM.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  // Default Output Path is w:\source\Indy10
-  OutputPath := SysUtils.ExcludeTrailingPathDelimiter(GIndyPath);
-  // Default Data Path is W:\source\Indy10\builder\Package Generator\Data
-  DataPath   := GIndyPath + 'Builder\Package Generator\Data';
+  // Default Output Path is w:\source\Indy10\
+  OutputPath := SysUtils.IncludeTrailingPathDelimiter(GIndyPath);
+  // Default Data Path is W:\source\Indy10\Builder\Package Generator\Data
+  DataPath   := OutputPath + 'Builder\Package Generator\Data\';
+end;
+
+destructor TDM.Destroy;
+begin
+  FreeAndNil(FIni);
+  inherited Destroy;
 end;
 
 procedure TDM.CheckForMissingFiles;
@@ -161,21 +168,6 @@ begin
   finally
     FindClose(SR);
   end;
-
-  if FindFirst(GIndyPath + 'Lib\Protocols\IdFTPListParse*.pas', faAnyFile, SR) = 0 then
-  try
-    repeat
-      UnitName := ChangeFileExt(SR.Name, '');
-      if not FIni.SectionExists(UnitName) then
-      begin
-        FIni.WriteString(UnitName, 'Pkg', 'Protocols');
-        FIni.WriteBool(UnitName, 'SettingsNeeded', True);
-        WriteLn('Missing settings for: Protocols\' + UnitName);
-      end;
-    until FindNext(SR) <> 0;
-  finally
-    FindClose(SR);
-  end;
 end;
 
 procedure TDM.GetFileList(const ACriteria: String; AFiles: TStrings);
@@ -190,6 +182,7 @@ begin
   LFiles := TStringList.Create;
   try
     FIni.ReadSections(LFiles);
+    //LFiles.Sort;
     LCriteria := TStringList.Create;
     try
       LCriteria.CommaText := ACriteria;
@@ -222,9 +215,10 @@ end;
 
 procedure TDM.SetDataPath(const AValue: String);
 begin
-  FDataPath := AValue;
+  FDataPath := SysUtils.IncludeTrailingPathDelimiter(AValue);
   FreeAndNil(FIni);
-  FIni := TMemIniFile.Create(SysUtils.IncludeTrailingPathDelimiter(AValue) + 'File.ini');
+  FIni := TMemIniFile.Create(FDataPath + 'File.ini');
+  FIni.AutoSave := True;
 end;
 
 procedure SetIndyPath;
@@ -232,7 +226,7 @@ var
   Param: String;
   I: Integer;
 begin
-  if ParamCount > 0 then  begin
+  if ParamCount > 0 then begin
     for I := 1 to ParamCount do begin
       Param := ParamStr(I);
       if not CharInSet(Param[1], ['/', '-']) then begin

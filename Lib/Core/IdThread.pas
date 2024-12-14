@@ -192,7 +192,8 @@ type
   TIdSynchronizeThreadEvent = procedure(AThread: TIdThread; AData: Pointer) of object;
 
   // Note: itoDataOwner doesn't make sense in DCC nextgen when AutoRefCounting is enabled...
-  TIdThreadOptions = set of (itoStopped, itoReqCleanup, itoDataOwner, itoTag);
+  TIdThreadOption = (itoStopped, itoReqCleanup, itoDataOwner, itoTag);
+  TIdThreadOptions = set of TIdThreadOption;
 
   TIdThread = class(TThread)
   protected
@@ -327,6 +328,7 @@ uses
   {$ENDIF}
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.SyncObjs,
+  System.Types,
   {$ENDIF}
   {$IFDEF PLATFORM_CLEANUP_NEEDED}
     {$IFDEF MACOS}
@@ -662,7 +664,9 @@ begin
   //IdDisposeAndNil(FYarn);
   if FYarn is TIdYarnOfThread then
   begin
+    {$I IdObjectChecksOff.inc}
     LScheduler := TIdYarnOfThreadAccess(FYarn).FScheduler;
+    {$I IdObjectChecksOn.inc}
     if Assigned(LScheduler) then
     begin
       LList := LScheduler.ActiveYarns.LockList;
@@ -782,7 +786,9 @@ initialization
   {$IFNDEF FREE_ON_FINAL}
     {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
   IndyRegisterExpectedMemoryLeak(GThreadCount);
+  {$I IdObjectChecksOff.inc}
   IndyRegisterExpectedMemoryLeak(TIdThreadSafeIntegerAccess(GThreadCount).FCriticalSection);
+  {$I IdObjectChecksOn.inc}
     {$ENDIF}
   {$ENDIF}
   {$I IdSymbolDeprecatedOn.inc}

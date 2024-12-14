@@ -57,8 +57,7 @@ interface
 
 uses
   Classes,
-  IdAntiFreezeBase,
-  IdBaseComponent;
+  IdAntiFreezeBase;
 
 { Directive needed for generating a legacy non-UnitScoped C++Builder HPP }
 
@@ -82,7 +81,7 @@ uses
 {$IFDEF VCL_10_3_OR_ABOVE}
   // until Delphi 10.3.2 can be detected in IdCompilerDefines.inc,
   // use {$IF DECLARED(...) here to enable the new platform values...)
-  {$IFNDEF VCL_10_3_UPDATE2_OR_ABOVE}
+  {$IFNDEF VCL_10_3_UPDATE2_OR_ABOVE} // TODO: does RTLVersion1032 exist?
     {$IF DECLARED(pidAllPlatforms)}
       {$DEFINE HAS_ComponentPlatformsAttribute_AllPlatforms}
       {$DEFINE HAS_ComponentPlatformsAttribute_OSX64}
@@ -100,8 +99,9 @@ type
     {$IFDEF HAS_ComponentPlatformsAttribute_OSX32} or pidOSX32{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator32}or pidiOSSimulator32{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator} or pidiOSSimulator{$ENDIF}{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_AndroidArm32} or pidAndroidArm32{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_Android32Arm} or pidAndroid32Arm{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android} or pidAndroid{$ENDIF}{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Android} or pidAndroid{$ENDIF}{$ENDIF}{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_Linux32} or pidLinux32{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device32} or pidiOSDevice32{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device} or pidiOSDevice{$ENDIF}{$ENDIF}
@@ -110,14 +110,21 @@ type
     {$IFDEF HAS_ComponentPlatformsAttribute_WinIoT32} or pidWinIoT32{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Device64} or pidiOSDevice64{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_WinARM32} or pidWinARM32{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_WinARM} or pidWinARM{$ENDIF}{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Win32ARM} or pidWin32ARM{$ELSE}
+    {$IFDEF HAS_ComponentPlatformsAttribute_WinARM} or pidWinARM{$ENDIF}{$ENDIF}{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_OSXNX64} or pidOSXNX64{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_OSX64} or pidOSX64{$ENDIF}{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Linux32Arm} or pidLinux32Arm{$ENDIF}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Linux64Arm} or pidLinux64Arm{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_LinuxArm32} or pidLinuxArm32{$ELSE}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Linux32Arm} or pidLinux32Arm{$ENDIF}{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_LinuxArm64} or pidLinuxArm64{$ELSE}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Linux64Arm} or pidLinux64Arm{$ENDIF}{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_AndroidArm64} or pidAndroidArm64{$ELSE}
     {$IFDEF HAS_ComponentPlatformsAttribute_Android64Arm} or pidAndroid64Arm{$ELSE}
-    {$IFDEF HAS_ComponentPlatformsAttribute_Android64} or pidAndroid64{$ENDIF}{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_Android64} or pidAndroid64{$ENDIF}{$ENDIF}{$ENDIF}
     {$IFDEF HAS_ComponentPlatformsAttribute_iOS_Simulator64} or pidiOSSimulator64{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_OSXArm64} or pidOSXArm64{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_WinArm64} or pidWinArm64{$ENDIF}
+    {$IFDEF HAS_ComponentPlatformsAttribute_iOS_SimulatorArm64} or pidiOSSimulatorArm64{$ENDIF}
     {$ENDIF}
   )]
   {$ENDIF}
@@ -137,7 +144,6 @@ uses
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFNDEF FMX}
-  Messages,
   Windows,
     {$ENDIF}
   {$ENDIF}

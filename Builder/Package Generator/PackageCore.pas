@@ -54,80 +54,334 @@ uses
 
 type
   TPackageCore = class(TPackage)
+  protected
+    procedure GenOptions; override;
+    procedure GenPreRequiresClause; override;
+    procedure GenRequires; override;
+    procedure GenFooter; override;
+    procedure GenResourceScript; override;
+    function IgnoreContainsFile(const AUnit: string): Boolean; override;
   public
-    procedure Generate(ACompiler: TCompiler); override;
-    procedure GenerateDT(ACompiler: TCompiler); override;
+    constructor Create; override;
+    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure GenerateRC(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure GenerateDsnCoreResourceStrings;
   end;
 
 implementation
 
 uses
-  Dialogs, DModule;
+  Classes, SysUtils, DateUtils, StrUtils, DModule;
 
 { TPackageCore }
 
-procedure TPackageCore.Generate(ACompiler: TCompiler);
+constructor TPackageCore.Create;
 begin
   inherited;
-  FName := 'IndyCore' + GCompilerID[Compiler];
-  FDesc := 'Core';
-  GenHeader;
-  GenOptions;
-  Code('');
-  Code('requires');
-  if ACompiler in DelphiNet then begin
-    Code('Borland.Delphi,');
-    Code('Borland.VclRtl,');
-  end
-  else if ACompiler = ctDelphi5 then begin
-    Code('  Vcl50,');
-  end else begin
-    Code('  rtl,');
-  end;
-  Code('  IndySystem' + GCompilerID[Compiler] + ';');
-  GenContains;
-  //back door for embedding version information into an assembly
-  //without having to do anything to the package directly.
-  if Compiler in DelphiNet then
-  begin
-    Code('{$I IdCore90ASM90.inc}');
-  end;
-  WriteFile(DM.OutputPath + '\Lib\Core\');
+  FOutputSubDir := 'Lib\Core';
 end;
 
-procedure TPackageCore.GenerateDT(ACompiler: TCompiler);
+procedure TPackageCore.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+var
+  LFlags: TGenerateFlags;
 begin
-  inherited;
-  FName := 'dclIndyCore' + GCompilerID[Compiler];
-  FDesc := 'Core Design Time';
-  GenHeader;
-  GenOptions(True);
+  LFlags := AFlags;
+  if (LFlags * [gfRunTime, gfDesignTime]) = [] then begin
+    Include(LFlags, gfRunTime);
+  end;
+
+  if gfRunTime in LFlags then begin
+    FName := 'IndyCore' + GCompilerID[ACompiler];
+    FDesc := 'Core';
+    FExt := '.dpk';
+    inherited Generate(ACompiler, LFlags - [gfDesignTime]);
+    WriteFile;
+  end;
+
+  if gfDesignTime in LFlags then begin
+    FName := 'dclIndyCore' + GCompilerID[ACompiler];
+    FDesc := 'Core Design Time';
+    FExt := '.dpk';
+    inherited Generate(ACompiler, LFlags - [gfRunTime]);
+    WriteFile;
+  end;
+end;
+
+// TODO: make the options configurable...
+procedure TPackageCore.GenOptions;
+const
+  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphi13] + [ctDelphi2005];
+  Delphi_OmittedOptions                   = [Delphi_Native_Lowest..ctDelphi13Net, ctKylix3] - [ctDelphi8Net] + [ctDelphiXE];
+  Delphi_Native_Ifdef_ImplicitBuilding    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Force_DebugInfo_Off       = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE7];
+  Delphi_Native_Force_Optimization_On     = Delphi_Native - [ctDelphiXE2..Delphi_Native_Highest] + Delphi_DotNet + [ctKylix3];
+  Delphi_Native_Force_Optimization_Off    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Force_OverflowChecks_Off  = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Force_RangeChecks_Off     = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Force_StackFrames_On      = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Define_DebugRelease       = [ctDelphiXE2..ctDelphiSydney];
+  Delphi_Native_Define_Ver_DT             = [ctDelphiXE4..ctDelphiSydney] - [ctDelphiXE8..ctDelphiSeattle];
+  Delphi_Native_Define_Ver_RT             = [ctDelphiXE4..ctDelphiSydney];
+  Delphi_Force_ImplicitBuild_Off_DT       = [ctDelphiRio..ctDelphiTokyo, ctDelphi8Net];
+  Delphi_Force_ImplicitBuild_Off_RT       = [ctDelphiXE4..ctDelphiTokyo, ctDelphi8Net];
+
+  function OnOrOff(const AForceOff, AForceOn: TCompilers; const ADefault: Boolean): string;
+  begin
+    if FCompiler in AForceOff then begin
+      Result := 'OFF';
+    end
+    else if FCompiler in AForceOn then begin
+      Result := 'ON';
+    end
+    else begin
+      Result := iif(ADefault, 'ON', 'OFF');
+    end;
+  end;
+
+begin
+  Code('');
+  if FCompiler in Delphi_DotNet then begin
+    Code('{$ALIGN 0}');
+  end else begin
+    Code('{$R *.res}');
+    if FCompiler in Delphi_Native_Ifdef_ImplicitBuilding then begin
+      Code('{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}');
+    end;
+    if FCompiler in Delphi_Native_Align8 then begin
+      Code('{$ALIGN 8}');
+    end;
+  end;
+  if not (FCompiler in Delphi_OmittedOptions) then begin
+    Code('{$ASSERTIONS ON}');
+  end;
+  Code('{$BOOLEVAL OFF}');
+  if not (FCompiler in Delphi_OmittedOptions) then begin
+    Code('{$DEBUGINFO ' + OnOrOff(Delphi_Native_Force_DebugInfo_Off, [], FDebug) + '}');
+  end;
+  Code('{$EXTENDEDSYNTAX ON}');
+  Code('{$IMPORTEDDATA ON}');
+  if not (FCompiler in Delphi_OmittedOptions) then begin
+    Code('{$IOCHECKS ON}');
+  end;
+  Code('{$LOCALSYMBOLS ON}');
+  Code('{$LONGSTRINGS ON}');
+  Code('{$OPENSTRINGS ON}');
+  if FCompiler in Delphi_Native_Force_Optimization_On then begin
+    Code('{$OPTIMIZATION ' + OnOrOff([], Delphi_Native_Force_Optimization_On, FDebug) + '}');
+  end
+  else if FCompiler in Delphi_Native_Force_Optimization_Off then begin
+    Code('{$OPTIMIZATION ' + OnOrOff(Delphi_Native_Force_Optimization_Off, [], FDebug) + '}');
+  end;
+  if not (FCompiler in Delphi_OmittedOptions) then begin
+    Code('{$OVERFLOWCHECKS ' + OnOrOff(Delphi_Native_Force_OverflowChecks_Off, [], FDebug) + '}');
+    Code('{$RANGECHECKS ' + OnOrOff(Delphi_Native_Force_RangeChecks_Off, [], FDebug) + '}');
+  end;
+  Code('{$REFERENCEINFO ON}');
+  Code('{$SAFEDIVIDE OFF}');
+  Code('{$STACKFRAMES ' + OnOrOff([], Delphi_Native_Force_StackFrames_On, not FDebug) + '}');
+  Code('{$TYPEDADDRESS OFF}');
+  Code('{$VARSTRINGCHECKS ON}');
+  Code('{$WRITEABLECONST OFF}');
+  Code('{$MINENUMSIZE 1}');
+  Code('{$IMAGEBASE $400000}');
+  if FCompiler in Delphi_Native_Define_DebugRelease then begin
+    Code('{$DEFINE ' + iif(FDebug, 'DEBUG', 'RELEASE') + '}');
+  end;
+  if FDesignTime then begin
+    if FCompiler in Delphi_Native_Define_Ver_DT then begin
+      Code('{$DEFINE VER' + GCompilerVer[FCompiler] + '}');
+    end;
+  end else
+  begin
+    if FCompiler in Delphi_Native_Define_Ver_RT then begin
+      Code('{$DEFINE VER' + GCompilerVer[FCompiler] + '}');
+    end;
+  end;
+  if FCompiler in Delphi_Native_Ifdef_ImplicitBuilding then begin
+    Code('{$ENDIF IMPLICITBUILDING}');
+  end;
+  Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
+  Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
+  if FDesignTime then begin
+    Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off_DT, [], True) + '}');
+  end else begin
+    Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off_RT, [], True) + '}');
+  end;
+end;
+
+const
+  DelphiNative_Ifdef_Rtl_2  = Delphi_Native_Ifdef_Rtl - [ctDelphiXE2];
+  DelphiNative_Ifdef_Rtl_3  = DelphiNative_Ifdef_Rtl_2 - [ctDelphiXE3..ctDelphiXE4];
+
+procedure TPackageCore.GenPreRequiresClause;
+begin
+  if (not FDesignTime) and (FCompiler in DelphiNative_Ifdef_Rtl_3) then begin
+    Code('');
+    Code('// RLebeau: cannot use IdCompilerDefines.inc here!');
+  end;
+end;
+
+procedure TPackageCore.GenRequires;
+begin
+  if (not FDesignTime) and (FCompiler in DelphiNative_Ifdef_Rtl_2) then begin
+    if FCompiler in Delphi_Native_Ifdef_Rtl_CheckIOS then begin
+      Code('');
+      Code('{$DEFINE HAS_PKG_RTL}');
+      code('{$IFDEF NEXTGEN}');
+      Code('  {$IFDEF IOS}');
+      Code('    // there is no RTL package available for iOS');
+      Code('    {$UNDEF HAS_PKG_RTL}');
+      Code('  {$ENDIF}');
+      Code('{$ENDIF}');
+    end;
+  end;
   Code('');
   Code('requires');
-  if ACompiler = ctDelphi5 then begin
-    Code('  Vcl50,');
-  end else if ACompiler in [ctDelphi6, ctDelphi7] then begin
-    Code('  vcl,');
-  end;
-  if ACompiler in DelphiNet then
+  if FDesignTime then begin
+    if FCompiler = ctDelphi4 then begin
+      Code('  Vcl40,');
+    end
+    else if FCompiler = ctDelphi5 then begin
+      Code('  Vcl50,');
+    end
+    else if FCompiler in [ctDelphi6, ctDelphi7] then begin
+      Code('  vcl,');
+    end;
+    if FCompiler in Delphi_DotNet then
+    begin
+      if FCompiler <> ctDelphi8Net then begin
+        Code('  System.Windows.Forms,');
+      end;
+      Code('  Borland.Studio.Vcl.Design,');
+    end
+    else if not (FCompiler in [ctDelphi4..ctDelphi5]) then
+    begin
+      Code('  designide,');
+    end;
+    if FCompiler <> ctDelphi8Net then begin
+      Code('  IndySystem' + GCompilerID[FCompiler] + ',');
+    end;
+    Code('  IndyCore' + GCompilerID[FCompiler] + ';');
+  end else
   begin
-    Code('  System.Windows.Forms,');
-    Code('  Borland.Studio.Vcl.Design,');
-  end
-  else if ACompiler <> ctDelphi5 then
-  begin
-    Code('  designide,');
+    if FCompiler in Delphi_DotNet then begin
+      Code('  Borland.Delphi,');
+      Code('  Borland.VclRtl,');
+    end
+    else if FCompiler = ctDelphi4 then begin
+      Code('  Vcl40,');
+    end
+    else if FCompiler = ctDelphi5 then begin
+      Code('  Vcl50,');
+    end else
+    begin
+      if FCompiler in DelphiNative_Ifdef_Rtl_2 then begin
+        if FCompiler in Delphi_Native_Ifdef_Rtl_CheckIOS then begin
+          Code('  {$IFDEF HAS_PKG_RTL}');
+        end else begin
+          Code('  {$IFNDEF NEXTGEN}');
+        end;
+      end;
+      Code('  rtl,');
+      if FCompiler in DelphiNative_Ifdef_Rtl_2 then begin
+        Code('  {$ENDIF}');
+      end;
+    end;
+    Code('  IndySystem' + GCompilerID[FCompiler] + ';');
   end;
-  Code('  IndySystem' + GCompilerID[Compiler] + ',');
-  Code('  IndyCore' + GCompilerID[Compiler] + ';');
-  GenContains;
-   //back door for embedding version information into an assembly
-  //without having to do anything to the package directly.
-  if Compiler in DelphiNet then
-  begin
-    Code('{$I IddclCore90ASM90.inc}');
+end;
+
+procedure TPackageCore.GenFooter;
+begin
+  if FCompiler in Delphi_DotNet then begin
+    //back door for embedding version information into an assembly
+    //without having to do anything to the package directly.
+    Code(iif(FDesignTime, '{$I IddclCore90ASM90.inc}', '{$I IdCore90ASM90.inc}'));
   end;
-  WriteFile(DM.OutputPath + '\Lib\Core\');
+  inherited GenFooter;
+end;
+
+procedure TPackageCore.GenerateRC(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+var
+  LFlags: TGenerateFlags;
+begin
+  LFlags := AFlags;
+  if (LFlags * [gfRunTime, gfDesignTime]) = [] then begin
+    Include(LFlags, gfRunTime);
+  end;
+
+  if gfRunTime in LFlags then begin
+    FName := 'IndyCore' + GCompilerID[ACompiler];
+    FDesc := 'Core Run-Time';
+
+    FExt := '.rc.tmpl';
+    inherited GenerateRC(ACompiler, LFlags - [gfDesignTime] + [gfTemplate]);
+    WriteFile;
+
+    FExt := '.rc';
+    inherited GenerateRC(ACompiler, LFlags - [gfDesignTime, gfTemplate]);
+    WriteFile;
+  end;
+
+  if gfDesignTime in LFlags then begin
+    FName := 'dclIndyCore' + GCompilerID[ACompiler];
+    FDesc := 'Core Design-Time';
+
+    FExt := '.rc.tmpl';
+    inherited GenerateRC(ACompiler, LFlags - [gfRunTime] + [gfTemplate]);
+    WriteFile;
+
+    FExt := '.rc';
+    inherited GenerateRC(ACompiler, LFlags - [gfRunTime, gfTemplate]);
+    WriteFile;
+  end;
+end;
+
+procedure TPackageCore.GenResourceScript;
+begin
+  inherited GenResourceScript;
+  WriteFile;
+end;
+
+function TPackageCore.IgnoreContainsFile(const AUnit: string): Boolean;
+begin
+  if FDesignTime {and (FCompiler in [ctDelphi4..ctDelphi5])} then begin
+    // TSelectionEditor was not available until Delphi 6...
+    Result := SameText(AUnit, 'IdCoreSelectionEditors');
+    if Result then Exit;
+  end;
+  Result := inherited IgnoreContainsFile(AUnit);
+end;
+
+procedure TPackageCore.GenerateDsnCoreResourceStrings;
+var
+  LFileName: string;
+  Data: TStringList;
+  I: Integer;
+begin
+  FCode.Clear;
+
+  LFileName := DM.OutputPath + 'Lib\Core\IdDsnCoreResourceStrings.pas';
+
+  // TStreamReader would be preferred, but its broken!
+  Data := TStringList.Create;
+  try
+    Data.LoadFromFile(LFileName);
+    for I := 0 to Data.Count-1 do begin
+      if StartsStr('  RSAAboutBoxCopyright =', Data[I]) then
+      begin
+        Data[I] := '  RSAAboutBoxCopyright = ''Copyright (c) 1993 - ' + IntToStr(YearOf(Date)) + '''#13#10 + IndyPitCrew;';
+        Break;
+      end;
+    end;
+    FCode.Assign(Data);
+  finally
+    Data.Free;
+  end;
+
+  FName := 'IdDsnCoreResourceStrings';
+  FExt := '.pas';
+  WriteFile;
 end;
 
 end.

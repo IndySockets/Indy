@@ -78,7 +78,7 @@ uses
   Classes,
     {$ENDIF}
   {$ENDIF}
-  IdBaseComponent, IdThread, IdTask, IdYarn, IdThreadSafe;
+  IdBaseComponent, IdTask, IdYarn, IdThreadSafe;
 
 type
   {$IFDEF HAS_GENERICS_TThreadList}
@@ -136,9 +136,9 @@ uses
   Classes,
     {$ENDIF}
   {$ELSE}
-      {$IFDEF VCL_XE3_OR_ABOVE}
+    {$IFDEF VCL_XE3_OR_ABOVE}
   System.Types,    //here to facilitate inlining
-      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
   IdGlobal, SysUtils;
 

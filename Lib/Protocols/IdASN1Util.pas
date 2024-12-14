@@ -68,6 +68,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
+  {$IFNDEF HAS_UInt32}
+  IdGlobal,
+  {$ENDIF}
   SysUtils;
 
 const
@@ -81,9 +84,11 @@ const
   ASN1_GAUGE = $42;
   ASN1_TIMETICKS = $43;
   ASN1_OPAQUE = $44;
+  ASN1_APP_COUNTER64 = $46;
+  // TODO: float, double, int64, uint64
 
-function ASNEncOIDItem(Value: Integer): string;
-function ASNDecOIDItem(var Start: Integer; const Buffer: string): Integer;
+function ASNEncOIDItem(Value: UInt32): string;
+function ASNDecOIDItem(var Start: Integer; const Buffer: string): UInt32;
 function ASNEncLen(Len: Integer): string;
 function ASNDecLen(var Start: Integer; const Buffer: string): Integer;
 function ASNEncInt(Value: Integer): string;
@@ -97,13 +102,15 @@ function IntMibToStr(const Value: string): string;
 
 implementation
 
+{$IFDEF HAS_UInt32}
 uses
   IdGlobal;
+{$ENDIF}
 
 {==============================================================================}
-function ASNEncOIDItem(Value: Integer): string;
+function ASNEncOIDItem(Value: UInt32): string;
 var
-  x, xm: Integer;
+  x, xm: UInt32;
   b: Boolean;
 begin
   x := Value;
@@ -121,9 +128,9 @@ begin
 end;
 
 {==============================================================================}
-function ASNDecOIDItem(var Start: Integer; const Buffer: string): Integer;
+function ASNDecOIDItem(var Start: Integer; const Buffer: string): UInt32;
 var
-  x: Integer;
+  x: UInt32;
   b: Boolean;
 begin
   Result := 0;
@@ -328,7 +335,9 @@ begin
           end;
           Result := IntToStr(y);
         end;
-      ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:  //Typically a 32-bit _unsigned_ number
+      ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS,  //Typically a 32-bit _unsigned_ number
+      ASN1_APP_COUNTER64:
+      // TODO: int64, uint64
         begin
           z := 0;
           for n := 1 to ASNSize do begin
@@ -339,6 +348,7 @@ begin
           end;
           Result := IntToStr(z);
         end;
+      // TODO: float, double
       ASN1_OCTSTR, ASN1_OPAQUE:
         begin
           {$IFDEF STRING_IS_IMMUTABLE}
@@ -449,9 +459,9 @@ end;
 {==============================================================================}
 function MibToId(Mib: string): string;
 var
-  x: Integer;
+  x: UInt32;
 
-  function WalkInt(var s: string): Integer;
+  function WalkInt(var s: string): UInt32;
   var
     lx: Integer;
     t: string;
@@ -467,7 +477,8 @@ var
       t := Copy(s, 1, lx - 1);
       s := Copy(s, lx + 1, MaxInt);
     end;
-    Result := IndyStrToInt(t, 0);
+    // TODO: verify the returned value is in the range of UInt32!
+    Result := IndyStrToInt64(t, 0);
   end;
 
 begin
@@ -483,9 +494,19 @@ begin
 end;
 
 {==============================================================================}
+
+{$IFNDEF HAS_UIntToStr}
+function UIntToStr(AValue: UInt32): string;
+{$IFDEF USE_INLINE}inline;{$ENDIF}
+begin
+  Result := SysUtils.IntToStr(Int64(AValue));
+end;
+{$ENDIF}
+
 function IdToMib(const Id: string): string;
 var
-  x, y, n: Integer;
+  x, y: UInt32;
+  n: Integer;
 begin
   Result := '';              {Do not Localize}
   n := 1;
@@ -496,9 +517,9 @@ begin
     begin
       y := x div 40;
       x := x mod 40;
-      Result := IntToStr(y);
+      Result := UIntToStr(y);
     end;
-    Result := Result + '.' + IntToStr(x);    {Do not Localize}
+    Result := Result + '.' + UIntToStr(x);    {Do not Localize}
   end;
 end;
 

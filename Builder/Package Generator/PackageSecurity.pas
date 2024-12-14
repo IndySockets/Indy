@@ -32,9 +32,12 @@ uses
 
 type
   TPackageSecurity = class(TPackage)
+  protected
+    procedure GenRequires; override;
+    procedure GenFooter; override;
   public
-    procedure Generate(ACompiler: TCompiler); override;
-    procedure GenerateDT(ACompiler: TCompiler); override;
+    constructor Create; override;
+    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
   end;
 
 implementation
@@ -44,64 +47,52 @@ uses
 
 { TPackageSecurity }
 
-procedure TPackageSecurity.Generate(ACompiler: TCompiler);
+constructor TPackageSecurity.Create;
 begin
-  if not (ACompiler in DelphiNet) then
-  begin
-    Exit;
-  end;
   inherited;
-  FName := 'IndySecurity' + GCompilerID[Compiler];
-  FDesc := 'Security';
-  GenHeader;
-  GenOptions;
-  Code('');
-  Code('requires');
-  Code('  Borland.Delphi,');
-  Code('  Borland.VclRtl,');
-  Code('  IndySystem' + GCompilerID[Compiler] + ',');
-  Code('  IndyCore' + GCompilerID[Compiler] + ',');
-  Code('  IndyProtocols'+ GCompilerID[Compiler] + ',');
-  Code('  Mono.Security,');
-  Code('  System,');
-  Code('  System.Data,');
-  Code('  System.XML;');
-  GenContains;
-  //back door for embedding version information into an assembly
-  //without having to do anything to the package directly.
-  Code('{$I IdSecurity90ASM90.inc}');
-  WriteFile(DM.OutputPath + '\Lib\Security\');
+  FOutputSubDir := 'Lib\Security';
 end;
 
-procedure TPackageSecurity.GenerateDT(ACompiler: TCompiler);
+procedure TPackageSecurity.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 begin
-  if not (ACompiler in DelphiNet) then
-  begin
-    Exit;
-  end;
-  inherited;
-  FName := 'dclIndySecurity' + GCompilerID[Compiler];
+  if not (ACompiler in Delphi_DotNet) then Exit;
+  FName := iif(gfDesignTime in AFlags, 'dcl', '') + 'IndySecurity' + GCompilerID[ACompiler];
   FDesc := 'Security';
-  GenHeader;
-  GenOptions(True);
+  FExt := '.dpk';
+  inherited Generate(ACompiler, AFlags);
+  WriteFile;
+end;
+
+procedure TPackageSecurity.GenRequires;
+begin
   Code('');
   Code('requires');
-  Code('  Borland.Studio.Vcl.Design,');
-  Code('  IndySystem' + GCompilerID[Compiler] + ',');
-  Code('  IndyCore' + GCompilerID[Compiler] + ',');
-  Code('  IndyProtocols'+ GCompilerID[Compiler] + ',');
-  Code('  IndySecurity'+ GCompilerID[Compiler] + ',');
-  Code('  dclIndyCore' + GCompilerID[Compiler]+',');
-  Code('  dclIndyProtocols' + GCompilerID[Compiler]+',');
+  if FDesignTime then begin
+    Code('  Borland.Studio.Vcl.Design,');
+  end else begin
+    Code('  Borland.Delphi,');
+    Code('  Borland.VclRtl,');
+  end;
+  Code('  IndySystem' + GCompilerID[FCompiler] + ',');
+  Code('  IndyCore' + GCompilerID[FCompiler] + ',');
+  Code('  IndyProtocols'+ GCompilerID[FCompiler] + ',');
+  if FDesignTime then begin
+    Code('  IndySecurity'+ GCompilerID[FCompiler] + ',');
+    Code('  dclIndyCore' + GCompilerID[FCompiler]+',');
+    Code('  dclIndyProtocols' + GCompilerID[FCompiler]+',');
+  end;
   Code('  Mono.Security,');
   Code('  System,');
   Code('  System.Data,');
   Code('  System.XML;');
-  GenContains;
+end;
+
+procedure TPackageSecurity.GenFooter;
+begin
   //back door for embedding version information into an assembly
   //without having to do anything to the package directly.
-  Code('{$I IddclSecurity90ASM90.inc}');
-  WriteFile(DM.OutputPath + '\Lib\Security\');
+  Code(iif(FDesignTime, '{$I IddclSecurity90ASM90.inc}', '{$I IdSecurity90ASM90.inc}'));
+  inherited GenFooter;
 end;
 
 end.

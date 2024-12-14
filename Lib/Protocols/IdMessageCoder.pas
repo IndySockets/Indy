@@ -75,8 +75,7 @@ uses
   Classes,
   IdComponent,
   IdGlobal,
-  IdMessage,
-  IdBaseComponent;
+  IdMessage;
 
 type
   TIdMessageCoderPartType = (mcptText, mcptAttachment, mcptIgnore, mcptEOF);
@@ -196,7 +195,7 @@ begin
     end;
   end;
   if Result = nil then begin
-    raise EIdException.Create(RSMessageDecoderNotFound + ': ' + AName);    {Do not Localize}
+    raise EIdException.Create(RSMessageDecoderNotFound + ': ' + AName);    {Do not Localize} // TODO: create a new Exception class for this
   end;
 end;
 
@@ -443,7 +442,7 @@ begin
     end;
   end;
   if Result = nil then begin
-    raise EIdException.Create(RSMessageEncoderNotFound + ': ' + AName);    {Do not Localize}
+    raise EIdException.Create(RSMessageEncoderNotFound + ': ' + AName);    {Do not Localize} // TODO: create a new Exception class for this
   end;
 end;
 

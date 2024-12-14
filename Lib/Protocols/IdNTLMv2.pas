@@ -7,7 +7,7 @@ interface
 uses
   IdGlobal,
   IdStruct
-  {$IFNDEF DOTNET}, IdCTypes, IdSSLOpenSSLHeaders{$ENDIF}
+  {$IFNDEF DOTNET}, IdCTypes{$ENDIF}
   ;
 
 type
@@ -150,17 +150,6 @@ function DumpFlags(const AFlags : UInt32): String; overload;
 function LoadRC4 : Boolean;
 function RC4FunctionsLoaded : Boolean;
 
-{$IFNDEF DOTNET}
-//const char *RC4_options(void);
-var
-  GRC4_Options : function () : PIdAnsiChar; cdecl = nil;
-//void RC4_set_key(RC4_KEY *key, int len, const unsigned char *data);
-  GRC4_set_key : procedure(key : PRC4_KEY; len : TIdC_INT; data : PIdAnsiChar); cdecl = nil;
-//void RC4(RC4_KEY *key, unsigned long len, const unsigned char *indata,
-//		unsigned char *outdata);
-  GRC4 : procedure (key : PRC4_KEY; len : TIdC_ULONG; indata, outdata : PIdAnsiChar) ; cdecl = nil;
-{$ENDIF}
-
 implementation
 
 uses
@@ -189,7 +178,9 @@ uses
   IdHash,
   IdHMACMD5,
   IdHashMessageDigest,
-  IdCoderMIME;
+  IdCoderMIME
+  {$IFNDEF DOTNET}, IdSSLOpenSSLHeaders{$ENDIF} // TODO: remove dependency on this!
+  ;
 
 const
 {$IFDEF DOTNET}
@@ -214,6 +205,17 @@ type
     dwHighDateTime : UInt32;
   end;
   {$ENDIF}
+{$ENDIF}
+
+{$IFNDEF DOTNET}
+//const char *RC4_options(void);
+var
+  GRC4_Options : function () : PIdAnsiChar; cdecl = nil;
+//void RC4_set_key(RC4_KEY *key, int len, const unsigned char *data);
+  GRC4_set_key : procedure(key : PRC4_KEY; len : TIdC_INT; data : PIdAnsiChar); cdecl = nil;
+//void RC4(RC4_KEY *key, unsigned long len, const unsigned char *indata,
+//		unsigned char *outdata);
+  GRC4 : procedure (key : PRC4_KEY; len : TIdC_ULONG; indata, outdata : PIdAnsiChar) ; cdecl = nil;
 {$ENDIF}
 
 function NulUserSessionKey : TIdBytes;
@@ -559,11 +561,9 @@ end;
 
 function NTLMFunctionsLoaded : Boolean;
 begin
-  Result := IdSSLOpenSSLHeaders.Load;
+  Result := LoadNTLMLibrary;
   if Result then begin
-    Result := Assigned(des_set_odd_parity) and
-      Assigned(DES_set_key) and
-      Assigned(DES_ecb_encrypt);
+    Result := IsNTLMFuncsAvail;
   end;
 end;
 
@@ -571,8 +571,9 @@ function LoadRC4 : Boolean;
 var
   h : Integer;
 begin
-  Result := IdSSLOpenSSLHeaders.Load;
+  Result := LoadNTLMLibrary;
   if Result then begin
+    // TODO: move these into IndyTLSOpenSSL package and update IdFIPS unit...
     h := IdSSLOpenSSLHeaders.GetCryptLibHandle;
     GRC4_Options := LoadLibFunction(h,'RC4_options');
     GRC4_set_key := LoadLibFunction(h,'RC4_set_key');
@@ -583,6 +584,8 @@ end;
 
 function RC4FunctionsLoaded : Boolean;
 begin
+  // TODO: move these into IndyTLSOpenSSL package and update IdFIPS unit...
+  // Result := IsNTLMv2FuncsAvail;
   Result := Assigned(GRC4_Options) and
      Assigned(GRC4_set_key) and
      Assigned(GRC4);
@@ -600,7 +603,7 @@ begin
   {$IFNDEF USE_OBJECT_ARC}
   try
   {$ENDIF}
-    Result := LHash.HashBytes(IndyTextEncoding_UTF16LE.GetBytes(APassword));
+    Result := LHash.HashString(APassword, IndyTextEncoding_UTF16LE);
   {$IFNDEF USE_OBJECT_ARC}
   finally
     LHash.Free;
@@ -714,24 +717,11 @@ function CreateNTLMResponse(var vntlmhash : TIdBytes; const APassword : String; 
 var
   nt_pw : TIdBytes;
   nt_hpw : TIdBytes; //array [1..21] of Char;
- // nt_hpw128 : TIdBytes;
-  LHash: TIdHashMessageDigest4;
 begin
-  CheckMD4Permitted;
-  nt_pw := IndyTextEncoding_UTF16LE.GetBytes(APassword);
-  LHash := TIdHashMessageDigest4.Create;
-  {$IFNDEF USE_OBJECT_ARC}
-  try
-  {$ENDIF}
-    vntlmhash := LHash.HashBytes(nt_pw);
-  {$IFNDEF USE_OBJECT_ARC}
-  finally
-    LHash.Free;
-  end;
-  {$ENDIF}
+  nt_pw := NTOWFv1(APassword);
   SetLength( nt_hpw, 21);
   FillChar( nt_hpw[ 17], 5, 0);
-  CopyTIdBytes( vntlmhash, 0, nt_hpw, 0, 16);
+  CopyTIdBytes( nt_pw, 0, nt_hpw, 0, 16);
   // done in DESL
   SetLength( Result, 24);
 
@@ -745,26 +735,15 @@ function CreateNTLMResponse(const APassword : String; const nonce : TIdBytes): T
 var
   nt_pw : TIdBytes;
   nt_hpw : array [ 1.. 21] of AnsiChar;
-  nt_hpw128 : TIdBytes;
   LHash: TIdHashMessageDigest4;
 begin
-  CheckMD4Permitted;
+  nt_pw := NTOWFv1(APassword);
   SetLength(Result,24);
-  nt_pw := IndyTextEncoding_UTF16LE.GetBytes(APassword);
-  LHash := TIdHashMessageDigest4.Create;
-  {$IFNDEF USE_OBJECT_ARC
-  try
-  {$ENDIF
-    nt_hpw128 := LHash.HashBytes(nt_pw);//LHash.HashString( nt_pw);
-  {$IFNDEF USE_OBJECT_ARC
-  finally
-    LHash.Free;
-  end;
-  {$ENDIF
-  Move( nt_hpw128[ 0], nt_hpw[ 1], 16);
+  Move( nt_pw[ 0], nt_hpw[ 1], 16);
   FillChar( nt_hpw[ 17], 5, 0);
   DESL(pdes_cblock( @nt_hpw[1]), nonce, Pdes_key_schedule( @Result[ 0]));
-end;    }
+end;
+}
 
 {$ELSE}
 

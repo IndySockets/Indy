@@ -21,8 +21,8 @@ package IndyCore120Net;
 {$IMPLICITBUILD ON}
 
 requires
-Borland.Delphi,
-Borland.VclRtl,
+  Borland.Delphi,
+  Borland.VclRtl,
   IndySystem120Net;
 
 contains

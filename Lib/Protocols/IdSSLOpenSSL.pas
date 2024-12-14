@@ -213,7 +213,6 @@ uses
   Windows,
   {$ENDIF}
   Classes,
-  IdBuffer,
   IdCTypes,
   IdGlobal,
   IdException,
@@ -223,14 +222,9 @@ uses
   IdComponent,
   IdIOHandler,
   IdGlobalProtocols,
-  IdTCPServer,
   IdThread,
-  IdTCPConnection,
-  IdIntercept,
   IdIOHandlerSocket,
   IdSSL,
-  IdSocks,
-  IdScheduler,
   IdYarn;
 
 type
@@ -684,17 +678,10 @@ uses
   Posix.Unistd,
   {$ENDIF}
   IdFIPS,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdResourceStringsOpenSSL,
   IdStack,
-  IdStackBSDBase,
-  IdAntiFreezeBase,
-  IdExceptionCore,
-  IdResourceStrings,
   IdThreadSafe,
-  IdCustomTransparentProxy,
-  IdURI,
   SysUtils,
   SyncObjs;
 
@@ -922,10 +909,10 @@ begin
     Result := Result or SSL_VERIFY_PEER;
   end;
   if sslvrfFailIfNoPeerCert in Mode then begin
-    Result:= Result or SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+    Result := Result or SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
   end;
   if sslvrfClientOnce in Mode then begin
-    Result:= Result or SSL_VERIFY_CLIENT_ONCE;
+    Result := Result or SSL_VERIFY_CLIENT_ONCE;
   end;
 end;
 
@@ -1265,7 +1252,6 @@ var
 begin
   Result := 0;
   count := 0;
-  Lin := nil;
 
   if AFileName = '' then begin
     Result := 1;
@@ -1352,7 +1338,6 @@ begin
   Result := 0;
   count := 0;
   LM := nil;
-  Lin := nil;
 
   if _type <> X509_FILETYPE_PEM then begin
     Result := Indy_unicode_X509_load_cert_file(ctx, AFileName, _type);
@@ -2131,12 +2116,6 @@ begin
   Result := DT + Hrs / 24.0;
 end;
 
-function GetLocalTime(const DT: TDateTime): TDateTime;
-{$IFDEF USE_INLINE} inline; {$ENDIF}
-begin
-  Result := DT - TimeZoneBias { / (24 * 60) } ;
-end;
-
 {$IFDEF OPENSSL_SET_MEMORY_FUNCS}
 
 function IdMalloc(num: UInt32): Pointer cdecl;
@@ -2287,12 +2266,11 @@ var
   tz_m: Integer;
 begin
   Result := 0;
-  if UTC_Time_Decode(UCTTime, year, month, day, hour, min, sec, tz_h,
-    tz_m) > 0 then begin
+  if UTC_Time_Decode(UCTTime, year, month, day, hour, min, sec, tz_h, tz_m) > 0 then begin
     Result := EncodeDate(year, month, day) + EncodeTime(hour, min, sec, 0);
     AddMins(Result, tz_m);
     AddHrs(Result, tz_h);
-    Result := GetLocalTime(Result);
+    Result := UTCTimeToLocalTime(Result);
   end;
 end;
 
@@ -2577,38 +2555,54 @@ function TIdServerIOHandlerSSLOpenSSL.Accept(ASocket: TIdSocketHandle;
 var
   LIO: TIdSSLIOHandlerSocketOpenSSL;
 begin
-  Result := nil;
+  //using a custom scheduler, AYarn may be nil, so don't assert
   Assert(ASocket<>nil);
   Assert(fSSLContext<>nil);
+  Assert(AListenerThread<>nil);
+
+  Result := nil;
   LIO := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   try
     LIO.PassThrough := True;
     LIO.Open;
-    if LIO.Binding.Accept(ASocket.Handle) then begin
-      //we need to pass the SSLOptions for the socket from the server
-      // TODO: wouldn't it be easier to just Assign() the server's SSLOptions
-      // here? Do we really need to share ownership of it?
-      // LIO.fxSSLOptions.Assign(fxSSLOptions);
-      FreeAndNil(LIO.fxSSLOptions);
-      LIO.IsPeer := True;
-      LIO.fxSSLOptions := fxSSLOptions;
-      LIO.fSSLSocket := TIdSSLSocket.Create(Self);
-      LIO.fSSLContext := fSSLContext;
-      // TODO: to enable server-side SNI, we need to:
-      // - Set up an additional SSL_CTX for each different certificate;
-      // - Add a servername callback to each SSL_CTX using SSL_CTX_set_tlsext_servername_callback();
-      // - In the callback, retrieve the client-supplied servername with
-      //   SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name). Figure out the right
-      //   SSL_CTX to go with that host name, then switch the SSL object to that
-      //   SSL_CTX with SSL_set_SSL_CTX().
-    end else begin
-      FreeAndNil(LIO);
+    while not AListenerThread.Stopped do begin
+      if ASocket.Select(250) then begin
+        if (not AListenerThread.Stopped) and LIO.Binding.Accept(ASocket.Handle) then begin
+          //we need to pass the SSLOptions for the socket from the server
+          // TODO: wouldn't it be easier to just Assign() the server's SSLOptions
+          // here? Do we really need to share ownership of it?
+          // LIO.fxSSLOptions.Assign(fxSSLOptions);
+          FreeAndNil(LIO.fxSSLOptions);
+          LIO.IsPeer := True;
+          LIO.fxSSLOptions := fxSSLOptions;
+          LIO.fSSLSocket := TIdSSLSocket.Create(Self);
+          LIO.fSSLContext := fSSLContext;
+          // TODO: to enable server-side SNI, we need to:
+          // - Set up an additional SSL_CTX for each different certificate;
+          // - Add a servername callback to each SSL_CTX using SSL_CTX_set_tlsext_servername_callback();
+          // - In the callback, retrieve the client-supplied servername with
+          //   SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name). Figure out the right
+          //   SSL_CTX to go with that host name, then switch the SSL object to that
+          //   SSL_CTX with SSL_set_SSL_CTX().
+
+          // RLebeau 2/1/2022: note, the following call is basically a no-op for OpenSSL,
+          // because PassThrough=True and fSSLContext are both assigned above, so there
+          // is really nothing for TIdSSLIOHandlerSocketOpenSSL.Init() or
+          // TIdSSLIOHandlerSocketOpenSSL.StartSSL() to do when called by
+          // TIdSSLIOHandlerSocketOpenSSL.AfterAccept().  If anything, all this will
+          // really do is update the Binding's IPVersion.  But, calling this is consistent
+          // with other server Accept() implementations, so we should do it here, too...
+          LIO.AfterAccept;
+
+          Result := LIO;
+          LIO := nil;
+          Break;
+        end;
+      end;
     end;
-  except
-    LIO.Free;
-    raise;
+  finally
+    FreeAndNil(LIO);
   end;
-  Result := LIO;
 end;
 
 procedure TIdServerIOHandlerSSLOpenSSL.DoStatusInfo(const AMsg: String);
@@ -2991,48 +2985,6 @@ var
   {$ENDIF}
   LMode: TIdSSLMode;
   LHost: string;
-
-  // TODO: move the following to TIdSSLIOHandlerSocketBase...
-
-  function GetURIHost: string;
-  var
-    LURI: TIdURI;
-  begin
-    Result := '';
-    if URIToCheck <> '' then
-    begin
-      LURI := TIdURI.Create(URIToCheck);
-      try
-        Result := LURI.Host;
-      finally
-        LURI.Free;
-      end;
-    end;
-  end;
-
-  function GetProxyTargetHost: string;
-  var
-    // under ARC, convert a weak reference to a strong reference before working with it
-    LTransparentProxy, LNextTransparentProxy: TIdCustomTransparentProxy;
-  begin
-    Result := '';
-    // RLebeau: not reading from the property as it will create a
-    // default Proxy object if one is not already assigned...
-    LTransparentProxy := FTransparentProxy;
-    if Assigned(LTransparentProxy) then
-    begin
-      if LTransparentProxy.Enabled then
-      begin
-        repeat
-          LNextTransparentProxy := LTransparentProxy.ChainedProxy;
-          if not Assigned(LNextTransparentProxy) then Break;
-          if not LNextTransparentProxy.Enabled then Break;
-          LTransparentProxy := LNextTransparentProxy;
-        until False;
-        Result := LTransparentProxy.Host;
-      end;
-    end;
-  end;
 
 begin
   Assert(Binding<>nil);
@@ -3666,30 +3618,30 @@ begin
                 Result := 0;
               end
               else begin
-                raise EIdException.Create(RSOSSLConnectionDropped);
+                raise EIdException.Create(RSOSSLConnectionDropped); // TODO: create a new Exception class for this
               end;
             end;
         end;
       end;}
 
-        //raise EIdException.Create(RSOSSLConnectionDropped);
+        //raise EIdException.Create(RSOSSLConnectionDropped); // TODO: create a new Exception class for this
       // X509_LOOKUP event is not really an error, just an event
     // SSL_ERROR_WANT_X509_LOOKUP:
-        // raise EIdException.Create(RSOSSLCertificateLookup);
+        // raise EIdException.Create(RSOSSLCertificateLookup); // TODO: create a new Exception class for this
     SSL_ERROR_SYSCALL:
       Result := SSL_ERROR_SYSCALL;
       // Result := SSL_ERROR_NONE;
 
-        {//raise EIdException.Create(RSOSSLInternal);
+        {//raise EIdException.Create(RSOSSLInternal); // TODO: create a new Exception class for this
         if (retCode <> 0) or (DataLen <> 0) then begin
-          raise EIdException.Create(RSOSSLConnectionDropped);
+          raise EIdException.Create(RSOSSLConnectionDropped); // TODO: create a new Exception class for this
         end
         else begin
           Result := 0;
         end;}
 
     SSL_ERROR_SSL:
-      // raise EIdException.Create(RSOSSLInternal);
+      // raise EIdException.Create(RSOSSLInternal); // TODO: create a new Exception class for this
       Result := SSL_ERROR_SSL;
       // Result := SSL_ERROR_NONE;
   end;
@@ -3723,7 +3675,7 @@ begin
   //
   // RLebeau: is this actually true?  Should we be reusing the original
   // IOHandler's active session ID regardless of whether this is a client
-  // or server socket?
+  // or server socket? What about FTP in non-passive mode, for example?
   {
   if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
      (LParentIO.fSSLSocket <> Self) then
@@ -4267,17 +4219,23 @@ begin
   Result := String(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL)));
 end;
 
+{$I IdSymbolDeprecatedOff.inc}
+
 initialization
   Assert(SSLIsLoaded=nil);
   SSLIsLoaded := TIdThreadSafeBoolean.Create;
+
+  {$I IdSymbolDeprecatedOff.inc}
   RegisterSSL('OpenSSL','Indy Pit Crew',                                  {do not localize}
-    'Copyright '+Char(169)+' 1993 - 2014'#10#13 +                                     {do not localize}
+    'Copyright '+Char(169)+' 1993 - 2023'#10#13 +                         {do not localize}
     'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
     'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
     'http://www.indyproject.org/'#10#13 +                                 {do not localize}
-    'Original Author - Gregor Ibic',                                        {do not localize}
+    'Original Author - Gregor Ibic',                                      {do not localize}
     TIdSSLIOHandlerSocketOpenSSL,
     TIdServerIOHandlerSSLOpenSSL);
+  {$I IdSymbolDeprecatedOn.inc}
+
   TIdSSLIOHandlerSocketOpenSSL.RegisterIOHandler;
 finalization
   // TODO: TIdSSLIOHandlerSocketOpenSSL.UnregisterIOHandler;

@@ -197,7 +197,7 @@ implementation
 uses
   IdException,
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  {$IFDEF VCL_6_OR_ABOVE}DateUtils,{$ENDIF}
+  {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
   SysUtils;
 
 { TIdFTPLPUnix }

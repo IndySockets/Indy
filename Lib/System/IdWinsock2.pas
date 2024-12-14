@@ -285,11 +285,20 @@ const
 (*$HPPEMIT '#include <ws2atm.h>'*)
 (*$HPPEMIT '#include <mswsock.h>'*)
 (*$HPPEMIT ''*)
+
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+{$HPPEMIT OPENNAMESPACE}
+{$ELSE}
 (*$HPPEMIT 'namespace Idwinsock2'*)
 (*$HPPEMIT '{'*)
+{$ENDIF}
 (*$HPPEMIT '    typedef fd_set *PFDSet;'*) // due to name conflict with procedure FD_SET
 (*$HPPEMIT '    typedef fd_set TFDSet;'*)  // due to name conflict with procedure FD_SET
+{$IFDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+{$HPPEMIT CLOSENAMESPACE}
+{$ELSE}
 (*$HPPEMIT '}'*)
+{$ENDIF}
 (*$HPPEMIT ''*)
 
 type

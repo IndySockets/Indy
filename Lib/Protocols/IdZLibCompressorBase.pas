@@ -308,7 +308,7 @@ begin
   TIdStreamHelper.ReadBytes(AInStream, LBCmp, 1);
   TIdStreamHelper.ReadBytes(AInStream, LFlags, 1);
   if (((LBCmp[0] * 256) + LFlags[0]) mod 31) <> 0 then begin
-    raise EIdException.Create('Error - invalid header'); {do not localize}
+    raise EIdException.Create('Error - invalid header'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
   end;
   TIdStreamHelper.ReadBytes(AInStream, LDict, 4);
   AInStream.Position := LOrgPos;

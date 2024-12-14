@@ -115,11 +115,6 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdExceptionCore,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
@@ -129,7 +124,7 @@ uses
   {$ENDIF}
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.Types,
-{$ENDIF}
+  {$ENDIF}
   IdUDPClient,
   SysUtils;
 
@@ -705,7 +700,7 @@ begin
           WriteTIdBytesToStream(FStream, Buffer, Length(Buffer) - 4, 4);
           Inc(FReceivedSize, Length(Buffer) - 4);
           SetLength(FResponse, 0);
-          FEOT := Length(Buffer) < (FUDPClient.BufferSize - 4);
+          FEOT := (Length(Buffer) - 4) < (FUDPClient.BufferSize - 4);
         end;
       end;
     TFTP_ERROR:

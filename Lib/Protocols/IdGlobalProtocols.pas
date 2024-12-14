@@ -329,7 +329,6 @@ uses
   Windows,
   {$ENDIF}
   IdCharsets,
-  IdBaseComponent,
   IdGlobal,
   IdException,
   SysUtils;
@@ -377,10 +376,19 @@ type
     property OnBuildCache: TNotifyEvent read FOnBuildCache write FOnBuildCache;
   end;
 
+  {$UNDEF INTF_USES_STDCALL}
+  {$IFDEF DCC}
+    {$DEFINE INTF_USES_STDCALL}
+  {$ELSE}
+    {$IFDEF WINDOWS}
+      {$DEFINE INTF_USES_STDCALL}
+    {$ENDIF}
+  {$ENDIF}
+
   TIdInterfacedObject = class (TInterfacedObject)
   public
-    function _AddRef: Integer;
-    function _Release: Integer;
+    function _AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
+    function _Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
   end;
 
   TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
@@ -523,7 +531,7 @@ type
   function StrToDay(const ADay: string): Byte;
   function StrToMonth(const AMonth: string): Byte;
   function StrToWord(const Value: String): Word;
-  function TimeZoneBias: TDateTime;
+  function TimeZoneBias: TDateTime; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IdGlobal.LocalTimeToUTCTime() or IdGlobal.UTCTimeToLocalTime()'{$ENDIF};{$ENDIF}
    //these are for FSP but may also help with MySQL
   function UnixDateTimeToDelphiDateTime(UnixDateTime: UInt32): TDateTime;
   function DateTimeToUnix(ADateTime: TDateTime): UInt32;
@@ -592,15 +600,8 @@ uses
   Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
-  IdIPAddress,
-  {$IFDEF HAS_GetLocalTimeOffset}
-  DateUtils,
-  {$ENDIF}
   {$IFDEF UNIX}
     {$IFDEF USE_VCL_POSIX}
-      {$IFNDEF HAS_GetLocalTimeOffset}
-  DateUtils,
-      {$ENDIF}
   Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
     {$ELSE}
       {$IFDEF KYLIXCOMPAT}
@@ -608,12 +609,12 @@ uses
       {$ELSE}
         {$IFDEF USE_BASEUNIX}
   BaseUnix, Unix,
-          {$IFNDEF HAS_GetLocalTimeOffset}
-  DateUtils,
-          {$ENDIF}
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF HAS_UNIT_DateUtils}
+  DateUtils,
   {$ENDIF}
   {$IFDEF WINDOWS}
   Messages,
@@ -623,8 +624,6 @@ uses
   System.IO,
   System.Text,
   {$ENDIF}
-  IdAssignedNumbers,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdStack
   {$IFDEF HAS_IOUtils_TPath}
@@ -1352,7 +1351,7 @@ begin
   if ATimeStamp <> '' then begin
     Result := FTPMLSToGMTDateTime(ATimeStamp);
     // Apply local offset
-    Result := {$IFDEF HAS_UniversalTimeToLocal}UniversalTimeToLocal(Result){$ELSE}Result + OffsetFromUTC{$ENDIF};
+    Result := UTCTimeToLocalTime(Result);
   end;
 end;
 
@@ -1378,13 +1377,7 @@ stamps based on GMT)
 function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
 {$IFDEF USE_INLINE} inline; {$ENDIF}
 begin
-  Result := FTPGMTDateTimeToMLS(
-    {$IFDEF HAS_LocalTimeToUniversal}
-    LocalTimeToUniversal(ATimeStamp)
-    {$ELSE}
-    ATimeStamp - OffsetFromUTC
-    {$ENDIF}
-    , AIncludeMSecs);
+  Result := FTPGMTDateTimeToMLS(LocalTimeToUTCTime(ATimeStamp), AIncludeMSecs);
 end;
 
 
@@ -1981,36 +1974,12 @@ begin
   end;
 end;
 
+{$I IdDeprecatedImplBugOff.inc}
 function TimeZoneBias: TDateTime;
-{$IFNDEF FPC}
-  {$IFDEF UNIX}
-var
-  T: Time_T;
-  TV: TimeVal;
-  UT: {$IFDEF USE_VCL_POSIX}tm{$ELSE}TUnixTime{$ENDIF};
-  {$ELSE}
-    {$IFDEF USE_INLINE} inline; {$ENDIF}
-  {$ENDIF}
-{$ELSE}
+{$I IdDeprecatedImplBugOn.inc}
   {$IFDEF USE_INLINE} inline; {$ENDIF}
-{$ENDIF}
 begin
-{$IFNDEF FPC}
-  {$IFDEF UNIX}
-  // TODO: use -OffsetFromUTC here. It has this same Unix logic in it
-  {from http://edn.embarcadero.com/article/27890 }
-  gettimeofday(TV, nil);
-  T := TV.tv_sec;
-  localtime_r({$IFNDEF USE_VCL_POSIX}@{$ENDIF}T, UT);
-// __tm_gmtoff is the bias in seconds from the UTC to the current time.
-// so I multiply by -1 to compensate for this.
-  Result := (UT.{$IFNDEF USE_VCL_POSIX}__tm_gmtoff{$ELSE}tm_gmtoff{$ENDIF} / 60 / 60 / 24);
-  {$ELSE}
   Result := -OffsetFromUTC;
-  {$ENDIF}
-{$ELSE}
-  Result := -OffsetFromUTC;
-{$ENDIF}
 end;
 
 function IndyStrToBool(const AString : String) : Boolean;
@@ -2810,8 +2779,7 @@ begin
   if RawStrInternetToDateTime(S, Result) then begin
     DateTimeOffset := GmtOffsetStrToDateTime(S);
     {-Apply GMT and local offsets}
-    Result := Result - DateTimeOffset;
-    Result := {$IFDEF HAS_UniversalTimeToLocal}UniversalTimeToLocal(Result){$ELSE}Result + OffsetFromUTC{$ENDIF};
+    Result := UTCTimeToLocalTime(Result - DateTimeOffset);
   end;
 end;
 
@@ -3066,7 +3034,7 @@ begin
     end;
 
     Result := EncodeDate(LYear, LMonth, LDayOfMonth) + EncodeTime(LHour, LMinute, LSecond, 0);
-    Result := {$IFDEF HAS_UniversalTimeToLocal}UniversalTimeToLocal(Result){$ELSE}Result + OffsetFromUTC{$ENDIF};
+    Result := UTCTimeToLocalTime(Result);
   except
     Result := 0.0;
   end;
@@ -3607,6 +3575,7 @@ begin
     KeyList := TStringList.create;
     try
       Reg.RootKey := HKEY_CLASSES_ROOT;
+      // TODO: use RegEnumKeyEx() directly to avoid wasting memory loading keys we don't care about...
       if Reg.OpenKeyReadOnly('\') then begin  {do not localize}
         Reg.GetKeyNames(KeyList);
         Reg.Closekey;
@@ -3676,7 +3645,7 @@ begin
   LExt := IndyLowerCase(Ext);
   if Length(LExt) = 0 then begin
     if ARaiseOnError then begin
-      raise EIdException.Create(RSMIMEExtensionEmpty);
+      raise EIdException.Create(RSMIMEExtensionEmpty); // TODO: create a new Exception class for this
     end;
     Exit;
   end;
@@ -3684,7 +3653,7 @@ begin
   LMIMEType := IndyLowerCase(MIMEType);
   if Length(LMIMEType) = 0 then begin
     if ARaiseOnError then begin
-      raise EIdException.Create(RSMIMEMIMETypeEmpty);
+      raise EIdException.Create(RSMIMEMIMETypeEmpty); // TODO: create a new Exception class for this
     end;
     Exit;
   end;
@@ -3701,7 +3670,7 @@ begin
     FMIMEList.Add(LMIMEType);
   end else begin
     if ARaiseOnError then begin
-      raise EIdException.Create(RSMIMEMIMEExtAlreadyExists);
+      raise EIdException.Create(RSMIMEMIMEExtAlreadyExists); // TODO: create a new Exception class for this
     end;
     Exit;
   end;
@@ -4921,6 +4890,9 @@ end;
   {$IFDEF CPUX64}
     {$DEFINE NO_NATIVE_ASM}
   {$ENDIF}
+  {$IFDEF CPUARM64}
+    {$DEFINE NO_NATIVE_ASM}
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF ANDROID}
   {$DEFINE NO_NATIVE_ASM}
@@ -5381,7 +5353,7 @@ end;
 
 { TIdInterfacedObject }
 
-function TIdInterfacedObject._AddRef: Integer;
+function TIdInterfacedObject._AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;
@@ -5390,7 +5362,7 @@ begin
   {$ENDIF}
 end;
 
-function TIdInterfacedObject._Release: Integer;
+function TIdInterfacedObject._Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;
