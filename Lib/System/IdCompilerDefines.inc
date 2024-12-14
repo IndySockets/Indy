@@ -1302,6 +1302,7 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_OSX32}
   {$DEFINE HAS_System_ReturnAddress}
   {$DEFINE HAS_DIRECTIVE_WARN_DEFAULT}
+  {$DEFINE HAS_UNIT_System_ZLib}
 {$ENDIF}
 
 {$IFDEF VCL_XE3_OR_ABOVE}
