@@ -4219,8 +4219,6 @@ begin
   Result := String(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL)));
 end;
 
-{$I IdSymbolDeprecatedOff.inc}
-
 initialization
   Assert(SSLIsLoaded=nil);
   SSLIsLoaded := TIdThreadSafeBoolean.Create;
