@@ -120,6 +120,9 @@ type
 type
   TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1, sslvTLSv1_1, sslvTLSv1_2, sslvTLSv1_3);
   TIdSSLVersions = set of TIdSSLVersion;
+  TIdSSLMode = (sslmUnassigned, sslmClient, sslmServer, sslmBoth);
+  TIdSSLCtxMode = (sslCtxClient, sslCtxServer);
+  TIdSSLAction = (sslRead, sslWrite);
 
 Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;
