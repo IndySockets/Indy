@@ -220,6 +220,8 @@ uses
 (*$HPPEMIT '#pragma alias "@Iddnsresolver@TIdDNSResolver@SetPortW$qqrxus"="@Iddnsresolver@TIdDNSResolver@SetPort$qqrxus"' *)
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
+// TODO: when compiling with bcc64x, use this pragma instead:
+// #pragma comment(linker, "/alternatename:<name1>=<name2>")
 
 type
   { TODO : Solve problem with obsolete records }

@@ -24,6 +24,7 @@ package dclIndyProtocols220;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
+{$DEFINE VER290}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 Protocols Design Time'}
 {$DESIGNONLY}
@@ -43,4 +44,3 @@ contains
   IdRegister in 'IdRegister.pas';
 
 end.
-

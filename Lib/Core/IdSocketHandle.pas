@@ -131,7 +131,7 @@ interface
 
 uses
   Classes,
-  IdException, IdGlobal, IdStackConsts, IdStack, IdBaseComponent;
+  IdException, IdGlobal, IdStackConsts, IdStack;
   
 type
   TIdSocketHandle = class;

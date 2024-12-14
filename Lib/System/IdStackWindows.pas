@@ -1453,21 +1453,27 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                           SubNetStr := SubNetMasks.Values[IPAddr];
                         end;
                         LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, IPAddr, SubNetStr);
+                        {$I IdObjectChecksOff.inc}
                         TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Union.IfIndex;
+                        {$I IdObjectChecksOn.inc}
                       end;
                       AF_INET6: begin
                         LAddress := TIdStackLocalAddressIPv6.Create(AAddresses,
                           TranslateTInAddrToString(PSockAddrIn6(UnicastAddr^.Address.lpSockaddr)^.sin6_addr, Id_IPv6));
                         // The Ipv6IfIndex member is only available on Windows XP SP1 and later
                         if IndyCheckWindowsVersion(5, 2) or (IndyCheckWindowsVersion(5, 1) {TODO: and SP1+}) then begin
+                          {$I IdObjectChecksOff.inc}
                           TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Ipv6IfIndex;
+                          {$I IdObjectChecksOn.inc}
                         end;
                       end;
                     end;
                     if LAddress <> nil then begin
+                      {$I IdObjectChecksOff.inc}
                       TIdStackLocalAddressAccess(LAddress).FDescription := String(Adapter^.Description);
                       TIdStackLocalAddressAccess(LAddress).FFriendlyName := String(Adapter^.FriendlyName);
                       TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
+                      {$I IdObjectChecksOn.inc}
                     end;
                   end;
                   UnicastAddr := UnicastAddr^.Next;
@@ -1612,10 +1618,12 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
                   MaskStr := String(IPAddr^.IpMask.S);
                   {$ENDIF}
                   LAddress := TIdStackLocalAddressIPv4.Create(AAddresses, IPStr, MaskStr);
+                  {$I IdObjectChecksOff.inc}
                   TIdStackLocalAddressAccess(LAddress).FDescription := String(Adapter^.Description);
                   TIdStackLocalAddressAccess(LAddress).FFriendlyName := String(Adapter^.AdapterName);
                   TIdStackLocalAddressAccess(LAddress).FInterfaceName := String(Adapter^.AdapterName);
                   TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := Adapter^.Index;
+                  {$I IdObjectChecksOn.inc}
                 end;
                 IPAddr := IPAddr^.Next;
               until IPAddr = nil;
@@ -1688,10 +1696,12 @@ procedure TIdStackWindows.GetLocalAddressList(AAddresses: TIdStackLocalAddressLi
           // TODO: implement this...
           {
           if LAddress <> nil then begin
+            ($I IdObjectChecksOff.inc)
             TIdStackLocalAddressAccess(LAddress).FDescription := ?;
             TIdStackLocalAddressAccess(LAddress).FFriendlyName := ?;
             TIdStackLocalAddressAccess(LAddress).FInterfaceName := ?;
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := ?;
+            ($I IdObjectChecksOn.inc)
           end;
           }
           LAddrInfo := LAddrInfo^.ai_next;

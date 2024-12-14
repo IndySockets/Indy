@@ -194,7 +194,6 @@ uses
   IdBlockCipherIntercept,
   IdChargenServer,
   IdChargenUDPServer,
-  IdCoder3to4,
   IdCoderBinHex4,
   IdCoderMIME,
   IdCoderQuotedPrintable,
@@ -206,7 +205,6 @@ uses
   {$ENDIF}
   IdConnectThroughHttpProxy,
   IdCookieManager,
-  IdResourceStringsCore,
   IdDateTimeStamp,
   IdDayTime,
   IdDayTimeServer,
@@ -216,7 +214,6 @@ uses
   IdDICTServer,
   IdDiscardServer,
   IdDiscardUDPServer,
-  IdDsnRegister,
   IdDNSResolver,
   IdDNSServer,
   IdDsnCoreResourceStrings,
@@ -231,7 +228,6 @@ uses
   IdFTPServer,
   IdGopher,
   IdGopherServer,
-  IdHashMessageDigest,
   IdHL7,
   IdHTTP,
   IdHTTPProxyServer,
@@ -263,7 +259,6 @@ uses
   IdQotdServer,
   IdQOTDUDP,
   IdQOTDUDPServer,
-  IdResourceStrings,
   IdResourceStringsProtocols,
   IdRexec,
   IdRexecServer,
@@ -273,10 +268,10 @@ uses
   IdSASLDigest,
   IdSASLExternal,
   IdSASLLogin,
+  IdSASLOAuth,
   IdSASLOTP,
   IdSASLPlain,
   IdSASLSKey,
-  IdSASLUserPass,
   IdSASL_CRAM_MD5,
   IdSASL_CRAM_SHA1,
   IdServerInterceptLogEvent,
@@ -411,9 +406,12 @@ uses
   {$R IconsDotNet\TIdSASLExternal.bmp}
   {$R IconsDotNet\TIdSASLList.bmp}
   {$R IconsDotNet\TIdSASLLogin.bmp}
+  {$R IconsDotNet\TIdSASLOAuth2Bearer.bmp}
+  {$R IconsDotNet\TIdSASLOAuth10A.bmp}
   {$R IconsDotNet\TIdSASLOTP.bmp}
   {$R IconsDotNet\TIdSASLPlain.bmp}
   {$R IconsDotNet\TIdSASLSKey.bmp}
+  {$R IconsDotNet\TIdSASLXOAuth2.bmp}
   {$R IconsDotNet\TIdServerCompressionIntercept.bmp}
   {$R IconsDotNet\TIdServerInterceptLogEvent.bmp}
   {$R IconsDotNet\TIdServerInterceptLogFile.bmp}
@@ -588,9 +586,12 @@ begin
    TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,
+   TIdSASLOAuth10A,
+   TIdSASLOAuth2Bearer,
    TIdSASLOTP,
    TIdSASLPlain,
    TIdSASLSKey,
+   TIdSASLXOAuth2,
    TIdUserPassProvider
    ]);
 
@@ -670,6 +671,7 @@ begin
    TIdTrivialFTP,
    TIdUnixTime,
    TIdUnixTimeUDP,
+   TIdWebDAV,
    TIdWhois]);
 
   RegisterComponents(RSRegIndyServers+RSProtam, [
@@ -735,12 +737,16 @@ begin
   RegisterComponents(RSRegSASL+RSProt, [
    TIdSASLAnonymous,
    TIdSASLCRAMMD5,
+   TIdSASLCRAMSHA1,
    TIdSASLDigest,
    TIdSASLExternal,
    TIdSASLLogin,
+   TIdSASLOAuth10A,
+   TIdSASLOAuth2Bearer,
    TIdSASLOTP,
    TIdSASLPlain,
    TIdSASLSKey,
+   TIdSASLXOAuth2,
    TIdUserPassProvider
    ]);
 

@@ -110,6 +110,11 @@ uses
   SysUtils;
 
 const
+  IdSocks4ReplySuccess = 90;
+  IdSocks4ReplyFailed = 91;
+  IdSocks4ReplyNoIdent = 92;
+  IdSocks4ReplyIdentNotConfirmed = 93;
+
   IdSocksAuthNoAuthenticationRequired = 0;
   IdSocksAuthGSSApi = 1;
   IdSocksAuthUsernamePassword = 2;
@@ -144,6 +149,13 @@ type
     FSocksVersion: Byte; // either 4 or 5, or 0 when version not known yet
   public
     constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdContextThreadList = nil); override;
+    //
+    procedure SendV4Response(const AStatus: Byte; const AIP: String = ''; const APort: TIdPort = 0);
+    //
+    procedure SendV5MethodResponse(const AMethod: Byte);
+    procedure SendV5AuthResponse(const AStatus: Byte);
+    procedure SendV5Response(const AStatus: Byte; const AIP: String = ''; const APort: TIdPort = 0);
+    //
     property IPVersion: TIdIPVersion read FIPVersion;
     property Username: string read FUsername;
     property Password: string read FPassword;
@@ -315,72 +327,18 @@ begin
   end;
 end;
 
-
-procedure SendV4Response(AContext: TIdSocksServerContext; const AStatus: Byte;
-  const AIP: String = ''; const APort: TIdPort = 0);
-var
-  LResponse: TIdBytes;
-begin
-  SetLength(LResponse, 8);
-  LResponse[0] := 0; // SOCKS version, null in SOCKS 4/4A
-  LResponse[1] := AStatus;
-  CopyTIdUInt16(GStack.HostToNetwork(APort), LResponse, 2);
-  CopyTIdBytes(IPToBytes(AIP, Id_IPv4), 0, LResponse, 4, 4);
-  AContext.Connection.IOHandler.Write(LResponse);
-end;
-
-procedure SendV5MethodResponse(AContext: TIdSocksServerContext; const AMethod: Byte);
-var
-  LResponse: TIdBytes;
-begin
-  SetLength(LResponse, 2);
-  LResponse[0] := 5; // SOCKS version
-  LResponse[1] := AMethod;
-  AContext.Connection.IOHandler.Write(LResponse);
-end;
-
-procedure SendV5AuthResponse(AContext: TIdSocksServerContext; const AStatus: Byte);
-var
-  LResponse: TIdBytes;
-begin
-  SetLength(LResponse, 2);
-  LResponse[0] := 1; // AUTH version
-  LResponse[1] := AStatus;
-  AContext.Connection.IOHandler.Write(LResponse);
-end;
-
-procedure SendV5Response(AContext: TIdSocksServerContext; const AStatus: Byte;
-  const AIP: String = ''; const APort: TIdPort = 0);
-const
-  LTypes: array[TIdIPVersion] of Byte = ($1, $4);
-var
-  LResponse, LIP: TIdBytes;
-begin
-  LIP := IPToBytes(AIP, AContext.IPVersion);
-  SetLength(LResponse, 4 + Length(LIP) + 2);
-
-  LResponse[0] := 5; // SOCKS version
-  LResponse[1] := AStatus;
-  LResponse[2] := 0;
-  LResponse[3] := LTypes[AContext.IPVersion];
-  CopyTIdBytes(LIP, 0, LResponse, 4, Length(LIP));
-  CopyTIdUInt16(GStack.HostToNetwork(APort), LResponse, 4+Length(LIP));
-
-  AContext.Connection.IOHandler.Write(LResponse);
-end;
-
 procedure TIdCustomSocksServer.HandleConnectV4(AContext: TIdSocksServerContext;
   var VCommand: Byte; var VHost: string; var VPort: TIdPort);
 var
   LData: TIdBytes;
   LBinding: TIdSocketHandle;
+  LUserId: string;
 begin
   AContext.Connection.IOHandler.ReadBytes(LData, 7);
   VCommand := LData[0];
   VPort := GStack.NetworkToHost(BytesToUInt16(LData, 1));
   VHost := BytesToIPv4Str(LData, 3);
-  AContext.FUsername := AContext.Connection.IOHandler.ReadLn(#0);
-  AContext.FPassword := '';
+  LUserId := AContext.Connection.IOHandler.ReadLn(#0);
 
   // According to the Socks 4a spec:
   //
@@ -403,10 +361,17 @@ begin
     AContext.FIPVersion := Id_IPv4;
   end;
 
-  if not DoAuthenticate(AContext) then begin
-    SendV4Response(AContext, 93);
-    AContext.Connection.Disconnect;
-    raise EIdSocksSvrInvalidLogin.Create(RSSocksSvrInvalidLogin);
+  if not NeedsAuthentication then begin
+    AContext.FUsername := '';
+    AContext.FPassword := '';
+  end else begin
+    AContext.FUsername := LUserId;
+    AContext.FPassword := '';
+    if not DoAuthenticate(AContext) then begin
+      AContext.SendV4Response(IdSocks4ReplyIdentNotConfirmed);
+      AContext.Connection.Disconnect;
+      raise EIdSocksSvrInvalidLogin.Create(RSSocksSvrInvalidLogin);
+    end;
   end;
 end;
 
@@ -423,23 +388,23 @@ begin
   if not NeedsAuthentication then begin
     AContext.FUsername := '';
     AContext.FPassword := '';
-    SendV5MethodResponse(AContext, IdSocksAuthNoAuthenticationRequired);
+    AContext.SendV5MethodResponse(IdSocksAuthNoAuthenticationRequired);
   end else begin
     if ByteIndex(IdSocksAuthUsernamePassword, LMethods) = -1 then begin
-      SendV5MethodResponse(AContext, IdSocksAuthNoAcceptableMethods);
+      AContext.SendV5MethodResponse(IdSocksAuthNoAcceptableMethods);
       AContext.Connection.Disconnect; // not sure the server has to disconnect
       raise EIdSocksSvrNotSupported.Create(RSSocksSvrNotSupported);
     end;
-    SendV5MethodResponse(AContext, IdSocksAuthUsernamePassword);
+    AContext.SendV5MethodResponse(IdSocksAuthUsernamePassword);
     AContext.Connection.IOHandler.ReadByte; //subversion, we don't need it.
     AContext.FUsername := AContext.Connection.IOHandler.ReadString(AContext.Connection.IOHandler.ReadByte);
     AContext.FPassword := AContext.Connection.IOHandler.ReadString(AContext.Connection.IOHandler.ReadByte);
     if not DoAuthenticate(AContext) then begin
-      SendV5AuthResponse(AContext, IdSocks5ReplyGeneralFailure);
+      AContext.SendV5AuthResponse(IdSocks5ReplyGeneralFailure);
       AContext.Connection.Disconnect;
       raise EIdSocksSvrInvalidLogin.Create(RSSocksSvrInvalidLogin);
     end;
-    SendV5AuthResponse(AContext, IdSocks5ReplySuccess);
+    AContext.SendV5AuthResponse(IdSocks5ReplySuccess);
   end;
 
   AContext.Connection.IOHandler.ReadByte; // socks version, should be 5
@@ -480,7 +445,7 @@ begin
       end;
     else
       begin
-        SendV5Response(AContext, IdSocks5ReplyAddrNotSupported);
+        AContext.SendV5Response(IdSocks5ReplyAddrNotSupported);
         AContext.Connection.Disconnect;
         raise EIdSocksSvrSocks5WrongATYP.Create(RSSocksSvrWrongATYP);
       end;
@@ -506,8 +471,8 @@ begin
     ) then
   begin
     case LContext.SocksVersion of
-      4: SendV4Response(LContext, 91);
-      5: SendV5MethodResponse(LContext, IdSocksAuthNoAcceptableMethods);
+      4: LContext.SendV4Response(IdSocks4ReplyFailed);
+      5: LContext.SendV5MethodResponse(IdSocksAuthNoAcceptableMethods);
     end;
     AContext.Connection.Disconnect;
     raise EIdSocksSvrWrongSocksVer.Create(RSSocksSvrWrongSocksVersion);
@@ -525,8 +490,8 @@ begin
   else
     begin
       case LContext.SocksVersion of
-        4: SendV4Response(LContext, 91);
-        5: SendV5Response(LContext, IdSocks5ReplyCmdNotSupported);
+        4: LContext.SendV4Response(IdSocks4ReplyFailed);
+        5: LContext.SendV5Response(IdSocks5ReplyCmdNotSupported);
       end;
       AContext.Connection.Disconnect;
       raise EIdSocksSvrWrongSocksCmd.Create(RSSocksSvrWrongSocksCommand);
@@ -546,8 +511,8 @@ begin
 
   if not DoBeforeSocksConnect(AContext, LHost, LPort) then begin
     case AContext.SocksVersion of
-      4: SendV4Response(AContext, 91);
-      5: SendV5Response(AContext, IdSocks5ReplyConnNotAllowed);
+      4: AContext.SendV4Response(IdSocks4ReplyFailed);
+      5: AContext.SendV5Response(IdSocks5ReplyConnNotAllowed);
     end;
     AContext.Connection.Disconnect;
     raise EIdSocksSvrAccessDenied.Create(RSSocksSvrAccessDenied);
@@ -568,16 +533,16 @@ begin
       // TODO: for v5, check the socket error and send an appropriate reply
       // (Network unreachable, Host unreachable, Connection refused, etc)...
       case AContext.SocksVersion of
-        4: SendV4Response(AContext, 91);
-        5: SendV5Response(AContext, IdSocks5ReplyHostUnreachable);
+        4: AContext.SendV4Response(IdSocks4ReplyFailed);
+        5: AContext.SendV5Response(IdSocks5ReplyHostUnreachable);
       end;
       AContext.Connection.Disconnect;
       raise;
     end;
 
     case AContext.SocksVersion of
-      4: SendV4Response(AContext, 90, LClient.Socket.Binding.IP, LClient.Socket.Binding.Port);
-      5: SendV5Response(AContext, IdSocks5ReplySuccess, LClient.Socket.Binding.IP, LClient.Socket.Binding.Port);
+      4: AContext.SendV4Response(IdSocks4ReplySuccess, LClient.Socket.Binding.IP, LClient.Socket.Binding.Port);
+      5: AContext.SendV5Response(IdSocks5ReplySuccess, LClient.Socket.Binding.IP, LClient.Socket.Binding.Port);
     end;
 
     TransferData(AContext.Connection, LClient);
@@ -600,8 +565,8 @@ begin
 
   if not DoBeforeSocksBind(AContext, LHost, LPort) then begin
     case AContext.SocksVersion of
-      4: SendV4Response(AContext, 91);
-      5: SendV5Response(AContext, IdSocks5ReplyConnNotAllowed);
+      4: AContext.SendV4Response(IdSocks4ReplyFailed);
+      5: AContext.SendV5Response(IdSocks5ReplyConnNotAllowed);
     end;
     AContext.Connection.Disconnect;
     raise EIdSocksSvrAccessDenied.Create(RSSocksSvrAccessDenied);
@@ -615,24 +580,24 @@ begin
       LServer.BeginListen;
     except
       case AContext.SocksVersion of
-        4: SendV4Response(AContext, 91);
-        5: SendV5Response(AContext, IdSocks5ReplyGeneralFailure);
+        4: AContext.SendV4Response(IdSocks4ReplyFailed);
+        5: AContext.SendV5Response(IdSocks5ReplyGeneralFailure);
       end;
       AContext.Connection.Disconnect;
       raise;
     end;
 
     case AContext.SocksVersion of
-      4: SendV4Response(AContext, 90, LServer.Binding.IP, LServer.Binding.Port);
-      5: SendV5Response(AContext, IdSocks5ReplySuccess, LServer.Binding.IP, LServer.Binding.Port);
+      4: AContext.SendV4Response(IdSocks4ReplySuccess, LServer.Binding.IP, LServer.Binding.Port);
+      5: AContext.SendV5Response(IdSocks5ReplySuccess, LServer.Binding.IP, LServer.Binding.Port);
     end;
 
     try
       LServer.Listen(120000); // 2 minutes
     except
       case AContext.SocksVersion of
-        4: SendV4Response(AContext, 91);
-        5: SendV5Response(AContext, IdSocks5ReplyGeneralFailure);
+        4: AContext.SendV4Response(IdSocks4ReplyFailed);
+        5: AContext.SendV5Response(IdSocks5ReplyGeneralFailure);
       end;
       AContext.Connection.Disconnect;
       raise;
@@ -642,16 +607,16 @@ begin
     if not DoVerifyBoundPeer(AContext, LHost, LServer.Binding.PeerIP) then begin
       LServer.Disconnect;
       case AContext.SocksVersion of
-        4: SendV4Response(AContext, 91);
-        5: SendV5Response(AContext, IdSocks5ReplyGeneralFailure);
+        4: AContext.SendV4Response(IdSocks4ReplyFailed);
+        5: AContext.SendV5Response(IdSocks5ReplyGeneralFailure);
       end;
       AContext.Connection.Disconnect;
       raise EIdSocksSvrPeerMismatch.Create(RSSocksSvrPeerMismatch);
     end;
 
     case AContext.SocksVersion of
-      4: SendV4Response(AContext, 90, LServer.Binding.PeerIP, LServer.Binding.PeerPort);
-      5: SendV5Response(AContext, IdSocks5ReplySuccess, LServer.Binding.PeerIP, LServer.Binding.PeerPort);
+      4: AContext.SendV4Response(IdSocks4ReplySuccess, LServer.Binding.PeerIP, LServer.Binding.PeerPort);
+      5: AContext.SendV5Response(IdSocks5ReplySuccess, LServer.Binding.PeerIP, LServer.Binding.PeerPort);
     end;
 
     TransferData(AContext.Connection, LServer);
@@ -699,6 +664,59 @@ begin
   FUsername := '';
   FPassword := '';
   FSocksVersion := 0;
+end;
+
+procedure TIdSocksServerContext.SendV4Response(const AStatus: Byte;
+  const AIP: String = ''; const APort: TIdPort = 0);
+var
+  LResponse: TIdBytes;
+begin
+  SetLength(LResponse, 8);
+  LResponse[0] := 0; // SOCKS version, null in SOCKS 4/4A
+  LResponse[1] := AStatus;
+  CopyTIdUInt16(GStack.HostToNetwork(APort), LResponse, 2);
+  CopyTIdBytes(IPToBytes(AIP, Id_IPv4), 0, LResponse, 4, 4);
+  Connection.IOHandler.Write(LResponse);
+end;
+
+procedure TIdSocksServerContext.SendV5MethodResponse(const AMethod: Byte);
+var
+  LResponse: TIdBytes;
+begin
+  SetLength(LResponse, 2);
+  LResponse[0] := 5; // SOCKS version
+  LResponse[1] := AMethod;
+  Connection.IOHandler.Write(LResponse);
+end;
+
+procedure TIdSocksServerContext.SendV5AuthResponse(const AStatus: Byte);
+var
+  LResponse: TIdBytes;
+begin
+  SetLength(LResponse, 2);
+  LResponse[0] := 1; // AUTH version
+  LResponse[1] := AStatus;
+  Connection.IOHandler.Write(LResponse);
+end;
+
+procedure TIdSocksServerContext.SendV5Response(const AStatus: Byte;
+  const AIP: String = ''; const APort: TIdPort = 0);
+const
+  LTypes: array[TIdIPVersion] of Byte = ($1, $4);
+var
+  LResponse, LIP: TIdBytes;
+begin
+  LIP := IPToBytes(AIP, IPVersion);
+  SetLength(LResponse, 4 + Length(LIP) + 2);
+
+  LResponse[0] := 5; // SOCKS version
+  LResponse[1] := AStatus;
+  LResponse[2] := 0;
+  LResponse[3] := LTypes[IPVersion];
+  CopyTIdBytes(LIP, 0, LResponse, 4, Length(LIP));
+  CopyTIdUInt16(GStack.HostToNetwork(APort), LResponse, 4+Length(LIP));
+
+  Connection.IOHandler.Write(LResponse);
 end;
 
 end.

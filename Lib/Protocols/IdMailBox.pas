@@ -54,7 +54,6 @@ uses
   {$ENDIF}
   IdBaseComponent,
   IdMessage,
-  IdException,
   IdMessageCollection;
 
 type

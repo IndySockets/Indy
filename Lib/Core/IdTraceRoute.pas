@@ -26,7 +26,7 @@ uses
   {$IFDEF DOTNET_2_OR_ABOVE}
   IdGlobal,
   {$ENDIF}
-  IdIcmpClient, IdRawBase, IdRawClient, IdThread;
+  IdIcmpClient, IdRawBase, IdThread;
 
 type
   TIdTraceRoute = class(TIdCustomICMPClient)
@@ -95,7 +95,7 @@ begin
   for i := 1 to 30 do
   begin
     ReplyStatus.PacketNumber := i;
-    InternalPing(LIPAddr, '', LSeq);
+    InternalPing(LIPAddr, nil, LSeq);
     case ReplyStatus.ReplyStatusType of
       rsErrorTTLExceeded,
       rsTimeout : ;

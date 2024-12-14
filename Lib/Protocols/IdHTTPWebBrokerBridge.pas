@@ -1019,10 +1019,14 @@ begin
             WebRequestHandler := nil;
           end;
         end else begin
+          {$I IdObjectChecksOff.inc}
           Handled := TWebDispatcherAccess(LWebModule).DispatchAction(LRequest, LResponse);
+          {$I IdObjectChecksOn.inc}
         end;
         {$ELSE}
+        {$I IdObjectChecksOff.inc}
         Handled := TWebDispatcherAccess(LWebModule).DispatchAction(LRequest, LResponse);
+        {$I IdObjectChecksOn.inc}
         {$ENDIF}
         if Handled and (not LResponse.Sent) then begin
           LResponse.SendResponse;

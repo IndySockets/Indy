@@ -487,10 +487,8 @@ implementation
 uses
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF OSX}
-  CoreServices,
+  Macapi.CoreServices,
     {$ENDIF}
-  PosixSysSelect,
-  PosixSysTime,
   {$ENDIF}
   IdGlobalProtocols,
   IdResourceStringsProtocols;
@@ -1574,7 +1572,18 @@ var
 begin
   {$IFDEF STRING_IS_ANSI}
   if AMsg <> '' then begin
-    LTemp := AAnsiEncoding.GetString(RawToBytes(AMsg[1], Length(AMsg)));
+    LTemp := AAnsiEncoding.GetString(
+      {$IFNDEF VCL_6_OR_ABOVE}
+      // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+      // version of 'GetString' that can be called with these arguments" compiler
+      // error if the PByte type-cast is used, even though GetString() actually
+      // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+      // in Delphi 6.  So, converting to TIdBytes until I find a better solution...
+      RawToBytes(PAnsiChar(AMsg)^, Length(AMsg))
+      {$ELSE}
+      PByte(PAnsiChar(AMsg)), Length(AMsg)
+      {$ENDIF}
+    );
   end;
   LMsgLen := AByteEncoding.GetByteCount(LTemp);
   {$ELSE}

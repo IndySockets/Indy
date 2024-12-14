@@ -5,7 +5,7 @@ interface
 uses
   Classes,
   SysUtils, //here to facilitate inline expansion
-  IdSASL, IdSASLUserPass, IdUserPassProvider, IdException;
+  IdSASL, IdSASLUserPass, IdException;
 
 type
   TIdSASLDigest = class(TIdSASLUserPass)

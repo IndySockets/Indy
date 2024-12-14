@@ -195,7 +195,7 @@ type
 implementation
 
 uses
-  IdException, IdResourceStrings, IdStream;
+  IdStream;
 
 { TIdDecoder4to3 }
 

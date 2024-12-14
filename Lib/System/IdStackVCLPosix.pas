@@ -565,12 +565,14 @@ begin
           end;
           if LAddress <> nil then begin
             LName := String(LAddrInfo^.ifa_name);
+            {$I IdObjectChecksOff.inc}
             TIdStackLocalAddressAccess(LAddress).FDescription := LName;
             TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
             TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
             {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}
+            {$I IdObjectChecksOn.inc}
           end;
         end;
         LAddrInfo := LAddrInfo^.ifa_next;
@@ -612,9 +614,11 @@ begin
                   LAddress := TIdStackLocalAddressIPv6.Create(AAddresses, inetAddress.getHostAddress.toString);
                 end;
                 if LAddress <> nil then begin
+                  ($I IdObjectChecksOff.inc)
                   TIdStackLocalAddressAccess(LAddress).FDescription := intf.getDisplayName;
                   TIdStackLocalAddressAccess(LAddress).FInterfaceName := intf.getName;
                   TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := intf.getIndex (+1?);
+                  ($I IdObjectChecksOn.inc)
                 end;
               end;
             end;

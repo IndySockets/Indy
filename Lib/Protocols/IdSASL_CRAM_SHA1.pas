@@ -62,8 +62,7 @@ interface
 
 uses
   IdSASL,
-  IdSASL_CRAMBase,
-  IdSASLUserPass;
+  IdSASL_CRAMBase;
 
 type
 

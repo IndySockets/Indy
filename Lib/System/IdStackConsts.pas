@@ -263,18 +263,21 @@ const
   SOCKET_ERROR   = -1;
   {$ENDIF}
 
-type
   // Socket Type
   {$IFDEF SOCKETTYPE_IS_CINT}
+type
   TIdSocketType = TIdC_INT;
   {$ENDIF}
   {$IFDEF SOCKETTYPE_IS___SOCKETTYPE}
+type
   TIdSocketType = __socket_type;
   {$ENDIF}
   {$IFDEF SOCKETTYPE_IS_LONGINT}
+type
   TIdSocketType = Integer;
   {$ENDIF}
   {$IFDEF SOCKETTYPE_IS_SOCKETTYPE}
+type
   TIdSocketType = SocketType;
   {$ENDIF}
 

@@ -275,7 +275,6 @@ implementation
 
 uses
   //facilitate inlining only.
-  IdException,
   {$IFDEF DOTNET}
     {$IFDEF USE_INLINE}
   System.IO,
@@ -290,7 +289,7 @@ uses
   {$IFDEF USE_VCL_POSIX}
   Posix.SysTime,
   {$ENDIF}
-  IdContainers, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdContainers, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 type
   {$IFDEF HAS_GENERICS_TObjectList}

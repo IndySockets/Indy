@@ -65,7 +65,6 @@ uses
   IdIOHandler,
   IdIOHandlerSocket,
   IdIOHandlerStack,
-  IdScheduler,
   IdServerIOHandler,
   IdYarn;
 
@@ -76,6 +75,8 @@ type
     fPassThrough: Boolean;
     fIsPeer : Boolean;
     FURIToCheck : String;
+    function GetProxyTargetHost: string;
+    function GetURIHost : string;
     procedure InitComponent; override;
     function RecvEnc(var ABuffer: TIdBytes): Integer; virtual; abstract;
     function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; virtual; abstract;
@@ -161,7 +162,7 @@ var
 implementation
 
 uses
-  SysUtils;
+  SysUtils, IdCustomTransparentProxy, IdURI;
 
 {$I IdSymbolDeprecatedOff.inc}
 
@@ -184,6 +185,49 @@ end;
 {$I IdSymbolDeprecatedOn.inc}
 
 { TIdSSLIOHandlerSocketBase }
+
+function TIdSSLIOHandlerSocketBase.GetProxyTargetHost: string;
+var
+  // under ARC, convert a weak reference to a strong reference before working with it
+  LTransparentProxy, LNextTransparentProxy: TIdCustomTransparentProxy;
+begin
+  Result := '';
+  // RLebeau: not reading from the property as it will create a
+  // default Proxy object if one is not already assigned...
+  LTransparentProxy := FTransparentProxy;
+  if Assigned(LTransparentProxy) then
+  begin
+    if LTransparentProxy.Enabled then
+    begin
+      repeat
+        LNextTransparentProxy := LTransparentProxy.ChainedProxy;
+        if not Assigned(LNextTransparentProxy) then
+          Break;
+        if not LNextTransparentProxy.Enabled then
+          Break;
+        LTransparentProxy := LNextTransparentProxy;
+      until False;
+      Result := LTransparentProxy.Host;
+    end;
+  end;
+
+end;
+
+function TIdSSLIOHandlerSocketBase.GetURIHost : string;
+var
+  LURI: TIdURI;
+begin
+  Result := '';
+  if URIToCheck <> '' then
+  begin
+    LURI := TIdURI.Create(URIToCheck);
+    try
+      Result := LURI.Host;
+    finally
+      LURI.Free;
+    end;
+  end;
+end;
 
 procedure TIdSSLIOHandlerSocketBase.InitComponent;
 begin
