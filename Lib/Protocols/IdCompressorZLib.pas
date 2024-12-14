@@ -171,7 +171,7 @@ begin
       Break;
     end;
 
-    LZstream.next_in := PIdAnsiChar(@LBuf[0]);
+    LZstream.next_in := @LBuf[0];
     LZstream.avail_in := inSize;
 
     repeat

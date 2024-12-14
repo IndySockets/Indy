@@ -224,7 +224,7 @@ begin
       end;
       CopyTIdBytes(VBuffer, LPos, LBuffer, 0, nChars);
       Inc(LPos, nChars);
-      FDecompressRec.next_in := PIdAnsiChar(@LBuffer[0]);
+      FDecompressRec.next_in := @LBuffer[0];
       FDecompressRec.avail_in := nChars;
       FDecompressRec.total_in := 0;
       while FDecompressRec.avail_in > 0 do
@@ -237,7 +237,7 @@ begin
           end;
           SetLength(FRecvBuf, FRecvSize);
         end;
-        FDecompressRec.next_out := PIdAnsiChar(@FRecvBuf[FRecvCount]);
+        FDecompressRec.next_out := @FRecvBuf[FRecvCount];
         C := FRecvSize - FRecvCount;
         FDecompressRec.avail_out := C;
         FDecompressRec.total_out := 0;
@@ -283,7 +283,7 @@ begin
     // TODO: get rid of FSendBuf and use ABuffer directly
     FSendCount := LSize;
     CopyTIdBytes(VBuffer, 0, FSendBuf, 0, FSendCount);
-    FCompressRec.next_in := PIdAnsiChar(@FSendBuf[0]);
+    FCompressRec.next_in := @FSendBuf[0];
     FCompressRec.avail_in := FSendCount;
     FCompressRec.avail_out := 0;
 
@@ -294,7 +294,7 @@ begin
     // As long as data is being outputted, keep compressing
     while FCompressRec.avail_out = 0 do
     begin
-      FCompressRec.next_out := PIdAnsiChar(@LBuffer[0]);
+      FCompressRec.next_out := @LBuffer[0];
       FCompressRec.avail_out := Length(LBuffer);
       case deflate(FCompressRec, Z_SYNC_FLUSH) of
         Z_STREAM_ERROR,

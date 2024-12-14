@@ -1153,6 +1153,10 @@
     {$DEFINE HAS_NAMED_THREADS}
     {$DEFINE HAS_TStrings_NameValueSeparator}
     {$DEFINE HAS_TStrings_ValueFromIndex}
+    // Note: there is a ZLib unit available, but it doesn't have everything
+    // that is available in the System.ZLib unit in Delphi XE2+, so we are
+    // not going to use this ZLib unit yet...
+    {.$DEFINE HAS_UNIT_ZLib}
   {$ENDIF}
   {$DEFINE HAS_TFormatSettings}
   {$DEFINE HAS_PosEx}
