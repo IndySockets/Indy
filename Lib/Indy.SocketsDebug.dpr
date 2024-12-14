@@ -130,6 +130,7 @@ uses
   IdHMACSHA1 in 'Protocols\IdHMACSHA1.pas',
   IdHTTP in 'Protocols\IdHTTP.pas',
   IdHTTPHeaderInfo in 'Protocols\IdHTTPHeaderInfo.pas',
+  IdHTTPHelper in 'Protocols\IdHTTPHelper.pas',
   IdHTTPProxyServer in 'Protocols\IdHTTPProxyServer.pas',
   IdHTTPServer in 'Protocols\IdHTTPServer.pas',
   IdHash in 'Protocols\IdHash.pas',
