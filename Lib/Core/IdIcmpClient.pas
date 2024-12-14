@@ -77,8 +77,7 @@ uses
   IdGlobal,
   IdRawBase,
   IdRawClient,
-  IdStackConsts,
-  IdBaseComponent;
+  IdStackConsts;
 
 const
   DEF_PACKET_SIZE = 32;
@@ -211,9 +210,6 @@ implementation
 
 uses
   //facilitate inlining only.
-  {$IFDEF WINDOWS}
-  Windows,
-  {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF OSX}
   Macapi.CoreServices,

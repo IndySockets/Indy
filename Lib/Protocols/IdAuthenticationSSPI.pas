@@ -433,9 +433,7 @@ type
 implementation
 
 uses
-  IdGlobalCore,
   IdGlobalProtocols,
-  IdException,
   IdCoderMIME,
   IdResourceStringsSSPI,
   IdHeaderList;

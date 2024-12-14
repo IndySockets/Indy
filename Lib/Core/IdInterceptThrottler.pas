@@ -45,23 +45,23 @@ uses
 type
   TIdInterceptThrottler = class(TIdConnectionIntercept)
   protected
-    FBitsPerSec: Integer;
-    FRecvBitsPerSec: Integer;
-    FSendBitsPerSec: Integer;
-    procedure SetBitsPerSec(AValue: Integer);
+    FBitsPerSec: Int64;
+    FRecvBitsPerSec: Int64;
+    FSendBitsPerSec: Int64;
+    procedure SetBitsPerSec(AValue: Int64);
   public
     procedure Receive(var ABuffer: TIdBytes); override;
     procedure Send(var ABuffer: TIdBytes); override;
   published
-    property BitsPerSec: Integer read FBitsPerSec write SetBitsPerSec;
-    property RecvBitsPerSec: Integer read FRecvBitsPerSec write FRecvBitsPerSec;
-    property SendBitsPerSec: Integer read FSendBitsPerSec write FSendBitsPerSec;
+    property BitsPerSec: Int64 read FBitsPerSec write SetBitsPerSec;
+    property RecvBitsPerSec: Int64 read FRecvBitsPerSec write FRecvBitsPerSec;
+    property SendBitsPerSec: Int64 read FSendBitsPerSec write FSendBitsPerSec;
   end;
 
 implementation
 
 uses
-  IdAntiFreezeBase, IdException;
+  IdAntiFreezeBase;
 
 { TIdInterceptThrottler }
 
@@ -95,7 +95,7 @@ begin
   end;
 end;
 
-procedure TIdInterceptThrottler.SetBitsPerSec(AValue: Integer);
+procedure TIdInterceptThrottler.SetBitsPerSec(AValue: Int64);
 begin
   FBitsPerSec := AValue;
   FRecvBitsPerSec := AValue;

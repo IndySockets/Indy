@@ -179,7 +179,7 @@ type
 implementation
 
 uses
-  IdReplyRFC, SysUtils;
+  SysUtils;
 
 type
   TIdCmdClientContextAccess = class(TIdCmdClientContext)

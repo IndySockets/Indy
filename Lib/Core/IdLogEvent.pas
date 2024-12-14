@@ -33,7 +33,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  IdLogBase, IdBaseComponent, Classes;
+  IdLogBase, Classes;
 
 type
   TLogItemStatusEvent = procedure(ASender: TComponent; const AText: string) of object;

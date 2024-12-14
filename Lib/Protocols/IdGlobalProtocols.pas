@@ -329,7 +329,6 @@ uses
   Windows,
   {$ENDIF}
   IdCharsets,
-  IdBaseComponent,
   IdGlobal,
   IdException,
   SysUtils;
@@ -601,7 +600,6 @@ uses
   Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
-  IdIPAddress,
   {$IFDEF UNIX}
     {$IFDEF USE_VCL_POSIX}
   Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
@@ -626,8 +624,6 @@ uses
   System.IO,
   System.Text,
   {$ENDIF}
-  IdAssignedNumbers,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdStack
   {$IFDEF HAS_IOUtils_TPath}

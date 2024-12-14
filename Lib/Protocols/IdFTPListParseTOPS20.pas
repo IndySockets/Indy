@@ -141,7 +141,7 @@ begin
               end;
               s := LParts[3];
 
-              Result := IsDDMonthYY(Fetch(s), '-'); {do not localize}
+              Result := Result and IsDDMonthYY(Fetch(s), '-'); {do not localize}
               if Result then begin
                 Result := IsHHMMSS(s, ':'); {do not localize}
               end;

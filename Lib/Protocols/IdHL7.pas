@@ -487,7 +487,7 @@ implementation
 uses
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF OSX}
-  CoreServices,
+  Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
   IdGlobalProtocols,
