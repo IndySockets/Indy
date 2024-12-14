@@ -1182,6 +1182,9 @@
     // officially supported until D2006...
     {.$DEFINE HAS_CLASS_HELPER}
   {$ENDIF}
+  // class helpers were first introduced in D2005, but were buggy and not
+  // officially supported until D2006...
+  {.$DEFINE HAS_CLASS_HELPER}
 {$ENDIF}
 
 {$IFDEF VCL_2006_OR_ABOVE}
@@ -1199,6 +1202,7 @@
   {$IFDEF CBUILDER}
     {$DEFINE BROKEN_UINT64_HPPEMIT}
   {$ENDIF}
+  {$DEFINE HAS_CLASS_HELPER}
 {$ENDIF}
 
 {$IFDEF VCL_2007_OR_ABOVE}

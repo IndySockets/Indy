@@ -7,20 +7,6 @@ interface
 uses
   Classes, IdMessage;
 
-// TODO: move this to IdCompilerDefines.inc
-{$IFDEF DCC}
-  // class helpers were first introduced in D2005, but were buggy and not
-  // officially supported until D2006...
-  {$IFDEF VCL_2006_OR_ABOVE}
-    {$DEFINE HAS_CLASS_HELPER}
-  {$ENDIF}
-{$ENDIF}
-{$IFDEF FPC}
-  {$IFDEF FPC_2_6_0_OR_ABOVE}
-    {$DEFINE HAS_CLASS_HELPER}
-  {$ENDIF}
-{$ENDIF}
-
 {$IFDEF HAS_CLASS_HELPER}
 type
   TIdMessageHelper = class helper for TIdMessage
