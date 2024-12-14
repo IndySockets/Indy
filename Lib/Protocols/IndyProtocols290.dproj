@@ -226,6 +226,7 @@
         <DCCReference Include="IdHMACSHA1.pas"/>
         <DCCReference Include="IdHTTP.pas"/>
         <DCCReference Include="IdHTTPHeaderInfo.pas"/>
+        <DCCReference Include="IdHTTPHelper.pas"/>
         <DCCReference Include="IdHTTPProxyServer.pas"/>
         <DCCReference Include="IdHTTPServer.pas"/>
         <DCCReference Include="IdHash.pas"/>
