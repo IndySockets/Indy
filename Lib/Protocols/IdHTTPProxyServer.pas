@@ -182,7 +182,7 @@ type
 implementation
 
 uses
-  IdResourceStrings, IdResourceStringsProtocols, IdReplyRFC, IdIOHandler, IdTCPClient,
+  IdResourceStringsProtocols, IdIOHandler, IdTCPClient,
   IdURI, IdGlobalProtocols, IdStack, IdStackConsts, IdTCPStream, IdException, SysUtils;
 
 constructor TIdHTTPProxyServerContext.Create(AConnection: TIdTCPConnection;

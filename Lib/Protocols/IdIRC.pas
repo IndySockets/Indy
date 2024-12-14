@@ -1576,7 +1576,10 @@ begin
               end;
               // AWinkelsdorf 3/10/2010 ToDo: CTCP Ping might need a CTIME result but
               // many clients do not send the required CTIME with the Ping Query...
-              CTCPReply(FSenderNick, LCTCP, DateTimeToStr(Now)); {do not localize}
+              if LData = '' then begin
+                LData := DateTimeToStr(Now);
+              end;
+              CTCPReply(FSenderNick, LCTCP, LData); {do not localize}
             end;
           3: { FINGER }
             begin

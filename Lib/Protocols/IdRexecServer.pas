@@ -50,7 +50,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient, IdTCPServer;
+  IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient;
 
 type
   TIdRexecCommandEvent = procedure (AThread: TIdContext;

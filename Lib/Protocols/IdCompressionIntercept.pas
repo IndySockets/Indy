@@ -102,10 +102,7 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdIntercept,
-  IdTCPClient,
-  IdTCPConnection,
-  IdZLibHeaders,
-  IdZLib;
+  IdZLibHeaders;
 
 type
   EIdCompressionException = class(EIdException);

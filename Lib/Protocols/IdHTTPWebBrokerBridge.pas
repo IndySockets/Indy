@@ -866,7 +866,12 @@ begin
     LDestCookie.Path := String(LSrcCookie.Path);
     LDestCookie.Expires := LSrcCookie.Expires;
     LDestCookie.Secure := LSrcCookie.Secure;
-    // TODO: LDestCookie.HttpOnly := LSrcCookie.HttpOnly;
+    {$IFDEF VCL_10_2_OR_ABOVE}
+    LDestCookie.HttpOnly := LSrcCookie.HttpOnly;
+    {$ENDIF}
+    {$IFDEF VCL_10_4_UPDATE2_OR_ABOVE}
+    LDestCookie.SameSite := LSrcCookie.SameSite;
+    {$ENDIF}
   end;
   FResponseInfo.CustomHeaders.Clear;
   FResponseInfo.CustomHeaders.AddStdValues(CustomHeaders);
@@ -1014,10 +1019,14 @@ begin
             WebRequestHandler := nil;
           end;
         end else begin
+          {$I IdObjectChecksOff.inc}
           Handled := TWebDispatcherAccess(LWebModule).DispatchAction(LRequest, LResponse);
+          {$I IdObjectChecksOn.inc}
         end;
         {$ELSE}
+        {$I IdObjectChecksOff.inc}
         Handled := TWebDispatcherAccess(LWebModule).DispatchAction(LRequest, LResponse);
+        {$I IdObjectChecksOn.inc}
         {$ENDIF}
         if Handled and (not LResponse.Sent) then begin
           LResponse.SendResponse;

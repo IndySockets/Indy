@@ -698,7 +698,9 @@ begin
       Result := TComponent(LOwner);
       Exit;
     end;
+    {$I IdObjectChecksOff.inc}
     LOwner := TPersistentAccess(LOwner).GetOwner;
+    {$I IdObjectChecksOn.inc}
   end;
 end;
 

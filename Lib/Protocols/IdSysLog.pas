@@ -80,7 +80,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdStackConsts, SysUtils;
+  IdGlobal, SysUtils;
 
 { TIdSysLog }
 

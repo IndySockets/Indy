@@ -413,6 +413,8 @@ uses
 (*$HPPEMIT '#pragma alias "@Idiohandler@TIdIOHandler@SetPortW$qqri"="@Idiohandler@TIdIOHandler@SetPort$qqri"' *)
 (*$HPPEMIT '#endif' *)
 (*$HPPEMIT '#endif' *)
+// TODO: when compiling with bcc64x, use this pragma instead:
+// #pragma comment(linker, "/alternatename:<name1>=<name2>")
 
 const
   GRecvBufferSizeDefault = 32 * 1024;
@@ -2537,6 +2539,11 @@ var
   LOldErrorMode : Integer;
   {$ENDIF}
 begin
+  // keep the compiler happy (when was this fixed exactly?)
+  {$IFDEF DCC}{$IFNDEF VCL_8_OR_ABOVE}
+  Result := -1;
+  {$ENDIF}{$ENDIF}
+
   {$IFDEF WIN32_OR_WIN64}
   LOldErrorMode := SetErrorMode(SEM_FAILCRITICALERRORS);
   try

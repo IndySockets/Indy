@@ -906,8 +906,7 @@ var
   tz_m: Integer;
 begin
   Result := 0;
-  if UTC_Time_Decode(UCTTime, year, month, day, hour, min, sec, tz_h,
-    tz_m) > 0 then begin
+  if UTC_Time_Decode(UCTTime, year, month, day, hour, min, sec, tz_h, tz_m) > 0 then begin
     Result := EncodeDate(year, month, day) + EncodeTime(hour, min, sec, 0);
     AddMins(Result, tz_m);
     AddHrs(Result, tz_h);

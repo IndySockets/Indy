@@ -18938,6 +18938,7 @@ uses
   Classes,
   IdFIPS,
   IdGlobalProtocols,
+  IdHashMessageDigest,
   IdResourceStringsProtocols,
   IdResourceStringsOpenSSL,
   IdStack
@@ -19428,6 +19429,149 @@ begin
   FreeMem(ACtx,SizeOf(HMAC_CTX));
 end;
 
+function LoadOpenSSL: Boolean;
+begin
+  Result := Load;
+end;
+
+function OpenSSLIsNTLMFuncsAvail: Boolean;
+begin
+  Result := Assigned(DES_set_odd_parity) and
+    Assigned(DES_set_key) and
+    Assigned(DES_ecb_encrypt);
+end;
+
+type
+  Pdes_key_schedule = ^des_key_schedule;
+
+{/*
+ * turns a 56 bit key into the 64 bit, odd parity key and sets the key.
+ * The key schedule ks is also set.
+ */}
+procedure ntlm_setup_des_key(key_56: des_cblock; Var ks: des_key_schedule);
+Var
+  key: des_cblock;
+begin
+  key[0] := key_56[0];
+
+  key[1] := ((key_56[0] SHL 7) and $FF) or (key_56[1] SHR 1);
+  key[2] := ((key_56[1] SHL 6) and $FF) or (key_56[2] SHR 2);
+  key[3] := ((key_56[2] SHL 5) and $FF) or (key_56[3] SHR 3);
+  key[4] := ((key_56[3] SHL 4) and $FF) or (key_56[4] SHR 4);
+  key[5] := ((key_56[4] SHL 3) and $FF) or (key_56[5] SHR 5);
+  key[6] := ((key_56[5] SHL 2) and $FF) or (key_56[6] SHR 6);
+  key[7] :=  (key_56[6] SHL 1) and $FF;
+
+  DES_set_odd_parity(@key);
+  DES_set_key(@key, ks);
+end;
+
+{/*
+ * takes a 21 byte array and treats it as 3 56-bit DES keys. The
+ * 8 byte plaintext is encrypted with each key and the resulting 24
+ * bytes are stored in the results array.
+ */}
+procedure ntlm_calc_resp(keys: PDES_cblock; const ANonce: TIdBytes; results: Pdes_key_schedule);
+Var
+  ks: des_key_schedule;
+  nonce: des_cblock;
+begin
+  ntlm_setup_des_key(keys^, ks);
+  Move(ANonce[0], nonce, 8);
+  des_ecb_encrypt(@nonce, Pconst_DES_cblock(results), ks, DES_ENCRYPT);
+
+  ntlm_setup_des_key(PDES_cblock(PtrUInt(keys) + 7)^, ks);
+  des_ecb_encrypt(@nonce, Pconst_DES_cblock(PtrUInt(results) + 8), ks, DES_ENCRYPT);
+
+  ntlm_setup_des_key(PDES_cblock(PtrUInt(keys) + 14)^, ks);
+  des_ecb_encrypt(@nonce, Pconst_DES_cblock(PtrUInt(results) + 16), ks, DES_ENCRYPT);
+end;
+
+Const
+  Magic: des_cblock = ($4B, $47, $53, $21, $40, $23, $24, $25 );
+
+//* setup LanManager password */
+function OpenSSLSetupLanManagerPassword(const APassword: String; const ANonce: TIdBytes): TIdBytes;
+var
+  lm_hpw: array[0..20] of Byte;
+  lm_pw: array[0..13] of Byte;
+  idx, len: Integer;
+  ks: des_key_schedule;
+  lm_resp: array [0..23] of Byte;
+  lPassword: {$IFDEF STRING_IS_UNICODE}TIdBytes{$ELSE}AnsiString{$ENDIF};
+begin
+  {$IFDEF STRING_IS_UNICODE}
+  lPassword := IndyTextEncoding_OSDefault.GetBytes(UpperCase(APassword));
+  {$ELSE}
+  lPassword := UpperCase(APassword);
+  {$ENDIF}
+
+  len := IndyMin(Length(lPassword), 14);
+  if len > 0 then begin
+    Move(lPassword[{$IFDEF STRING_IS_UNICODE}0{$ELSE}1{$ENDIF}], lm_pw[0], len);
+  end;
+  if len < 14 then begin
+    for idx := len to 13 do begin
+      lm_pw[idx] := $0;
+    end;
+  end;
+
+  //* create LanManager hashed password */
+
+  ntlm_setup_des_key(pdes_cblock(@lm_pw[0])^, ks);
+  des_ecb_encrypt(@magic, Pconst_DES_cblock(@lm_hpw[0]), ks, DES_ENCRYPT);
+
+  ntlm_setup_des_key(pdes_cblock(PtrUInt(@lm_pw[0]) + 7)^, ks);
+  des_ecb_encrypt(@magic, Pconst_DES_cblock(PtrUInt(@lm_hpw[0]) + 8), ks, DES_ENCRYPT);
+
+  FillChar(lm_hpw[16], 5, 0);
+
+  ntlm_calc_resp(PDes_cblock(@lm_hpw[0]), ANonce, Pdes_key_schedule(@lm_resp[0]));
+
+  SetLength(Result, SizeOf(lm_resp));
+  Move(lm_resp[0], Result[0], SizeOf(lm_resp));
+end;
+
+//* create NT hashed password */
+function OpenSSLCreateNTPassword(const APassword: String; const ANonce: TIdBytes): TIdBytes;
+var
+  nt_hpw: array [1..21] of Byte;
+  nt_hpw128: TIdBytes;
+  nt_resp: array [1..24] of Byte;
+  LMD4: TIdHashMessageDigest4;
+  {$IFNDEF STRING_IS_UNICODE}
+  i: integer;
+  lPwUnicode: TIdBytes;
+  {$ENDIF}
+begin
+  CheckMD4Permitted;
+  LMD4 := TIdHashMessageDigest4.Create;
+  try
+    {$IFDEF STRING_IS_UNICODE}
+    nt_hpw128 := LMD4.HashString(APassword, IndyTextEncoding_UTF16LE);
+    {$ELSE}
+    // RLebeau: TODO - should this use UTF-16 as well?  This logic will
+    // not produce a valid Unicode string if non-ASCII characters are present!
+    SetLength(lPwUnicode, Length(APassword) * SizeOf(WideChar));
+    for i := 0 to Length(APassword)-1 do begin
+      lPwUnicode[i*2] := Byte(APassword[i+1]);
+      lPwUnicode[(i*2)+1] := Byte(#0);
+    end;
+    nt_hpw128 := LMD4.HashBytes(lPwUnicode);
+    {$ENDIF}
+  finally
+    LMD4.Free;
+  end;
+
+  Move(nt_hpw128[0], nt_hpw[1], 16);
+  FillChar(nt_hpw[17], 5, 0);
+
+  ntlm_calc_resp(pdes_cblock(@nt_hpw[1]), ANonce, Pdes_key_schedule(@nt_resp[1]));
+
+  SetLength(Result, SizeOf(nt_resp));
+  Move(nt_resp[1], Result[0], SizeOf(nt_resp));
+end;
+
 //****************************************************
 function FIPS_mode_set(onoff : TIdC_INT) : TIdC_INT;  {$IFDEF INLINE}inline;{$ENDIF}
 begin
@@ -19683,10 +19827,10 @@ them in case we use them later.}
 {$IFNDEF OPENSSL_NO_FP_API}
   {CH fn_NCONF_load_fp = 'NCONF_load_fp'; }{Do not localize}
 {$ENDIF}
-  {CH fn_NCONF_load_bio = 'NCONF_load_bio'; {Do not localize}
-  {CH fn_NCONF_get_section = 'NCONF_get_section'; {Do not localize}
-  {CH fn_NCONF_get_string = 'NCONF_get_string'; {Do not localize}
-  {CH fn_NCONF_get_number_e = 'NCONF_get_number_e'; {Do not localize}
+  {CH fn_NCONF_load_bio = 'NCONF_load_bio'; } {Do not localize}
+  {CH fn_NCONF_get_section = 'NCONF_get_section'; } {Do not localize}
+  {CH fn_NCONF_get_string = 'NCONF_get_string'; } {Do not localize}
+  {CH fn_NCONF_get_number_e = 'NCONF_get_number_e'; } {Do not localize}
   {CH fn_NCONF_dump_fp = 'NCONF_dump_fp'; } {Do not localize}
   {CH fn_NCONF_dump_bio = 'NCONF_dump_bio'; }{Do not localize}
   {CH fn_CONF_modules_load = 'CONF_modules_load'; } {Do not localize}
@@ -19739,7 +19883,7 @@ them in case we use them later.}
   {CH fn_CRYPTO_pop_info = 'CRYPTO_pop_info'; } {Do not localize}
   {CH fn_CRYPTO_remove_all_info = 'CRYPTO_remove_all_info'; } {Do not localize}
   {CH fn_OpenSSLDie = 'OpenSSLDie'; } {Do not localize}
-  {CH fn_OPENSSL_ia32cap_loc = 'OPENSSL_ia32cap_loc'; { {Do not localize}
+  {CH fn_OPENSSL_ia32cap_loc = 'OPENSSL_ia32cap_loc'; } {Do not localize}
   {CH fn_CRYPTO_get_new_lockid = 'CRYPTO_get_new_lockid'; }  {Do not localize}
   fn_CRYPTO_num_locks = 'CRYPTO_num_locks';  {Do not localize}
   fn_CRYPTO_lock = 'CRYPTO_lock';   {Do not localize}
@@ -20042,49 +20186,49 @@ them in case we use them later.}
   {CH fn_des_read_pw = 'DES_read_pw'; }  {Do not localize}
   {CH fn_des_cblock_print_file = 'DES_cblock_print_file'; }  {Do not localize}
    //des_old.h
-  {CH fn__ossl_old_des_options = '_ossl_old_des_options'; {Do not localize}
-  {CH fn__ossl_old_des_ecb3_encrypt = '_ossl_old_des_ecb3_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_cbc_cksum = '_ossl_old_des_cbc_cksum'; {Do not localize}
-  {CH fn__ossl_old_des_cbc_encrypt = '_ossl_old_des_cbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_ncbc_encrypt = '_ossl_old_des_ncbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_xcbc_encrypt = '_ossl_old_des_xcbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_cfb_encrypt = '_ossl_old_des_cfb_encrypt'; {Do not localize}
+  {CH fn__ossl_old_des_options = '_ossl_old_des_options'; } {Do not localize}
+  {CH fn__ossl_old_des_ecb3_encrypt = '_ossl_old_des_ecb3_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_cbc_cksum = '_ossl_old_des_cbc_cksum'; } {Do not localize}
+  {CH fn__ossl_old_des_cbc_encrypt = '_ossl_old_des_cbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_ncbc_encrypt = '_ossl_old_des_ncbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_xcbc_encrypt = '_ossl_old_des_xcbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_cfb_encrypt = '_ossl_old_des_cfb_encrypt'; } {Do not localize}
   fn__ossl_old_des_ecb_encrypt = '_ossl_old_des_ecb_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_encrypt = '_ossl_old_des_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_encrypt2 = '_ossl_old_des_encrypt2'; {Do not localize}
-  {CH fn__ossl_old_des_encrypt3 = '_ossl_old_des_encrypt3'; {Do not localize}
-  {CH fn__ossl_old_des_decrypt3 = '_ossl_old_des_decrypt3'; {Do not localize}
-  {CH fn__ossl_old_des_ede3_cbc_encrypt = '_ossl_old_des_ede3_cbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_ede3_cfb64_encrypt = '_ossl_old_des_ede3_cfb64_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_ede3_ofb64_encrypt = '_ossl_old_des_ede3_ofb64_encrypt'; {Do not localize}
+  {CH fn__ossl_old_des_encrypt = '_ossl_old_des_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_encrypt2 = '_ossl_old_des_encrypt2'; } {Do not localize}
+  {CH fn__ossl_old_des_encrypt3 = '_ossl_old_des_encrypt3'; } {Do not localize}
+  {CH fn__ossl_old_des_decrypt3 = '_ossl_old_des_decrypt3'; } {Do not localize}
+  {CH fn__ossl_old_des_ede3_cbc_encrypt = '_ossl_old_des_ede3_cbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_ede3_cfb64_encrypt = '_ossl_old_des_ede3_cfb64_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_ede3_ofb64_encrypt = '_ossl_old_des_ede3_ofb64_encrypt'; } {Do not localize}
     {$IFDEF USE_THIS}
-  {CH fn__ossl_old_des_xwhite_in2out = '_ossl_old_des_xwhite_in2out'; {Do not localize}
+  {CH fn__ossl_old_des_xwhite_in2out = '_ossl_old_des_xwhite_in2out'; } {Do not localize}
     {$ENDIF}
-  {CH fn__ossl_old_des_enc_read = '_ossl_old_des_enc_read'; {Do not localize}
-  {CH fn__ossl_old_des_enc_write = '_ossl_old_des_enc_write'; {Do not localize}
-  {CH fn__ossl_old_des_fcrypt = '_ossl_old_des_fcrypt'; {Do not localize}
-  {CH fn__ossl_old_des_crypt = '_ossl_old_des_crypt'; {Do not localize}
+  {CH fn__ossl_old_des_enc_read = '_ossl_old_des_enc_read'; } {Do not localize}
+  {CH fn__ossl_old_des_enc_write = '_ossl_old_des_enc_write'; } {Do not localize}
+  {CH fn__ossl_old_des_fcrypt = '_ossl_old_des_fcrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_crypt = '_ossl_old_des_crypt'; } {Do not localize}
     {$IFNDEF PERL5}
       {$IFNDEF NeXT}
-  {CH fn__ossl_old_crypt = '_ossl_old_crypt'; {Do not localize}
+  {CH fn__ossl_old_crypt = '_ossl_old_crypt'; } {Do not localize}
       {$ENDIF}
     {$ENDIF}
-  {CH fn__ossl_old_des_ofb_encrypt = '_ossl_old_des_ofb_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_pcbc_encrypt = '_ossl_old_des_pcbc_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_quad_cksum = '_ossl_old_des_quad_cksum'; {Do not localize}
-  {CH fn__ossl_old_des_random_seed = '_ossl_old_des_random_seed'; {Do not localize}
-  {CH fn__ossl_old_des_random_key = '_ossl_old_des_random_key'; {Do not localize}
-  {CH fn__ossl_old_des_read_password = '_ossl_old_des_read_password'; {Do not localize}
-  {CH fn__ossl_old_des_read_2passwords = '_ossl_old_des_read_2passwords'; {Do not localize}
+  {CH fn__ossl_old_des_ofb_encrypt = '_ossl_old_des_ofb_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_pcbc_encrypt = '_ossl_old_des_pcbc_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_quad_cksum = '_ossl_old_des_quad_cksum'; } {Do not localize}
+  {CH fn__ossl_old_des_random_seed = '_ossl_old_des_random_seed'; } {Do not localize}
+  {CH fn__ossl_old_des_random_key = '_ossl_old_des_random_key'; } {Do not localize}
+  {CH fn__ossl_old_des_read_password = '_ossl_old_des_read_password'; } {Do not localize}
+  {CH fn__ossl_old_des_read_2passwords = '_ossl_old_des_read_2passwords'; } {Do not localize}
   fn__ossl_old_des_set_odd_parity = '_ossl_old_des_set_odd_parity'; {Do not localize}
-  {CH fn__ossl_old_des_is_weak_key = '_ossl_old_des_is_weak_key'; {Do not localize}
+  {CH fn__ossl_old_des_is_weak_key = '_ossl_old_des_is_weak_key'; } {Do not localize}
   fn__ossl_old_des_set_key = '_ossl_old_des_set_key'; {Do not localize}
-  {CH fn__ossl_old_des_key_sched = '_ossl_old_des_key_sched'; {Do not localize}
-  {CH fn__ossl_old_des_string_to_key = '_ossl_old_des_string_to_key'; {Do not localize}
-  {CH fn__ossl_old_des_string_to_2keys = '_ossl_old_des_string_to_2keys'; {Do not localize}
-  {CH fn__ossl_old_des_cfb64_encrypt = '_ossl_old_des_cfb64_encrypt'; {Do not localize}
-  {CH fn__ossl_old_des_ofb64_encrypt = '_ossl_old_des_ofb64_encrypt'; {Do not localize}
-  {CH fn__ossl_096_des_random_seed = '_ossl_096_des_random_seed'; {Do not localize}
+  {CH fn__ossl_old_des_key_sched = '_ossl_old_des_key_sched'; } {Do not localize}
+  {CH fn__ossl_old_des_string_to_key = '_ossl_old_des_string_to_key'; } {Do not localize}
+  {CH fn__ossl_old_des_string_to_2keys = '_ossl_old_des_string_to_2keys'; } {Do not localize}
+  {CH fn__ossl_old_des_cfb64_encrypt = '_ossl_old_des_cfb64_encrypt'; } {Do not localize}
+  {CH fn__ossl_old_des_ofb64_encrypt = '_ossl_old_des_ofb64_encrypt'; } {Do not localize}
+  {CH fn__ossl_096_des_random_seed = '_ossl_096_des_random_seed'; } {Do not localize}
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_RC4}
   {CH fn_RC4_options = 'RC4_options'; } {Do not localize}
@@ -20773,7 +20917,7 @@ them in case we use them later.}
   {CH fn_ASN1_mbstring_copy = 'ASN1_mbstring_copy'; } {Do not localize}
   {CH fn_ASN1_mbstring_ncopy = 'ASN1_mbstring_ncopy'; } {Do not localize}
   {CH fn_ASN1_STRING_set_by_NID = 'ASN1_STRING_set_by_NID'; } {Do not localize}
-  {CH fn_ASN1_STRING_TABLE_get = 'ASN1_STRING_TABLE_get'; {Do not localize}
+  {CH fn_ASN1_STRING_TABLE_get = 'ASN1_STRING_TABLE_get'; } {Do not localize}
   {CH fn_ASN1_STRING_TABLE_add = 'ASN1_STRING_TABLE_add'; } {Do not localize}
   {CH fn_ASN1_STRING_TABLE_cleanup = 'ASN1_STRING_TABLE_cleanup'; } {Do not localize}
   {CH fn_ASN1_item_new = 'ASN1_item_new'; } {Do not localize}
@@ -22091,7 +22235,7 @@ them in case we use them later.}
   {CH fn_SSL_use_RSAPrivateKey_ASN1 = 'SSL_use_RSAPrivateKey_ASN1'; }  {Do not localize}
   {$ENDIF}
   {CH fn_SSL_use_PrivateKey = 'SSL_use_PrivateKey'; }  {Do not localize}
-  {CH fn_SSL_use_PrivateKey_ASN1 = 'SSL_use_PrivateKey_ASN1'; {Do not localize}
+  {CH fn_SSL_use_PrivateKey_ASN1 = 'SSL_use_PrivateKey_ASN1'; } {Do not localize}
   {CH fn_SSL_use_certificate = 'SSL_use_certificate'; }  {Do not localize}
   {CH fn_SSL_use_certificate_ASN1 = 'SSL_use_certificate_ASN1'; }  {Do not localize}
   {CH fn_SSL_use_RSAPrivateKey_file = 'SSL_use_RSAPrivateKey_file'; }  {Do not localize}
@@ -22446,7 +22590,7 @@ them in case we use them later.}
   {CH fn_ENGINE_register_RAND = 'ENGINE_register_RAND'; } {Do not localize}
   {CH fn_ENGINE_unregister_RAND = 'ENGINE_unregister_RAND'; } {Do not localize}
   {CH fn_ENGINE_register_all_RAND = 'ENGINE_register_all_RAND'; } {Do not localize}
-  {CH fn_ENGINE_register_STORE = 'ENGINE_register_STORE'; { {Do not localize}
+  {CH fn_ENGINE_register_STORE = 'ENGINE_register_STORE'; } {Do not localize}
   {CH fn_ENGINE_unregister_STORE = 'ENGINE_unregister_STORE'; } {Do not localize}
   {CH fn_ENGINE_register_all_STORE = 'ENGINE_register_all_STORE'; } {Do not localize}
   {CH fn_ENGINE_register_ciphers = 'ENGINE_register_ciphers'; } {Do not localize}
@@ -22460,7 +22604,7 @@ them in case we use them later.}
   {CH fn_ENGINE_ctrl = 'ENGINE_ctrl'; } {Do not localize}
   {CH fn_ENGINE_cmd_is_executable = 'ENGINE_cmd_is_executable'; } {Do not localize}
   {CH fn_ENGINE_ctrl_cmd = 'ENGINE_ctrl_cmd'; } {Do not localize}
-  {CH fn_ENGINE_ctrl_cmd_string = 'ENGINE_ctrl_cmd_string'; }  {Do not localize}
+  {CH fn_ENGINE_ctrl_cmd_string = 'ENGINE_ctrl_cmd_string'; } {Do not localize}
   {CH fn_ENGINE_new = 'ENGINE_new'; } {Do not localize}
   {CH fn_ENGINE_free = 'ENGINE_free'; } {Do not localize}
   {CH fn_ENGINE_up_ref = 'ENGINE_up_ref'; } {Do not localize}
@@ -24631,12 +24775,13 @@ end;
 // Author : Gregor Ibich (gregor.ibic@intelicom.si)
 // Pascal translation: Doychin Bondzhev (doichin@5group.com)
 
-// Converts the following string representation into corresponding parts
-// YYMMDDHHMMSS(+|-)HH( )MM
+// Converts the following string representations into corresponding parts
+// YYYYMMDDHHMMSS(+|-)HH( )MM (GeneralizedTime, for dates 2050 and later)
+// YYMMDDHHMMSS(+|-)HH( )MM   (UTCTime, for dates up to 2049)
 function UTC_Time_Decode(UCTtime : PASN1_UTCTIME; var year, month, day, hour, min, sec: Word;
   var tz_hour, tz_min: Integer): Integer;
 var
-  i, tz_dir: Integer;
+  i, tz_dir, index: Integer;
   time_str: string;
   {$IFNDEF USE_MARSHALLED_PTRS}
     {$IFNDEF STRING_IS_ANSI}
@@ -24644,7 +24789,7 @@ var
     {$ENDIF}
   {$ENDIF}
 begin
-  Result := 1;
+  Result := 0;
   if UCTtime^.length < 12 then begin
     Exit;
   end;
@@ -24659,37 +24804,51 @@ begin
   time_str := String(LTemp); // explicit convert to Unicode
     {$ENDIF}
   {$ENDIF}
-  // Check if first 12 chars are numbers
-  if not IsNumeric(time_str, 12) then begin
+  // Check if first 14 chars (4-digit year) are numbers
+  if (Length(time_str) >= 14) and IsNumeric(time_str, 14) then begin
+    // Convert time from string to number
+    year := IndyStrToInt(Copy(time_str, 1, 4));
+    month := IndyStrToInt(Copy(time_str, 5, 2));
+    day := IndyStrToInt(Copy(time_str, 7, 2));
+    hour := IndyStrToInt(Copy(time_str, 9, 2));
+    min := IndyStrToInt(Copy(time_str, 11, 2));
+    sec := IndyStrToInt(Copy(time_str, 13, 2));
+    index := 15;
+  end
+  // Check if first 12 chars (2-digit year) are numbers
+  else if (Length(time_str) >= 12) and IsNumeric(time_str, 12) then begin
+    // Convert time from string to number
+    year := IndyStrToInt(Copy(time_str, 1, 2)) + 1900;
+    month := IndyStrToInt(Copy(time_str, 3, 2));
+    day := IndyStrToInt(Copy(time_str, 5, 2));
+    hour := IndyStrToInt(Copy(time_str, 7, 2));
+    min := IndyStrToInt(Copy(time_str, 9, 2));
+    sec := IndyStrToInt(Copy(time_str, 11, 2));
+    // Fix year. This function is Y2k but isn't compatible with Y2k5 :-(    {Do not Localize}
+    if year < 1950 then begin
+      Inc(year, 100);
+    end;
+    index := 13;
+  end else begin
     Exit;
-  end;
-  // Convert time from string to number
-  year := IndyStrToInt(Copy(time_str, 1, 2)) + 1900;
-  month := IndyStrToInt(Copy(time_str, 3, 2));
-  day := IndyStrToInt(Copy(time_str, 5, 2));
-  hour := IndyStrToInt(Copy(time_str, 7, 2));
-  min := IndyStrToInt(Copy(time_str, 9, 2));
-  sec := IndyStrToInt(Copy(time_str, 11, 2));
-  // Fix year. This function is Y2k but isn't compatible with Y2k5 :-(    {Do not Localize}
-  if year < 1950 then begin
-    Inc(year, 100);
   end;
   // Check TZ
   tz_hour := 0;
   tz_min := 0;
-  if CharIsInSet(time_str, 13, '-+') then begin    {Do not Localize}
-    tz_dir := iif(CharEquals(time_str, 13, '-'), -1, 1);    {Do not Localize}
-    for i := 14 to 18 do begin  // Check if numbers are numbers
-      if i = 16 then begin
+  if CharIsInSet(time_str, index, '-+') then begin    {Do not Localize}
+    tz_dir := iif(CharEquals(time_str, index, '-'), -1, 1);    {Do not Localize}
+    for i := index+1 to index+5 do begin  // Check if numbers are numbers
+      if i = index+3 then begin
         Continue;
       end;
       if not IsNumeric(time_str[i]) then begin
         Exit;
       end;
     end;
-    tz_hour := IndyStrToInt(Copy(time_str, 14, 15)) * tz_dir;
-    tz_min  := IndyStrToInt(Copy(time_str, 17, 18)) * tz_dir;
+    tz_hour := IndyStrToInt(Copy(time_str, index+1, 2)) * tz_dir;
+    tz_min  := IndyStrToInt(Copy(time_str, index+4, 2)) * tz_dir;
   end;
+  Result := 1;
 end;
 
 function SSL_set_app_data(s: PSSL; arg: Pointer): TIdC_INT;
@@ -26986,6 +27145,14 @@ initialization
   GetHMACSHA512HashInst:= OpenSSLGetHMACSHA512Inst;
   UpdateHMACInst := OpenSSLUpdateHMACInst;
   FinalHMACInst := OpenSSLFinalHMACInst;
+
+  LoadHashLibrary := LoadOpenSSL;
+
+  LoadNTLMLibrary := LoadOpenSSL;
+  IsNTLMFuncsAvail := OpenSSLIsNTLMFuncsAvail;
+  NTLMGetLmChallengeResponse := OpenSSLSetupLanManagerPassword;
+  NTLMGetNtChallengeResponse := OpenSSLCreateNTPassword;
+
 {$IFNDEF STATICLOAD_OPENSSL}
 finalization
   FreeAndNil(FFailedLoadList);

@@ -54,7 +54,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdIntercept, IdBaseComponent;
+  IdGlobal, IdIntercept;
 
 type
   TIdInterceptSimLog = class(TIdConnectionIntercept)
@@ -77,11 +77,6 @@ type
 implementation
 
 uses
-  {$IFDEF DOTNET}
-  IdStreamNET,
-    {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdException, IdResourceStringsCore, SysUtils;
 
 { TIdInterceptSimLog }

@@ -202,6 +202,76 @@ type
     ftpdpsPrivate //'P' - Private - Integrity and Privacy
   );
 
+const
+  DEF_DIRSEPARATOR = '/';
+  DEF_CASE_SENSITIVE = True;
+
+type
+  TIdFTPClientIdentifier = class (TPersistent)
+  protected
+    FClientName : String;
+    FClientVersion : String;
+    FClientVendor : String;
+    FPlatformDescription : String;
+    FExtraFacts: TStrings;
+    function GetCLNTParams : String;
+    function GetCSIDParams : String;
+    procedure SetClientName(const AValue: String);
+    procedure SetClientVersion(const AValue: String);
+    procedure SetClientVendor(const AValue : String);
+    procedure SetPlatformDescription(const AValue: String);
+    procedure SetExtraFacts(const AValue: TStrings);
+    procedure SetCLNTParams(const AValue : String);
+    procedure SetCSIDParams(const AValue : String);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Assign(Source: TPersistent); override;
+    property CLNTParams : String read GetCLNTParams write SetCLNTParams;
+    property CSIDParams : String read GetCSIDParams write SetCSIDParams;
+  published
+    property ClientName : String read FClientName write SetClientName;
+    property ClientVersion : String read FClientVersion write SetClientVersion;
+    property ClientVendor : String read FClientVendor write SetClientVendor;
+    property PlatformDescription : String read FPlatformDescription write SetPlatformDescription;
+    property ExtraFacts: TStrings read FExtraFacts write SetExtraFacts;
+  end;
+
+  TIdFTPServerIdentifier = class(TPersistent)
+  protected
+    FServerName : String;
+    FServerVersion : String;
+    FServerVendor : String;
+    FPlatformName : String;
+    FPlatformVersion : String;
+    FCaseSensitive : Boolean;
+    FDirSeparator : Char;
+    FExtraFacts : TStrings;
+    function GetCSIDParams: String;
+    procedure SetCSIDParams(const AValue: String);
+    procedure SetServerName(const AValue: String);
+    procedure SetServerVersion(const AValue: String);
+    procedure SetServerVendor(const AValue: String);
+    procedure SetPlatformName(const AValue: String);
+    procedure SetPlatformVersion(const AValue: String);
+    procedure SetExtraFacts(const AValue: TStrings);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Assign(Source: TPersistent); override;
+    procedure Clear;
+    property CSIDParams: String read GetCSIDParams write SetCSIDParams;
+  published
+    property ServerName : String read FServerName write SetServerName;
+    property ServerVersion : String read FServerVersion write SetServerVersion;
+    property ServerVendor : String read FServerVendor write SetServerVendor;
+    property PlatformName : String read FPlatformName write SetPlatformName;
+    property PlatformVersion : String read FPlatformVersion write SetPlatformVersion;
+    property CaseSensitive : Boolean read FCaseSensitive write FCaseSensitive default False;
+    property DirSeparator : Char read FDirSeparator write FDirSeparator default '/';
+    property ExtraFacts : TStrings read FExtraFacts write SetExtraFacts;
+  end;
+
 {From:
   http://www.ford-hutchinson.com/~fh-1-pfh/ftps-ext.html#bad
 }
@@ -666,12 +736,11 @@ const
 
 implementation
 
-uses 
-  {$IFDEF USE_VCL_POSIX}
+{$IFDEF USE_VCL_POSIX}
+uses
   Posix.SysTime,
-  Posix.Time,
-  {$ENDIF}
-  IdException;
+  Posix.Time;
+{$ENDIF}
 
 {WS_FTP Pro XAUT Support}
 
@@ -2514,6 +2583,299 @@ end;
 function IsValidSterCommData(const AString : String) : Boolean;
 begin
   Result := RawIsValidSterPattern(AString, CSterOneCharDataFlag, CSterThreeCharDataFlag);
+end;
+
+{ TIdFTPClientIdentifier }
+
+constructor TIdFTPClientIdentifier.Create;
+begin
+  inherited;
+  FExtraFacts := TStringList.Create;
+  {$IFDEF HAS_TStringList_CaseSensitive}
+  TStringList(FExtraFacts).CaseSensitive := False;
+  {$ENDIF}
+end;
+
+destructor TIdFTPClientIdentifier.Destroy;
+begin
+  FreeAndNil(FExtraFacts);
+  inherited;
+end;
+
+procedure TIdFTPClientIdentifier.Assign(Source: TPersistent);
+var
+  LSource: TIdFTPClientIdentifier;
+begin
+  if Source is TIdFTPClientIdentifier then begin
+    LSource := TIdFTPClientIdentifier(Source);
+    ClientName := LSource.ClientName;
+    ClientVersion := LSource.ClientVersion;
+    ClientVendor := LSource.ClientVendor;
+    PlatformDescription := LSource.PlatformDescription;
+    ExtraFacts.Assign(LSource.ExtraFacts);
+  end else begin
+    inherited Assign(Source);
+  end;
+end;
+
+//assume syntax such as this:
+//214 Syntax: CLNT <sp> <client-name> <sp> <client-version> [<sp> <optional platform info>] (Set client name)
+function TIdFTPClientIdentifier.GetCLNTParams: String;
+begin
+  if FClientName <> '' then begin
+    Result := FClientName;
+    if FClientVersion <> '' then begin
+      Result := Result + ' ' + FClientVersion;
+      if FPlatformDescription <> '' then begin
+        Result := Result + ' ' + FPlatformDescription;
+      end;
+    end;
+  end else begin
+    Result := gsIdProductName + ' ' + gsIdVersion;
+  end;
+end;
+
+function TIdFTPClientIdentifier.GetCSIDParams: String;
+var
+  I: Integer;
+begin
+  if FClientName <> '' then begin
+    Result := 'Name=' + FClientName + '; '; {do not localize}
+    if FClientVersion <> '' then begin
+      Result := Result + 'Version=' + FClientVersion + '; '; {do not localize}
+    end;
+  end else begin
+    Result := 'Name=' + gsIdProductName + '; Version=' + gsIdVersion + '; '; {do not localize}
+  end;
+  if FClientVendor <> '' then begin
+    Result := Result + 'Vendor=' + FClientVendor + '; '; {do not localize}
+  end;
+  // PlatformDescription is used only with CLNT not CSID...
+  {if FPlatformDescription <> '' then begin
+    Result := Result + 'Platform=' + FPlatformDescription + '; ';
+  end;}
+  for I := 0 to FExtraFacts.Count-1 do begin
+    Result := Result + TrimLeft(FExtraFacts[I]) + '; '; {do not localize}
+  end;
+  if Result <> '' then begin
+    SetLength(Result, Length(Result) - 1);
+  end;
+end;
+
+procedure TIdFTPClientIdentifier.SetClientName(const AValue: String);
+begin
+  FClientName := Trim(AValue);
+  // Don't call Fetch;  it prevents multi-word client names in CSID
+end;
+
+procedure TIdFTPClientIdentifier.SetClientVersion(const AValue: String);
+begin
+  FClientVersion := Trim(AValue);
+end;
+
+procedure TIdFTPClientIdentifier.SetClientVendor(const AValue: String);
+begin
+  FClientVendor := Trim(AValue);
+end;
+
+procedure TIdFTPClientIdentifier.SetPlatformDescription(const AValue: String);
+begin
+  FPlatformDescription := Trim(AValue);
+end;
+
+procedure TIdFTPClientIdentifier.SetExtraFacts(const AValue: TStrings);
+begin
+  FExtraFacts.Assign(AValue);
+end;
+
+procedure TIdFTPClientIdentifier.SetCLNTParams(const AValue : String);
+var
+  LBuf : String;
+begin
+  LBuf := TrimLeft(AValue);
+  ClientName := Fetch(LBuf);
+  ClientVersion := Fetch(LBuf);
+  ClientVendor := '';
+  PlatformDescription := LBuf;
+  FExtraFacts.Clear;
+end;
+
+procedure TIdFTPClientIdentifier.SetCSIDParams(const AValue : String);
+var
+  LFacts: TStringList;
+  LName, LValue: string;
+  I: Integer;
+begin
+  FClientName := '';
+  FClientVersion := '';
+  FClientVendor := '';
+  FPlatformDescription := '';
+  FExtraFacts.Clear;
+
+  if AValue <> '' then begin
+    LFacts := TStringList.Create;
+    try
+      SplitDelimitedString(AValue, LFacts, True, ';'); {do not localize}
+      for I := 0 to LFacts.Count-1 do begin
+        LName := LFacts.Names[I];
+        LValue := IndyValueFromIndex(LFacts, I);
+        case PosInStrArray(LName, ['Name', 'Version', 'Vendor'], False) of {do not localize}
+          0: ClientName          := LValue;
+          1: ClientVersion       := LValue;
+          2: ClientVendor        := LValue;
+          // PlatformDescription is used only with CLNT not CSID...
+        else
+          IndyAddPair(FExtraFacts, LName, LValue);
+        end;
+      end;
+    finally
+      LFacts.Free;
+    end;
+  end;
+end;
+
+{ TIdFTPServerIdentifier }
+
+constructor TIdFTPServerIdentifier.Create;
+begin
+  inherited Create;
+  FExtraFacts := TStringList.Create;
+  {$IFDEF HAS_TStringList_CaseSensitive}
+  TStringList(FExtraFacts).CaseSensitive := False;
+  {$ENDIF}
+end;
+
+destructor TIdFTPServerIdentifier.Destroy;
+begin
+  FreeAndNil(FExtraFacts);
+  inherited Destroy;
+end;
+
+procedure TIdFTPServerIdentifier.Assign(Source: TPersistent);
+var
+  LSource: TIdFTPServerIdentifier;
+begin
+  if Source is TIdFTPServerIdentifier then begin
+    LSource := TIdFTPServerIdentifier(Source);
+    ServerName := LSource.ServerName;
+    ServerVersion := LSource.ServerVersion;
+    ServerVendor := LSource.ServerVendor;
+    PlatformName := LSource.PlatformName;
+    PlatformVersion := LSource.PlatformVersion;
+    CaseSensitive := LSource.CaseSensitive;
+    DirSeparator := LSource.DirSeparator;
+    ExtraFacts.Assign(LSource.ExtraFacts);
+  end else begin
+    inherited Assign(Source);
+  end;
+end;
+
+procedure TIdFTPServerIdentifier.Clear;
+begin
+  FServerName := '';
+  FServerVersion := '';
+  FServerVendor := '';
+  FPlatformName := '';
+  FPlatformVersion := '';
+  FCaseSensitive := True;
+  FDirSeparator := '/'; {do not localize}
+  FExtraFacts.Clear;
+end;
+
+function TIdFTPServerIdentifier.GetCSIDParams;
+var
+  I: Integer;
+begin
+  if FServerName <> '' then begin
+    Result := 'Name=' + FServerName + '; '; {do not localize}
+  end;
+  if FServerVersion <> '' then begin
+    Result := Result + 'Version=' + FServerVersion + '; '; {do not localize}
+  end;
+  if FServerVendor <> '' then begin
+    Result := Result + 'Vendor=' + FServerVendor + '; '; {do not localize}
+  end;
+  if FPlatformName <> '' then begin
+    Result := Result + 'OS='+ FPlatformName + '; '; {do not localize}
+  end;
+  if FPlatformVersion <> '' then begin
+    Result := Result + 'OSVer=' + FPlatformVersion + '; '; {do not localize}
+  end;
+  //https://solarwindscore.my.site.com/SuccessCenter/s/article/CSID-FTP-command
+  //states that the CaseSensitive and DirSep facts are required to be reported.
+  Result := Result + 'CaseSensitive=' + iif(FCaseSensitive, '1', '0') + '; '; {do not localize}
+  Result := Result + 'DirSep=' + FDirSeparator + '; '; {do not localize}
+  for I := 0 to FExtraFacts.Count -1 do begin
+    Result := Result + TrimLeft(FExtraFacts[I]) + '; '; {do not localize}
+  end;
+  SetLength(Result, Length(Result) - 1);
+end;
+
+procedure TIdFTPServerIdentifier.SetCSIDParams(const AValue: String);
+var
+  LFacts: TStringList;
+  LName, LValue: string;
+  I: Integer;
+begin
+  Clear;
+  if AValue <> '' then begin
+    LFacts := TStringList.Create;
+    try
+      SplitDelimitedString(AValue, LFacts, True, ';'); {do not localize}
+      for I := 0 to LFacts.Count-1 do begin
+        LName := LFacts.Names[I];
+        LValue := IndyValueFromIndex(LFacts, I);
+        case PosInStrArray(LName, ['Name', 'Version', 'Vendor', 'OS', 'OSVer', 'CaseSensitive', 'DirSep'], False) of {do not localize}
+          0: ServerName      := LValue;
+          1: ServerVersion   := LValue;
+          2: ServerVendor    := LValue;
+          3: PlatformName    := LValue;
+          4: PlatformVersion := LValue;
+          5: CaseSensitive   := LValue = '1'; {do not localize}
+          6: begin
+              if LValue <> '' then begin
+                DirSeparator := LValue[1];
+              end;
+          end;
+        else
+          IndyAddPair(FExtraFacts, LName, LValue);
+        end;
+      end;
+    finally
+      LFacts.Free;
+    end;
+  end;
+end;
+
+procedure TIdFTPServerIdentifier.SetServerName(const AValue: String);
+begin
+  FServerName := Trim(AValue);
+  // Don't call Fetch;  it prevents multi-word client names in CSID
+end;
+
+procedure TIdFTPServerIdentifier.SetServerVersion(const AValue: String);
+begin
+  FServerVersion := Trim(AValue);
+end;
+
+procedure TIdFTPServerIdentifier.SetServerVendor(const AValue: String);
+begin
+  FServerVendor := Trim(AValue);
+end;
+
+procedure TIdFTPServerIdentifier.SetPlatformName(const AValue: String);
+begin
+  FPlatformName := Trim(AValue);
+end;
+
+procedure TIdFTPServerIdentifier.SetPlatformVersion(const AValue: String);
+begin
+  FPlatformVersion := Trim(AValue);
+end;
+
+procedure TIdFTPServerIdentifier.SetExtraFacts(const AValue: TStrings);
+begin
+  FExtraFacts.Assign(AValue);
 end;
 
 end.

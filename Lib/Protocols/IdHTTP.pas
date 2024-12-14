@@ -340,7 +340,7 @@ uses
   Classes,
   IdException, IdExceptionCore, IdAssignedNumbers, IdHeaderList, IdHTTPHeaderInfo, IdReplyRFC,
   IdSSL, IdZLibCompressorBase,
-  IdTCPClient, IdURI, IdCookie, IdCookieManager, IdAuthentication, IdAuthenticationManager,
+  IdTCPClient, IdURI, IdCookieManager, IdAuthentication, IdAuthenticationManager,
   IdMultipartFormData, IdGlobal, IdBaseComponent, IdUriUtils;
 
 type
@@ -880,7 +880,18 @@ begin
   EnsureEncoding(AByteEncoding, encUTF8);
   {$IFDEF STRING_IS_ANSI}
   EnsureEncoding(ASrcEncoding, encOSDefault);
-  LChars := ASrcEncoding.GetChars(RawToBytes(ASrc[1], Length(ASrc)));
+  LChars := ASrcEncoding.GetChars(
+    {$IFNDEF VCL_6_OR_ABOVE}
+    // RLebeau: for some reason, Delphi 5 causes a "There is no overloaded
+    // version of 'GetChars' that can be called with these arguments" compiler
+    // error if the PByte type-cast is used, even though GetChars() actually
+    // expects a PByte as input.  Must be a compiler bug, as it compiles fine
+    // in Delphi 6.  So, converting to TIdBytes until I find a better solution...
+    RawToBytes(PAnsiChar(ASrc)^, Length(ASrc))
+    {$ELSE}
+    PByte(PAnsiChar(ASrc)), Length(ASrc)
+    {$ENDIF}
+  );
   {$ENDIF}
 
   // 2 Chars to handle UTF-16 surrogates
@@ -965,7 +976,9 @@ var
   begin
     if AStrings.Count > 1 then begin
       // break trailing CR&LF
-      Result := ReplaceAll(Trim(AStrings.Text), sLineBreak, '&'); {do not localize}
+      Result := ReplaceAll(Trim(AStrings.Text),
+        {$IFDEF HAS_TStrings_LineBreak}AStrings.LineBreak{$ELSE}sLineBreak{$ENDIF},
+        '&'); {do not localize}
     end else begin
       Result := Trim(AStrings.Text);
     end;
@@ -2568,6 +2581,7 @@ end;
 procedure TIdHTTPResponse.Clear;
 begin
   inherited Clear;
+  ResponseText := '';
   FMetaHTTPEquiv.Clear;
 end;
 
@@ -2675,11 +2689,11 @@ var
 begin
   FResponseText := AValue;
   FResponseCode := -1; // re-parse the next time it is accessed
-  ResponseVersion := pv1_0; // default until determined otherwise...
+  FResponseVersion := pv1_0; // default until determined otherwise...
   S := Copy(FResponseText, 6, 3);
   for i := Low(TIdHTTPProtocolVersion) to High(TIdHTTPProtocolVersion) do begin
     if TextIsSame(ProtocolVersionString[i], S) then begin
-      ResponseVersion := i;
+      FResponseVersion := i;
       Exit;
     end;
   end;
@@ -2718,6 +2732,8 @@ var
   i: Integer;
   LBufferingStarted: Boolean;
 begin
+  Response.Clear;
+
   // needed for Digest authentication, but maybe others as well...
   if Assigned(Request.Authentication) then begin
     // TODO: include entity body for Digest "auth-int" qop...
@@ -2763,10 +2779,8 @@ var
   LHeaderCount: Integer;
 begin
   // Set the response headers
-  // Clear headers
   // Don't use Capture.
   // S.G. 6/4/2004: Added AmaxHeaderCount parameter to prevent the "header bombing" of the server
-  Response.Clear;
   s := FHTTP.InternalReadLn;
   try
     LHeaderCount := 0;
@@ -3185,7 +3199,11 @@ begin
         Response.ResponseText := InternalReadLn;
         FHTTPProto.RetrieveHeaders(MaxHeaderLines);
         ProcessCookies(Request, Response);
-      until ((Response.ResponseCode div 100) <> 1) or (Response.ResponseCode = 101);
+        if ((Response.ResponseCode div 100) <> 1) or (Response.ResponseCode = 101) then begin
+          Break;
+        end;
+        Response.Clear;
+      until False;
 
       case FHTTPProto.ProcessResponse(AIgnoreReplies) of
         wnAuthRequest:

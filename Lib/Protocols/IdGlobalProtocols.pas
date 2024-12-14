@@ -329,7 +329,6 @@ uses
   Windows,
   {$ENDIF}
   IdCharsets,
-  IdBaseComponent,
   IdGlobal,
   IdException,
   SysUtils;
@@ -377,10 +376,19 @@ type
     property OnBuildCache: TNotifyEvent read FOnBuildCache write FOnBuildCache;
   end;
 
+  {$UNDEF INTF_USES_STDCALL}
+  {$IFDEF DCC}
+    {$DEFINE INTF_USES_STDCALL}
+  {$ELSE}
+    {$IFDEF WINDOWS}
+      {$DEFINE INTF_USES_STDCALL}
+    {$ENDIF}
+  {$ENDIF}
+
   TIdInterfacedObject = class (TInterfacedObject)
   public
-    function _AddRef: Integer;
-    function _Release: Integer;
+    function _AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
+    function _Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
   end;
 
   TIdHeaderQuotingType = (QuotePlain, QuoteRFC822, QuoteMIME, QuoteHTTP);
@@ -592,7 +600,6 @@ uses
   Macapi.CoreServices,
     {$ENDIF}
   {$ENDIF}
-  IdIPAddress,
   {$IFDEF UNIX}
     {$IFDEF USE_VCL_POSIX}
   Posix.SysStat, Posix.SysTime, Posix.Time, Posix.Unistd,
@@ -617,8 +624,6 @@ uses
   System.IO,
   System.Text,
   {$ENDIF}
-  IdAssignedNumbers,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdStack
   {$IFDEF HAS_IOUtils_TPath}
@@ -3570,6 +3575,7 @@ begin
     KeyList := TStringList.create;
     try
       Reg.RootKey := HKEY_CLASSES_ROOT;
+      // TODO: use RegEnumKeyEx() directly to avoid wasting memory loading keys we don't care about...
       if Reg.OpenKeyReadOnly('\') then begin  {do not localize}
         Reg.GetKeyNames(KeyList);
         Reg.Closekey;
@@ -5347,7 +5353,7 @@ end;
 
 { TIdInterfacedObject }
 
-function TIdInterfacedObject._AddRef: Integer;
+function TIdInterfacedObject._AddRef: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;
@@ -5356,7 +5362,7 @@ begin
   {$ENDIF}
 end;
 
-function TIdInterfacedObject._Release: Integer;
+function TIdInterfacedObject._Release: {$IFDEF FPC}Longint{$ELSE}Integer{$ENDIF}; {$IFDEF INTF_USES_STDCALL}stdcall{$ELSE}cdecl{$ENDIF};
 begin
   {$IFDEF DOTNET}
   Result := 1;

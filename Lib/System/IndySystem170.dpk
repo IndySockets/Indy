@@ -50,6 +50,7 @@ contains
   IdException in 'IdException.pas',
   IdGlobal in 'IdGlobal.pas',
   IdIDN in 'IdIDN.pas',
+  IdResourceStrings in 'IdResourceStrings.pas',
   {$IFNDEF WINDOWS}
   IdResourceStringsUnix in 'IdResourceStringsUnix.pas',
   IdResourceStringsVCLPosix in 'IdResourceStringsVCLPosix.pas',

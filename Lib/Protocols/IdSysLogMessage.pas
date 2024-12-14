@@ -184,7 +184,7 @@ function logFacilityToNo(AFac : TIdSyslogFacility) : Word;
 implementation
 
 uses
-  IdAssignedNumbers, IdException, IdExceptionCore, IdResourceStringsProtocols, IdStack, IdStackConsts, IdUDPClient, SysUtils;
+  IdAssignedNumbers, IdException, IdExceptionCore, IdResourceStringsProtocols, IdStack, IdUDPClient, SysUtils;
 
 const
   // facility

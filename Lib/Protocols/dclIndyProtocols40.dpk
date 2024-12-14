@@ -1,17 +1,13 @@
 package dclIndyProtocols40;
 
-{$ASSERTIONS ON}
+{$R *.res}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -22,9 +18,10 @@ package dclIndyProtocols40;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Protocols Design Time'}
 {$DESIGNONLY}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
+  Vcl40,
   IndyProtocols40,
   IndySystem40,
   IndyCore40,
@@ -33,8 +30,7 @@ requires
 contains
   IdDsnRegister in 'IdDsnRegister.pas',
   IdDsnResourceStrings in 'IdDsnResourceStrings.pas',
-  IdDsnSASLListEditor in 'IdDsnSASLListEditor.pas',
-  IdDsnSASLListEditorForm in 'IdDsnSASLListEditorForm.pas',
+  IdDsnSASLListEditorFormVCL in 'IdDsnSASLListEditorFormVCL.pas',
   IdRegister in 'IdRegister.pas';
 
 end.

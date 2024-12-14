@@ -94,6 +94,7 @@ type
   Psockaddr = ^sockaddr;
   {$ENDIF}
 
+  // TODO: move this class into the implementation section! It is not used outside of this unit
   TIdSocketListUnix = class (TIdSocketList)
   protected
     FCount: Integer;
@@ -481,6 +482,7 @@ begin
           VIP := NetAddrToStr(sin_addr);
           VPort := ntohs(sin_port);
         end;
+        VIPVersion := Id_IPV4;
       end;
     Id_PF_INET6:
       begin
@@ -785,7 +787,12 @@ type
   ifaddrs = record
     ifa_next: pifaddrs;       { Pointer to next struct }
     ifa_name: PIdAnsiChar;    { Interface name }
+// Solaris ifaddrs struct implements 64bit ifa_flags. (Details: https://docs.oracle.com/cd/E88353_01/html/E37843/getifaddrs-3c.html)
+{$IFDEF SOLARIS}
+    ifa_flags: UInt64;        { Interface flags }
+{$ELSE}   
     ifa_flags: Cardinal;      { Interface flags }
+{$ENDIF}
     ifa_addr: psockaddr;      { Interface address }
     ifa_netmask: psockaddr;   { Interface netmask }
     ifa_broadaddr: psockaddr; { Interface broadcast address }
@@ -856,12 +863,14 @@ begin
           end;
           if LAddress <> nil then begin
             LName := String(LAddrInfo^.ifa_name);
+            {$I IdObjectChecksOff.inc}
             TIdStackLocalAddressAccess(LAddress).FDescription := LName;
             TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
             TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
             {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}
+            {$I IdObjectChecksOn.inc}
           end;
         end;
         LAddrInfo := LAddrInfo^.ifa_next;
@@ -1140,6 +1149,8 @@ end;
 procedure TIdStackUnix.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
   const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
 begin
+  inherited; // turn SO_KEEPALIVE on/off first...
+  // TODO: remove below, as it should be handled by TIdStack.SetKeepAliveValues() now...
   if AEnabled then begin
     {$IFDEF HAS_TCP_KEEPIDLE}
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPIDLE, ATimeMS div MSecsPerSec);
@@ -1148,7 +1159,6 @@ begin
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPINTVL, AInterval div MSecsPerSec);
     {$ENDIF}
   end;
-  inherited;
 end;
 
 { TIdSocketListUnix }
@@ -1158,7 +1168,7 @@ begin
   Lock;
   try
     if fpFD_ISSET(AHandle, FFDSet) = 0 then begin
-      if Count >= FD_SETSIZE then begin
+      if AHandle >= FD_SETSIZE then begin
         raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
       end;
       fpFD_SET(AHandle, FFDSet);
@@ -1214,6 +1224,7 @@ begin
     LTimePtr := @LTime;
   end;
   // TODO: calculate the actual nfds value based on the Sets provided...
+  // TODO: use poll() instead of select() to remove limit on how many sockets can be queried
   Result := fpSelect(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
 end;
 

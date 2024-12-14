@@ -1,6 +1,6 @@
 [package]
 name=indy
-version=10.6.2.$WCREV$
+version=10.6.3.$WCREV$
 
 [require]
 packages=fcl-base
@@ -15,7 +15,7 @@ fpcsubdir=packages/extra
 options=-gl
 exampledirs=examples
 units=indysystemfpc indycorefpc indyprotocolsfpc
-rsts=IdResourceStrings IdResourceStringsCore IdResourceStringsProtocols
+rsts=IdResourceStrings IdResourceStringsCore IdResourceStringsProtocols IdResourceStringsUriUtils
 rsts_amiga=
 rsts_atari=
 rsts_beos=
@@ -344,13 +344,13 @@ units_atari=
 implicitunits_beos=
 units_beos=
 implicitunits_darwin=IdStackUnix IdStackBSDBase \
-             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdSSLOpenSSLHeaders IdResourceStringsOpenSSL IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_darwin=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
 implicitunits_emx=
 units_emx=
 implicitunits_freebsd=IdStackUnix IdStackBSDBase \
-             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdSSLOpenSSLHeaders IdResourceStringsOpenSSL IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_freebsd=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM
@@ -359,7 +359,7 @@ units_go32v1=
 implicitunits_go32v2=
 units_go32v2=
 implicitunits_linux=$(BACKEND) IdStackBSDBase \
-             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdSSLOpenSSLHeaders IdResourceStringsOpenSSL IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_linux=IdCompressorZLib IdSSLOpenSSL \
 IdCompressionIntercept IdAuthenticationNTLM
@@ -368,7 +368,7 @@ units_macos=
 implicitunits_morphos=
 units_morphos=
 implicitunits_netbsd=IdStackUnix IdStackBSDBase \
-             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdSSLOpenSSLHeaders IdResourceStringsOpenSSL IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_netbsd=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM
@@ -377,7 +377,7 @@ units_netware=
 implicitunits_netwlibc=
 units_netwlibc=
 implicitunits_openbsd=IdStackUnix IdStackBSDBase \
-             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdSSLOpenSSLHeaders IdResourceStringsOpenSSL IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_openbsd=IdCompressorZLib IdSSLOpenSSL \
 IdCompressionIntercept IdAuthenticationNTLM
@@ -386,24 +386,24 @@ units_os2=
 implicitunits_palmos=
 units_palmos=
 implicitunits_qnx=IdStackUnix IdStackBSDBase \
-             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdSSLOpenSSLHeaders IdResourceStringsOpenSSL IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_qnx=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
 implicitunits_solaris=IdStackUnix IdStackBSDBase \
-             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdSSLOpenSSLHeaders IdResourceStringsOpenSSL IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_solaris=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM
 implicitunits_watcom=
 units_watcom=
 implicitunits_win32=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 \
-             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdSSLOpenSSLHeaders IdResourceStringsOpenSSL IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM IdSSPI 
 units_win32=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM \
              IdAuthenticationSSPI
 implicitunits_win64=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 \
-             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdSSLOpenSSLHeaders IdResourceStringsOpenSSL IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM IdSSPI 
 units_win64=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM \

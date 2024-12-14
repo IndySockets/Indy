@@ -68,12 +68,6 @@ uses
 {$IFDEF WIDGET_VCL_LIKE}
   ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
 {$ENDIF}
-{$IFDEF HAS_UNIT_Types}
-  Types,
-{$ENDIF}
-{$IFDEF WINDOWS}
-  Windows,
-{$ENDIF}
 {$IFDEF LCL}
   LResources,
 {$ENDIF}
