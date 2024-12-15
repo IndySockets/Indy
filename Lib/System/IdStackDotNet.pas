@@ -163,27 +163,6 @@ uses
   System.Collections, System.IO, System.Net, System.Net.Sockets;
 
 type
-  // TODO: move this class into the implementation section! It is not used outside of this unit
-  TIdSocketListDotNet = class(TIdSocketList)
-  protected
-    FSockets: ArrayList;
-    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
-  public
-    constructor Create; override;
-    destructor Destroy; override;
-    procedure Add(AHandle: TIdStackSocketHandle); override;
-    procedure Remove(AHandle: TIdStackSocketHandle); override;
-    function Count: Integer; override;
-    procedure Clear; override;
-    function Clone: TIdSocketList; override;
-    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
-    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
-      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectReadList(var VSocketList: TIdSocketList;
-      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-  end;
-
   TIdStackDotNet = class(TIdStack)
   protected
     //Stuff for ICMPv6
@@ -664,6 +643,27 @@ begin
 end;
 
 //////////////////////////////////////////////////////////////
+
+type
+  TIdSocketListDotNet = class(TIdSocketList)
+  protected
+    FSockets: ArrayList;
+    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+    procedure Add(AHandle: TIdStackSocketHandle); override;
+    procedure Remove(AHandle: TIdStackSocketHandle); override;
+    function Count: Integer; override;
+    procedure Clear; override;
+    function Clone: TIdSocketList; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
+    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
+      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectReadList(var VSocketList: TIdSocketList;
+      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+  end;
 
 constructor TIdSocketListDotNet.Create;
 begin

@@ -205,8 +205,6 @@ type
     property DestIPVersion : TIdIPVersion read FDestIPVersion write FDestIPVersion;
   end;
 
-  TIdSocketListClass = class of TIdSocketList;
-
   // Descend from only TObject. This objects is created a lot and should be fast
   // and small
   TIdSocketList = class(TObject)
@@ -232,6 +230,8 @@ type
     function  SelectReadList(var VSocketList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; virtual; abstract;
     procedure Unlock;
   end;
+
+  TIdSocketListClass = class of TIdSocketList;
 
   TIdStackLocalAddress = class(TCollectionItem)
   protected
