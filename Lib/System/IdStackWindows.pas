@@ -1747,6 +1747,13 @@ end;
 { TIdSocketListWindows }
 
 type
+  // WARNING: If you are thinking of rewriting this to use WSAPoll() instead of select(),
+  // similar to TIdSocketListVCLPosix, then note that WSAPoll() is broken prior to
+  // Windows 10 version 2004! See:
+  //
+  // https://daniel.haxx.se/blog/2012/10/10/wsapoll-is-broken/
+  // https://stackoverflow.com/questions/21653003/is-this-wsapoll-bug-for-non-blocking-sockets-fixed
+  //
   TIdSocketListWindows = class(TIdSocketList)
   protected
     FFDSet: TFDSet;

@@ -1136,6 +1136,7 @@ end;
 { TIdSocketListLinux }
 
 type
+  // TODO: rewrite this to use poll() instead of select(), similar to TIdSocketListVCLPosix
   TIdSocketListLinux = class (TIdSocketList)
   protected
     FCount: integer;
