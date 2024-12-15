@@ -16,8 +16,8 @@
 {.$IFDEF IdIPv6} // use IPv6 by default
 
 {$DEFINE INDY100}
-{$DEFINE 10_6_3}    //so developers can IFDEF for this product version
-{$DEFINE 10_6_3_8}  //so developers can IFDEF for this specific version
+{$DEFINE 10_6_4}    //so developers can IFDEF for this product version
+{$DEFINE 10_6_4_0}  //so developers can IFDEF for this specific version
 
 // When generating C++Builder output files, certain workarounds to compiler
 // problems need to be enabled! When invoking DCC on the command-line, use
@@ -1153,6 +1153,10 @@
     {$DEFINE HAS_NAMED_THREADS}
     {$DEFINE HAS_TStrings_NameValueSeparator}
     {$DEFINE HAS_TStrings_ValueFromIndex}
+    // Note: there is a ZLib unit available, but it doesn't have everything
+    // that is available in the System.ZLib unit in Delphi XE2+, so we are
+    // not going to use this ZLib unit yet...
+    {.$DEFINE HAS_UNIT_ZLib}
   {$ENDIF}
   {$DEFINE HAS_TFormatSettings}
   {$DEFINE HAS_PosEx}
@@ -1172,15 +1176,18 @@
   {$ENDIF}
 {$ENDIF}
 
-{$IFNDEF VCL_2005_OR_ABOVE}
+{$IFDEF VCL_2005_OR_ABOVE}
+  {$IFDEF DCC}
+    // class helpers were first introduced in D2005, but were buggy and not
+    // officially supported until D2006...
+    {.$DEFINE HAS_CLASS_HELPER}
+  {$ENDIF}
+{$ELSE}
   {$IFDEF DCC}
     // InterlockedCompareExchange() was declared in the Windows unit using Pointer
     // parameters until Delphi 2005, when it was switched to Longint parameters
     // instead to match the actual Win32 API declaration.
     {$DEFINE HAS_InterlockedCompareExchange_Pointers}
-    // class helpers were first introduced in D2005, but were buggy and not
-    // officially supported until D2006...
-    {.$DEFINE HAS_CLASS_HELPER}
   {$ENDIF}
 {$ENDIF}
 
@@ -1306,6 +1313,7 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_OSX32}
   {$DEFINE HAS_System_ReturnAddress}
   {$DEFINE HAS_DIRECTIVE_WARN_DEFAULT}
+  {$DEFINE HAS_UNIT_System_ZLib}
 {$ENDIF}
 
 {$IFDEF VCL_XE3_OR_ABOVE}

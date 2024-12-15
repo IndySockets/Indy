@@ -350,8 +350,6 @@ begin
 
     T:=AddIndyUnit(P,'IdStackBSDBase.pas');
     T.OSes:=AllUnixOSes + AllWindowsOSes;
-    T:=AddIndyUnit(P,'IdSSLOpenSSLHeaders.pas');
-    T.OSes:=AllUnixOSes + [win32,win64];
     T:=AddIndyUnit(P,'IdZLibHeaders.pas');
     T.OSes:=AllUnixOSes + [win32,win64];
     T:=AddIndyUnit(P,'IdZLib.pas');
@@ -362,8 +360,6 @@ begin
     T:=AddIndyUnit(P,'IdNTLM.pas');
     T.OSes:=AllUnixOSes + [win32,win64];
     T:=AddIndyUnit(P,'IdCompressorZLib.pas');
-    T.OSes:=AllUnixOSes + [win32,win64];
-    T:=AddIndyUnit(P,'IdSSLOpenSSL.pas');
     T.OSes:=AllUnixOSes + [win32,win64];
     T:=AddIndyUnit(P,'IdCompressionIntercept.pas');
     T.OSes:=AllUnixOSes + [win32,win64];

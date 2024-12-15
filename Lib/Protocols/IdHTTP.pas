@@ -391,6 +391,7 @@ const
   Id_TIdHTTP_MaxHeaderLines = 255;
   Id_TIdHTTP_HandleRedirects = False;
   Id_TIdHTTP_MaxAuthRetries = 3;
+  Id_TIdHTTP_HTTPOptions = [hoKeepOrigProtocol, hoForceEncodeParams];
 
 type
   TIdCustomHTTP = class;
@@ -618,7 +619,7 @@ type
     property MaxHeaderLines: integer read FMaxHeaderLines write FMaxHeaderLines default Id_TIdHTTP_MaxHeaderLines;
     property ProxyParams: TIdProxyConnectionInfo read FProxyParameters write SetProxyParams;
     property Request: TIdHTTPRequest read GetRequest write SetRequest;
-    property HTTPOptions: TIdHTTPOptions read FOptions write FOptions;
+    property HTTPOptions: TIdHTTPOptions read FOptions write FOptions default Id_TIdHTTP_HTTPOptions;
     //
     property OnHeadersAvailable: TIdHTTPOnHeadersAvailable read FOnHeadersAvailable write FOnHeadersAvailable;
     // Fired when a rediretion is requested.
@@ -3106,7 +3107,7 @@ begin
   FAuthProxyRetries := 0;
   AllowCookies := True;
   FImplicitCookieManager := False;
-  FOptions := [hoForceEncodeParams];
+  FOptions := Id_TIdHTTP_HTTPOptions;
 
   FRedirectMax := Id_TIdHTTP_RedirectMax;
   FHandleRedirects := Id_TIdHTTP_HandleRedirects;
