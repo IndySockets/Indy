@@ -236,7 +236,7 @@ type
     //
     class function FDPoll(ASet: ppollfd; const ACount: nfds_t; const ATimeout: Integer): Boolean;
     function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
-    procedure GetPollFds(var VSet: pollfdArray; var VOffset: nfds_t; const AEvents: Int16): Integer;
+    procedure GetPollFds(var VSet: pollfdArray; var VOffset: nfds_t; const AEvents: Int16);
     procedure SetPollFds(const VSet: pollfdArray; const AEvents: Int16);
   public
     constructor Create; override;
@@ -356,7 +356,7 @@ begin
 end;
 
 procedure TIdSocketListVCLPosix.GetPollFds(var VSet: pollfdArray;
-  var VOffset: nfds_t; const AEvents: Int16): nfds_t;
+  var VOffset: nfds_t; const AEvents: Int16);
 var
   LPollFD: ppollfd;
   I: Integer;
