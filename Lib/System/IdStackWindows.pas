@@ -201,30 +201,6 @@ uses
 type
   EIdIPv6Unavailable = class(EIdException);
 
-  // TODO: move this class into the implementation section! It is not used outside of this unit
-  TIdSocketListWindows = class(TIdSocketList)
-  protected
-    FFDSet: TFDSet;
-    //
-    class function FDSelect(AReadSet: PFDSet; AWriteSet: PFDSet; AExceptSet: PFDSet;
-     const ATimeout: Integer = IdTimeoutInfinite): Boolean;
-    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
-  public
-    procedure Add(AHandle: TIdStackSocketHandle); override;
-    procedure Remove(AHandle: TIdStackSocketHandle); override;
-    function Count: Integer; override;
-    procedure Clear; override;
-    function Clone: TIdSocketList; override;
-    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
-    procedure GetFDSet(var VSet: TFDSet);
-    procedure SetFDSet(var VSet: TFDSet);
-    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
-     AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectReadList(var VSocketList: TIdSocketList;
-      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-  end;
-
   TIdStackWindows = class(TIdStackBSDBase)
   protected
      procedure WSQuerryIPv6Route(ASocket: TIdStackSocketHandle;
@@ -1769,6 +1745,37 @@ begin
 end;
 
 { TIdSocketListWindows }
+
+type
+  // WARNING: If you are thinking of rewriting this to use WSAPoll() instead of select(),
+  // similar to TIdSocketListVCLPosix, then note that WSAPoll() is broken prior to
+  // Windows 10 version 2004! See:
+  //
+  // https://daniel.haxx.se/blog/2012/10/10/wsapoll-is-broken/
+  // https://stackoverflow.com/questions/21653003/is-this-wsapoll-bug-for-non-blocking-sockets-fixed
+  //
+  TIdSocketListWindows = class(TIdSocketList)
+  protected
+    FFDSet: TFDSet;
+    //
+    class function FDSelect(AReadSet: PFDSet; AWriteSet: PFDSet; AExceptSet: PFDSet;
+     const ATimeout: Integer = IdTimeoutInfinite): Boolean;
+    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
+  public
+    procedure Add(AHandle: TIdStackSocketHandle); override;
+    procedure Remove(AHandle: TIdStackSocketHandle); override;
+    function Count: Integer; override;
+    procedure Clear; override;
+    function Clone: TIdSocketList; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
+    procedure GetFDSet(var VSet: TFDSet);
+    procedure SetFDSet(var VSet: TFDSet);
+    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
+     AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectReadList(var VSocketList: TIdSocketList;
+      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+  end;
 
 procedure TIdSocketListWindows.Add(AHandle: TIdStackSocketHandle);
 begin

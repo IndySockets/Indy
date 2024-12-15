@@ -35,31 +35,6 @@ type
     {$ENDIF}
   {$ENDIF}
 
-  // TODO: move this class into the implementation section! It is not used outside of this unit
-  TIdSocketListVCLPosix = class (TIdSocketList)
-  protected
-    FCount: Integer;
-    FFDSet: fd_set;
-    //
-    class function FDSelect(AReadSet, AWriteSet,
-      AExceptSet: Pfd_set; const ATimeout: Integer): Integer;
-    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
-  public
-    procedure Add(AHandle: TIdStackSocketHandle); override;
-    procedure Remove(AHandle: TIdStackSocketHandle); override;
-    function Count: Integer; override;
-    procedure Clear; override;
-    function Clone: TIdSocketList; override;
-    function ContainsSocket(AHandle: TIdStackSocketHandle): Boolean; override;
-    procedure GetFDSet(var VSet: fd_set);
-    procedure SetFDSet(var VSet: fd_set);
-    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
-      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectReadList(var VSocketList: TIdSocketList;
-      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-  end;
-
   TIdStackVCLPosix = class(TIdStackBSDBase)
   protected
     procedure WriteChecksumIPv6(s: TIdStackSocketHandle; var VBuffer: TIdBytes;
@@ -170,6 +145,9 @@ uses
   Posix.SysUio,
   Posix.Unistd,
   Posix.Fcntl,
+  {$IFDEF HAS_UNIT_Generics_Collections}
+  System.Generics.Collections,
+  {$ENDIF}
   SysUtils;
 
   {$UNDEF HAS_MSG_NOSIGNAL}
@@ -187,6 +165,20 @@ const
   {$ENDIF}
   Id_WSAEPIPE = EPIPE;
 
+  // TODO: is there an RTL unit that already defines these constants?
+  POLLIN     = $0001;
+  POLLPRI    = $0002;
+  POLLOUT    = $0004;
+  POLLERR    = $0008;
+  POLLHUP    = $0010;
+  POLLNVAL   = $0020;
+  POLLRDNORM = $0040;
+  POLLRDBAND = $0080;
+  POLLWRNORM = $0100;
+  POLLWRBAND = $0200;
+  POLLMSG    = $0400;
+  POLLREMOVE = $1000;
+  POLLRDHUP  = $2000;
 
 
 //helper functions for some structs
@@ -220,17 +212,73 @@ end;
 
 { TIdSocketListVCLPosix }
 
+type
+  // TODO: is there an RTL unit that already defines these types?
+  ppollfd = ^pollfd;
+  pollfd = record
+    fd      : TIdStackSocketHandle;
+    events  : Int16;
+    revents : Int16;
+  end;
+  pollfdArray = array of pollfd;
+  nfds_t = TIdC_ULONG; // TODO: some platforms use 'C_UINT' instead! How to detect those?
+
+  {$IFDEF HAS_GENERICS_TList}
+  TIdStackSocketHandleList = TList<TIdStackSocketHandle>;
+  {$ELSE}
+  // TODO: flesh out to match TList<TIdStackSocketHandle> for non-Generics compilers
+  TIdStackSocketHandleList = TList;
+  {$ENDIF}
+
+  TIdSocketListVCLPosix = class(TIdSocketList)
+  protected
+    FSockets: TIdStackSocketHandleList;
+    //
+    class function FDPoll(ASet: ppollfd; const ACount: nfds_t; const ATimeout: Integer): Boolean;
+    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
+    procedure GetPollFds(var VSet: pollfdArray; var VOffset: nfds_t; const AEvents: Int16);
+    procedure SetPollFds(const VSet: pollfdArray; const AEvents: Int16);
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+    procedure Add(AHandle: TIdStackSocketHandle); override;
+    procedure Remove(AHandle: TIdStackSocketHandle); override;
+    function Count: Integer; override;
+    procedure Clear; override;
+    function Clone: TIdSocketList; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): Boolean; override;
+    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
+      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectReadList(var VSocketList: TIdSocketList;
+      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+  end;
+
+constructor TIdSocketListVCLPosix.Create;
+begin
+  inherited;
+  FSockets := TIdStackSocketHandleList.Create;
+end;
+
+destructor TIdSocketListVCLPosix.Destroy;
+begin
+  FSockets.Free;
+  inherited;
+end;
+
 procedure TIdSocketListVCLPosix.Add(AHandle: TIdStackSocketHandle);
 begin
   Lock;
   try
-    if not __FD_ISSET(AHandle, FFDSet) then begin
-      if AHandle >= FD_SETSIZE then begin
-        raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
-      end;
-      __FD_SET(AHandle, FFDSet);
-      Inc(FCount);
+    {$IFDEF HAS_GENERICS_TList}
+    if not FSockets.Contains(AHandle) then begin
+      FSockets.Add(AHandle);
     end;
+    {$ELSE}
+    if FSockets.IndexOf(Pointer(AHandle)) = -1 then begin
+      FSockets.Add(Pointer(AHandle));
+    end;
+    {$ENDIF}
   finally
     Unlock;
   end;
@@ -240,8 +288,7 @@ procedure TIdSocketListVCLPosix.Clear;
 begin
   Lock;
   try
-    __FD_ZERO(FFDSet);
-    FCount := 0;
+    FSockets.Clear;
   finally
     Unlock;
   end;
@@ -253,7 +300,11 @@ begin
   try
     Lock;
     try
-      TIdSocketListVCLPosix(Result).SetFDSet(FFDSet);
+      {$IFDEF HAS_GENERICS_TList}
+      TIdSocketListVCLPosix(Result).FSockets.AddRange(FSockets);
+      {$ELSE}
+      TIdSocketListVCLPosix(Result).FSockets.Assign(FSockets);
+      {$ENDIF}
     finally
       Unlock;
     end;
@@ -268,7 +319,11 @@ function TIdSocketListVCLPosix.ContainsSocket(
 begin
   Lock;
   try
-    Result := __FD_ISSET(AHandle, FFDSet);
+    {$IFDEF HAS_GENERICS_TList}
+    Result := FSockets.Contains(AHandle);
+    {$ELSE}
+    Result := FSockets.IndexOf(Pointer(AHandle)) <> -1;
+    {$ENDIF}
   finally
     Unlock;
   end;
@@ -278,57 +333,64 @@ function TIdSocketListVCLPosix.Count: Integer;
 begin
   Lock;
   try
-    Result := FCount;
+    Result := FSockets.Count;
   finally
     Unlock;
   end;
 end;
 
-class function TIdSocketListVCLPosix.FDSelect(AReadSet, AWriteSet,
-  AExceptSet: Pfd_set; const ATimeout: Integer): Integer;
+// TODO: is there an RTL unit that already defines this?
+function poll(Ptr: ppollfd; nfds : nfds_t; timeout : Integer) : Integer; cdecl; external libc name _PU+'poll';
+
+class function TIdSocketListVCLPosix.FDPoll(ASet: ppollfd;
+  const ACount: nfds_t; const ATimeout: Integer): Boolean;
 var
-  LTime: TimeVal;
-  LTimePtr: PTimeVal;
+  LTimeout: Integer;
 begin
   if ATimeout = IdTimeoutInfinite then begin
-    LTimePtr := nil;
+    LTimeout := -1;
   end else begin
-    LTime.tv_sec := ATimeout div 1000;
-    LTime.tv_usec := (ATimeout mod 1000) * 1000;
-    LTimePtr := @LTime;
+    LTimeout := ATimeout;
   end;
-  // TODO: calculate the actual nfds value based on the Sets provided...
-  // TODO: use poll() instead of select() to remove limit on how many sockets can be queried
-  Result := Posix.SysSelect.select(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
+  Result := poll(ASet, ACount, LTimeout) > 0;
 end;
 
-procedure TIdSocketListVCLPosix.GetFDSet(var VSet: fd_set);
+procedure TIdSocketListVCLPosix.GetPollFds(var VSet: pollfdArray;
+  var VOffset: nfds_t; const AEvents: Int16);
+var
+  LPollFD: ppollfd;
+  I: Integer;
 begin
   Lock;
   try
-    VSet := FFDSet;
+    for I := 0 to FSockets.Count-1 do begin
+      LPollFD := @VSet[VOffset];
+      {$IFDEF HAS_GENERICS_TList}
+      LPollFD^.fd := FSockets[i];
+      {$ELSE}
+      LPollFD^.fd := TIdStackSocketHandle(FSockets[i]);
+      {$ENDIF}
+      LPollFD^.events := AEvents;
+      LPollFD^.revents := 0;
+      Inc(VOffset);
+    end;
   finally
     Unlock;
   end;
 end;
 
 function TIdSocketListVCLPosix.GetItem(AIndex: Integer): TIdStackSocketHandle;
-var
-  LIndex, i: Integer;
 begin
-  Result := 0;
   Lock;
   try
-    LIndex := 0;
-    //? use FMaxHandle div x
-    for i:= 0 to FD_SETSIZE - 1 do begin
-      if __FD_ISSET(i, FFDSet) then begin
-        if LIndex = AIndex then begin
-          Result := i;
-          Break;
-        end;
-        Inc(LIndex);
-      end;
+    if (AIndex >= 0) and (AIndex < FSockets.Count) then begin
+      {$IFDEF HAS_GENERICS_TList}
+      Result := FSockets[AIndex];
+      {$ELSE}
+      Result := TIdStackSocketHandle(FSockets[AIndex]);
+      {$ENDIF}
+    end else begin
+      Result := Id_INVALID_SOCKET;
     end;
   finally
     Unlock;
@@ -339,10 +401,11 @@ procedure TIdSocketListVCLPosix.Remove(AHandle: TIdStackSocketHandle);
 begin
   Lock;
   try
-    if __FD_ISSET(AHandle, FFDSet) then begin
-      Dec(FCount);
-      __FD_CLR(AHandle, FFDSet);
-    end;
+    {$IFDEF HAS_GENERICS_TList}
+    FSockets.Remove(AHandle);
+    {$ELSE}
+    FSockets.Remove(Pointer(AHandle));
+    {$ENDIF}
   finally
     Unlock;
   end;
@@ -350,85 +413,103 @@ end;
 
 class function TIdSocketListVCLPosix.Select(AReadList, AWriteList,
   AExceptList: TIdSocketList; const ATimeout: Integer): Boolean;
-
 var
-  LReadSet: fd_set;
-  LWriteSet: fd_set;
-  LExceptSet: fd_set;
-  LPReadSet: Pfd_set;
-  LPWriteSet: Pfd_set;
-  LPExceptSet: Pfd_set;
+  LPollFds: pollfdArray;
+  LOffset: nfds_t;
 
-  procedure ReadSet(AList: TIdSocketList; var ASet: fd_set; var APSet: Pfd_set);
+  function SetCount(AList: TIdSocketList) : Integer;
   begin
     if AList <> nil then begin
-      TIdSocketListVCLPosix(AList).GetFDSet(ASet);
-      APSet := @ASet;
+      Result := AList.Count;
     end else begin
-      APSet := nil;
+      Result := 0;
+    end;
+  end;
+
+  procedure ReadSet(AList: TIdSocketList; const AEvents: Int16);
+  begin
+    if AList <> nil then begin
+      TIdSocketListVCLPosix(AList).GetPollFds(LPollFds, LOffset, AEvents);
     end;
   end;
 
 begin
-  ReadSet(AReadList, LReadSet, LPReadSet);
-  ReadSet(AWriteList, LWriteSet, LPWriteSet);
-  ReadSet(AExceptList, LExceptSet, LPExceptSet);
+  SetLength(LPollFds, SetCount(AReadList) + SetCount(AWriteList) + SetCount(AExceptList));
+
+  LOffset := 0;
+  ReadSet(AReadList, POLLIN or POLLRDHUP);
+  ReadSet(AWriteList, POLLOUT);
+  ReadSet(AExceptList, POLLPRI);
   //
-  Result := FDSelect(LPReadSet, LPWriteSet, LPExceptSet, ATimeout) >0;
+  Result := FDPoll(ppollfd(LPollFds), LOffset, ATimeout);
   //
   if AReadList <> nil then begin
-    TIdSocketListVCLPosix(AReadList).SetFDSet(LReadSet);
+    TIdSocketListVCLPosix(AReadList).SetPollFds(LPollFds, POLLIN or POLLHUP);
   end;
   if AWriteList <> nil then begin
-    TIdSocketListVCLPosix(AWriteList).SetFDSet(LWriteSet);
+    TIdSocketListVCLPosix(AWriteList).SetPollFds(LPollFds, POLLOUT);
   end;
   if AExceptList <> nil then begin
-    TIdSocketListVCLPosix(AExceptList).SetFDSet(LExceptSet);
+    TIdSocketListVCLPosix(AExceptList).SetPollFds(LPollFds, POLLPRI);
   end;
 end;
 
 function TIdSocketListVCLPosix.SelectRead(const ATimeout: Integer): Boolean;
 var
-  LSet: fd_set;
+  LPollFds: pollfdArray;
+  LCount: nfds_t;
 begin
   Lock;
   try
-    LSet := FFDSet;
-    // select() updates this structure on return,
-    // so we need to copy it each time we need it
+    SetLength(LPollFds, FSockets.Count);
+    LCount := GetPollFds(LPollFds, 0, POLLIN or POLLRDHUP);
   finally
     Unlock;
   end;
-  Result := FDSelect(@LSet, nil, nil, ATimeout) > 0;
+  Result := FDPoll(ppollfd(LPollFds), LCount, ATimeout);
 end;
 
 function TIdSocketListVCLPosix.SelectReadList(var VSocketList: TIdSocketList;
   const ATimeout: Integer): Boolean;
 var
-  LSet: fd_set;
+  LPollFds: pollfdArray;
+  LCount: nfds_t;
 begin
   Lock;
   try
-    LSet := FFDSet;
-    // select() updates this structure on return,
-    // so we need to copy it each time we need it
+    SetLength(LPollFds, FSockets.Count);
+    LCount := GetPollFds(LPollFds, 0, POLLIN or POLLRDHUP);
   finally
     Unlock;
   end;
-  Result := FDSelect(@LSet, nil, nil, ATimeout) > 0;
+  Result := FDPoll(ppollfd(LPollFds), LCount, ATimeout);
   if Result then begin
     if VSocketList = nil then begin
       VSocketList := TIdSocketList.CreateSocketList;
     end;
-    TIdSocketListVCLPosix(VSocketList).SetFDSet(LSet);
+    TIdSocketListVCLPosix(VSocketList).SetPollFds(LPollFds, POLLIN or POLLRDHUP);
   end;
 end;
 
-procedure TIdSocketListVCLPosix.SetFDSet(var VSet: fd_set);
+procedure TIdSocketListVCLPosix.SetPollFds(const VSet: pollfdArray;
+  const AEvents: Int16);
+var
+  LPollFD: ppollfd;
+  I: Integer;
 begin
   Lock;
   try
-    FFDSet := VSet;
+    FSockets.Clear;
+    for I := Low(VSet) to High(VSet) do begin
+      LPollFD := @VSet[I];
+      if (AEvents = 0) or ((LPollFD^.revents and AEvents) <> 0) then begin
+        {$IFDEF HAS_GENERICS_TList}
+        FSockets.Add(LPollFD^.fd);
+        {$ELSE}
+        FSockets.Add(Pointer(LPollFD^.fd));
+        {$ENDIF}
+      end;
+    end;
   finally
     Unlock;
   end;

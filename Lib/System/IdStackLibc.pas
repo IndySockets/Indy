@@ -77,33 +77,6 @@ uses
   {$DEFINE LIBCPASS_STRUCT}
 {$ENDIF}
 type
-
-  // TODO: move this class into the implementation section! It is not used outside of this unit
-  TIdSocketListLibc = class (TIdSocketList)
-  protected
-    FCount: integer;
-    FFDSet: TFDSet;
-    //
-    class function FDSelect(AReadSet: PFDSet; AWriteSet: PFDSet; AExceptSet: PFDSet;
-     const ATimeout: Integer = IdTimeoutInfinite): integer;
-    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
-  public
-    procedure Add(AHandle: TIdStackSocketHandle); override;
-    procedure Remove(AHandle: TIdStackSocketHandle); override;
-    function Count: Integer; override;
-    procedure Clear; override;
-    function Clone: TIdSocketList; override;
-    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
-    procedure GetFDSet(var VSet: TFDSet);
-    procedure SetFDSet(var VSet: TFDSet);
-    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
-      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean;
-      override;
-    function SelectReadList(var VSocketList: TIdSocketList;
-      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-  End;//TIdSocketList
-
   TIdStackLibc = class(TIdStackBSDBase)
   private
     procedure WriteChecksumIPv6(s: TIdStackSocketHandle;
@@ -1186,6 +1159,33 @@ begin
 end;
 
 { TIdSocketListLibc }
+
+type
+  // TODO: rewrite this to use poll() instead of select(), similar to TIdSocketListVCLPosix
+  TIdSocketListLibc = class (TIdSocketList)
+  protected
+    FCount: integer;
+    FFDSet: TFDSet;
+    //
+    class function FDSelect(AReadSet: PFDSet; AWriteSet: PFDSet; AExceptSet: PFDSet;
+     const ATimeout: Integer = IdTimeoutInfinite): integer;
+    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
+  public
+    procedure Add(AHandle: TIdStackSocketHandle); override;
+    procedure Remove(AHandle: TIdStackSocketHandle); override;
+    function Count: Integer; override;
+    procedure Clear; override;
+    function Clone: TIdSocketList; override;
+    function ContainsSocket(AHandle: TIdStackSocketHandle): boolean; override;
+    procedure GetFDSet(var VSet: TFDSet);
+    procedure SetFDSet(var VSet: TFDSet);
+    class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
+      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean;
+      override;
+    function SelectReadList(var VSocketList: TIdSocketList;
+      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+  End;//TIdSocketList
 
 procedure TIdSocketListLibc.Add(AHandle: TIdStackSocketHandle);
 begin
