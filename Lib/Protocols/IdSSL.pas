@@ -154,6 +154,12 @@ type
       write SetItem; default;
   end {$IFDEF HAS_DEPRECATED}deprecated{$ENDIF};
 
+  TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2,sslvTLSv1_3);
+  TIdSSLVersions = set of TIdSSLVersion;
+  TIdSSLMode = (sslmUnassigned, sslmClient, sslmServer, sslmBoth);
+  TIdSSLCtxMode = (sslCtxClient, sslCtxServer);
+  TIdSSLAction = (sslRead, sslWrite);
+
 var
   GSSLRegistry : TIdSSLRegistry{$IFDEF HAS_DEPRECATED}{$IFDEF USE_SEMICOLON_BEFORE_DEPRECATED};{$ENDIF} deprecated{$ENDIF};
 

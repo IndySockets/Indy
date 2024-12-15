@@ -228,8 +228,8 @@ uses
   IdYarn;
 
 type
-  TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2);
-  TIdSSLVersions = set of TIdSSLVersion;
+  TIdSSLVersion = IdSSL.TIdSSLVersion;
+  TIdSSLVersions = IdSSL.TIdSSLVersions;
   TIdSSLMode = (sslmUnassigned, sslmClient, sslmServer, sslmBoth);
   TIdSSLVerifyMode = (sslvrfPeer, sslvrfFailIfNoPeerCert, sslvrfClientOnce);
   TIdSSLVerifyModeSet = set of TIdSSLVerifyMode;
@@ -237,8 +237,8 @@ type
   TIdSSLAction = (sslRead, sslWrite);
 
 const
-  DEF_SSLVERSION = sslvTLSv1;
-  DEF_SSLVERSIONS = [sslvTLSv1];
+  DEF_SSLVERSION = IdSSL.sslvTLSv1;
+  DEF_SSLVERSIONS = [IdSSL.sslvTLSv1];
   P12_FILETYPE = 3;
   MAX_SSL_PASSWORD_LENGTH = 128;
 
@@ -684,6 +684,14 @@ uses
   IdThreadSafe,
   SysUtils,
   SyncObjs;
+
+const
+  sslvSSLv2 = IdSSL.sslvSSLv2;
+  sslvSSLv3 = IdSSL.sslvSSLv3;
+  sslvSSLv23 = IdSSL.sslvSSLv23;
+  sslvTLSv1 = IdSSL.sslvTLSv1;
+  sslvTLSv1_1 = IdSSL.sslvTLSv1_1;
+  sslvTLSv1_2 = IdSSL.sslvTLSv1_2;
 
 type
   // TODO: TIdThreadSafeObjectList instead?
