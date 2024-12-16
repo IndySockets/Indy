@@ -2232,7 +2232,7 @@ begin
 
   //ALGS  - RFC 6384
   LCmd := CommandHandlers.Add;
-  LCmd.NormalReply.NumericCode := 200;
+  LCmd.NormalReply.NumericCode := 202;
   LCmd.NormalReply.Text.Text := 'Command not implemented, superfluous at this site'; {Do not localize}
   LCmd.Command := 'ALGS';    {Do not Localize}
   LCmd.Description.Text := 'Syntax: ALGS (STATUS64|ENABLE64|DISABLE64)'; {do not localize}
