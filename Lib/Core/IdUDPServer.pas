@@ -293,7 +293,10 @@ end;
 // to listen on the same port at the same time! Windows does not
 // have that problem...
 {$DEFINE CanCreateTwoBindings}
-{$IF DEFINED(LINUX) or DEFINED(SOLARIS)} // should this be UNIX instead?
+{$IFDEF LINUX} // should this be UNIX instead?
+  {$UNDEF CanCreateTwoBindings}
+{$ENDIF}
+{$IFDEF SOLARIS}
   {$UNDEF CanCreateTwoBindings}
 {$ENDIF}
 {$IFDEF ANDROID}
