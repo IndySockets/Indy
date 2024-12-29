@@ -293,7 +293,7 @@ end;
 // Linux/Unix does not allow an IPv4 socket and an IPv6 socket
 // to listen on the same port at the same time! Windows does not
 // have that problem...
-{$IF DEFINED(LINUX) OR DEFINED(ANDROID)} // should this be UNIX instead?
+{$IF DEFINED(LINUX) OR DEFINED(SOLARIS) OR DEFINED(ANDROID)} // should this be UNIX instead?
   {$UNDEF CanCreateTwoBindings}
 {$ELSE}
   {$DEFINE CanCreateTwoBindings}
