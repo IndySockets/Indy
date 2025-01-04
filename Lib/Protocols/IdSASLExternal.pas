@@ -24,9 +24,9 @@
 
 unit IdSASLExternal;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdSASL;

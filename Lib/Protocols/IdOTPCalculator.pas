@@ -55,8 +55,9 @@
 
 unit IdOTPCalculator;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdException;

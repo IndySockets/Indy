@@ -55,9 +55,9 @@ unit IdCookieManager;
   Copyright: (c) Chad Z. Hower and The Indy Team.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

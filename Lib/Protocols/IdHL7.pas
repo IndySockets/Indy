@@ -134,9 +134,9 @@
 
 unit IdHL7;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

@@ -147,9 +147,9 @@ unit IdCoderBinHex4;
   ContentTransfer := 'binhex40'.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
