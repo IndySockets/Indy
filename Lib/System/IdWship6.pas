@@ -34,6 +34,7 @@ interface
 
 {$I IdCompilerDefines.inc}
 
+{$IFDEF WINDOWS}
 {$IFDEF FPC}
   {$IFDEF WIN32}
     {$ALIGN OFF}
@@ -438,7 +439,9 @@ function gaiErrorToWsaError(const gaiError: Integer): Integer;
 procedure InitLibrary;
 procedure CloseLibrary;
 
+{$ENDIF}
 implementation
+{$IFDEF WINDOWS}
 
 uses
   SysUtils;
@@ -1541,5 +1544,5 @@ end;
 initialization
 finalization
   CloseLibrary;
-
+{$ENDIF}
 end.
