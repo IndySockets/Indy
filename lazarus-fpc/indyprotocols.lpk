@@ -1,0 +1,1036 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="indyprotocols"/>
+    <Author Value="Chad Z. Hower (Kudzu) and the Indy Pit Crew - http://www.indyproject.org"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <IncludeFiles Value="../Lib/Protocols"/>
+        <OtherUnitFiles Value="../Lib/Protocols"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Other>
+        <CustomOptions Value="-Ur"/>
+      </Other>
+    </CompilerOptions>
+    <Description Value="Indy - Internet Direct
+
+Indy is a well-known internet component suite for Delphi, C++Builder, and Free Pascal providing both low-level support (TCP, UDP, raw sockets) and over a 120 higher level protocols (SMTP, POP3, NNT, HTTP, FTP) for building both client and server applications."/>
+    <License Value="Duel License
+
+MPL 
+
+Indy Modified BSD License
+Redistribution and use in sourcea and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation, about box and/or other materials provided with the distribution. 
+
+No personal names or organizations names associated with the Indy project may be used to endorse or promote products derived from this software without specific prior written permission of the specific individual or organization. 
+
+THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;amp;quot;AS IS&apos;&apos; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."/>
+    <Version Major="10" Minor="6" Release = "3" Build="3767" />
+    <Files>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAllAuthentications.pas"/>
+        <UnitName Value="IdAllAuthentications"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAllFTPListParsers.pas"/>
+        <UnitName Value="IdAllFTPListParsers"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAllHeaderCoders.pas"/>
+        <UnitName Value="IdAllHeaderCoders"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdASN1Coder.pas"/>
+        <UnitName Value="IdASN1Coder"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdASN1Util.pas"/>
+        <UnitName Value="IdASN1Util"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAttachment.pas"/>
+        <UnitName Value="IdAttachment"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAttachmentFile.pas"/>
+        <UnitName Value="IdAttachmentFile"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAttachmentMemory.pas"/>
+        <UnitName Value="IdAttachmentMemory"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAuthentication.pas"/>
+        <UnitName Value="IdAuthentication"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAuthenticationDigest.pas"/>
+        <UnitName Value="IdAuthenticationDigest"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAuthenticationManager.pas"/>
+        <UnitName Value="IdAuthenticationManager"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAuthenticationSSPI.pas"/>
+        <UnitName Value="IdAuthenticationSSPI"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdBlockCipherIntercept.pas"/>
+        <UnitName Value="IdBlockCipherIntercept"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdChargenServer.pas"/>
+        <UnitName Value="IdChargenServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdChargenUDPServer.pas"/>
+        <UnitName Value="IdChargenUDPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCharsets.pas"/>
+        <UnitName Value="IdCharsets"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoder00E.pas"/>
+        <UnitName Value="IdCoder00E"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoderBinHex4.pas"/>
+        <UnitName Value="IdCoderBinHex4"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoderHeader.pas"/>
+        <UnitName Value="IdCoderHeader"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoderQuotedPrintable.pas"/>
+        <UnitName Value="IdCoderQuotedPrintable"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoderTNEF.pas"/>
+        <Type Value="Include"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoderUUE.pas"/>
+        <UnitName Value="IdCoderUUE"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoderXXE.pas"/>
+        <UnitName Value="IdCoderXXE"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCompressionIntercept.pas"/>
+        <UnitName Value="IdCompressionIntercept"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCompressorZLib.pas"/>
+        <UnitName Value="IdCompressorZLib"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdConnectThroughHttpProxy.pas"/>
+        <UnitName Value="IdConnectThroughHttpProxy"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdContainers.pas"/>
+        <UnitName Value="IdContainers"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCookie.pas"/>
+        <UnitName Value="IdCookie"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCookieManager.pas"/>
+        <UnitName Value="IdCookieManager"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCustomHTTPServer.pas"/>
+        <UnitName Value="IdCustomHTTPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDateTimeStamp.pas"/>
+        <UnitName Value="IdDateTimeStamp"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDayTime.pas"/>
+        <UnitName Value="IdDayTime"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDayTimeServer.pas"/>
+        <UnitName Value="IdDayTimeServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDayTimeUDP.pas"/>
+        <UnitName Value="IdDayTimeUDP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDayTimeUDPServer.pas"/>
+        <UnitName Value="IdDayTimeUDPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDICT.pas"/>
+        <UnitName Value="IdDICT"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDICTCommon.pas"/>
+        <UnitName Value="IdDICTCommon"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDICTServer.pas"/>
+        <UnitName Value="IdDICTServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDiscardServer.pas"/>
+        <UnitName Value="IdDiscardServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDiscardUDPServer.pas"/>
+        <UnitName Value="IdDiscardUDPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDNSCommon.pas"/>
+        <UnitName Value="IdDNSCommon"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDNSResolver.pas"/>
+        <UnitName Value="IdDNSResolver"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdDNSServer.pas"/>
+        <UnitName Value="IdDNSServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdEcho.pas"/>
+        <UnitName Value="IdEcho"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdEchoServer.pas"/>
+        <UnitName Value="IdEchoServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdEchoUDP.pas"/>
+        <UnitName Value="IdEchoUDP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdEchoUDPServer.pas"/>
+        <UnitName Value="IdEchoUDPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdEMailAddress.pas"/>
+        <UnitName Value="IdEMailAddress"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdExplicitTLSClientServerBase.pas"/>
+        <UnitName Value="IdExplicitTLSClientServerBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFinger.pas"/>
+        <UnitName Value="IdFinger"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFingerServer.pas"/>
+        <UnitName Value="IdFingerServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFSP.pas"/>
+        <UnitName Value="IdFSP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTP.pas"/>
+        <UnitName Value="IdFTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPBaseFileSystem.pas"/>
+        <UnitName Value="IdFTPBaseFileSystem"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPCommon.pas"/>
+        <UnitName Value="IdFTPCommon"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPList.pas"/>
+        <UnitName Value="IdFTPList"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListOutput.pas"/>
+        <UnitName Value="IdFTPListOutput"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseAS400.pas"/>
+        <UnitName Value="IdFTPListParseAS400"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseBase.pas"/>
+        <UnitName Value="IdFTPListParseBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseBullGCOS7.pas"/>
+        <UnitName Value="IdFTPListParseBullGCOS7"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseBullGCOS8.pas"/>
+        <UnitName Value="IdFTPListParseBullGCOS8"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseChameleonNewt.pas"/>
+        <UnitName Value="IdFTPListParseChameleonNewt"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseCiscoIOS.pas"/>
+        <UnitName Value="IdFTPListParseCiscoIOS"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseDistinctTCPIP.pas"/>
+        <UnitName Value="IdFTPListParseDistinctTCPIP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseEPLF.pas"/>
+        <UnitName Value="IdFTPListParseEPLF"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseHellSoft.pas"/>
+        <UnitName Value="IdFTPListParseHellSoft"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseIEFTPGateway.pas"/>
+        <UnitName Value="IdFTPListParseIEFTPGateway"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseKA9Q.pas"/>
+        <UnitName Value="IdFTPListParseKA9Q"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseMicrowareOS9.pas"/>
+        <UnitName Value="IdFTPListParseMicrowareOS9"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseMPEiX.pas"/>
+        <UnitName Value="IdFTPListParseMPEiX"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseMusic.pas"/>
+        <UnitName Value="IdFTPListParseMusic"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseMVS.pas"/>
+        <UnitName Value="IdFTPListParseMVS"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseNCSAForDOS.pas"/>
+        <UnitName Value="IdFTPListParseNCSAForDOS"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseNCSAForMACOS.pas"/>
+        <UnitName Value="IdFTPListParseNCSAForMACOS"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseNovellNetware.pas"/>
+        <UnitName Value="IdFTPListParseNovellNetware"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseNovellNetwarePSU.pas"/>
+        <UnitName Value="IdFTPListParseNovellNetwarePSU"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseOS2.pas"/>
+        <UnitName Value="IdFTPListParseOS2"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParsePCNFSD.pas"/>
+        <UnitName Value="IdFTPListParsePCNFSD"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParsePCTCP.pas"/>
+        <UnitName Value="IdFTPListParsePCTCP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseStercomOS390Exp.pas"/>
+        <UnitName Value="IdFTPListParseStercomOS390Exp"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseStercomUnixEnt.pas"/>
+        <UnitName Value="IdFTPListParseStercomUnixEnt"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseStratusVOS.pas"/>
+        <UnitName Value="IdFTPListParseStratusVOS"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseSuperTCP.pas"/>
+        <UnitName Value="IdFTPListParseSuperTCP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseTandemGuardian.pas"/>
+        <UnitName Value="IdFTPListParseTandemGuardian"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseTOPS20.pas"/>
+        <UnitName Value="IdFTPListParseTOPS20"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseTSXPlus.pas"/>
+        <UnitName Value="IdFTPListParseTSXPlus"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseUnisysClearPath.pas"/>
+        <UnitName Value="IdFTPListParseUnisysClearPath"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseUnix.pas"/>
+        <UnitName Value="IdFTPListParseUnix"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseVM.pas"/>
+        <UnitName Value="IdFTPListParseVM"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseVMS.pas"/>
+        <UnitName Value="IdFTPListParseVMS"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseVSE.pas"/>
+        <UnitName Value="IdFTPListParseVSE"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseVxWorks.pas"/>
+        <UnitName Value="IdFTPListParseVxWorks"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseWfFTP.pas"/>
+        <UnitName Value="IdFTPListParseWfFTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseWindowsNT.pas"/>
+        <UnitName Value="IdFTPListParseWindowsNT"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseWinQVTNET.pas"/>
+        <UnitName Value="IdFTPListParseWinQVTNET"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListParseXecomMicroRTOS.pas"/>
+        <UnitName Value="IdFTPListParseXecomMicroRTOS"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPListTypes.pas"/>
+        <UnitName Value="IdFTPListTypes"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPServer.pas"/>
+        <UnitName Value="IdFTPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFTPServerContextBase.pas"/>
+        <UnitName Value="IdFTPServerContextBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdGlobalProtocols.pas"/>
+        <UnitName Value="IdGlobalProtocols"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdGopher.pas"/>
+        <UnitName Value="IdGopher"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdGopherConsts.pas"/>
+        <UnitName Value="IdGopherConsts"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdGopherServer.pas"/>
+        <UnitName Value="IdGopherServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHashAdler32.pas"/>
+        <UnitName Value="IdHashAdler32"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHashCRC.pas"/>
+        <UnitName Value="IdHashCRC"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHashElf.pas"/>
+        <UnitName Value="IdHashElf"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHashSHA1.pas"/>
+        <UnitName Value="IdHashSHA1"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHeaderCoder2022JP.pas"/>
+        <UnitName Value="IdHeaderCoder2022JP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHeaderCoderBase.pas"/>
+        <UnitName Value="IdHeaderCoderBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHeaderCoderBig5.pas"/>
+        <UnitName Value="IdHeaderCoderBig5"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHeaderCoderIndy.pas"/>
+        <UnitName Value="IdHeaderCoderIndy"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHeaderCoderPlain.pas"/>
+        <UnitName Value="IdHeaderCoderPlain"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHeaderList.pas"/>
+        <UnitName Value="IdHeaderList"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHL7.pas"/>
+        <UnitName Value="IdHL7"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHMAC.pas"/>
+        <UnitName Value="IdHMAC"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHMACMD5.pas"/>
+        <UnitName Value="IdHMACMD5"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHMACSHA1.pas"/>
+        <UnitName Value="IdHMACSHA1"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHostnameServer.pas"/>
+        <UnitName Value="IdHostnameServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHTTP.pas"/>
+        <UnitName Value="IdHTTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHTTPHeaderInfo.pas"/>
+        <UnitName Value="IdHTTPHeaderInfo"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHTTPProxyServer.pas"/>
+        <UnitName Value="IdHTTPProxyServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHTTPServer.pas"/>
+        <UnitName Value="IdHTTPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdIdent.pas"/>
+        <UnitName Value="IdIdent"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdIdentServer.pas"/>
+        <UnitName Value="IdIdentServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdIMAP4.pas"/>
+        <UnitName Value="IdIMAP4"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdIMAP4Server.pas"/>
+        <UnitName Value="IdIMAP4Server"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdIPAddrMon.pas"/>
+        <UnitName Value="IdIPAddrMon"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdIPWatch.pas"/>
+        <UnitName Value="IdIPWatch"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdIRC.pas"/>
+        <UnitName Value="IdIRC"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdIrcServer.pas"/>
+        <UnitName Value="IdIrcServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdLDAPV3.pas"/>
+        <UnitName Value="IdLDAPV3"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdLDAPV3Coder.pas"/>
+        <UnitName Value="IdLDAPV3Coder"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdLPR.pas"/>
+        <UnitName Value="IdLPR"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMailBox.pas"/>
+        <UnitName Value="IdMailBox"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMappedFTP.pas"/>
+        <UnitName Value="IdMappedFTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMappedPOP3.pas"/>
+        <UnitName Value="IdMappedPOP3"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMappedPortTCP.pas"/>
+        <UnitName Value="IdMappedPortTCP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMappedPortUDP.pas"/>
+        <UnitName Value="IdMappedPortUDP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMappedTelnet.pas"/>
+        <UnitName Value="IdMappedTelnet"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessage.pas"/>
+        <UnitName Value="IdMessage"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageBuilder.pas"/>
+        <UnitName Value="IdMessageBuilder"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageClient.pas"/>
+        <UnitName Value="IdMessageClient"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageCoder.pas"/>
+        <UnitName Value="IdMessageCoder"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageCoderBinHex4.pas"/>
+        <UnitName Value="IdMessageCoderBinHex4"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageCoderMIME.pas"/>
+        <UnitName Value="IdMessageCoderMIME"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageCoderQuotedPrintable.pas"/>
+        <UnitName Value="IdMessageCoderQuotedPrintable"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageCoderUUE.pas"/>
+        <UnitName Value="IdMessageCoderUUE"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageCoderXXE.pas"/>
+        <UnitName Value="IdMessageCoderXXE"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageCoderYenc.pas"/>
+        <UnitName Value="IdMessageCoderYenc"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageCollection.pas"/>
+        <UnitName Value="IdMessageCollection"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageHelper.pas"/>
+        <UnitName Value="IdMessageHelper"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMessageParts.pas"/>
+        <UnitName Value="IdMessageParts"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMIMETypes.pas"/>
+        <UnitName Value="IdMIMETypes"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdMultipartFormData.pas"/>
+        <UnitName Value="IdMultipartFormData"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdNetworkCalculator.pas"/>
+        <UnitName Value="IdNetworkCalculator"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdNNTP.pas"/>
+        <UnitName Value="IdNNTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdNNTPServer.pas"/>
+        <UnitName Value="IdNNTPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdOSFileName.pas"/>
+        <UnitName Value="IdOSFileName"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdOTPCalculator.pas"/>
+        <UnitName Value="IdOTPCalculator"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdPOP3.pas"/>
+        <UnitName Value="IdPOP3"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdPOP3Server.pas"/>
+        <UnitName Value="IdPOP3Server"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdQotd.pas"/>
+        <UnitName Value="IdQotd"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdQotdServer.pas"/>
+        <UnitName Value="IdQotdServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdQOTDUDP.pas"/>
+        <UnitName Value="IdQOTDUDP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdQOTDUDPServer.pas"/>
+        <UnitName Value="IdQOTDUDPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdRemoteCMDClient.pas"/>
+        <UnitName Value="IdRemoteCMDClient"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdRemoteCMDServer.pas"/>
+        <UnitName Value="IdRemoteCMDServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdReplyFTP.pas"/>
+        <UnitName Value="IdReplyFTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdReplyIMAP4.pas"/>
+        <UnitName Value="IdReplyIMAP4"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdReplyPOP3.pas"/>
+        <UnitName Value="IdReplyPOP3"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdReplySMTP.pas"/>
+        <UnitName Value="IdReplySMTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdResourceStringsProtocols.pas"/>
+        <UnitName Value="IdResourceStringsProtocols"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdResourceStringsSSPI.pas"/>
+        <UnitName Value="IdResourceStringsSSPI"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdResourceStringsUriUtils.pas"/>
+        <UnitName Value="IdResourceStringsUriUtils"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdRexec.pas"/>
+        <UnitName Value="IdRexec"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdRexecServer.pas"/>
+        <UnitName Value="IdRexecServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdRSH.pas"/>
+        <UnitName Value="IdRSH"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdRSHServer.pas"/>
+        <UnitName Value="IdRSHServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASL.pas"/>
+        <UnitName Value="IdSASL"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASLAnonymous.pas"/>
+        <UnitName Value="IdSASLAnonymous"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASLCollection.pas"/>
+        <UnitName Value="IdSASLCollection"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASL_CRAMBase.pas"/>
+        <UnitName Value="IdSASL_CRAMBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASL_CRAM_MD5.pas"/>
+        <UnitName Value="IdSASL_CRAM_MD5"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASL_CRAM_SHA1.pas"/>
+        <UnitName Value="IdSASL_CRAM_SHA1"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASLDigest.pas"/>
+        <UnitName Value="IdSASLDigest"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASLExternal.pas"/>
+        <UnitName Value="IdSASLExternal"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASLLogin.pas"/>
+        <UnitName Value="IdSASLLogin"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASLOTP.pas"/>
+        <UnitName Value="IdSASLOTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASLPlain.pas"/>
+        <UnitName Value="IdSASLPlain"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASLSKey.pas"/>
+        <UnitName Value="IdSASLSKey"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSASLUserPass.pas"/>
+        <UnitName Value="IdSASLUserPass"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdServerInterceptLogBase.pas"/>
+        <UnitName Value="IdServerInterceptLogBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdServerInterceptLogEvent.pas"/>
+        <UnitName Value="IdServerInterceptLogEvent"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdServerInterceptLogFile.pas"/>
+        <UnitName Value="IdServerInterceptLogFile"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSMTP.pas"/>
+        <UnitName Value="IdSMTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSMTPBase.pas"/>
+        <UnitName Value="IdSMTPBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSMTPRelay.pas"/>
+        <UnitName Value="IdSMTPRelay"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSMTPServer.pas"/>
+        <UnitName Value="IdSMTPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSNMP.pas"/>
+        <UnitName Value="IdSNMP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSNPP.pas"/>
+        <UnitName Value="IdSNPP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSNTP.pas"/>
+        <UnitName Value="IdSNTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSocksServer.pas"/>
+        <UnitName Value="IdSocksServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSSH.pas"/>
+        <UnitName Value="IdSSH"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSSPI.pas"/>
+        <UnitName Value="IdSSPI"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdStrings.pas"/>
+        <UnitName Value="IdStrings"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSysLog.pas"/>
+        <UnitName Value="IdSysLog"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSysLogMessage.pas"/>
+        <UnitName Value="IdSysLogMessage"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSysLogServer.pas"/>
+        <UnitName Value="IdSysLogServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSystat.pas"/>
+        <UnitName Value="IdSystat"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSystatServer.pas"/>
+        <UnitName Value="IdSystatServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSystatUDP.pas"/>
+        <UnitName Value="IdSystatUDP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSystatUDPServer.pas"/>
+        <UnitName Value="IdSystatUDPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdTelnet.pas"/>
+        <UnitName Value="IdTelnet"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdTelnetServer.pas"/>
+        <UnitName Value="IdTelnetServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdText.pas"/>
+        <UnitName Value="IdText"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdTime.pas"/>
+        <UnitName Value="IdTime"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdTimeServer.pas"/>
+        <UnitName Value="IdTimeServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdTimeUDP.pas"/>
+        <UnitName Value="IdTimeUDP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdTimeUDPServer.pas"/>
+        <UnitName Value="IdTimeUDPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdTrivialFTP.pas"/>
+        <UnitName Value="IdTrivialFTP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdTrivialFTPBase.pas"/>
+        <UnitName Value="IdTrivialFTPBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdTrivialFTPServer.pas"/>
+        <UnitName Value="IdTrivialFTPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdUnixTime.pas"/>
+        <UnitName Value="IdUnixTime"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdUnixTimeServer.pas"/>
+        <UnitName Value="IdUnixTimeServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdUnixTimeUDP.pas"/>
+        <UnitName Value="IdUnixTimeUDP"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdUnixTimeUDPServer.pas"/>
+        <UnitName Value="IdUnixTimeUDPServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdURI.pas"/>
+        <UnitName Value="IdURI"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdUriUtils.pas"/>
+        <UnitName Value="IdUriUtils"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdUserAccounts.pas"/>
+        <UnitName Value="IdUserAccounts"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdUserPassProvider.pas"/>
+        <UnitName Value="IdUserPassProvider"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdVCard.pas"/>
+        <UnitName Value="IdVCard"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdWebDAV.pas"/>
+        <UnitName Value="IdWebDAV"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdWhois.pas"/>
+        <UnitName Value="IdWhois"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdWhoIsServer.pas"/>
+        <UnitName Value="IdWhoIsServer"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdZLib.pas"/>
+        <UnitName Value="IdZLib"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdZLibCompressorBase.pas"/>
+        <UnitName Value="IdZLibCompressorBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdZLibConst.pas"/>
+        <UnitName Value="IdZLibConst"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdZLibHeaders.pas"/>
+        <UnitName Value="IdZLibHeaders"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdSSL.pas"/>
+        <UnitName Value="IdSSL"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdHash.pas"/>
+        <UnitName Value="IdHash"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdFIPS.pas"/>
+        <UnitName Value="IdFIPS"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoder.pas"/>
+        <UnitName Value="IdCoder"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoderMIME.pas"/>
+        <UnitName Value="IdCoderMIME"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdCoder3to4.pas"/>
+        <UnitName Value="IdCoder3to4"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdNTLM.pas"/>
+        <UnitName Value="IdNTLM"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/Protocols/IdAuthenticationNTLM.pas"/>
+        <UnitName Value="IdAuthenticationNTLM"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="indycore"/>
+      </Item>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
