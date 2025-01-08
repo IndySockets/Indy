@@ -12,7 +12,6 @@ uses
   IdStack,
   IdStackConsts,
   IdStream,
-  IdStreamVCL,
   IdStruct;
 
 implementation
