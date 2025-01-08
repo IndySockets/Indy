@@ -31,7 +31,7 @@ Redistributions in binary form must reproduce the above copyright notice, this l
 No personal names or organizations names associated with the Indy project may be used to endorse or promote products derived from this software without specific prior written permission of the specific individual or organization. 
 
 THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;amp;quot;AS IS&apos;&apos; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."/>
-    <Version Major="10" Minor="6" Release = "3" Build="3767" />
+    <Version Major="10" Minor="6" Release="3" Build="3767"/>
     <Files>
       <Item>
         <Filename Value="../Lib/System/IdAssemblyInfo.pas"/>
@@ -66,10 +66,6 @@ THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;am
         <UnitName Value="IdResourceStrings"/>
       </Item>
       <Item>
-        <Filename Value="../Lib/System/IdResourceStringsDotNet11.pas"/>
-        <UnitName Value="IdResourceStringsDotNet11"/>
-      </Item>
-      <Item>
         <Filename Value="../Lib/System/IdResourceStringsIconv.pas"/>
         <UnitName Value="IdResourceStringsIconv"/>
       </Item>
@@ -84,10 +80,6 @@ THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;am
       <Item>
         <Filename Value="../Lib/System/IdResourceStringsUnix.pas"/>
         <UnitName Value="IdResourceStringsUnix"/>
-      </Item>
-      <Item>
-        <Filename Value="../Lib/System/IdResourceStringsVCLPosix.pas"/>
-        <UnitName Value="IdResourceStringsVCLPosix"/>
       </Item>
       <Item>
         <Filename Value="../Lib/System/IdStack.pas"/>
@@ -106,20 +98,12 @@ THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;am
         <UnitName Value="IdStream"/>
       </Item>
       <Item>
-        <Filename Value="../Lib/System/IdStreamVCL.pas"/>
-        <UnitName Value="IdStreamVCL"/>
-      </Item>
-      <Item>
         <Filename Value="../Lib/System/IdStruct.pas"/>
         <UnitName Value="IdStruct"/>
       </Item>
       <Item>
         <Filename Value="../Lib/System/IdTransactedFileStream.pas"/>
         <UnitName Value="IdTransactedFileStream"/>
-      </Item>
-      <Item>
-        <Filename Value="../Lib/System/IdVCLPosixSupplemental.pas"/>
-        <UnitName Value="IdVCLPosixSupplemental"/>
       </Item>
       <Item>
         <Filename Value="../Lib/System/IdWinsock2.pas"/>
