@@ -12,7 +12,7 @@ uses
   IdResourceStrings, IdResourceStringsIconv, IdResourceStringsKylixCompat, 
   IdResourceStringsTextEncoding, IdResourceStringsUnix, IdStack, 
   IdStackBSDBase, IdStackConsts, IdStream, IdStruct, IdTransactedFileStream, 
-  IdWinsock2, IdWship6, IdAntiFreezeBase, LazarusPackageIntf;
+  IdAntiFreezeBase, LazarusPackageIntf;
 
 implementation
 

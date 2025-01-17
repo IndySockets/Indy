@@ -106,14 +106,6 @@ THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;am
         <UnitName Value="IdTransactedFileStream"/>
       </Item>
       <Item>
-        <Filename Value="../Lib/System/IdWinsock2.pas"/>
-        <UnitName Value="IdWinsock2"/>
-      </Item>
-      <Item>
-        <Filename Value="../Lib/System/IdWship6.pas"/>
-        <UnitName Value="IdWship6"/>
-      </Item>
-      <Item>
         <Filename Value="../Lib/System/IdAntiFreezeBase.pas"/>
         <UnitName Value="IdAntiFreezeBase"/>
       </Item>
