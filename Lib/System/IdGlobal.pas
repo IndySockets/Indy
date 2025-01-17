@@ -1039,6 +1039,16 @@ type
   Psize_t = ^size_t;
   {$ENDIF}
 
+  {$IFDEF FPC}
+  TIdBytesSizeType = TIdNativeInt;
+  {$ELSE}
+    {$IFDEF VCL_XE2_OR_ABOVE}
+  TIdBytesSizeType = TIdNativeInt;
+    {$ELSE}
+  TIdBytesSizeType = Longint;
+    {$ENDIF}
+  {$ENDIF}
+
   // RLebeau 12/1/2018: FPC's System unit defines an HMODULE type as a PtrUInt. But,
   // the DynLibs unit defines its own HModule type that is a TLibHandle, which is a
   // PtrInt instead. And to make matters worse, although FPC's System.THandle is a
@@ -1584,7 +1594,7 @@ function ToBytes(const AValue: TIdBytes; const ASize: Integer; const AIndex: Int
 {$IFNDEF DOTNET}
 // RLebeau - not using the same "ToBytes" naming convention for RawToBytes()
 // in order to prevent ambiquious errors with ToBytes(TIdBytes) above
-function RawToBytes(const AValue; const ASize: Integer): TIdBytes;
+function RawToBytes(const AValue; const ASize: TIdBytesSizeType): TIdBytes;
 {$ENDIF}
 
 // The following functions are faster but except that Bytes[] must have enough
@@ -1604,7 +1614,7 @@ procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Int
 {$IFNDEF DOTNET}
 // RLebeau - not using the same "ToBytesF" naming convention for RawToBytesF()
 // in order to prevent ambiquious errors with ToBytesF(TIdBytes) above
-procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer);
+procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: TIdBytesSizeType);
 {$ENDIF}
 
 function ToHex(const AValue: TIdBytes; const ACount: Integer = -1; const AIndex: Integer = 0): string; overload;
@@ -8470,7 +8480,7 @@ begin
 end;
 
 {$IFNDEF DOTNET}
-function RawToBytes(const AValue; const ASize: Integer): TIdBytes;
+function RawToBytes(const AValue; const ASize: TIdBytesSizeType): TIdBytes;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   SetLength(Result, ASize);
@@ -8577,7 +8587,7 @@ begin
 end;
 
 {$IFNDEF DOTNET}
-procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer);
+procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: TIdBytesSizeType);
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= ASize);
