@@ -122,8 +122,6 @@ const
   Delphi_Native_Define_DebugRelease       = [ctDelphiXE2..ctDelphiSydney];
   Delphi_Native_Define_Ver_DT             = [ctDelphiXE4..ctDelphiSydney] - [ctDelphiXE8..ctDelphiSeattle];
   Delphi_Native_Define_Ver_RT             = [ctDelphiXE4..ctDelphiSydney];
-  Delphi_Force_ImplicitBuild_Off_DT       = [ctDelphiRio..ctDelphiTokyo, ctDelphi8Net];
-  Delphi_Force_ImplicitBuild_Off_RT       = [ctDelphiXE4..ctDelphiTokyo, ctDelphi8Net];
 
   function OnOrOff(const AForceOff, AForceOn: TCompilers; const ADefault: Boolean): string;
   begin
@@ -202,11 +200,7 @@ begin
   end;
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
-  if FDesignTime then begin
-    Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off_DT, [], True) + '}');
-  end else begin
-    Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off_RT, [], True) + '}');
-  end;
+  Code('{$IMPLICITBUILD OFF}');
 end;
 
 const

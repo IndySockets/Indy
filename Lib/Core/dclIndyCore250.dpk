@@ -28,7 +28,7 @@ package dclIndyCore250;
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 Core Design Time'}
 {$DESIGNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   designide,

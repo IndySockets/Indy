@@ -499,7 +499,7 @@ begin
   Code('{$IMAGEBASE $400000}');
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
-  Code('{$IMPLICITBUILD ON}');
+  Code('{$IMPLICITBUILD OFF}');
 end;
 
 procedure TPackage.Load(const ACriteria: string; const AUsePath: Boolean = False);

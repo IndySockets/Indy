@@ -110,7 +110,6 @@ const
   Delphi_Native_Force_StackFrames_On      = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
   Delphi_Native_Define_DebugRelease       = [ctDelphiXE2..ctDelphiSydney];
   Delphi_Native_Define_Ver                = [ctDelphiXE4..ctDelphiSydney];
-  Delphi_Force_ImplicitBuild_Off          = [ctDelphiXE4..ctDelphiTokyo, ctDelphi8Net];
 
   function OnOrOff(const AForceOff, AForceOn: TCompilers; const ADefault: Boolean): string;
   begin
@@ -177,7 +176,7 @@ begin
   end;
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
-  Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off, [], True) + '}');
+  Code('{$IMPLICITBUILD OFF}');
 end;
 
 procedure TPackageSystem.GenPreRequiresClause;

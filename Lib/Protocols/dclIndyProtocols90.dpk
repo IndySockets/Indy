@@ -19,7 +19,7 @@ package dclIndyProtocols90;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Protocols Design Time'}
 {$DESIGNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   designide,
