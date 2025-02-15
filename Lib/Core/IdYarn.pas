@@ -31,9 +31,9 @@
 
 unit IdYarn;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 type
   TIdYarn = class(TObject)

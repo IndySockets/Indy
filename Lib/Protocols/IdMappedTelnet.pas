@@ -35,9 +35,9 @@
 
 unit IdMappedTelnet;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdAssignedNumbers,

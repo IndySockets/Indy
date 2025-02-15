@@ -69,9 +69,9 @@ unit IdVCard;
  - Added QP Check & Decode of individual properties
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

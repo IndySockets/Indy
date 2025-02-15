@@ -44,9 +44,9 @@
 }
 unit IdFTPListParseBullGCOS8;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

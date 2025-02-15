@@ -51,9 +51,9 @@ unit IdAntiFreeze;
     restriction.
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
