@@ -892,19 +892,18 @@ const
 const
   libzlib = 'zlib';
   {$ENDIF}
+  //Do not use IFDEF WINDOWS because that may catch WindowsCE.
   {$IFDEF WIN32}
-  //Note that this is the official ZLIB1 .DLL from the http://www.zlib.net/
+  //Note that this is not an official ZLIB .DLL.  It was created by running
+  //CMake in Visual Studio 2022.
 const
-  libzlib = 'zlib1.dll';
+  libzlib = 'zlib.dll';
   {$ENDIF}
   {$IFDEF WIN64}
-  //Note that this is not an official ZLIB .DLL.  It was obtained from:
-  //http://www.winimage.com/zLibDll/
-  //
-  //It is defined with the WINAPI conventions instead of the standard cdecl
-  //conventions.  Get the DLL for Win32-x86.
+  //Note that this is not an official ZLIB .DLL.  It was created by running
+  //CMake in Visual Studio 2022.
 const
-  libzlib = 'zlibwapi.dll';
+  libzlib = 'zlib.dll';
   {$ENDIF}
   {$IFDEF WINCE}
   //Note that zlibce can be found at http://www.tenik.co.jp/~adachi/wince/zlibce/

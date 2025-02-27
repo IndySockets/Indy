@@ -393,8 +393,8 @@ begin
   SetLength(LBuf, 255);
   MakeSocks5Request(AIOHandler, AHost, APort, $01, LBuf, Lpos);
 
-  LBuf := ToBytes(LBuf, Lpos);
-  AIOHandler.WriteDirect(LBuf); // send the connection packet
+  // RLebeau - why is this using WriteDirect() instead of Write()?
+  AIOHandler.WriteDirect(LBuf, Lpos); // send the connection packet
   try
     AIOHandler.ReadBytes(LBuf, 5, False);    // Socks server replies on connect, this is the first part
   except
@@ -517,14 +517,16 @@ begin
 
   // defined in rfc 1928
   if Authentication = saNoAuthentication then begin
-    LBuf[2] := $0   // No authentication
+    LRequestedAuthMethod := $0;  // No authentication
   end else begin
-    LBuf[2] := $2;  // Username password authentication
+    LRequestedAuthMethod := $2;  // Username password authentication
   end;
 
-  LRequestedAuthMethod := LBuf[2];
   LBuf[0] := $5;     // socks version
   LBuf[1] := $1;     // number of possible authentication methods
+  LBuf[2] := LRequestedAuthMethod;
+
+  // RLebeau - why is this using WriteDirect() instead of Write()?
   AIOHandler.WriteDirect(LBuf);
   try
     AIOHandler.ReadBytes(LBuf, 2, False); // Socks server sends the selected authentication method
@@ -549,14 +551,15 @@ begin
     Lpos := 2;
     if LUsernameLen > 0 then begin
       CopyTIdBytes(LUsername, 0, LBuf, Lpos, LUsernameLen);
-      Lpos := Lpos + LUsernameLen;
+      Inc(Lpos, LUsernameLen);
     end;
     LBuf[Lpos] := LPasswordLen;
-    Lpos := Lpos + 1;
+    Inc(Lpos);
     if LPasswordLen > 0 then begin
       CopyTIdBytes(LPassword, 0, LBuf, Lpos, LPasswordLen);
     end;
 
+    // RLebeau - why is this using WriteDirect() instead of Write()?
     AIOHandler.WriteDirect(LBuf); // send the username and password
     try
       AIOHandler.ReadBytes(LBuf, 2, False);    // Socks server sends the authentication status

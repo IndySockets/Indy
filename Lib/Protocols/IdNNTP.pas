@@ -152,7 +152,7 @@ uses
   Classes,
   IdAssignedNumbers, IdExplicitTLSClientServerBase, IdException, IdGlobal,
   IdMessage, IdMessageClient, IdReplyRFC, 
-  IdTCPServer, IdTCPConnection;
+  IdTCPConnection;
 
 {
   Original Author: Chad Z. Hower a.k.a. Kudzu

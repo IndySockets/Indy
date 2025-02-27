@@ -65,12 +65,13 @@ type
     constructor Create; override;
     procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
     procedure GenerateRC(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure GenerateDsnCoreResourceStrings;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  Classes, SysUtils, DateUtils, StrUtils, DModule;
 
 { TPackageCore }
 
@@ -121,8 +122,6 @@ const
   Delphi_Native_Define_DebugRelease       = [ctDelphiXE2..ctDelphiSydney];
   Delphi_Native_Define_Ver_DT             = [ctDelphiXE4..ctDelphiSydney] - [ctDelphiXE8..ctDelphiSeattle];
   Delphi_Native_Define_Ver_RT             = [ctDelphiXE4..ctDelphiSydney];
-  Delphi_Force_ImplicitBuild_Off_DT       = [ctDelphiRio..ctDelphiTokyo, ctDelphi8Net];
-  Delphi_Force_ImplicitBuild_Off_RT       = [ctDelphiXE4..ctDelphiTokyo, ctDelphi8Net];
 
   function OnOrOff(const AForceOff, AForceOn: TCompilers; const ADefault: Boolean): string;
   begin
@@ -201,11 +200,7 @@ begin
   end;
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
-  if FDesignTime then begin
-    Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off_DT, [], True) + '}');
-  end else begin
-    Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off_RT, [], True) + '}');
-  end;
+  Code('{$IMPLICITBUILD OFF}');
 end;
 
 const
@@ -350,6 +345,37 @@ begin
     if Result then Exit;
   end;
   Result := inherited IgnoreContainsFile(AUnit);
+end;
+
+procedure TPackageCore.GenerateDsnCoreResourceStrings;
+var
+  LFileName: string;
+  Data: TStringList;
+  I: Integer;
+begin
+  FCode.Clear;
+
+  LFileName := DM.OutputPath + 'Lib\Core\IdDsnCoreResourceStrings.pas';
+
+  // TStreamReader would be preferred, but its broken!
+  Data := TStringList.Create;
+  try
+    Data.LoadFromFile(LFileName);
+    for I := 0 to Data.Count-1 do begin
+      if StartsStr('  RSAAboutBoxCopyright =', Data[I]) then
+      begin
+        Data[I] := '  RSAAboutBoxCopyright = ''Copyright (c) 1993 - ' + IntToStr(YearOf(Date)) + '''#13#10 + IndyPitCrew;';
+        Break;
+      end;
+    end;
+    FCode.Assign(Data);
+  finally
+    Data.Free;
+  end;
+
+  FName := 'IdDsnCoreResourceStrings';
+  FExt := '.pas';
+  WriteFile;
 end;
 
 end.

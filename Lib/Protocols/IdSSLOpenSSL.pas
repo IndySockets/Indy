@@ -213,7 +213,6 @@ uses
   Windows,
   {$ENDIF}
   Classes,
-  IdBuffer,
   IdCTypes,
   IdGlobal,
   IdException,
@@ -223,14 +222,9 @@ uses
   IdComponent,
   IdIOHandler,
   IdGlobalProtocols,
-  IdTCPServer,
   IdThread,
-  IdTCPConnection,
-  IdIntercept,
   IdIOHandlerSocket,
   IdSSL,
-  IdSocks,
-  IdScheduler,
   IdYarn;
 
 type
@@ -684,17 +678,10 @@ uses
   Posix.Unistd,
   {$ENDIF}
   IdFIPS,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdResourceStringsOpenSSL,
   IdStack,
-  IdStackBSDBase,
-  IdAntiFreezeBase,
-  IdExceptionCore,
-  IdResourceStrings,
   IdThreadSafe,
-  IdCustomTransparentProxy,
-  IdURI,
   SysUtils,
   SyncObjs;
 
@@ -2999,48 +2986,6 @@ var
   LMode: TIdSSLMode;
   LHost: string;
 
-  // TODO: move the following to TIdSSLIOHandlerSocketBase...
-
-  function GetURIHost: string;
-  var
-    LURI: TIdURI;
-  begin
-    Result := '';
-    if URIToCheck <> '' then
-    begin
-      LURI := TIdURI.Create(URIToCheck);
-      try
-        Result := LURI.Host;
-      finally
-        LURI.Free;
-      end;
-    end;
-  end;
-
-  function GetProxyTargetHost: string;
-  var
-    // under ARC, convert a weak reference to a strong reference before working with it
-    LTransparentProxy, LNextTransparentProxy: TIdCustomTransparentProxy;
-  begin
-    Result := '';
-    // RLebeau: not reading from the property as it will create a
-    // default Proxy object if one is not already assigned...
-    LTransparentProxy := FTransparentProxy;
-    if Assigned(LTransparentProxy) then
-    begin
-      if LTransparentProxy.Enabled then
-      begin
-        repeat
-          LNextTransparentProxy := LTransparentProxy.ChainedProxy;
-          if not Assigned(LNextTransparentProxy) then Break;
-          if not LNextTransparentProxy.Enabled then Break;
-          LTransparentProxy := LNextTransparentProxy;
-        until False;
-        Result := LTransparentProxy.Host;
-      end;
-    end;
-  end;
-
 begin
   Assert(Binding<>nil);
   if not Assigned(fSSLSocket) then begin
@@ -4273,8 +4218,6 @@ function TIdSSLCipher.GetVersion:String;
 begin
   Result := String(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL)));
 end;
-
-{$I IdSymbolDeprecatedOff.inc}
 
 initialization
   Assert(SSLIsLoaded=nil);

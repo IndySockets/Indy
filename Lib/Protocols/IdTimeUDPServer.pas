@@ -43,7 +43,7 @@ uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
   {$ENDIF}
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
 type
   TIdCustomTimeUDPServer = class(TIdUDPServer)

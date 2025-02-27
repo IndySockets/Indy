@@ -115,11 +115,6 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  {$IFDEF DOTNET}
-  IdStreamNET,
-  {$ELSE}
-  IdStreamVCL,
-  {$ENDIF}
   IdExceptionCore,
   IdGlobalProtocols,
   IdResourceStringsProtocols,

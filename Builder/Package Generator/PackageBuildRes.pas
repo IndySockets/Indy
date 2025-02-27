@@ -28,10 +28,11 @@ uses
 
 type
   TBuildRes = class(TPackage)
+  private
+    procedure RunBuildRes;
   public
     constructor Create; override;
     procedure Generate(ACompilers: TCompilers; const AFlags: TGenerateFlags); override;
-    procedure Run;
   end;
 
 implementation
@@ -95,9 +96,12 @@ begin
   end;
 
   WriteFile;
+
+  // TODO: run buildres.bat only if any .rc files were actually (re-)generated...
+  RunBuildRes;
 end;
 
-procedure TBuildRes.Run;
+procedure TBuildRes.RunBuildRes;
 var
   LPathname: string;
   LSubDir: string;

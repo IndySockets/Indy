@@ -356,9 +356,7 @@ uses
   IdIntercept,
   IdIOHandler,
   IdIOHandlerSocket,
-  IdIOHandlerStack,
   IdReply,
-  IdSocketHandle,
   IdBaseComponent;
 
 type

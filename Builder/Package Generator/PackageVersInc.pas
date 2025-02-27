@@ -29,10 +29,10 @@ uses
 type
   TVersInc = class(TPackage)
   private
-    FProductVersion: string;
     procedure GenIdVers;
     procedure GenAsmVers;
     procedure GenAsmInfo;
+    procedure GenIdCompilerDefines;
   public
     constructor Create; override;
     procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
@@ -41,7 +41,7 @@ type
 implementation
 
 uses
-  Classes, SysUtils, DateUtils, DModule;
+  Classes, SysUtils, DateUtils, StrUtils, DModule;
 
 { TVersInc }
 
@@ -49,7 +49,6 @@ constructor TVersInc.Create;
 begin
   inherited;
   FExt := '.inc';
-  FProductVersion := Format('%d.%d.%d', [IndyVersion_Major, IndyVersion_Minor, IndyVersion_Release]);
 end;
 
 procedure TVersInc.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
@@ -116,6 +115,19 @@ begin
     FOutputSubDir := 'Lib\System';
     GenAsmInfo;
     WriteFile;
+
+    FName := 'IdCompilerDefines';
+    GenIdCompilerDefines;
+    FOutputSubDir := 'Lib\System';
+    WriteFile;
+    FOutputSubDir := 'Lib\Core';
+    WriteFile;
+    FOutputSubDir := 'Lib\Protocols';
+    WriteFile;
+    FOutputSubDir := 'Lib\FCL';
+    WriteFile;
+    FOutputSubDir := 'Lib\SuperCore';
+    WriteFile;
   end;
 
   if gfDesignTime in AFlags then begin
@@ -143,47 +155,43 @@ end;
 
 procedure TVersInc.GenIdVers;
 var
-  FileVersion : string;
-  MajorStr, MinorStr, ReleaseStr, BuildStr: String;
+  FileVersion, BuildStr: String;
 begin
   FCode.Clear;
 
-  MajorStr := IntToStr(IndyVersion_Major);
-  MinorStr := IntToStr(IndyVersion_Minor);
-  ReleaseStr := IntToStr(IndyVersion_Release);
+  BuildStr := iif(FTemplate,
+    IndyVersion_Build_Template,
+    IndyVersion_Build_Str);
 
-  if FTemplate then
-    BuildStr := '$WCREV$'
-  else
-    BuildStr := IntToStr(IndyVersion_Build);
+  FileVersion := iif(FTemplate,
+    IndyVersion_FileVersion_Template,
+    IndyVersion_FileVersion_Str);
 
-  FileVersion := FProductVersion + '.' + BuildStr;
-
-  Code('  gsIdVersionMajor = ' + MajorStr + ';');
+  Code('  gsIdVersionMajor = ' + IndyVersion_Major_Str + ';');
   Code('  {$NODEFINE gsIdVersionMajor}');
-  Code('  gsIdVersionMinor = ' + MinorStr + ';');
+  Code('  gsIdVersionMinor = ' + IndyVersion_Minor_Str + ';');
   Code('  {$NODEFINE gsIdVersionMinor}');
-  Code('  gsIdVersionRelease = ' + ReleaseStr + ';');
+  Code('  gsIdVersionRelease = ' + IndyVersion_Release_Str + ';');
   Code('  {$NODEFINE gsIdVersionRelease}');
   Code('  gsIdVersionBuild = ' + BuildStr + ';');
   Code('  {$NODEFINE gsIdVersionBuild}');
   Code('');
-  Code('  (*$HPPEMIT ''#define gsIdVersionMajor ' + MajorStr + '''*)');
-  Code('  (*$HPPEMIT ''#define gsIdVersionMinor ' + MinorStr + '''*)');
-  Code('  (*$HPPEMIT ''#define gsIdVersionRelease ' + ReleaseStr + '''*)');
+  Code('  (*$HPPEMIT ''#define gsIdVersionMajor ' + IndyVersion_Major_Str + '''*)');
+  Code('  (*$HPPEMIT ''#define gsIdVersionMinor ' + IndyVersion_Minor_Str + '''*)');
+  Code('  (*$HPPEMIT ''#define gsIdVersionRelease ' + IndyVersion_Release_Str + '''*)');
   Code('  (*$HPPEMIT ''#define gsIdVersionBuild ' + BuildStr + '''*)');
   Code('  (*$HPPEMIT ''''*)');
   Code('');
   Code('  gsIdVersion = ''' + FileVersion + '''; {do not localize}');
   Code('  gsIdProductName = ''Indy'';  {do not localize}');
-  Code('  gsIdProductVersion = ''' + FProductVersion + '''; {do not localize}');
+  Code('  gsIdProductVersion = ''' + IndyVersion_ProductVersion_Str + '''; {do not localize}');
 end;
 
 procedure TVersInc.GenAsmVers;
 begin
   FCode.Clear;
 
-  Code('[assembly: AssemblyDescription(''Internet Direct (Indy) ' + FProductVersion + ' ' + FDesc + ' Package for Borland Developer Studio'')]');
+  Code('[assembly: AssemblyDescription(''Internet Direct (Indy) ' + IndyVersion_ProductVersion_Str + ' ' + FDesc + ' Package for Borland Developer Studio'')]');
   Code('[assembly: AssemblyConfiguration('''')]');
   Code('[assembly: AssemblyCompany(''Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyProduct(''Indy for Microsoft .NET Framework'')]');
@@ -191,7 +199,7 @@ begin
   Code('[assembly: AssemblyTrademark('''')]');
   Code('[assembly: AssemblyCulture('''')]');
   Code('[assembly: AssemblyTitle(''Indy .NET ' + FDesc + ' Package'')]');
-  Code('[assembly: AssemblyVersion(''' + FProductVersion + '.*'')]');
+  Code('[assembly: AssemblyVersion(''' + IndyVersion_ProductVersion_Str + '.*'')]');
   Code('[assembly: AssemblyDelaySign(false)]');
   Code('[assembly: AssemblyKeyFile('''')]');
   Code('[assembly: AssemblyKeyName('''')]');
@@ -236,7 +244,7 @@ begin
   Code('// associated with an assembly.');
   Code('//');
   Code('[assembly: AssemblyTitle(''Indy'')]');
-  Code('[assembly: AssemblyDescription(''Internet Direct (Indy) ' + FProductVersion +' for Visual Studio .NET'')]');
+  Code('[assembly: AssemblyDescription(''Internet Direct (Indy) ' + IndyVersion_ProductVersion_Str +' for Visual Studio .NET'')]');
   Code('[assembly: AssemblyConfiguration('''')]');
   Code('[assembly: AssemblyCompany(''Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyProduct(''Indy for Microsoft .NET Framework'')]');
@@ -255,7 +263,7 @@ begin
   Code('// You can specify all the values or you can default the Revision and Build Numbers');
   Code('// by using the ''*'' as shown below:');
   Code('');
-  Code('[assembly: AssemblyVersion(''' + FProductVersion + '.*'')]');
+  Code('[assembly: AssemblyVersion(''' + IndyVersion_ProductVersion_Str + '.*'')]');
   Code('');
   Code('//');
   Code('// In order to sign your assembly you must specify a key to use. Refer to the');
@@ -289,6 +297,47 @@ begin
   Code('implementation');
   Code('');
   Code('end.');
+end;
+
+procedure TVersInc.GenIdCompilerDefines;
+var
+  LFileName, LOldDefinePrefix, LProductDefine, LVersionDefine: string;
+  Data: TStringList;
+  I, LPadding: Integer;
+begin
+  FCode.Clear;
+
+  // TODO: put the version defines into their own .inc file that
+  // IdCompilerDefines.inc can then include...
+
+  LFileName := DM.OutputPath + 'Lib\System\IdCompilerDefines.inc';
+
+  LProductDefine := '{$DEFINE ' + StringReplace(IndyVersion_ProductVersion_Str, '.', '_', [rfReplaceAll]) + '}';
+  LVersionDefine := '{$DEFINE ' + StringReplace(IndyVersion_FileVersion_Str, '.', '_', [rfReplaceAll]) + '}';
+  LPadding := Length(LVersionDefine) - Length(LProductDefine);
+  LVersionDefine := LVersionDefine + '  //so developers can IFDEF for this specific version';
+
+  // TStreamReader would be preferred, but its broken!
+  Data := TStringList.Create;
+  try
+    Data.LoadFromFile(LFileName);
+    LOldDefinePrefix := '{$DEFINE ' + IndyVersion_Major_Str + '_';
+    for I := 0 to Data.Count-1 do begin
+      if StartsStr(LOldDefinePrefix, Data[I]) then
+      begin
+        Data[I] := LProductDefine + StringOfChar(' ', LPadding) + '  //so developers can IFDEF for this product version';
+        if StartsStr(LOldDefinePrefix, Data[I+1]) then begin
+          Data[I+1] := LVersionDefine;
+        end else begin
+          Data.Insert(I+1, LVersionDefine);
+        end;
+        Break;
+      end;
+    end;
+    FCode.Assign(Data);
+  finally
+    Data.Free;
+  end;
 end;
 
 end.

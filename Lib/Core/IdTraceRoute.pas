@@ -26,7 +26,7 @@ uses
   {$IFDEF DOTNET_2_OR_ABOVE}
   IdGlobal,
   {$ENDIF}
-  IdIcmpClient, IdRawBase, IdRawClient, IdThread;
+  IdIcmpClient, IdRawBase, IdThread;
 
 type
   TIdTraceRoute = class(TIdCustomICMPClient)

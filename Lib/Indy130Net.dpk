@@ -18,7 +18,7 @@ package Indy130Net;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Master'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   Borland.Delphi,
@@ -245,6 +245,7 @@ contains
   IdSASLDigest in 'Protocols\IdSASLDigest.pas',
   IdSASLExternal in 'Protocols\IdSASLExternal.pas',
   IdSASLLogin in 'Protocols\IdSASLLogin.pas',
+  IdSASLOAuth in 'Protocols\IdSASLOAuth.pas',
   IdSASLOTP in 'Protocols\IdSASLOTP.pas',
   IdSASLPlain in 'Protocols\IdSASLPlain.pas',
   IdSASLSKey in 'Protocols\IdSASLSKey.pas',

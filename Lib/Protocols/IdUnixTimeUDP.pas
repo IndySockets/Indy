@@ -30,7 +30,7 @@ uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
   Classes,
   {$ENDIF}
-  IdAssignedNumbers, IdTimeUDP, IdUDPClient;
+  IdAssignedNumbers, IdTimeUDP;
 
 {
   This is based on a description at
