@@ -31,6 +31,11 @@ for %%a in ("%BDSworkdir%\Indy*.jdbg") do (del "%%a") && (if not exist "%%a" ech
 for %%a in ("%BDSworkdir%\dclIndy*.bpl") do (del "%%a") && (if not exist "%%a" echo Deleted "%%a" >> %logfn%)
 for %%a in ("%BDSworkdir%\dclIndy*.jdbg") do (del "%%a") && (if not exist "%%a" echo Deleted "%%a" >> %logfn%)
 
+set BDSworkdir=%BDS%\lib\Indy10
+for %%a in ("%BDSworkdir%\*.dcu") do (del "%%a") && (if not exist "%%a" echo Deleted "%%a" >> %logfn%)
+for %%a in ("%BDSworkdir%\*.dcp") do (del "%%a") && (if not exist "%%a" echo Deleted "%%a" >> %logfn%)
+for %%a in ("%BDSworkdir%\*.obj") do (del "%%a") && (if not exist "%%a" echo Deleted "%%a" >> %logfn%)
+
 set BDSworkdir=%BDS%\lib\win32\debug
 for %%a in (idoc,idispids) do (
   if exist "%BDSworkdir%\%%a.dcu" (
