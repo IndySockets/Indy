@@ -1883,8 +1883,13 @@ begin
       LHost := FURI.Host;
     end;
 
-    if (TextIsSame(FURI.Protocol, 'http') and (FURI.Port = IntToStr(IdPORT_HTTP))) or  {do not localize}
-      (TextIsSame(FURI.Protocol, 'https') and (FURI.Port = IntToStr(IdPORT_https))) then  {do not localize}
+    // RLebeau: when connecting through a proxy, include the port even if it is a default.
+    // But, can't use ARequest.UseProxy here as it isn't updated until after this function
+    // exits, so check the ProxyParams directly...
+    if (Length(ProxyParams.ProxyServer) = 0) and (
+       (TextIsSame(FURI.Protocol, 'http') and (FURI.Port = IntToStr(IdPORT_HTTP))) or  {do not localize}
+       (TextIsSame(FURI.Protocol, 'https') and (FURI.Port = IntToStr(IdPORT_https)))   {do not localize}
+       ) then
     begin
       ARequest.Host := LHost;
     end else begin
