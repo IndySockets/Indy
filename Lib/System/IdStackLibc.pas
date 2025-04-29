@@ -78,6 +78,7 @@ uses
 {$ENDIF}
 type
 
+  // TODO: move this class into the implementation section! It is not used outside of this unit
   TIdSocketListLibc = class (TIdSocketList)
   protected
     FCount: integer;
@@ -851,12 +852,14 @@ begin
           end;
           if LAddress <> nil then begin
             LName := LAddrInfo^.ifa_name;
+            {$I IdObjectChecksOff.inc}
             TIdStackLocalAddressAccess(LAddress).FDescription := LName;
             TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
             TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
             {$IFDEF HAS_if_nametoindex}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
             {$ENDIF}
+            {$I IdObjectChecksOn.inc}
           end;
         end;
         LAddrInfo := LAddrInfo^.ifa_next;
@@ -1174,11 +1177,12 @@ end;
 procedure TIdStackLibc.SetKeepAliveValues(ASocket: TIdStackSocketHandle;
   const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
 begin
+  inherited; // turn SO_KEEPALIVE on/off first...
+  // TODO: remove below, as it should be handled by TIdStack.SetKeepAliveValues() now...
   if AEnabled then begin
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPIDLE, ATimeMS div MSecsPerSec);
     SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPINTVL, AInterval div MSecsPerSec);
   end;
-  inherited;
 end;
 
 { TIdSocketListLibc }
@@ -1188,7 +1192,7 @@ begin
   Lock;
   try
     if not FD_ISSET(AHandle, FFDSet) then begin
-      if Count >= __FD_SETSIZE then begin
+      if AHandle >= __FD_SETSIZE then begin
         raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
       end;
       FD_SET(AHandle, FFDSet);
@@ -1244,7 +1248,9 @@ begin
     LTime.tv_usec := (ATimeout mod 1000) * 1000;
     LTimePtr := @LTime;
   end;
-  Result := Libc.select(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
+  // TODO: calculate the actual nfds value based on the Sets provided...
+  // TODO: use poll() instead of select() to remove limit on how many sockets can be queried
+  Result := Libc.select(__FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, LTimePtr);
 end;
 
 procedure TIdSocketListLibc.GetFDSet(var VSet: TFDSet);

@@ -75,8 +75,7 @@ uses
   Classes,
   IdComponent,
   IdGlobal,
-  IdMessage,
-  IdBaseComponent;
+  IdMessage;
 
 type
   TIdMessageCoderPartType = (mcptText, mcptAttachment, mcptIgnore, mcptEOF);

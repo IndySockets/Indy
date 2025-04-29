@@ -1,17 +1,13 @@
 package IndyProtocols40;
 
-{$ASSERTIONS ON}
+{$R *.res}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
-{$IOCHECKS ON}
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION ON}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES OFF}
@@ -25,7 +21,6 @@ package IndyProtocols40;
 {$IMPLICITBUILD OFF}
 
 requires
-  rtl,
   IndySystem40,
   IndyCore40;
 
@@ -163,7 +158,6 @@ contains
   IdIdentServer in 'IdIdentServer.pas',
   IdIrcServer in 'IdIrcServer.pas',
   IdLPR in 'IdLPR.pas',
-  IdMIMETypes in 'IdMIMETypes.pas',
   IdMailBox in 'IdMailBox.pas',
   IdMappedFTP in 'IdMappedFTP.pas',
   IdMappedPOP3 in 'IdMappedPOP3.pas',
@@ -216,6 +210,7 @@ contains
   IdSASLDigest in 'IdSASLDigest.pas',
   IdSASLExternal in 'IdSASLExternal.pas',
   IdSASLLogin in 'IdSASLLogin.pas',
+  IdSASLOAuth in 'IdSASLOAuth.pas',
   IdSASLOTP in 'IdSASLOTP.pas',
   IdSASLPlain in 'IdSASLPlain.pas',
   IdSASLSKey in 'IdSASLSKey.pas',

@@ -18,11 +18,11 @@ package IndyCore120Net;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Core'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
-Borland.Delphi,
-Borland.VclRtl,
+  Borland.Delphi,
+  Borland.VclRtl,
   IndySystem120Net;
 
 contains

@@ -213,7 +213,6 @@ uses
   Windows,
   {$ENDIF}
   Classes,
-  IdBuffer,
   IdCTypes,
   IdGlobal,
   IdException,
@@ -223,14 +222,9 @@ uses
   IdComponent,
   IdIOHandler,
   IdGlobalProtocols,
-  IdTCPServer,
   IdThread,
-  IdTCPConnection,
-  IdIntercept,
   IdIOHandlerSocket,
   IdSSL,
-  IdSocks,
-  IdScheduler,
   IdYarn;
 
 type
@@ -684,17 +678,10 @@ uses
   Posix.Unistd,
   {$ENDIF}
   IdFIPS,
-  IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdResourceStringsOpenSSL,
   IdStack,
-  IdStackBSDBase,
-  IdAntiFreezeBase,
-  IdExceptionCore,
-  IdResourceStrings,
   IdThreadSafe,
-  IdCustomTransparentProxy,
-  IdURI,
   SysUtils,
   SyncObjs;
 
@@ -2999,48 +2986,6 @@ var
   LMode: TIdSSLMode;
   LHost: string;
 
-  // TODO: move the following to TIdSSLIOHandlerSocketBase...
-
-  function GetURIHost: string;
-  var
-    LURI: TIdURI;
-  begin
-    Result := '';
-    if URIToCheck <> '' then
-    begin
-      LURI := TIdURI.Create(URIToCheck);
-      try
-        Result := LURI.Host;
-      finally
-        LURI.Free;
-      end;
-    end;
-  end;
-
-  function GetProxyTargetHost: string;
-  var
-    // under ARC, convert a weak reference to a strong reference before working with it
-    LTransparentProxy, LNextTransparentProxy: TIdCustomTransparentProxy;
-  begin
-    Result := '';
-    // RLebeau: not reading from the property as it will create a
-    // default Proxy object if one is not already assigned...
-    LTransparentProxy := FTransparentProxy;
-    if Assigned(LTransparentProxy) then
-    begin
-      if LTransparentProxy.Enabled then
-      begin
-        repeat
-          LNextTransparentProxy := LTransparentProxy.ChainedProxy;
-          if not Assigned(LNextTransparentProxy) then Break;
-          if not LNextTransparentProxy.Enabled then Break;
-          LTransparentProxy := LNextTransparentProxy;
-        until False;
-        Result := LTransparentProxy.Host;
-      end;
-    end;
-  end;
-
 begin
   Assert(Binding<>nil);
   if not Assigned(fSSLSocket) then begin
@@ -3730,7 +3675,7 @@ begin
   //
   // RLebeau: is this actually true?  Should we be reusing the original
   // IOHandler's active session ID regardless of whether this is a client
-  // or server socket?
+  // or server socket? What about FTP in non-passive mode, for example?
   {
   if (LParentIO <> nil) and (LParentIO.fSSLSocket <> nil) and
      (LParentIO.fSSLSocket <> Self) then
@@ -4274,19 +4219,21 @@ begin
   Result := String(SSL_CIPHER_get_version(SSL_get_current_cipher(FSSLSocket.fSSL)));
 end;
 
-{$I IdSymbolDeprecatedOff.inc}
-
 initialization
   Assert(SSLIsLoaded=nil);
   SSLIsLoaded := TIdThreadSafeBoolean.Create;
+
+  {$I IdSymbolDeprecatedOff.inc}
   RegisterSSL('OpenSSL','Indy Pit Crew',                                  {do not localize}
-    'Copyright '+Char(169)+' 1993 - 2014'#10#13 +                                     {do not localize}
+    'Copyright '+Char(169)+' 1993 - 2023'#10#13 +                         {do not localize}
     'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
     'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
     'http://www.indyproject.org/'#10#13 +                                 {do not localize}
-    'Original Author - Gregor Ibic',                                        {do not localize}
+    'Original Author - Gregor Ibic',                                      {do not localize}
     TIdSSLIOHandlerSocketOpenSSL,
     TIdServerIOHandlerSSLOpenSSL);
+  {$I IdSymbolDeprecatedOn.inc}
+
   TIdSSLIOHandlerSocketOpenSSL.RegisterIOHandler;
 finalization
   // TODO: TIdSSLIOHandlerSocketOpenSSL.UnregisterIOHandler;

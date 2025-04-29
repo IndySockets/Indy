@@ -3,7 +3,7 @@
 set -x
 #set -e
 echo "Extracting Program and RPM Values:"
-INDYVERSION=10.6.2.0
+INDYVERSION=10.6.3.0
 # You actually should use three version values.
 # FPCVer is for the value reported by fpc for some path specs.
 # FPCRPMVER is used for our "Requires section so that this is

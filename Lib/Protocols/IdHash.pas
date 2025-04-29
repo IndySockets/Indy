@@ -119,6 +119,9 @@ type
     function FinalHash(ACtx : TIdHashIntCtx) : TIdBytes;
     function GetHashBytes(AStream: TStream; ASize: TIdStreamSize): TIdBytes; override;
   public
+    {$IFNDEF DOTNET}
+    constructor Create; override;
+    {$ENDIF}
     class function IsAvailable : Boolean; override;
     class function IsIntfAvailable : Boolean; virtual;
   end;
@@ -134,6 +137,8 @@ type
   EIdSHA224NotSupported = class(EIdSecurityAPIException);
   {$ENDIF}
 
+function HashFunctionsLoaded: Boolean;
+
 implementation
 
 uses
@@ -143,6 +148,22 @@ uses
   IdStreamVCL,
   {$ENDIF}
   IdGlobalProtocols, SysUtils;
+
+{$IFDEF DOTNET}
+function HashFunctionsLoaded : Boolean;
+{$IFDEF USE_INLINE} inline; {$ENDIF}
+begin
+  Result := True;
+end;
+{$ELSE}
+function HashFunctionsLoaded : Boolean;
+begin
+  Result := LoadHashLibrary;
+  if Result then begin
+    Result := IsHashingIntfAvail;
+  end;
+end;
+{$ENDIF}
 
 { TIdHash }
 
@@ -374,6 +395,16 @@ end;
 
 { TIdHashIntf }
 
+{$IFNDEF DOTNET}
+constructor TIdHashIntf.Create;
+begin
+  inherited;
+  // not checking for load failure here, in case the library
+  // is not available but a native implementation is...
+  LoadHashLibrary;
+end;
+{$ENDIF}
+
 function TIdHashIntf.FinalHash(ACtx: TIdHashIntCtx): TIdBytes;
 {$IFDEF DOTNET}
 var
@@ -434,7 +465,7 @@ end;
 
 class function TIdHashIntF.IsIntfAvailable: Boolean;
 begin
-   Result := False;
+  Result := False;
 end;
 {$ELSE}
 //done this way so we can override IsAvailble if there is a native
@@ -448,7 +479,7 @@ end;
 
 class function TIdHashIntF.IsIntfAvailable: Boolean;
 begin
-   Result := IsHashingIntfAvail;
+  Result := IsHashingIntfAvail;
 end;
 {$ENDIF}
 

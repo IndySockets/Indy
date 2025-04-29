@@ -493,10 +493,8 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdMessageCollection,
-  IdResourceStrings,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStream,
   SysUtils;
 
 function TIdIMAP4Server.GetReplyClass: TIdReplyClass;

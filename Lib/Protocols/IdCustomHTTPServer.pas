@@ -458,7 +458,7 @@ type
     function DoHeadersAvailable(ASender: TIdContext; const AUri: String; AHeaders: TIdHeaderList): Boolean; virtual;
     procedure DoHeadersBlocked(ASender: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String); virtual;
     function DoHeaderExpectations(ASender: TIdContext; const AExpectations: String): Boolean; virtual;
-    function DoParseAuthentication(ASender: TIdContext; const AAuthType, AAuthData: String; var VUsername, VPassword: String): Boolean;
+    function DoParseAuthentication(ASender: TIdContext; const AAuthType, AAuthData: String; var VUsername, VPassword: String): Boolean; virtual;
     function DoQuerySSLPort(APort: TIdPort): Boolean; virtual;
     procedure DoSessionEnd(Sender: TIdHTTPSession); virtual;
     procedure DoSessionStart(Sender: TIdHTTPSession); virtual;
@@ -1918,6 +1918,9 @@ begin
       s := Copy(AValue, i, j-i);
       // See RFC 1866 section 8.2.1. TP
       s := ReplaceAll(s, '+', ' ');  {do not localize}
+      // TODO: provide an event or property that lets the user specify
+      // which charset to use for converting the decoded Unicode characters
+      // to ANSI in pre-Unicode compilers...
       Params.Add(TIdURI.URLDecode(s, LEncoding));
       i := j + 1;
     end;
@@ -2051,7 +2054,13 @@ procedure TIdHTTPResponseInfo.SetResponseNo(const AValue: Integer);
 begin
   FResponseNo := AValue;
   case FResponseNo of
+    // 1XX: Informational
     100: ResponseText := RSHTTPContinue;
+    101: ResponseText := RSHTTPSwitchingProtocols;
+    102: ResponseText := RSHTTPProcessing;
+    103: ResponseText := RSHTTPEarlyHints;
+    //104-199 are Unassigned
+
     // 2XX: Success
     200: ResponseText := RSHTTPOK;
     201: ResponseText := RSHTTPCreated;
@@ -2060,15 +2069,28 @@ begin
     204: ResponseText := RSHTTPNoContent;
     205: ResponseText := RSHTTPResetContent;
     206: ResponseText := RSHTTPPartialContent;
+    207: ResponseText := RSHTTPMultiStatus;
+    208: ResponseText := RSHTTPAlreadyReported;
+    //209-225 are Unassigned
+    226: ResponseText := RSHTTPIMUsed;
+    // 227-299 are Unassigned
+
     // 3XX: Redirections
+    300: ResponseText := RSHTTPMultipleChoices;
     301: ResponseText := RSHTTPMovedPermanently;
     302: ResponseText := RSHTTPMovedTemporarily;
     303: ResponseText := RSHTTPSeeOther;
     304: ResponseText := RSHTTPNotModified;
     305: ResponseText := RSHTTPUseProxy;
+    // 306 is Unused
+    307: ResponseText := RSHTTPTemporaryRedirect;
+    308: ResponseText := RSHTTPPermanentRedirect;
+    // 309-399 are Unassigned
+
     // 4XX Client Errors
     400: ResponseText := RSHTTPBadRequest;
     401: ResponseText := RSHTTPUnauthorized;
+    402: ResponseText := RSHTTPPaymentRequired;
     403: ResponseText := RSHTTPForbidden;
     404: begin
       ResponseText := RSHTTPNotFound;
@@ -2086,10 +2108,23 @@ begin
     413: ResponseText := RSHTTPRequestEntityTooLong;
     414: ResponseText := RSHTTPRequestURITooLong;
     415: ResponseText := RSHTTPUnsupportedMediaType;
+    416: ResponseText := RSHTTPRangeNotSatisfiable;
     417: ResponseText := RSHTTPExpectationFailed;
+    // 418 is Unused
+    // 419-420 are Unassigned
+    421: ResponseText := RSHTTPMisdirectedRequest;
+    422: ResponseText := RSHTTPUnprocessableContent;
+    423: ResponseText := RSHTTPLocked;
+    424: ResponseText := RSHTTPFailedDependency;
+    425: ResponseText := RSHTTPTooEarly;
+    426: ResponseText := RSHTTPUpgradeRequired;
+    // 427 is Unassigned
     428: ResponseText := RSHTTPPreconditionRequired;
     429: ResponseText := RSHTTPTooManyRequests;
+    // 430 is Unassigned
     431: ResponseText := RSHTTPRequestHeaderFieldsTooLarge;
+    // 432-499 are Unassigned
+
     // 5XX Server errors
     500: ResponseText := RSHTTPInternalServerError;
     501: ResponseText := RSHTTPNotImplemented;
@@ -2097,13 +2132,20 @@ begin
     503: ResponseText := RSHTTPServiceUnavailable;
     504: ResponseText := RSHTTPGatewayTimeout;
     505: ResponseText := RSHTTPHTTPVersionNotSupported;
+    506: ResponseText := RSHTTPVariantAlsoNegotiates;
+    507: ResponseText := RSHTTPInsufficientStorage;
+    508: ResponseText := RSHTTPLoopDetected;
+    // 509 is Unassigned
+    510: ResponseText := RSHTTPNotExtended;
     511: ResponseText := RSHTTPNetworkAuthenticationRequired;
+    // 512-599 are Unassigned
+
     else
       ResponseText := RSHTTPUnknownResponseCode;
   end;
 
   {if ResponseNo >= 400 then
-    // Force COnnection closing when there is error during the request processing
+    // Force Connection closing when there is error during the request processing
     CloseConnection := true;
   end;}
 end;

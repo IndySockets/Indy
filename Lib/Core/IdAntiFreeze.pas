@@ -57,8 +57,7 @@ interface
 
 uses
   Classes,
-  IdAntiFreezeBase,
-  IdBaseComponent;
+  IdAntiFreezeBase;
 
 { Directive needed for generating a legacy non-UnitScoped C++Builder HPP }
 
@@ -145,7 +144,6 @@ uses
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFNDEF FMX}
-  Messages,
   Windows,
     {$ENDIF}
   {$ENDIF}

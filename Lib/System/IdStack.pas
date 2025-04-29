@@ -1197,10 +1197,10 @@ begin
   begin
     // TODO: support TCP_KEEPCNT
     {$IFDEF HAS_TCP_KEEPIDLE}
-    SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPIDLE, ATimeMS);
+    SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPIDLE, ATimeMS div MSecsPerSec);
     {$ENDIF}
     {$IFDEF HAS_TCP_KEEPINTVL}
-    SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPINTVL, AInterval);
+    SetSocketOption(ASocket, Id_SOL_TCP, Id_TCP_KEEPINTVL, AInterval div MSecsPerSec);
     {$ENDIF}
   end;
   {$ENDIF}

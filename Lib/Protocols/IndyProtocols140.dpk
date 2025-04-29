@@ -19,7 +19,7 @@ package IndyProtocols140;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Protocols'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   rtl,
@@ -133,6 +133,7 @@ contains
   IdGopher in 'IdGopher.pas',
   IdGopherConsts in 'IdGopherConsts.pas',
   IdGopherServer in 'IdGopherServer.pas',
+  IdHL7 in 'IdHL7.pas',
   IdHMAC in 'IdHMAC.pas',
   IdHMACMD5 in 'IdHMACMD5.pas',
   IdHMACSHA1 in 'IdHMACSHA1.pas',
@@ -211,6 +212,7 @@ contains
   IdSASLDigest in 'IdSASLDigest.pas',
   IdSASLExternal in 'IdSASLExternal.pas',
   IdSASLLogin in 'IdSASLLogin.pas',
+  IdSASLOAuth in 'IdSASLOAuth.pas',
   IdSASLOTP in 'IdSASLOTP.pas',
   IdSASLPlain in 'IdSASLPlain.pas',
   IdSASLSKey in 'IdSASLSKey.pas',

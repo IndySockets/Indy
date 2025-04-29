@@ -59,6 +59,7 @@ type
   
   TIdC_INT   = cInt;
   PIdC_INT   = pcInt;
+  PPIdC_INT  = ^PIdC_INT;
   TIdC_UINT  = cUInt;
   PIdC_UINT  = pcUInt;
 
@@ -138,14 +139,14 @@ type
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
   {$ELSE}
-    {$IFDEF HAS_PtrUInt}
-  TIdC_TIMET = PtrUInt;
+    {$IFDEF HAS_PtrInt}
+  TIdC_TIMET = PtrInt;
     {$ELSE}
       {$IFDEF CPU32}
-  TIdC_TIMET = TIdC_UINT32;
+  TIdC_TIMET = TIdC_INT32;
       {$ENDIF}
       {$IFDEF CPU64}
-  TIdC_TIMET = TIdC_UINT64;
+  TIdC_TIMET = TIdC_INT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
@@ -155,6 +156,7 @@ type
   PIdC_TIMET = ^TIdC_TIMET;
   {$ENDIF}
 
+  PPPByte = ^PPByte;
   {$ELSE}
 
   // this is necessary because Borland still doesn't support QWord
@@ -180,6 +182,7 @@ type
 
   TIdC_INT   = Integer;
   PIdC_INT   = ^TIdC_INT;
+  PPIdC_INT  = ^PIdC_INT;
   TIdC_UINT  = Cardinal;
   PIdC_UINT  = ^TIdC_UINT;
 
@@ -258,14 +261,14 @@ type
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
   {$ELSE}
-    {$IFDEF HAS_NativeUInt}
-  TIdC_TIMET = NativeUInt;
+    {$IFDEF HAS_NativeInt}
+  TIdC_TIMET = NativeInt;
     {$ELSE}
       {$IFDEF CPU32}
-  TIdC_TIMET = TIdC_UINT32;
+  TIdC_TIMET = TIdC_INT32;
       {$ENDIF}
       {$IFDEF CPU64}
-  TIdC_TIMET = TIdC_UINT64;
+  TIdC_TIMET = TIdC_INT64;
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
@@ -278,9 +281,24 @@ type
   // Some headers require this in D5 or earlier.
   // FreePascal already has this in its system unit.
   {$IFNDEF HAS_PByte}PByte = ^Byte;{$ENDIF}
+  PPByte = ^PByte;
+  PPPByte = ^PPByte;
   {$IFNDEF HAS_PWord}PWord = ^Word;{$ENDIF}
-
   {$ENDIF}
+
+  TIdC_TM = record
+    tm_sec: TIdC_INT;         (* seconds,  range 0 to 59          *)
+    tm_min: TIdC_INT;         (* minutes, range 0 to 59           *)
+    tm_hour: TIdC_INT;        (* hours, range 0 to 23             *)
+    tm_mday: TIdC_INT;        (* day of the month, range 1 to 31  *)
+    tm_mon: TIdC_INT;         (* month, range 0 to 11             *)
+    tm_year: TIdC_INT;        (* The number of years since 1900   *)
+    tm_wday: TIdC_INT;        (* day of the week, range 0 to 6    *)
+    tm_yday: TIdC_INT;        (* day in the year, range 0 to 365  *)
+    tm_isdst: TIdC_INT;       (* daylight saving time             *)
+  end;
+  PIdC_TM = ^TIdC_TM;
+  PPIdC_TM = ^PIdC_TM;
 
 implementation
 

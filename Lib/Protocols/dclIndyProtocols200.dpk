@@ -28,7 +28,7 @@ package dclIndyProtocols200;
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 Protocols Design Time'}
 {$DESIGNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   designide,
@@ -44,4 +44,3 @@ contains
   IdRegister in 'IdRegister.pas';
 
 end.
-

@@ -201,9 +201,7 @@ uses
   IdMessageClient,
   IdReply,
   IdSASL,
-  IdSASLCollection,
-  IdBaseComponent,
-  IdUserPassProvider;
+  IdSASLCollection;
 
 type
   TIdPOP3AuthenticationType = (patUserPass, patAPOP, patSASL);
@@ -221,6 +219,7 @@ type
     FHasAPOP: Boolean;
     FHasCAPA: Boolean;
     FSASLMechanisms : TIdSASLEntries;
+    FSASLCanAttemptIR: Boolean;
     //
     function GetReplyClass:TIdReplyClass; override;
     function GetSupportsTLS: Boolean; override;
@@ -260,6 +259,7 @@ type
     property Password;
     property Port default IdPORT_POP3;
     property SASLMechanisms : TIdSASLEntries read FSASLMechanisms write SetSASLMechanisms;
+    property SASLCanAttemptInitialResponse: Boolean read FSASLCanAttemptIR write FSASLCanAttemptIR default True;
   end;
 
 type
@@ -297,6 +297,22 @@ procedure TIdPOP3.Login;
 var
   S: String;
   LMD5: TIdHashMessageDigest5;
+
+  function IsSASLSupported: Boolean;
+  var
+    i : Integer;
+    LBuf : String;
+  begin
+    Result := False;
+    for i := 0 to FCapabilities.Count -1 do begin
+      LBuf := TrimLeft(FCapabilities[i]);
+      if TextIsSame(Fetch(LBuf), 'SASL') then begin {do not localize}
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+
 begin
   if UseTLS in ExplicitTLSVals then begin
     if SupportsTLS then begin
@@ -339,10 +355,27 @@ begin
         // in RFC 2449 along with the CAPA command. If a server supports the CAPA
         // command then it *should* also support Initial-Response as well, however
         // many POP3 servers support CAPA but do not support Initial-Response
-        // (which was formalized in RFC 5034). So, until we can handle that
-        // descrepency better, we will simply disable Initial-Response for now.
+        // (which was formalized in RFC 5034).
+        //
+        // RFC 5034 says:
+        //
+        // "If a server either does not support the CAPA command or does not
+        // advertise the SASL capability, clients SHOULD NOT attempt the AUTH
+        // command.  If a client does attempt the AUTH command in such a
+        // situation, it MUST NOT supply the client initial response
+        // parameter (for backwards compatibility with [RFC1734])."
+        //
+        // So, as most modern POP3 servers do support Initial-Response now, we
+        // will attempt Initial-Response by default, unless told not to.  For
+        // instance, Microsoft Office 365 does not support Initial-Response
+        // when using XOAuth2 authentication (why?)...
+      
+        // TODO: look in the SASLMechanisms if XOAuth2 is enabled, and if so
+        // then disable Initial-Response...
 
-        FSASLMechanisms.LoginSASL('AUTH', FHost, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}
+        FSASLMechanisms.LoginSASL('AUTH', FHost, FPort, IdGSKSSN_pop, [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL',  {do not localize}
+          FSASLCanAttemptIR and HasCAPA and IsSASLSupported
+        );
       end;
   end;
 end;
@@ -352,6 +385,7 @@ begin
   inherited;
   FAutoLogin := True;
   FSASLMechanisms := TIdSASLEntries.Create(Self);
+  FSASLCanAttemptIR := True;
   FRegularProtPort := IdPORT_POP3;
   FImplicitTLSProtPort := IdPORT_POP3S;
   FExplicitTLSProtPort := IdPORT_POP3;

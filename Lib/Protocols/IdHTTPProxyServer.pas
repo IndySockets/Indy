@@ -182,7 +182,7 @@ type
 implementation
 
 uses
-  IdResourceStrings, IdResourceStringsProtocols, IdReplyRFC, IdIOHandler, IdTCPClient,
+  IdResourceStringsProtocols, IdIOHandler, IdTCPClient,
   IdURI, IdGlobalProtocols, IdStack, IdStackConsts, IdTCPStream, IdException, SysUtils;
 
 constructor TIdHTTPProxyServerContext.Create(AConnection: TIdTCPConnection;
@@ -305,6 +305,20 @@ procedure TIdHTTPProxyServer.CommandPassThrough(ASender: TIdCommand);
 var
   LURI: TIdURI;
   LContext: TIdHTTPProxyServerContext;
+  LConnection: string;
+
+  function IsVersionAtLeast11(const AVersionStr: string): Boolean;
+  var
+    s: string;
+    LMajor, LMinor: Integer;
+  begin
+    s := AVersionStr;
+    Fetch(s, '/');  {Do not localize}
+    LMajor := IndyStrToInt(Fetch(s, '.'), -1);  {Do not Localize}
+    LMinor := IndyStrToInt(S, -1);
+    Result := (LMajor > 1) or ((LMajor = 1) and (LMinor >= 1));
+  end;
+
 begin
   ASender.PerformReply := False;
 
@@ -342,8 +356,22 @@ begin
     LContext.FTransferSource := tsClient;
     DoHTTPBeforeCommand(LContext);
 
-    // TODO: update the LContext.Headers to set the 'Connection' header to 'close', since
-    // the connection to the target server is disconnected below after the response is received...
+    LConnection := LContext.Headers.Values['Proxy-Connection'];           {do not localize}
+    if LConnection <> '' then begin
+      ASender.Disconnect := TextIsSame(LConnection, 'close');             {do not localize}
+    end else begin
+      LConnection := LContext.Headers.Values['Connection'];               {do not localize}
+      if IsVersionAtLeast11(ASender.Params.Strings[1]) then begin
+        ASender.Disconnect := TextIsSame(LConnection, 'close');           {do not localize}
+      end else begin
+        ASender.Disconnect := not TextIsSame(LConnection, 'keep-alive');  {do not localize}
+      end;
+    end;
+
+    // TODO: If the client requests a keep-alive with the target server, don't disconnect the
+    // TIdTCPClient below, so it can be reused for subsequent requests.  Disconnect it only
+    // when the requesting client disconnects, the keep-alive times out, or a different
+    // host/port is requested...
 
     TIdTCPClient(LContext.FOutboundClient).Connect;
     try
@@ -352,6 +380,7 @@ begin
       // server being able to send back an error reponse while the client is still sending
       // its request...
 
+      LContext.Headers.Values['Connection'] := 'close'; {do not localize}
       TransferData(LContext, LContext.Connection, LContext.FOutboundClient);
 
       LContext.Headers.Clear;
@@ -359,6 +388,8 @@ begin
       LContext.FTransferMode := FDefTransferMode;
       LContext.FTransferSource := tsServer;
       DoHTTPResponse(LContext);
+
+      LContext.Headers.Values['Proxy-Connection'] := iif(ASender.Disconnect, 'close', 'keep-alive'); {do not localize}
       TransferData(LContext, LContext.FOutboundClient, LContext.Connection);
     finally
       LContext.FOutboundClient.Disconnect;

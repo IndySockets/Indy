@@ -80,11 +80,7 @@ uses
   IdGlobalProtocols,
   IdException,
   IdCoderMIME,
-  IdResourceStringsOpenSSL,
-  {.$IFDEF USE_OPENSSL}
-  IdSSLOpenSSLHeaders,
-  IdSSLOpenSSL,
-  {.$ENDIF}
+  IdFIPS,
   IdNTLM,
   SysUtils;
 
@@ -93,13 +89,15 @@ uses
 constructor TIdNTLMAuthentication.Create;
 begin
   inherited Create;
-  {.$IFDEF USE_OPENSSL}
-  if not LoadOpenSSLLibrary then begin
-    raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
+
+  if not LoadNTLMLibrary then begin
+    // TODO: create a new Exception class for this
+    // TODO: move this into IdResourceStringsProtocols
+    raise EIdException.Create('Could not load NTLM library'); {do not localize}
   end;
-  {.$ENDIF}
+
   {TODO: add this?
-  if not NTLMFunctionsLoaded then begin
+  if not IsNTLMFuncsAvail then begin
     raise ...;
   end;
   }

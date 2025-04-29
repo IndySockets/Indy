@@ -99,7 +99,7 @@ end;
 
 function TIdHMACSHA1.IsIntFAvail: Boolean;
 begin
-   Result := inherited IsIntFAvail and IsHMACSHA1Avail;
+   Result := (inherited IsIntFAvail) and IsHMACSHA1Avail;
 end;
 
 procedure TIdHMACSHA1.SetHashVars;
@@ -127,7 +127,7 @@ end;
 
 function TIdHMACSHA224.IsIntFAvail: Boolean;
 begin
-   Result := inherited IsIntFAvail and IsHMACSHA224Avail;
+   Result := (inherited IsIntFAvail) and IsHMACSHA224Avail;
 end;
 
 procedure TIdHMACSHA224.SetHashVars;
@@ -155,7 +155,7 @@ end;
 
 function TIdHMACSHA256.IsIntFAvail: Boolean;
 begin
-   Result := inherited IsIntFAvail and IsHMACSHA256Avail;
+   Result := (inherited IsIntFAvail) and IsHMACSHA256Avail;
 end;
 
 procedure TIdHMACSHA256.SetHashVars;
@@ -181,7 +181,7 @@ end;
 
 function TIdHMACSHA384.IsIntFAvail: Boolean;
 begin
-   Result := inherited IsIntFAvail and IsHMACSHA384Avail;
+   Result := (inherited IsIntFAvail) and IsHMACSHA384Avail;
 end;
 
 procedure TIdHMACSHA384.SetHashVars;
@@ -207,7 +207,7 @@ end;
 
 function TIdHMACSHA512.IsIntFAvail: Boolean;
 begin
-   Result := inherited IsIntFAvail and IsHMACSHA512Avail;
+   Result := (inherited IsIntFAvail) and IsHMACSHA512Avail;
 end;
 
 procedure TIdHMACSHA512.SetHashVars;
