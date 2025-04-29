@@ -370,7 +370,8 @@ type
   TIdHTTPOption = (hoInProcessAuth, hoKeepOrigProtocol, hoForceEncodeParams,
     hoNonSSLProxyUseConnectVerb, hoNoParseMetaHTTPEquiv, hoWaitForUnexpectedData,
     hoTreat302Like303, hoNoProtocolErrorException, hoNoReadMultipartMIME,
-    hoNoParseXmlCharset, hoWantProtocolErrorContent, hoNoReadChunked
+    hoNoParseXmlCharset, hoWantProtocolErrorContent, hoNoReadChunked,
+    hoNoParseJsonCharset
     );
 
   TIdHTTPOptions = set of TIdHTTPOption;
@@ -715,6 +716,20 @@ begin
     Result := not IsHeaderMediaType(AInfo.ContentType, 'text'); {do not localize}
     if Result then begin
       Result := TextEndsWith(ExtractHeaderMediaSubType(AInfo.ContentType), '+xml') {do not localize}
+    end;
+  end;
+end;
+
+function IsContentTypeAppJson(AInfo: TIdEntityHeaderInfo) : Boolean;
+begin
+  Result := IsHeaderMediaTypes(AInfo.ContentType,
+    ['application/json', 'application/javascript', 'application/x-javascript'] {do not localize}
+    );
+  if not Result then
+  begin
+    Result := not IsHeaderMediaType(AInfo.ContentType, 'text'); {do not localize}
+    if Result then begin
+      Result := TextEndsWith(ExtractHeaderMediaSubType(AInfo.ContentType), '+json'); {do not localize}
     end;
   end;
 end;
@@ -1327,7 +1342,7 @@ var
     Result := (UInt32(Buffer[0]) shl 24) or
               (UInt32(Buffer[1]) shl 16) or
               (UInt32(Buffer[2]) shl 8) or
-              UInt32(Buffer[3]);
+               UInt32(Buffer[3]);
   end;
 
 begin
@@ -1477,6 +1492,91 @@ begin
   end;
 end;
 
+// TODO: move the JSON charset detector below to the IdGlobalProtocols unit so
+// it can be used in other components, like TIdMessageClient and TIdIMAP4...
+
+{
+Per RFC 4627 Section 3:
+   
+JSON text SHALL be encoded in Unicode.  The default encoding is UTF-8.
+
+Since the first two characters of a JSON text will always be ASCII
+characters [RFC0020], it is possible to determine whether an octet
+stream is UTF-8, UTF-16 (BE or LE), or UTF-32 (BE or LE) by looking
+at the pattern of nulls in the first four octets.
+
+    00 00 00 xx  UTF-32BE
+    00 xx 00 xx  UTF-16BE
+    xx 00 00 00  UTF-32LE
+    xx 00 xx 00  UTF-16LE
+    xx xx xx xx  UTF-8
+}
+
+type
+  JsonMaskInfo = record
+    Charset: String;
+    NullMask,
+	NonNullMask: UInt32;
+  end;
+
+const
+  JsonMasks: array[0..4] of JsonMaskInfo = (
+    (Charset: 'UTF-32BE'; NullMask: $FFFFFF00; NonNullMask: $000000FF), {do not localize}
+    (Charset: 'UTF-16BE'; NullMask: $FF00FF00; NonNullMask: $00FF00FF), {do not localize}
+    (Charset: 'UTF-32LE'; NullMask: $00FFFFFF; NonNullMask: $FF000000), {do not localize}
+    (Charset: 'UTF-16LE'; NullMask: $00FF00FF; NonNullMask: $FF00FF00), {do not localize}
+    (Charset: 'UTF-8';    NullMask: $00000000; NonNullMask: $FFFFFFFF)  {do not localize}
+  );
+
+function DetectJsonCharset(AStream: TStream): String;
+var
+  Buffer: TIdBytes;
+  InBuf, StreamPos: TIdStreamSize;
+  Signature: UInt32;
+  I: Integer;
+
+  function BufferToUInt32: UInt32;
+  begin
+    Result := (UInt32(Buffer[0]) shl 24) or
+              (UInt32(Buffer[1]) shl 16) or
+              (UInt32(Buffer[2]) shl 8) or
+               UInt32(Buffer[3]);
+  end;
+
+begin
+  // JSON's default encoding is UTF-8 unless determined otherwise...
+
+  Result := 'UTF-8'; {do not localize}
+
+  if AStream = nil then begin
+    Exit;
+  end;
+
+  StreamPos := AStream.Position;
+  try
+    AStream.Position := 0;
+
+    SetLength(Buffer, 4);
+
+    InBuf := ReadTIdBytesFromStream(AStream, Buffer, 4);
+    if InBuf < 4 then begin
+      Exit;
+    end;
+
+    Signature := BufferToUInt32;
+
+    for I := Low(JsonMasks) to High(JsonMasks) do begin
+      if ((Signature and JsonMasks[I].NullMask) = 0) and ((Signature and JsonMasks[I].NonNullMask) <> 0) then begin
+        Result := JsonMasks[I].Charset;
+        Exit;
+      end;
+    end;
+
+  finally
+    AStream.Position := StreamPos;
+  end;
+end;
+
 procedure TIdCustomHTTP.ReadResult(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 var
   LS: TStream;
@@ -1485,6 +1585,7 @@ var
   //0 - no parsing
   //1 - html
   //2 - xml
+  //3 - json
   LCreateTmpContent : Boolean;
   LDecMeth : Integer;
   //0 - no compression was used or we can't support that feature
@@ -1687,6 +1788,11 @@ begin
       if not (hoNoParseXmlCharset in FOptions) then begin
         LParseMeth := 2;
       end;
+    end
+    else if IsContentTypeAppJson(Response) then begin
+      if not (hoNoParseJsonCharset in FOptions) then begin
+        LParseMeth := 3;
+      end;
     end;
   end;
 
@@ -1774,6 +1880,11 @@ begin
         // the media type is not a 'text/...' based XML type, so ignore the
         // charset from the headers, if present, and parse the XML itself...
         AResponse.CharSet := DetectXmlCharset(AResponse.ContentStream);
+      end;
+      3: begin
+        // the media type is not a 'text/...' based JSON type, so ignore the
+        // charset from the headers, if present, and parse the JSON itself...
+        AResponse.CharSet := DetectJsonCharset(AResponse.ContentStream);
       end;
     else
       // TODO: if a Charset is not specified, return an appropriate value
