@@ -67,9 +67,11 @@ unit IdLPR;
   mail: babelfisch@daybyday.de
 }
 
+{$i IdCompilerDefines.inc}
+
 interface
 
-{$i IdCompilerDefines.inc}
+
 
 uses
   Classes,

@@ -24,8 +24,9 @@
 
 unit IdDayTimeUDP;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 uses
   IdAssignedNumbers, IdUDPBase, IdUDPClient;
 

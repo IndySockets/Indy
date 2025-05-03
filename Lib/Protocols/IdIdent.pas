@@ -45,9 +45,9 @@ unit IdIdent;
   This is the Ident client which is based on RFC 1413.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdAssignedNumbers, IdException, IdTCPClient;

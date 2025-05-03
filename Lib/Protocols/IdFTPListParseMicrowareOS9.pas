@@ -39,9 +39,9 @@
 
 unit IdFTPListParseMicrowareOS9;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

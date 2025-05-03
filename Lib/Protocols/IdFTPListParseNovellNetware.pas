@@ -51,9 +51,9 @@
 
 unit IdFTPListParseNovellNetware;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

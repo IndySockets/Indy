@@ -56,9 +56,9 @@ unit IdIdentServer;
   reflect what it does.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdGlobal;
