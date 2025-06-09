@@ -2731,20 +2731,10 @@ end;
 
 function TIdHTTPResponse.GetKeepAlive: Boolean;
 begin
-  if FHTTP.Connected then begin
-    FHTTP.IOHandler.CheckForDisconnect(False);
-  end;
-
-  // has the connection already been closed?
-  FKeepAlive := FHTTP.Connected;
-
-  if FKeepAlive then
-  begin
-    // did the client request the connection to be closed?
-    FKeepAlive := not TextIsSame(Trim(FHTTP.Request.Connection), 'CLOSE');   {do not localize}
-    if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
-      FKeepAlive := not TextIsSame(Trim(FHTTP.Request.ProxyConnection), 'CLOSE');   {do not localize}
-    end;
+  // did the client request the connection to be closed?
+  FKeepAlive := not TextIsSame(Trim(FHTTP.Request.Connection), 'CLOSE');   {do not localize}
+  if FKeepAlive and (FHTTP.Request.UseProxy in [ctProxy, ctSSLProxy]) then begin
+    FKeepAlive := not TextIsSame(Trim(FHTTP.Request.ProxyConnection), 'CLOSE');   {do not localize}
   end;
 
   if FKeepAlive then
@@ -2774,6 +2764,14 @@ begin
           end;
         end;
     end;
+  end;
+
+  if FKeepAlive then begin
+    // has the connection already been closed?
+    if FHTTP.Connected then begin
+      FHTTP.IOHandler.CheckForDisconnect(False);
+    end;
+    FKeepAlive := FHTTP.Connected;
   end;
 
   Result := FKeepAlive;
