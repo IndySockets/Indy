@@ -221,7 +221,7 @@
   // identify Highlanger specifically.
 
   //Delphi & C++Builder 2006
-  //Delphi & C++Builder 2007 (Highlander)
+  //Delphi & C++Builder 2007 (initial release)
   {$IFDEF VER180}
     {$DEFINE DCC}
     {$DEFINE VCL_2006}
@@ -232,7 +232,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & C++Builder 2007 (Highlander)
+  //Delphi & C++Builder 2007 (final release)
   {$IFDEF VER185}
     {$DEFINE DCC}
     {$UNDEF VCL_2006}
@@ -257,7 +257,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & C++Builder 2009 (Tiburon)
+  //Delphi & C++Builder 2009
   {$IFDEF VER200}
     {$DEFINE DCC}
     {$DEFINE VCL_2009}
@@ -268,7 +268,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & C++Builder 2010 (Weaver)
+  //Delphi & C++Builder 2010
   {$IFDEF VER210}
     {$DEFINE DCC}
     {$DEFINE VCL_2010}
@@ -279,10 +279,8 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & C++Builder XE (Fulcrum)
+  //Delphi & C++Builder XE
   {$IFDEF VER220}
-  //REMOVE DCC DEFINE after the next Fulcrum beta.
-  //It will be defined there.
     {$IFNDEF DCC}
       {$DEFINE DCC}
     {$ENDIF}
@@ -296,7 +294,7 @@
 
   // DCC is now defined by the Delphi compiler starting in XE2
 
-  //Delphi & CBuilder XE2 (Pulsar)
+  //Delphi & CBuilder XE2
   {$IFDEF VER230}
     {$DEFINE VCL_XE2}
     {$IFDEF CBUILDER}
@@ -306,8 +304,8 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE3 (Waterdragon)
-  //Delphi & CBuilder XE3.5 (Quintessence - early betas only)
+  //Delphi & CBuilder XE3
+  //Delphi & CBuilder XE3.5 (early betas only)
   {$IFDEF VER240}
     {$DEFINE VCL_XE3}
     {$IFDEF CBUILDER}
@@ -317,7 +315,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE4 (Quintessence)
+  //Delphi & CBuilder XE4
   {$IFDEF VER250}
     {$UNDEF VCL_XE3}
     {$DEFINE VCL_XE4}
@@ -330,7 +328,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE5 (Zephyr)
+  //Delphi & CBuilder XE5
   {$IFDEF VER260}
     {$DEFINE VCL_XE5}
     {$IFDEF CBUILDER}
@@ -351,7 +349,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE6 (Proteus)
+  //Delphi & CBuilder XE6
   {$IFDEF VER270}
     {$DEFINE VCL_XE6}
     {$IFDEF CBUILDER}
@@ -361,7 +359,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE7 (Carpathia)
+  //Delphi & CBuilder XE7
   {$IFDEF VER280}
     {$DEFINE VCL_XE7}
     {$IFDEF CBUILDER}
@@ -371,7 +369,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder XE8 (Elbrus)
+  //Delphi & CBuilder XE8
   {$IFDEF VER290}
     {$DEFINE VCL_XE8}
     {$IFDEF CBUILDER}
@@ -381,7 +379,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.0 Seattle (Aitana)
+  //Delphi & CBuilder 10.0 Seattle
   {$IFDEF VER300}
     {$DEFINE VCL_10_0}
     {$IFDEF CBUILDER}
@@ -391,7 +389,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.1 Berlin (BigBen)
+  //Delphi & CBuilder 10.1 Berlin
   {$IFDEF VER310}
     {$DEFINE VCL_10_1}
     {$IFDEF CBUILDER}
@@ -401,7 +399,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.2 Tokyo (Godzilla)
+  //Delphi & CBuilder 10.2 Tokyo
   {$IFDEF VER320}
     {$DEFINE VCL_10_2}
     {$IFDEF CBUILDER}
@@ -411,7 +409,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.3 Rio (Carnival)
+  //Delphi & CBuilder 10.3 Rio
   {$IFDEF VER330}
     {$DEFINE VCL_10_3}
     {$IFDEF CBUILDER}
@@ -421,7 +419,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 10.4 Sydney (Denali)
+  //Delphi & CBuilder 10.4 Sydney
   {$IFDEF VER340}
     {$DEFINE VCL_10_4}
     {$IFDEF CBUILDER}
@@ -431,7 +429,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 11.0 Alexandria (Olympus)
+  //Delphi & CBuilder 11.0 Alexandria
   {$IFDEF VER350}
     {$DEFINE VCL_11}
     {$IFDEF CBUILDER}
@@ -441,7 +439,7 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 12.0 Athens (Yukon)
+  //Delphi & CBuilder 12.0 Athens
   {$IFDEF VER360}
     {$DEFINE VCL_12}
     {$IFDEF CBUILDER}
@@ -451,16 +449,26 @@
     {$ENDIF}
   {$ENDIF}
 
-  //Delphi & CBuilder 13.0+ (?)
+  //Delphi & CBuilder 13.0 Florence
+  {$IFDEF VER370}
+    {$DEFINE VCL_13}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_13}
+    {$ELSE}
+      {$DEFINE DELPHI_13}
+    {$ENDIF}
+  {$ENDIF}
+
+  //Delphi & CBuilder 14.0+ (future releases)
   {$IFDEF CONDITIONALEXPRESSIONS}
-    {$IF CompilerVersion >= 37}
-      {$MESSAGE WARN 'Unknown compiler version detected! Assuming >= 13.x '}
+    {$IF CompilerVersion >= 38}
+      {$MESSAGE WARN 'Unknown compiler version detected! Assuming >= 14.x '}
       {$DEFINE VCL_UNKNOWN_VERSION}
-      {$DEFINE VCL_13}
+      {$DEFINE VCL_14}
       {$IFDEF CBUILDER}
-        {$DEFINE CBUILDER_13}
+        {$DEFINE CBUILDER_14}
       {$ELSE}
-        {$DEFINE DELPHI_13}
+        {$DEFINE DELPHI_14}
       {$ENDIF}
     {$IFEND}
   {$ENDIF}
@@ -762,8 +770,16 @@
 
 // end FPC
 
-{$IFDEF VCL_13}
+{$IFDEF VCL_14}
+  {$DEFINE VCL_14_OR_ABOVE}
+{$ENDIF}
+
+{$IFDEF VCL_14_OR_ABOVE}
   {$DEFINE VCL_13_OR_ABOVE}
+{$ELSE}
+  {$IFDEF VCL_13}
+    {$DEFINE VCL_13_OR_ABOVE}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_13_OR_ABOVE}
