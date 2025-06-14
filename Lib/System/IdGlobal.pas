@@ -10114,7 +10114,9 @@ end;
     {$IFDEF FPC}
       // FreePascal changed the signature of FreeAndNil() on May 13 2025 (what is the version number?)...
       {.$IFDEF FPC_?_?_?_OR_ABOVE}
+      {$IFNDEF CPULLVM}
         {$DEFINE HAS_FreeAndNil_TObject_Param}
+      {$ENDIF}
       {.$ENDIF}
     {$ENDIF}
   {$ENDIF}
