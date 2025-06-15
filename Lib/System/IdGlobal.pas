@@ -1963,10 +1963,10 @@ function IndyCheckWindowsVersion(const AMajor: Integer; const AMinor: Integer = 
 // Embarcadero changed the signature of FreeAndNil() in 10.4 Sydney:
 // procedure FreeAndNil(const [ref] Obj: TObject); inline;
 
-// FreePascal changed the signature of FreeAndNil() on May 13 2025 (what is the version number?):
+// FreePascal changed the signature of FreeAndNil() on May 13 2025 (3.3.1?):
 // procedure FreeAndNil(constref obj: TObject);
 
-// TODO: Change the signature of IdDisposeAndNil() to match FreeAndNil() in Delphi 10.4+ and FPC...
+// TODO: Change the signature of IdDisposeAndNil() to match FreeAndNil() in Delphi 10.4+ and FPC 3.3.1+...
 procedure IdDisposeAndNil(var Obj); {$IFDEF USE_INLINE}inline;{$ENDIF}
 
 //RLebeau: FPC does not provide mach_timebase_info() and mach_absolute_time() yet...
@@ -10112,12 +10112,12 @@ end;
     {$ENDIF}
   {$ELSE}
     {$IFDEF FPC}
-      // FreePascal changed the signature of FreeAndNil() on May 13 2025 (what is the version number?)...
-      {.$IFDEF FPC_?_?_?_OR_ABOVE}
-      {$IFNDEF CPULLVM}
-        {$DEFINE HAS_FreeAndNil_TObject_Param}
+      // FreePascal changed the signature of FreeAndNil() on May 13 2025 (3.3.1?)...
+      {$IFDEF FPC_3_3_1_OR_ABOVE}
+        {$IFNDEF CPULLVM} // the signature is not changed for LLVM
+          {$DEFINE HAS_FreeAndNil_TObject_Param}
+        {$ENDIF}
       {$ENDIF}
-      {.$ENDIF}
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}

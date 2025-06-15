@@ -584,6 +584,9 @@
   // evaluates $IF statements before $IFDEF statements...
 
   {$MACRO ON} // must be on in order to use versioning macros
+  {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 30301)}
+    {$DEFINE FPC_3_3_1_OR_ABOVE}
+  {$IFEND}
   {$IF DEFINED(FPC_FULLVERSION) AND (FPC_FULLVERSION >= 30101)}
     {$DEFINE FPC_3_1_1_OR_ABOVE}
   {$IFEND}
