@@ -6,6 +6,12 @@
   {$Error Unsupported compiler version detected!}
 {$IFEND}
 
+{$IF FPC_FULLVERSION >= 30301}
+  {$DEFINE FPC_3_3_1_OR_ABOVE}
+{$IFEND}
+{$IF FPC_FULLVERSION >= 30101}
+  {$DEFINE FPC_3_1_1_OR_ABOVE}
+{$IFEND}
 {$DEFINE FPC_3_0_0_OR_ABOVE}
 
 // In FreePascal 3.0.0+, a Delphi-like UnicodeString type is supported.
@@ -95,7 +101,7 @@
 {$DEFINE HAS_GetLocalTimeOffset}
 {$DEFINE HAS_UniversalTimeToLocal}
 {$DEFINE HAS_LocalTimeToUniversal}
-{$IF FPC_FULLVERSION >= 30101}
+{$IFDEF FPC_3_1_1_OR_ABOVE}
   {$DEFINE HAS_STATIC_TThread_ForceQueue} // requires rev 37359+
   {$DEFINE HAS_PRawByteString}
   {$DEFINE HAS_UIntToStr} // requires rev 40529+

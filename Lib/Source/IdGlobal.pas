@@ -1524,15 +1524,18 @@ function IndyWindowsPlatform: Integer;
 function IndyCheckWindowsVersion(const AMajor: Integer; const AMinor: Integer = 0): Boolean;
 {$ENDIF}
 
-// For non-Nextgen compilers: IdDisposeAndNil is the same as FreeAndNil()
+// For non-Nextgen compilers: IdDisposeAndNil is the same as FreeAndNil().
 // For Nextgen compilers: IdDisposeAndNil calls TObject.DisposeOf() to ensure
 // the object is freed immediately even if it has active references to it,
-// for instance when freeing an Owned component
+// for instance when freeing an Owned component.
 
-// Embarcadero changed the signature of FreeAndNil() in 10.4 Denali:
+// Embarcadero changed the signature of FreeAndNil() in 10.4 Sydney:
 // procedure FreeAndNil(const [ref] Obj: TObject); inline;
 
-// TODO: Change the signature of IdDisposeAndNil() to match FreeAndNil() in 10.4+...
+// FreePascal changed the signature of FreeAndNil() on May 13 2025 (3.3.1?):
+// procedure FreeAndNil(constref obj: TObject);
+
+// TODO: Change the signature of IdDisposeAndNil() to match FreeAndNil() in Delphi 10.4+ and FPC 3.3.1+...
 procedure IdDisposeAndNil(var Obj); {$IFDEF USE_INLINE}inline;{$ENDIF}
 
 //RLebeau: FPC does not provide mach_timebase_info() and mach_absolute_time() yet...
@@ -8533,9 +8536,11 @@ begin
   Temp.DisposeOf;
   // __ObjRelease() is called when Temp goes out of scope
   {$ELSE}
-  // Embarcadero changed the signature of FreeAndNil() in 10.4 Denali...
+  // Embarcadero changed the signature of FreeAndNil() in 10.4 Sydney...
+  // FreePascal changed the signature of FreeAndNil() on May 13 2025 (3.3.1?), but not for LLVM...
   FreeAndNil(
-    {$IF DEFINED(DCC) AND DEFINED(DCC_10_4_OR_ABOVE)}
+    {$IF (DEFINED(DCC) AND DEFINED(DCC_10_4_OR_ABOVE))
+         OR (DEFINED(FPC) AND DEFINED(FPC_3_3_1_OR_ABOVE) AND (NOT DEFINED(CPULLVM)))}
     TObject(Obj)
     {$ELSE}
     Obj

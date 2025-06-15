@@ -18,7 +18,7 @@
   {$MESSAGE ERROR 'Unsupported compiler version detected!'}
 {$IFEND}
 
-//Delphi & C++Builder 2009 (Tiburon)
+//Delphi & C++Builder 2009
 {$IF CompilerVersion >= 20}
   {$IF CompilerVersion < 21}
     {$DEFINE DCC_2009}
@@ -31,7 +31,7 @@
   {$DEFINE DCC_2009_OR_ABOVE}
 {$IFEND}
 
-//Delphi & C++Builder 2010 (Weaver)
+//Delphi & C++Builder 2010
 {$IF CompilerVersion >= 21}
   {$IF CompilerVersion < 22}
     {$DEFINE DCC_2010}
@@ -44,7 +44,7 @@
   {$DEFINE DCC_2010_OR_ABOVE}
 {$IFEND}
 
-//Delphi & C++Builder XE (Fulcrum)
+//Delphi & C++Builder XE
 {$IF CompilerVersion >= 22}
   {$IF CompilerVersion < 23}
     {$DEFINE DCC_XE}
@@ -57,7 +57,7 @@
   {$DEFINE DCC_XE_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder XE2 (Pulsar)
+//Delphi & CBuilder XE2
 {$IF CompilerVersion >= 23}
   {$IF CompilerVersion < 24}
     {$DEFINE DCC_XE2}
@@ -70,8 +70,8 @@
   {$DEFINE DCC_XE2_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder XE3 (Waterdragon)
-//Delphi & CBuilder XE3.5 (Quintessence - early betas only)
+//Delphi & CBuilder XE3
+//Delphi & CBuilder XE3.5 (early betas only)
 {$IF CompilerVersion >= 24}
   {$IF CompilerVersion < 25}
     {$DEFINE DCC_XE3}
@@ -84,7 +84,7 @@
   {$DEFINE DCC_XE3_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder XE4 (Quintessence)
+//Delphi & CBuilder XE4
 {$IF CompilerVersion >= 25}
   {$IF CompilerVersion < 26}
     {$UNDEF DCC_XE3}
@@ -100,7 +100,7 @@
   {$DEFINE DCC_XE4_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder XE5 (Zephyr)
+//Delphi & CBuilder XE5
 //Delphi & C++Builder AppMethod is XE5 for mobile only, VCL is removed
 {$IF CompilerVersion >= 26}
   {$IF CompilerVersion < 27}
@@ -119,7 +119,7 @@
   {.$DEFINE DCC_XE5_UPDATE2_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder XE6 (Proteus)
+//Delphi & CBuilder XE6
 {$IF CompilerVersion >= 27}
   {$IF CompilerVersion < 28}
     {$DEFINE DCC_XE6}
@@ -133,7 +133,7 @@
   {$DEFINE DCC_XE5_UPDATE2_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder XE7 (Carpathia)
+//Delphi & CBuilder XE7
 {$IF CompilerVersion >= 28}
   {$IF CompilerVersion < 29}
     {$DEFINE DCC_XE7}
@@ -146,7 +146,7 @@
   {$DEFINE DCC_XE7_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder XE8 (Elbrus)
+//Delphi & CBuilder XE8
 {$IF CompilerVersion >= 29}
   {$IF CompilerVersion < 30}
     {$DEFINE DCC_XE8}
@@ -159,7 +159,7 @@
   {$DEFINE DCC_XE8_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder 10.0 Seattle (Aitana)
+//Delphi & CBuilder 10.0 Seattle
 {$IF CompilerVersion >= 30}
   {$IF CompilerVersion < 31}
     {$DEFINE DCC_10_0}
@@ -172,7 +172,7 @@
   {$DEFINE DCC_10_0_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder 10.1 Berlin (BigBen)
+//Delphi & CBuilder 10.1 Berlin
 {$IF CompilerVersion >= 31}
   {$IF CompilerVersion < 32}
     {$DEFINE DCC_10_1}
@@ -185,7 +185,7 @@
   {$DEFINE DCC_10_1_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder 10.2 Tokyo (Godzilla)
+//Delphi & CBuilder 10.2 Tokyo
 {$IF CompilerVersion >= 32}
   {$IF CompilerVersion < 33}
     {$DEFINE DCC_10_2}
@@ -198,7 +198,7 @@
   {$DEFINE DCC_10_2_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder 10.3 Rio (Carnival)
+//Delphi & CBuilder 10.3 Rio
 {$IF CompilerVersion >= 33}
   {$IF CompilerVersion < 34}
     {$DEFINE DCC_10_3}
@@ -213,7 +213,7 @@
   {.$DEFINE DCC_10_3_UPDATE2_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder 10.4 Sydney (Denali)
+//Delphi & CBuilder 10.4 Sydney
 {$IF CompilerVersion >= 34}
   {$IF CompilerVersion < 35}
     {$DEFINE DCC_10_4}
@@ -229,7 +229,7 @@
   {$DEFINE DCC_10_3_UPDATE2_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder 11.0 Alexandria (Olympus)
+//Delphi & CBuilder 11.0 Alexandria
 {$IF CompilerVersion >= 35}
   {$IF CompilerVersion < 36}
     {$DEFINE DCC_11}
@@ -243,7 +243,7 @@
   {$DEFINE DCC_10_4_UPDATE2_OR_ABOVE}
 {$IFEND}
 
-//Delphi & CBuilder 12.0 Athens (Yukon)
+//Delphi & CBuilder 12.0 Athens
 {$IF CompilerVersion >= 36}
   {$IF CompilerVersion < 37}
     {$DEFINE DCC_12}
@@ -256,8 +256,30 @@
   {$DEFINE DCC_12_OR_ABOVE}
 {$IFEND}
 
+//Delphi & CBuilder 13 Florence
 {$IF CompilerVersion >= 37}
-  {$MESSAGE ERROR 'Unsupported compiler version detected!'}
+  {$IF CompilerVersion < 38}
+    {$DEFINE DCC_13}
+    {$IFDEF CBUILDER}
+      {$DEFINE CBUILDER_13}
+    {$ELSE}
+      {$DEFINE DELPHI_13}
+    {$ENDIF}
+  {$ENDIF}
+  {$DEFINE DCC_13_OR_ABOVE}
+{$IFEND}
+
+//Delphi & CBuilder 14.0+
+{$IF CompilerVersion >= 38}
+  {$MESSAGE WARN 'Unknown compiler version detected! Assuming >= 14.x '}
+  {$DEFINE DCC_UNKNOWN_VERSION}
+  {$DEFINE DCC_14}
+  {$IFDEF CBUILDER}
+    {$DEFINE CBUILDER_14}
+  {$ELSE}
+    {$DEFINE DELPHI_14}
+  {$ENDIF}
+  {$DEFINE DCC_14_OR_ABOVE}
 {$IFEND}
 
 // Normalize Delphi compiler defines to match FPC for consistency:
