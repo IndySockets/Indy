@@ -6,7 +6,7 @@ Indy is dual licensed. You can review which license better suits your needs, and
 
 1. Indy Modified BSD License - The Indy Modified BSD license is a very no nonsense license that allows you to do almost anything you want with Indy, provided you provide proper attribution.
 
-3. Indy MPL (Mozilla Public License) License - To make it easier and consistent for JEDI users, we also offer an MPL license v1.1 (MPL-1.1 http://www.mozilla.org/MPL/MPL-1.1.html)
+3. Indy MPL (Mozilla Public License) License - To make it easier and consistent for JEDI users, we also offer an [MPL license v1.1](http://www.mozilla.org/MPL/MPL-1.1.html).
 
 ## Which license should I use?
 
