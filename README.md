@@ -10,4 +10,4 @@ For instructions on upgrading the default installed version of Indy in your IDE 
 This project is dual-licensed under the terms of the Indy Modified BSD License and Indy MPL License.
 You can choose between one of them if you use this work.
 
-`SPDX-License-Identifier: LicenseRef-IndyBSD OR MPL-1.1`
+SPDX-License-Identifier: LicenseRef-IndyBSD OR MPL-1.1
