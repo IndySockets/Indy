@@ -91,7 +91,7 @@ begin
   end;
 
   if gfRunTime in LFlags then begin
-    FName := 'IndyCore' + GCompilerID[ACompiler];
+    FName := 'IndyCore' + GPackageVer[ACompiler];
     FDesc := 'Core';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfDesignTime]);
@@ -99,7 +99,7 @@ begin
   end;
 
   if gfDesignTime in LFlags then begin
-    FName := 'dclIndyCore' + GCompilerID[ACompiler];
+    FName := 'dclIndyCore' + GPackageVer[ACompiler];
     FDesc := 'Core Design Time';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfRunTime]);
@@ -110,8 +110,8 @@ end;
 // TODO: make the options configurable...
 procedure TPackageCore.GenOptions;
 const
-  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphi13] + [ctDelphi2005];
-  Delphi_OmittedOptions                   = [Delphi_Native_Lowest..ctDelphi13Net, ctKylix3] - [ctDelphi8Net] + [ctDelphiXE];
+  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiPre2010NR] + [ctDelphi2005];
+  Delphi_OmittedOptions                   = [Delphi_Native_Lowest..ctDelphiPre2010NRNet, ctKylix3] - [ctDelphi8Net] + [ctDelphiXE];
   Delphi_Native_Ifdef_ImplicitBuilding    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
   Delphi_Native_Force_DebugInfo_Off       = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE7];
   Delphi_Native_Force_Optimization_On     = Delphi_Native - [ctDelphiXE2..Delphi_Native_Highest] + Delphi_DotNet + [ctKylix3];
@@ -253,9 +253,9 @@ begin
       Code('  designide,');
     end;
     if FCompiler <> ctDelphi8Net then begin
-      Code('  IndySystem' + GCompilerID[FCompiler] + ',');
+      Code('  IndySystem' + GPackageVer[FCompiler] + ',');
     end;
-    Code('  IndyCore' + GCompilerID[FCompiler] + ';');
+    Code('  IndyCore' + GPackageVer[FCompiler] + ';');
   end else
   begin
     if FCompiler in Delphi_DotNet then begin
@@ -281,7 +281,7 @@ begin
         Code('  {$ENDIF}');
       end;
     end;
-    Code('  IndySystem' + GCompilerID[FCompiler] + ';');
+    Code('  IndySystem' + GPackageVer[FCompiler] + ';');
   end;
 end;
 
@@ -305,7 +305,7 @@ begin
   end;
 
   if gfRunTime in LFlags then begin
-    FName := 'IndyCore' + GCompilerID[ACompiler];
+    FName := 'IndyCore' + GPackageVer[ACompiler];
     FDesc := 'Core Run-Time';
 
     FExt := '.rc.tmpl';
@@ -318,7 +318,7 @@ begin
   end;
 
   if gfDesignTime in LFlags then begin
-    FName := 'dclIndyCore' + GCompilerID[ACompiler];
+    FName := 'dclIndyCore' + GPackageVer[ACompiler];
     FDesc := 'Core Design-Time';
 
     FExt := '.rc.tmpl';

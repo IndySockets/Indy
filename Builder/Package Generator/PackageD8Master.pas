@@ -61,7 +61,7 @@ end;
 
 procedure TPackageD8Master.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 begin
-  FName := 'Indy' + GCompilerID[ACompiler];
+  FName := 'Indy' + GPackageVer[ACompiler];
   FDesc := 'Master';
   FExt := '.dpk';
   inherited Generate(ACompiler, AFlags);

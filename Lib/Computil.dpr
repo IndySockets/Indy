@@ -209,7 +209,21 @@ begin
       end;
 
       // Determine Product Version registry key name
-      if ProductVersion >= 20 then begin
+      //
+      // Note: Embarcadero resynced their internal product version
+      // to match the compiler version in RAD Studio 13.0 Florence!
+      //
+      // RAD 12.0 = Product v29 -> BDS v23
+      // RAD 13.0 = Product v37 -> BDS v37
+      //
+      if ProductVersion >= 37 then begin
+        RegVersion := ProductVersion;  // Product v37+ -> BDS v37+
+      end
+      else if ProductVersion >= 30 then begin
+        // no Product versions
+        RegVersion := 0;
+      end
+      else if ProductVersion >= 20 then begin
         RegVersion := ProductVersion - 6;  // Product v20+ -> BDS v14+
       end
       else if ProductVersion >= 14 then begin

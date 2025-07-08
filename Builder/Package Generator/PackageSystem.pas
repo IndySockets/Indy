@@ -88,7 +88,7 @@ end;
 
 procedure TPackageSystem.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 begin
-  FName := 'IndySystem' + GCompilerID[ACompiler];
+  FName := 'IndySystem' + GPackageVer[ACompiler];
   FDesc := 'System';
   FExt := '.dpk';
   inherited Generate(ACompiler, AFlags - [gfDesignTime]);
@@ -98,7 +98,7 @@ end;
 // TODO: make the options configurable...
 procedure TPackageSystem.GenOptions;
 const
-  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphi13] + [ctDelphi2005];
+  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiPre2010NR] + [ctDelphi2005];
   Delphi_OmittedOptions                   = [Delphi_Native_Lowest..ctDelphiXE, ctKylix3] - [ctDelphi8Net];
   Delphi_Native_Ifdef_ImplicitBuilding    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
   Delphi_Native_Force_DebugInfo_Off       = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE7];
@@ -317,7 +317,7 @@ end;
 
 procedure TPackageSystem.GenerateRC(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 begin
-  FName := 'IndySystem' + GCompilerID[ACompiler];
+  FName := 'IndySystem' + GPackageVer[ACompiler];
   FDesc := 'System Run-Time';
 
   FExt := '.rc.tmpl';
