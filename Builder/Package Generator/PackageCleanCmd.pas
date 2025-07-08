@@ -87,6 +87,7 @@ const
     (ProductName: 'Delphi 10.4 Sydney';   Symbol: 'D27';  FileSuffix: 'Sydney'),
     (ProductName: 'Delphi 11 Alexandria'; Symbol: 'D28';  FileSuffix: 'Alexandria'),
     (ProductName: 'Delphi 12 Athens';     Symbol: 'D29';  FileSuffix: 'Athens'),
+    (ProductName: 'Delphi 13 Florence';   Symbol: 'D37';  FileSuffix: 'Florence'),
     (ProductName: '';                     Symbol: '';     FileSuffix: ''),
     (ProductName: '';                     Symbol: '';     FileSuffix: '')
   );

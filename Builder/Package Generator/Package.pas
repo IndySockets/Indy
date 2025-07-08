@@ -87,6 +87,7 @@ type
    ctDelphiSydney,
    ctDelphiAlexandria,
    ctDelphiAthens,
+   ctDelphiFlorence,
    ctDotNet, // Visual Studio
    ctKylix3);
 
@@ -101,7 +102,7 @@ const
   Delphi_DotNet_2_Or_Later              = [ctDelphi2007Net, ctDelphi2009Net, ctDelphi13Net];
 
   Delphi_Native_Lowest                  = ctDelphi4;
-  Delphi_Native_Highest                 = ctDelphiAthens;
+  Delphi_Native_Highest                 = ctDelphiFlorence;
   Delphi_Native                         = [Delphi_Native_Lowest..Delphi_Native_Highest] - Delphi_DotNet;
   Delphi_Native_Ifdef_Rtl               = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
   Delphi_Native_Ifdef_Rtl_CheckIOS      = Delphi_Native_Ifdef_Rtl - [ctDelphiXE2..ctDelphiXE3];
@@ -185,6 +186,7 @@ const
     '270',            // 10.4 Sydney
     '280',            // 11.0 Alexandria
     '290',            // 12.0 Athens
+    '370',            // 13.0 Florence
     '',               // .NET
     'K3');            // Kylix
 
@@ -216,6 +218,7 @@ const
     '340',            // 10.4 Sydney
     '350',            // 11.0 Alexandria
     '360',            // 12.0 Athens
+    '370',            // 13.0 Florence
     '',               // .NET
     '');              // Kylix
 
