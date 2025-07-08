@@ -28,7 +28,7 @@ package IndyProtocols260;
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 Protocols'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 // RLebeau: cannot use IdCompilerDefines.inc here!
 

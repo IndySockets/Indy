@@ -18,7 +18,7 @@ package IndyProtocolsK3;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Protocols'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   rtl,
