@@ -93,19 +93,19 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}Classes,
   IdGlobal,
   IdMessage,
   IdException,
   IdAttachment,
   IdAttachmentFile,
-  SysUtils;
+  {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}SysUtils;
 
 type
   TIdCoderTNEF = class(TObject)
   private
     FData: TStream;         //Used for walking through the file
-    FKey: Word;             //Every TNEF has one, but no-one seems to know why!
+    FKey: UInt16;           //Every TNEF has one, but no-one seems to know why!
     FLog: string;           //The (optional) debugging log goes here
     FDoLogging: Boolean;    //Should we be doing the optional logging?
     FMsg: TIdMessage;       //The destination for our extracted attachments
@@ -115,50 +115,50 @@ type
     procedure DoLog(const AMsg: String; const AAppendSize: Boolean = True);
     procedure DoLogFmt(const AFormat: string; const Args: array of const; AAppendSize: Boolean = True);
     //Low-level utility functions:
-    function  GetMultipleUnicodeOrString8String(AType: Word): TIdUnicodeString;
-    function  GetUnicodeOrString8String(AType: Word): TIdUnicodeString;
+    function  GetMultipleUnicodeOrString8String(AType: UInt16): TIdUnicodeString;
+    function  GetUnicodeOrString8String(AType: UInt16): TIdUnicodeString;
     function  GetByte: Byte;
     function  GetBytes(ALength: Integer; APeek: Boolean = False): TIdBytes;
     function  GetByteAsHexString: string; overload;
     function  GetByteAsHexString(AByte: Byte): string; overload;
     function  GetByteAsChar(AByte: Byte): char;
     function  GetBytesAsHexString(ACount: integer): string;
-    function  GetWord: Word;
-    function  GetLongWord: LongWord;
+    function  GetUInt16: UInt16;
+    function  GetUInt32: UInt32;
     function  GetInt64: Int64;
-    function  GetString(ALength: Word): string;
-    function  GetDate(ALength: Word): TDateTime;
+    function  GetString(ALength: UInt16): string;
+    function  GetDate(ALength: UInt16): TDateTime;
     procedure Skip(ACount: integer);
     procedure CheckForEof(ANumBytesRequested: integer);
     procedure Checksum(ANumBytesToCheck: integer);
     function  PadWithZeroes(const AStr: string; ACount: integer): string;
     procedure DumpBytes(const ABytes: TIdBytes);
     //Attribute-specific stuff...
-    function  GetAttributeString(const AAttributeName: string; AType: Word): string;
+    function  GetAttributeString(const AAttributeName: string; AType: UInt16): string;
     //MAPI parsing...
-    function  GetStringForMapiType(AType: Word): string;
-    function  GetMapiBoolean(AType: Word; const AText: string): Smallint;
-    function  GetMapiLong(AType: Word; const AText: string): Longint;
-    function  GetMapiStrings(AType: Word; const AText: string): string;
-    function  GetMapiBinary(AType: Word; const AText: string): TIdBytes;
-    function  GetMapiBinaryAsEmailName(AType: Word; const AText: string): string;
-    function  GetMapiBinaryAsString(AType: Word; const AText: string): string;
-    //function  GetMapiObject(AType: Word; AText: string): TIdBytes;
-    function  GetMapiItemAsBytes(AType: Word; const AText: string): TIdBytes;
-    function  GetMapiItemAsBytesPossiblyCompressed(AType: Word; const AText: string): TIdBytes;
-    function  DecompressRtf(ACount, ALength: LongWord; AType: Word; const AText: string): TIdBytes;
-    function  GetMapiSysTime(AType: Word; const AText: string): TDateTime;
-    function  InternalGetMapiItemAsBytes(ACount, ALength: LongWord; AType: Word; const AText: string): TIdBytes;
+    function  GetStringForMapiType(AType: UInt16): string;
+    function  GetMapiBoolean(AType: UInt16; const AText: string): Int16;
+    function  GetMapiLong(AType: UInt16; const AText: string): Longint;
+    function  GetMapiStrings(AType: UInt16; const AText: string): string;
+    function  GetMapiBinary(AType: UInt16; const AText: string): TIdBytes;
+    function  GetMapiBinaryAsEmailName(AType: UInt16; const AText: string): string;
+    function  GetMapiBinaryAsString(AType: UInt16; const AText: string): string;
+    //function  GetMapiObject(AType: UInt16; AText: string): TIdBytes;
+    function  GetMapiItemAsBytes(AType: UInt16; const AText: string): TIdBytes;
+    function  GetMapiItemAsBytesPossiblyCompressed(AType: UInt16; const AText: string): TIdBytes;
+    function  DecompressRtf(ACount, ALength: UInt32; AType: UInt16; const AText: string): TIdBytes;
+    function  GetMapiSysTime(AType: UInt16; const AText: string): TDateTime;
+    function  InternalGetMapiItemAsBytes(ACount, ALength: UInt32; AType: UInt16; const AText: string): TIdBytes;
   protected
     procedure ParseMessageBlock;
     procedure ParseAttachmentBlock;
-    procedure ParseAttribute(AAttribute, AType: Word);
-    procedure ParseMapiProps(ALength: LongWord);
+    procedure ParseAttribute(AAttribute, AType: UInt16);
+    procedure ParseMapiProps(ALength: UInt32);
     procedure ParseMapiProp;
     procedure IsCurrentAttachmentValid;
     //For debugging log...
-    function  GetStringForAttribute(AAttribute: Word): string;
-    function  GetStringForType(AType: Word): string;
+    function  GetStringForAttribute(AAttribute: UInt16): string;
+    function  GetStringForType(AType: UInt16): string;
   public
     //The following is the normal parser call you would use...
     procedure Parse(const AIn: TIdAttachment; AMsg: TIdMessage; ALog: Boolean = False); overload;
@@ -169,7 +169,7 @@ type
     procedure Parse(const AIn: string; AMsg: TIdMessage; ALog: Boolean = False);   overload;
     //Tells you if a filename matches TNEF semantics (winmail.dat, att0001.dat)
     class function IsFilenameTnef(const AFilename: string): Boolean; static; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use standalone IsFilenameTnef() function'{$ENDIF};{$ENDIF}
-    property  Key: Word read FKey;  //TODO: Does this have a meaningful use?
+    property  Key: UInt16 read FKey;  //TODO: Does this have a meaningful use?
     property  Log: string read FLog;
   end;
 
@@ -190,7 +190,9 @@ function IsFilenameTnef(const AFilename: string): Boolean;
 implementation
 
 uses
-  {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
+  {$IFDEF HAS_UNIT_DateUtils}
+  {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}DateUtils,
+  {$ENDIF}
   IdMessageClient, IdText, IdStream;
 
 const
@@ -1308,7 +1310,7 @@ begin
   DoLog(IndyFormat(AFormat, Args), AAppendSize);
 end;
 
-function TIdCoderTNEF.GetStringForMapiType(AType: Word): string;
+function TIdCoderTNEF.GetStringForMapiType(AType: UInt16): string;
 begin
   case AType of
     IdTNEF_PT_UNSPECIFIED: begin
@@ -1367,7 +1369,7 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetStringForType(AType: Word): string;
+function TIdCoderTNEF.GetStringForType(AType: UInt16): string;
 begin
   case AType of
     IdTNEFAtpTriples: begin
@@ -1405,7 +1407,7 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetStringForAttribute(AAttribute: Word): string;
+function TIdCoderTNEF.GetStringForAttribute(AAttribute: UInt16): string;
 begin
   case AAttribute of
     IdTNEFattNull: begin
@@ -1526,13 +1528,13 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetMultipleUnicodeOrString8String(AType: Word): TIdUnicodeString;
+function TIdCoderTNEF.GetMultipleUnicodeOrString8String(AType: UInt16): TIdUnicodeString;
 var
-  LIndex, LCount: LongWord;
+  LIndex, LCount: UInt32;
 begin
   //Usually this will only contain one string, but if there are more, return
   //them as a single string concatenated with semicolons.
-  LCount := GetLongWord;
+  LCount := GetUInt32;
   if FDoLogging then begin
     DoLogFmt('     Found %d %s String(s):', [LCount, GetStringForMapiType(AType)]);  {Do not localize}
   end;
@@ -1542,17 +1544,17 @@ begin
   end;
   Result := GetUnicodeOrString8String(AType);
   for LIndex := 2 to LCount do begin
-    Result := ';' + GetUnicodeOrString8String(AType);    {Do not localize}
+    Result := Result + ';' + GetUnicodeOrString8String(AType);    {Do not localize}
   end;
 end;
 
-function TIdCoderTNEF.GetUnicodeOrString8String(AType: Word): TIdUnicodeString;
+function TIdCoderTNEF.GetUnicodeOrString8String(AType: UInt16): TIdUnicodeString;
 var
-  LLength: LongWord;
+  LLength: UInt32;
   LBuf: TIdBytes;
 begin
   Result := '';
-  LLength := GetLongWord;
+  LLength := GetUInt32;
   if LLength = 0 then begin
     Exit;
   end;
@@ -1652,20 +1654,28 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetWord: Word;
+function TIdCoderTNEF.GetUInt16: UInt16;
 var
   LTemp: TIdBytes;
 begin
-  LTemp := GetBytes(SizeOf(Word));
-  Result := PWord(LTemp)^;
+  LTemp := GetBytes(SizeOf(UInt16));
+  //TODO: use IdGlobal.LittleEndianToHost() instead?
+  //Result := LittleEndianToHost(PUInt16(LTemp)^);
+  Result :=  UInt16(LTemp[0]) or
+            (UInt16(LTemp[1]) shl 8);
 end;
 
-function TIdCoderTNEF.GetLongWord: LongWord;
+function TIdCoderTNEF.GetUInt32: UInt32;
 var
   LTemp: TIdBytes;
 begin
-  LTemp := GetBytes(SizeOf(LongWord));
-  Result := PLongWord(LTemp)^;
+  LTemp := GetBytes(SizeOf(UInt32));
+  //TODO: use IdGlobal.LittleEndianToHost() instead?
+  //Result := LittleEndianToHost(PUInt32(LTemp)^);
+  Result :=  UInt32(LTemp[0]) or
+            (UInt32(LTemp[1]) shl 8) or
+            (UInt32(LTemp[2]) shl 16) or
+            (UInt32(LTemp[3]) shl 24);
 end;
 
 function TIdCoderTNEF.GetInt64: Int64;
@@ -1673,10 +1683,19 @@ var
   LTemp: TIdBytes;
 begin
   LTemp := GetBytes(SizeOf(Int64));
-  Result := PInt64(@LTemp[0])^;
+  //TODO: use IdGlobal.LittleEndianToHost() instead?
+  //Result := LittleEndianToHost(PInt64(LTemp)^);
+  Result :=  Int64(LTemp[0]) or
+            (Int64(LTemp[1]) shl 8) or
+            (Int64(LTemp[2]) shl 16) or
+            (Int64(LTemp[3]) shl 24) or
+            (Int64(LTemp[4]) shl 32) or
+            (Int64(LTemp[5]) shl 40) or
+            (Int64(LTemp[6]) shl 48) or
+            (Int64(LTemp[7]) shl 56);
 end;
 
-function TIdCoderTNEF.GetString(ALength: Word): string;
+function TIdCoderTNEF.GetString(ALength: UInt16): string;
 begin
   if ALength > 0 then begin
     Result := ReadStringFromStream(FData, ALength-1, IndyTextEncoding_8Bit{$IFDEF STRING_IS_ANSI}, IndyTextEncoding_8Bit{$ENDIF});
@@ -1686,17 +1705,17 @@ begin
   end;
 end;
 
-function  TIdCoderTNEF.GetDate(ALength: Word): TDateTime;
+function  TIdCoderTNEF.GetDate(ALength: UInt16): TDateTime;
 var
   LYear, LMonth, LDay, LHour, LMinute, LSecond: Word;
 begin
-  LYear   := GetWord;
-  LMonth  := GetWord;
-  LDay    := GetWord;
-  LHour   := GetWord;
-  LMinute := GetWord;
-  LSecond := GetWord;
-  Skip(SizeOf(Word));  //Day-of-week
+  LYear   := GetUInt16;
+  LMonth  := GetUInt16;
+  LDay    := GetUInt16;
+  LHour   := GetUInt16;
+  LMinute := GetUInt16;
+  LSecond := GetUInt16;
+  Skip(SizeOf(UInt16));  //Day-of-week
   Result := EncodeDateTime(LYear, LMonth, LDay, LHour, LMinute, LSecond, 0);
 end;
 
@@ -1708,20 +1727,24 @@ end;
 
 procedure TIdCoderTNEF.Checksum(ANumBytesToCheck: integer);
 var
-  LChecksum: Word;
-  i: integer;
+  LSum: UInt64;
+  LChecksum, LTNEFChecksum: UInt16;
+  i: Integer;
   LBytes: TIdBytes;
-  LTNEFChecksum: Word;
 begin
   //Do a checksum on ANumBytesToCheck bytes from the current position.
   //Compare to the recorded TNEF value in the word after these bytes.
   //DONT move our stream pointer forward.
-  LBytes := GetBytes(ANumBytesToCheck + SizeOf(Word), True);
-  LChecksum := 0;
+  LBytes := GetBytes(ANumBytesToCheck + SizeOf(UInt16), True);
+  LSum := 0;
   for i := 0 to ANumBytesToCheck-1 do begin
-    Inc(LChecksum, LBytes[i]);
+    Inc(LSum, LBytes[i]);
   end;
-  LTNEFChecksum := PWord(@LBytes[ANumBytesToCheck])^;
+  LChecksum := UInt16(LSum mod 65536);
+  //TODO: use IdGlobal.LittleEndianToHost() instead?
+  //LTNEFChecksum := LittleEndianToHost(PUInt16(@LBytes[ANumBytesToCheck])^);
+  LTNEFChecksum :=  UInt16(LBytes[ANumBytesToCheck]) or
+                   (UInt16(LBytes[ANumBytesToCheck + 1]) shl 8);
   if LChecksum <> LTNEFChecksum then begin
     raise EIdTnefChecksumFailure.Create('Checksum failure - TNEF is corrupt or truncated');  {Do not localize}
   end;
@@ -1777,10 +1800,10 @@ end;
 
 procedure TIdCoderTNEF.ParseMessageBlock;
 var
-  LType, LAttribute: Word;
+  LType, LAttribute: UInt16;
 begin
-  LAttribute := GetWord;
-  LType := GetWord;
+  LAttribute := GetUInt16;
+  LType := GetUInt16;
   ParseAttribute(LAttribute, LType);
 end;
 
@@ -1791,11 +1814,11 @@ begin
   end;
 end;
 
-function  TIdCoderTNEF.GetAttributeString(const AAttributeName: string; AType: Word): string;
+function  TIdCoderTNEF.GetAttributeString(const AAttributeName: string; AType: UInt16): string;
 var
-  LLength: LongWord;
+  LLength: UInt32;
 begin
-  LLength := GetLongWord;
+  LLength := GetUInt32;
   if FDoLogging then begin
     DoLogFmt('   ParseAttachmentBlock found %s type, length: %d', [AAttributeName, LLength]);  {Do not localize}
   end;
@@ -1809,12 +1832,12 @@ end;
 
 procedure TIdCoderTNEF.ParseAttachmentBlock;
 var
-  LType, LAttribute: Word;
-  LLength: LongWord;
+  LType, LAttribute: UInt16;
+  LLength: UInt32;
   LDestStream: TStream;
 begin
-  LAttribute := GetWord;
-  LType := GetWord;
+  LAttribute := GetUInt16;
+  LType := GetUInt16;
   if FDoLogging then begin
     DoLogFmt('   ParseAttachmentBlock passed a %s type %s', [GetStringForAttribute(LAttribute), GetStringForType(LType)]);  {Do not localize}
   end;
@@ -1822,7 +1845,7 @@ begin
     IdTNEFattAttachRenddata: begin
       //Per Microsoft, you get this first, at the start of every attachment,
       //create a new attachment when you encounter this.
-      LLength := GetLongWord;
+      LLength := GetUInt32;
       if FDoLogging then begin
         DoLog('   ParseAttachmentBlock found IdTNETattAttachRenddata type, length: ' + IntToStr(LLength));  {Do not localize}
       end;
@@ -1847,7 +1870,7 @@ begin
     IdTNEFattAttachData: begin
       //This is the attachment file contents, set it for the already-created
       //attachment.
-      LLength := GetLongWord;
+      LLength := GetUInt32;
       if FDoLogging then begin
         DoLog('   ParseAttachmentBlock found IdTNEFattAttachData type, length: ' + IntToStr(LLength));  {Do not localize}
       end;
@@ -1877,30 +1900,30 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetMapiBoolean(AType: Word; const AText: string): Smallint;
+function TIdCoderTNEF.GetMapiBoolean(AType: UInt16; const AText: string): Int16;
 begin
   if AType <> IdTNEF_PT_BOOLEAN then begin
     raise EIdTnefUnexpectedType.CreateFmt('Expected Boolean for %s', [AText]);  {Do not localize}
   end;
-  Result := GetWord;
-  Skip(SizeOf(Word));  //Skip next two bytes (padded to 4 bytes)
+  Result := GetUInt16;
+  Skip(SizeOf(UInt16));  //Skip next two bytes (padded to 4 bytes)
   if FDoLogging then begin
     DoLogFmt('     ParseMapiProp found %s Boolean, value: %d', [AText, Result]);  {Do not localize}
   end;
 end;
 
-function TIdCoderTNEF.GetMapiLong(AType: Word; const AText: string): Longint;
+function TIdCoderTNEF.GetMapiLong(AType: UInt16; const AText: string): Longint;
 begin
   if AType <> IdTNEF_PT_LONG then begin
     raise EIdTnefUnexpectedType.CreateFmt('Expected Long for %s', [AText]);  {Do not localize}
   end;
-  Result := GetLongWord;
+  Result := GetUInt32;
   if FDoLogging then begin
     DoLogFmt('     ParseMapiProp found %s Long, value: %d', [AText, Result]);  {Do not localize}
   end;
 end;
 
-function  TIdCoderTNEF.GetMapiSysTime(AType: Word; const AText: string): TDateTime;
+function  TIdCoderTNEF.GetMapiSysTime(AType: UInt16; const AText: string): TDateTime;
 var
   LHour, LMinute, LSecond, LMilliSecond: Word;
   LVal: Int64;
@@ -1934,7 +1957,7 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetMapiStrings(AType: Word; const AText: string): string;
+function TIdCoderTNEF.GetMapiStrings(AType: UInt16; const AText: string): string;
 begin
   //May be PT_UNICODE or PT_STRING8 (PT_TSTRING will be aliased to one of these)...
   if (AType <> IdTNEF_PT_UNICODE) and (AType <> IdTNEF_PT_STRING8) then begin
@@ -1947,7 +1970,7 @@ begin
 end;
 
 { GetMapiObject was previously needed, may be needed later in development...
-function TIdCoderTNEF.GetMapiObject(AType: Word; const AText: string): TIdBytes;
+function TIdCoderTNEF.GetMapiObject(AType: UInt16; const AText: string): TIdBytes;
 begin
   if AType <> IdTNEF_PT_OBJECT then begin
     raise EIdTnefUnexpectedType.CreateFmt('Expected Object for %s', [AText]);  {Do not localize}
@@ -1956,7 +1979,7 @@ begin
 end;
 }
 
-function TIdCoderTNEF.GetMapiBinaryAsString(AType: Word; const AText: string): string;
+function TIdCoderTNEF.GetMapiBinaryAsString(AType: UInt16; const AText: string): string;
 var
   LBinary: TIdBytes;
   LStrLen: integer;
@@ -1971,7 +1994,7 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetMapiBinaryAsEmailName(AType: Word; const AText: string): string;
+function TIdCoderTNEF.GetMapiBinaryAsEmailName(AType: UInt16; const AText: string): string;
 begin
   Result := GetMapiBinaryAsString(AType, AText);
   //If it starts SMTP: then remove SMTP:, but leave anything else (e.g. FAX:)
@@ -1981,7 +2004,7 @@ begin
   Result := LowerCase(Result);
 end;
 
-function TIdCoderTNEF.GetMapiBinary(AType: Word; const AText: string): TIdBytes;
+function TIdCoderTNEF.GetMapiBinary(AType: UInt16; const AText: string): TIdBytes;
 begin
   if AType <> IdTNEF_PT_BINARY then begin
     raise EIdTnefUnexpectedType.CreateFmt('Expected Binary for %s', [AText]);  {Do not localize}
@@ -1989,15 +2012,15 @@ begin
   Result := GetMapiItemAsBytesPossiblyCompressed(AType, AText);
 end;
 
-function TIdCoderTNEF.GetMapiItemAsBytesPossiblyCompressed(AType: Word; const AText: string): TIdBytes;
+function TIdCoderTNEF.GetMapiItemAsBytesPossiblyCompressed(AType: UInt16; const AText: string): TIdBytes;
 var
-  LCount, LLength: LongWord;
-  LMagicNumber: LongWord;
-  LCompressedSize, LUncompressedSize: LongWord;
+  LCount, LLength: UInt32;
+  LMagicNumber: UInt32;
+  LCompressedSize, LUncompressedSize: UInt32;
   LPos: TIdStreamSize;
 begin
   SetLength(Result, 0);
-  LCount := GetLongWord;
+  LCount := GetUInt32;
   if FDoLogging then begin
     DoLogFmt('     Found %d %s:', [LCount, GetStringForMapiType(AType)]);  {Do not localize}
   end;
@@ -2007,7 +2030,7 @@ begin
   if LCount <> 1 then begin
     raise EIdTnefNotSupported.Create('Binary/Object not supported with a count > 1');  {Do not localize}
   end;
-  LLength := GetLongWord;
+  LLength := GetUInt32;
   if LLength >= 12 then begin
     //Peek ahead to see if it has an optional magic number, indicating that it
     //has another header here.
@@ -2018,17 +2041,17 @@ begin
     LPos := FData.Position;
     try
       Skip(8);
-      LMagicNumber := GetLongWord;
+      LMagicNumber := GetUInt32;
     finally
       FData.Position := LPos;
     end;
     if LMagicNumber = $414C454D then begin
       //It has a header, but this magic number means it is NOT compressed.
       //Note: I have never seen this option existing in reality.
-      LCompressedSize := GetLongWord;
-      LUncompressedSize := GetLongWord;
-      Skip(SizeOf(LongWord));  //Magic word
-      Skip(SizeOf(LongWord));  //Checksum, ignore this, this block was crc-checked already
+      LCompressedSize := GetUInt32;
+      LUncompressedSize := GetUInt32;
+      Skip(SizeOf(UInt32));  //Magic word
+      Skip(SizeOf(UInt32));  //Checksum, ignore this, this block was crc-checked already
       if FDoLogging then begin
         DoLogFmt('     Is uncompressed, uncompressed size %d, compressed size %d',   {Do not localize}
           [LUncompressedSize, LCompressedSize]);
@@ -2046,26 +2069,26 @@ begin
   Result := InternalGetMapiItemAsBytes(LCount, LLength, AType, AText);
 end;
 
-function TIdCoderTNEF.DecompressRtf(ACount, ALength: LongWord; AType: Word; const AText: string): TIdBytes;
+function TIdCoderTNEF.DecompressRtf(ACount, ALength: UInt32; AType: UInt16; const AText: string): TIdBytes;
 var
-  LCompressedSize, LUncompressedSize: LongWord;
+  LCompressedSize, LUncompressedSize: UInt32;
   LData: TIdBytes;
-  LInIndex, LOutIndex: LongWord;
+  LInIndex, LOutIndex: UInt32;
   LFlags: Byte;
   LShifts: integer;
   LFlag: Byte;
   LCodePosition: integer;
   LCodeLength: integer;
   LDecodeString: string;
-  LDecodeStringLength: LongWord;
+  LDecodeStringLength: UInt32;
   LTemp: Integer;
-  LOutBufferSize: LongWord;
+  LOutBufferSize: UInt32;
 begin
   //Read header...
-  LCompressedSize := GetLongWord;  //Length AFTER this field (LLength - 4)
-  LUncompressedSize := GetLongWord;
-  GetLongWord;  //Magic number
-  GetLongWord;     //Checksum, ignore this, this block was crc-checked already
+  LCompressedSize := GetUInt32;  //Length AFTER this field (LLength - 4)
+  LUncompressedSize := GetUInt32;
+  GetUInt32;  //Magic number
+  GetUInt32;  //Checksum, ignore this, this block was crc-checked already
   if FDoLogging then begin
     DoLogFmt('     Is compressed, uncompressed size %d, compressed size %d',  {Do not localize}
       [LUncompressedSize, LCompressedSize]);
@@ -2166,12 +2189,12 @@ begin
   end;
 end;
 
-function TIdCoderTNEF.GetMapiItemAsBytes(AType: Word; const AText: string): TIdBytes;
+function TIdCoderTNEF.GetMapiItemAsBytes(AType: UInt16; const AText: string): TIdBytes;
 var
-  LCount, LLength: LongWord;
+  LCount, LLength: UInt32;
 begin
   SetLength(Result, 0);
-  LCount := GetLongWord;
+  LCount := GetUInt32;
   if FDoLogging then begin
     DoLogFmt('     Found %d %s:', [LCount, GetStringForMapiType(AType)]);  {Do not localize}
   end;
@@ -2181,11 +2204,11 @@ begin
   if LCount <> 1 then begin
     raise EIdTnefNotSupported.Create('Binary/Object not supported with a count > 1');  {Do not localize}
   end;
-  LLength := GetLongWord;
+  LLength := GetUInt32;
   Result := InternalGetMapiItemAsBytes(LCount, LLength, AType, AText);
 end;
 
-function TIdCoderTNEF.InternalGetMapiItemAsBytes(ACount, ALength: LongWord; AType: Word; const AText: string): TIdBytes;
+function TIdCoderTNEF.InternalGetMapiItemAsBytes(ACount, ALength: UInt32; AType: UInt16; const AText: string): TIdBytes;
 var
   LPos: TIdStreamSize;
 begin
@@ -2233,17 +2256,17 @@ end;
 
 procedure TIdCoderTNEF.ParseMapiProp;
 var
-  LType, LAttribute: Word;
-  LLength, LCount, I: LongWord;
-  //LGUIDType: LongWord;
-  LShort: Smallint;
+  LType, LAttribute: UInt16;
+  LLength, LCount, I: UInt32;
+  //LGUIDType: UInt32;
+  LShort: Int16;
   LStr: string;
   LGUID: string;
   LTextPart: TIdText;
   LDate: TDateTime;
 begin
-  LType := GetWord;
-  LAttribute := GetWord;
+  LType := GetUInt16;
+  LAttribute := GetUInt16;
   //Initially, just parse out the common attributes and the ones we are interested in.
   if LAttribute >= $8000 then begin
     //A named property: this has a GUID and some other optional stuff...
@@ -2251,18 +2274,18 @@ begin
     if FDoLogging then begin
       DoLog('     MAPI item has a named property, GUID: ' + LGUID);  {Do not localize}
     end;
-    LLength := GetLongWord;
+    LLength := GetUInt32;
     if LLength = 0 then begin
       //In this case, the named property uses an identifier...
       //TODO: What is the LGUIDType below?
-      {LGUIDType :=} GetLongWord;
+      {LGUIDType :=} GetUInt32;
     end else begin
       //In this case, the named property uses a string...
       //TODO: Following code not tested...
       //Skip strings for now
       LCount := LLength;
       for I := 1 to LCount do begin
-        LLength := GetLongWord;
+        LLength := GetUInt32;
         if LLength = 0 then begin
           Continue;
         end;
@@ -2551,15 +2574,15 @@ begin
   end;
 end;
 
-procedure TIdCoderTNEF.ParseMapiProps(ALength: LongWord);
+procedure TIdCoderTNEF.ParseMapiProps(ALength: UInt32);
 var
-  LNumEntries: LongWord;
-  LIndex: LongWord;
+  LNumEntries: UInt32;
+  LIndex: UInt32;
 begin
   if FDoLogging then begin
     DoLogFmt('   Parsing MAPI block, %d bytes.', [ALength]);  {Do not localize}
   end;
-  LNumEntries := GetLongWord;
+  LNumEntries := GetUInt32;
   if FDoLogging then begin
     DoLogFmt('   Contains %d entries.', [LNumEntries]);  {Do not localize}
   end;
@@ -2573,21 +2596,21 @@ begin
   end;
 end;
 
-procedure TIdCoderTNEF.ParseAttribute(AAttribute, AType: Word);
+procedure TIdCoderTNEF.ParseAttribute(AAttribute, AType: UInt16);
 var
-  LLength: LongWord;
-  LMajor, LMinor: Word;
-  LShort: Smallint;
+  LLength: UInt32;
+  LMajor, LMinor: UInt16;
+  LShort: Int16;
 begin
-  LLength := GetLongWord;
+  LLength := GetUInt32;
   Checksum(LLength);
   case AAttribute of
     IdTNEFattTnefVersion: begin
       if AType <> IdTNEFAtpDWord then begin
         raise EIdTnefUnexpectedType.Create('Expected DWord for TnefVersion');  {Do not localize}
       end;
-      LMinor := GetWord;
-      LMajor := GetWord;
+      LMinor := GetUInt16;
+      LMajor := GetUInt16;
       if FDoLogging then begin
         DoLogFmt('     ParseAttribute found TNef Version DWord.  Major version: %d Minor version: %d', [LMajor, LMinor]);  {Do not localize}
       end;
@@ -2635,7 +2658,7 @@ begin
       if AType <> IdTNEFAtpShort then begin
         raise EIdTnefUnexpectedType.Create('Expected Short for TnefPriority');  {Do not localize}
       end;
-      LShort := GetWord;
+      LShort := GetUInt16;
       if FDoLogging then begin
         DoLog('     ParseAttribute found Priority Short.');  {Do not localize}
       end;
@@ -2749,7 +2772,7 @@ end;
 
 procedure TIdCoderTNEF.Parse(const AIn: TStream; AMsg: TIdMessage; ALog: Boolean = False);
 var
-  LdwTemp: LongWord;
+  LdwTemp: UInt32;
   LBlockType: Byte;
 begin
   FLog := '';
@@ -2764,14 +2787,14 @@ begin
     DoLogFmt('Bytes in TNEF: %d', [FData.Size - FData.Position], False);  {Do not localize}
   end;
   //Check for a valid TNEF signature...
-  LdwTemp := GetLongWord;
+  LdwTemp := GetUInt32;
   if LdwTemp <> IdTNEFSignature then begin
     if FDoLogging then begin
       DoLog('Invalid TNEF signature', False);  {Do not localize}
     end;
     raise EIdTnefInvalidTNEFSignature.Create('Invalid TNEF signature');  {Do not localize}
   end;
-  FKey := GetWord;
+  FKey := GetUInt16;
   if FDoLogging then begin
     DoLogFmt('Key: %d' + EOL + 'Bytes left plus message:', [FKey], False);  {Do not localize}
   end;
