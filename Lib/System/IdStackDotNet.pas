@@ -652,7 +652,7 @@ begin
         SetLength(Tmp, 1);
         Tmp[0] := $00;
         Result := ASocket.SendTo(Tmp, 0, 0, SocketFlags.None, LEndPoint);
-      end.
+      end;
     finally
       LEndPoint.Free;
     end;
