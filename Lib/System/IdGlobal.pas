@@ -4756,7 +4756,8 @@ end;
 {$ENDIF}
 
 procedure IndyRaiseLastError;
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   {$IFNDEF HAS_RaiseLastOSError}
   RaiseLastWin32Error;
@@ -4768,6 +4769,7 @@ end;
 {$IFDEF HAS_Exception_RaiseOuterException}
 procedure IndyRaiseOuterException(AOuterException: Exception);
   {$IFDEF USE_INLINE}inline;{$ENDIF}
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   Exception.RaiseOuterException(AOuterException);
 end;
@@ -4780,6 +4782,7 @@ end;
 // rather than inside this function...
     {$IFDEF HAS_System_ReturnAddress}
 procedure IndyRaiseOuterException(AOuterException: Exception);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise AOuterException at ReturnAddress;
 end;
@@ -7584,7 +7587,8 @@ begin
 end;
 
 procedure ToDo(const AMsg: string);
-{$IFDEF USE_INLINE}inline;{$ENDIF}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdException.Create(AMsg); // TODO: create a new Exception class for this
 end;
@@ -7927,7 +7931,7 @@ begin
   // RLebeau 1/15/2022: the value returned by OffsetFromUTC() is meant to be *subtracted*
   // from a local time, and *added* to a UTC time.  However, the value returned by
   // FPC's GetLocalTimeOffset() is the opposite - it is meant to be *added* to local time,
-  // and *subtracted* from UTC time.  So, we need to flip its sign here... 
+  // and *subtracted* from UTC time.  So, we need to flip its sign here...
 
   Result := -1 * (GetLocalTimeOffset() / 60 / 24);
     {$ELSE}

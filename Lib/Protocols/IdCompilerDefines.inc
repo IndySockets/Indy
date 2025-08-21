@@ -148,6 +148,8 @@
 
 // Define for Delphi to auto-generate platform-appropriate '#pragma link' statements in HPP files
 {$UNDEF HAS_DIRECTIVE_HPPEMIT_LINKUNIT}
+{$UNDEF HAS_DIRECTIVE_HPPEMIT_NAMESPACE}
+{$UNDEF HAS_DIRECTIVE_HPPEMIT_LEGACYHPP}
 
 // detect compiler versions
 
@@ -1219,7 +1221,7 @@
 {$IFDEF VCL_2007_OR_ABOVE}
   {$IFNDEF CBUILDER_2007}
     // class properties are broken in C++Builder 2007, causing AVs at compile-time
-    {$DEFINE HAS_CLASSPROPERTIES}
+    {$DEFINE HAS_CLASS_PROPERTIES}
   {$ENDIF}
   // Native(U)Int exist but are buggy, so do not use them yet
   {.$DEFINE HAS_NativeInt}
@@ -1250,7 +1252,7 @@
       {$DEFINE BROKEN_FmtStr}
     {$ENDIF}
   {$ENDIF}
-  {$DEFINE HAS_CLASSVARS}
+  {$DEFINE HAS_CLASS_VARS}
   {$DEFINE HAS_DEPRECATED_MSG}
   {$DEFINE HAS_TBytes}
   // Native(U)Int are still buggy, so do not use them yet
@@ -1279,8 +1281,8 @@
 {$ENDIF}
 
 {$IFDEF VCL_2010_OR_ABOVE}
-  {$DEFINE HAS_CLASSCONSTRUCTOR}
-  {$DEFINE HAS_CLASSDESTRUCTOR}
+  {$DEFINE HAS_CLASS_CONSTRUCTOR}
+  {$DEFINE HAS_CLASS_DESTRUCTOR}
   {$DEFINE HAS_DELAYLOAD}
   {$DEFINE HAS_TThread_NameThreadForDebugging}
   {$DEFINE DEPRECATED_TThread_SuspendResume}
@@ -1471,7 +1473,7 @@
 
 {$IFDEF FPC}
   {$DEFINE USE_INLINE}
-  {$DEFINE USE_CLASSINLINE}
+  {$DEFINE USE_CLASS_INLINE}
   {$DEFINE USE_TBitBtn} //use Bit Buttons instead of Buttons
   {$DEFINE FPC_REINTRODUCE_BUG}
   {$DEFINE FPC_CIRCULAR_BUG}
@@ -1566,6 +1568,8 @@
     {$DEFINE HAS_PRawByteString}
     {$DEFINE HAS_UIntToStr} // requires rev 40529+
   {$ENDIF}
+  {$DEFINE HAS_DIRECTIVE_PUSHPOP} // TODO: when was push/pop introduced?
+  {$DEFINE USE_NORETURN} // TODO: when was noreturn introduced? Possibly after 2.6.x
 {$ENDIF}
 
 {$IFDEF DOTNET}
@@ -2071,6 +2075,7 @@ SOLARIS instead of IFDEF UNIX is not an error, it's deliberate.}
 {end Unix OS specific stuff}
 {$IFDEF DEBUG}
   {$UNDEF USE_INLINE}
+  {$UNDEF USE_CLASS_INLINE}
 {$ENDIF}
 
 // RLebeau 5/24/2015: In C++Builder 2006 and 2007, UInt64 is emitted as

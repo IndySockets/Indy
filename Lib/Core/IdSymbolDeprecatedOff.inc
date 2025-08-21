@@ -1,4 +1,6 @@
-// TODO: for FreePascal, use {$PUSH} here and {%POP} in IdSymbolDeprecatedOn.inc
 {$IFDEF HAS_DEPRECATED}
+  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
+    {$PUSH}
+  {$ENDIF}
   {$WARN SYMBOL_DEPRECATED OFF}
 {$ENDIF}

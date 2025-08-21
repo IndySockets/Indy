@@ -1,4 +1,6 @@
-// TODO: for FreePascal, use {$PUSH} here and {$POP} in IdUnitPlatformOn.inc
 {$IFDEF HAS_UNIT_PLATFORM}
+  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
+    {$PUSH}
+  {$ENDIF}
   {$WARN UNIT_PLATFORM OFF}
 {$ENDIF}

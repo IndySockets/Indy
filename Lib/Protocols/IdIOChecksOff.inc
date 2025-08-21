@@ -1,5 +1,7 @@
-// TODO: for FreePascal, use {$PUSH} here and {$POP} in IdIOChecksOn.inc
 {$IFOPT I+} // detect IO checking
-  {$DEFINE _IPlusWasEnabled}
+  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
+    {$PUSH}
+  {$ENDIF}
   {$I-}
+  {$DEFINE _IPlusWasEnabled}
 {$ENDIF}

@@ -342,6 +342,7 @@ begin
 end;
 
 procedure TIdReplyPOP3.RaiseReplyError;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdReplyPOP3Error.CreateError(Code, Text.Text);
 end;

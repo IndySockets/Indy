@@ -165,11 +165,13 @@ begin
 end;
 
 function TIdCustomTransparentProxy.Listen(AIOHandler: TIdIOHandler; const ATimeOut: integer):boolean;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdTransparentProxyCantBind.Create(RSTransparentProxyCannotBind);
 end;
 
 procedure TIdCustomTransparentProxy.Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdTransparentProxyCantBind.Create(RSTransparentProxyCannotBind);
 end;
@@ -231,6 +233,7 @@ begin
 end;
 
 procedure TIdCustomTransparentProxy.CloseUDP(AHandle: TIdSocketHandle);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdTransparentProxyUDPNotSupported.Create(RSTransparentProxyCanNotSupportUDP);
 end;
@@ -238,6 +241,7 @@ end;
 procedure TIdCustomTransparentProxy.OpenUDP(AHandle: TIdSocketHandle;
   const AHost: string = ''; const APort: TIdPort = 0;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdTransparentProxyUDPNotSupported.Create(RSTransparentProxyCanNotSupportUDP);
 end;
@@ -245,6 +249,7 @@ end;
 function TIdCustomTransparentProxy.RecvFromUDP(AHandle: TIdSocketHandle;
   var ABuffer : TIdBytes; var VPeerIP: string; var VPeerPort: TIdPort;
   var VIPVersion: TIdIPVersion; AMSec: Integer = IdTimeoutDefault): Integer;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
    raise EIdTransparentProxyUDPNotSupported.Create(RSTransparentProxyCanNotSupportUDP);
 end;
@@ -252,6 +257,7 @@ end;
 procedure TIdCustomTransparentProxy.SendToUDP(AHandle: TIdSocketHandle;
   const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion;
   const ABuffer : TIdBytes);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
    raise EIdTransparentProxyUDPNotSupported.Create(RSTransparentProxyCanNotSupportUDP);
 end;

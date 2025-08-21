@@ -1,5 +1,8 @@
-// TODO: for FreePascal, use {$PUSH} in IdRangeCheckingOff.inc and {$POP} here
 {$IFDEF _RPlusWasEnabled}
-  {$R+}
+  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
+    {$POP}
+  {$ELSE}
+    {$R+}
+  {$ENDIF}
   {$UNDEF _RPlusWasEnabled}
 {$ENDIF}
