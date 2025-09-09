@@ -263,7 +263,7 @@ begin
   sbAdd.Height := 25;
   sbAdd.ShowHint := True;
   {$IFDEF WIDGET_LCL}
-  sbAdd.Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
+  sbAdd.LoadGlyphFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
   {$ELSE}
     {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   sbAdd.Glyph.LoadFromResourceName(HInstance, 'ARROWRIGHT');  {do not localize}
@@ -281,7 +281,7 @@ begin
   sbRemove.Height := 25;
   sbRemove.ShowHint := True;
   {$IFDEF WIDGET_LCL}
-  sbRemove.Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
+  sbRemove.LoadGlyphFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
   {$ELSE}
     {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   sbRemove.Glyph.LoadFromResourceName(HInstance, 'ARROWLEFT'); {do not localize}
@@ -317,7 +317,7 @@ begin
   sbUp.Height := 22;
   sbUp.ShowHint := True;
   {$IFDEF WIDGET_LCL}
-  sbUp.Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
+  sbUp.LoadGlyphFromLazarusResource('DIS_ARROWUP');  {do not localize}
   {$ELSE}
     {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   sbUp.Glyph.LoadFromResourceName(HInstance, 'ARROWUP'); {do not localize}
@@ -335,7 +335,7 @@ begin
   sbDown.Height := 22;
   sbDown.ShowHint := True;
   {$IFDEF WIDGET_LCL}
-  sbDown.Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
+  sbDown.LoadGlyphFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
   {$ELSE}
     {$IFDEF WIDGET_VCL_LIKE_OR_KYLIX}
   sbDown.Glyph.LoadFromResourceName(HInstance, 'ARROWDOWN'); {do not localize}
@@ -431,9 +431,9 @@ begin
   if LEnabled <> actAdd.Enabled then
   begin
     if LEnabled then begin
-      sbAdd.Glyph.LoadFromLazarusResource('ARROWRIGHT');  {do not localize}
+      sbAdd.LoadGlyphFromLazarusResource('ARROWRIGHT');  {do not localize}
     end else begin
-      sbAdd.Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
+      sbAdd.LoadGlyphFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
     end;
   end;
   {$ENDIF}
@@ -465,9 +465,9 @@ begin
   if LEnabled <> actMoveDown.Enabled then
   begin
     if LEnabled then begin
-      sbDown.Glyph.LoadFromLazarusResource('ARROWDOWN');  {do not localize}
+      sbDown.LoadGlyphFromLazarusResource('ARROWDOWN');  {do not localize}
     end else begin
-      sbDown.Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
+      sbDown.LoadGlyphFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
     end;
   end;
   {$ENDIF}
@@ -502,9 +502,9 @@ begin
   if LEnabled <> actMoveUp.Enabled then
   begin
     if LEnabled then begin
-      sbUp.Glyph.LoadFromLazarusResource('ARROWUP');  {do not localize}
+      sbUp.LoadGlyphFromLazarusResource('ARROWUP');  {do not localize}
     end else begin
-      sbUp.Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
+      sbUp.LoadGlyphFromLazarusResource('DIS_ARROWUP');  {do not localize}
     end;
   end;
   {$ENDIF}
@@ -539,9 +539,9 @@ begin
   if LEnabled <> actRemove.Enabled then
   begin
     if LEnabled then begin
-      sbRemove.Glyph.LoadFromLazarusResource('ARROWLEFT');  {do not localize}
+      sbRemove.LoadGlyphFromLazarusResource('ARROWLEFT');  {do not localize}
     end else begin
-      sbRemove.Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
+      sbRemove.LoadGlyphFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
     end;
   end;
   {$ENDIF}
