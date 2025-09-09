@@ -462,7 +462,8 @@ begin
   Lock;
   try
     SetLength(LPollFds, FSockets.Count);
-    LCount := GetPollFds(LPollFds, 0, POLLIN or POLLRDHUP);
+    LCount := 0;
+    GetPollFds(LPollFds, LCount, POLLIN or POLLRDHUP);
   finally
     Unlock;
   end;
@@ -478,7 +479,8 @@ begin
   Lock;
   try
     SetLength(LPollFds, FSockets.Count);
-    LCount := GetPollFds(LPollFds, 0, POLLIN or POLLRDHUP);
+    LCount := 0;
+    GetPollFds(LPollFds, LCount, POLLIN or POLLRDHUP);
   finally
     Unlock;
   end;
