@@ -1136,6 +1136,12 @@ begin
     // ProcessingTimeout := False;
 
     // Check MaxConnections
+    //
+    // TODO: there is a race here! When the new TIdContext is created below, it
+    // DOES NOT get added to the Contexts list until the TIdYarn begins running,
+    // so it is POSSIBLE for multiple clients to connect at the same moment, see
+    // the MaxConnections is not exceeded here, get added to the Contexts list
+    // later, and actually exceed the MaxConnections! This needs to be fixed...
     if (Server.MaxConnections > 0) and (not Server.Contexts.IsCountLessThan(Server.MaxConnections)) then begin
       FServer.DoMaxConnectionsExceeded(LIOHandler);
       LPeer.Disconnect;

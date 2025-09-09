@@ -1,5 +1,7 @@
 {$IFDEF DEPRECATED_IMPL_BUG}
-  // TODO: for FreePascal, use {$PUSH} here and {$POP} in IdDeprecatedImplBugOn.inc
+  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
+    {$PUSH}
+  {$ENDIF}
   {$WARN SYMBOL_DEPRECATED OFF}
 {$ENDIF}
 

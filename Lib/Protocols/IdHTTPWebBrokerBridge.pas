@@ -894,14 +894,14 @@ end;
 
 type
   TIdHTTPWebBrokerBridgeRequestHandler = class(TWebRequestHandler)
-  {$IFDEF HAS_CLASSVARS}
+  {$IFDEF HAS_CLASS_VARS}
   private
    class var FWebRequestHandler: TIdHTTPWebBrokerBridgeRequestHandler;
   {$ENDIF}
   public
     constructor Create(AOwner: TComponent); override;
-    {$IFDEF HAS_CLASSVARS}
-      {$IFDEF HAS_CLASSDESTRUCTOR}
+    {$IFDEF HAS_CLASS_VARS}
+      {$IFDEF HAS_CLASS_DESTRUCTOR}
     class destructor Destroy;
       {$ENDIF}
     {$ENDIF}
@@ -909,7 +909,7 @@ type
     procedure Run(AThread: TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
   end;
 
-{$IFNDEF HAS_CLASSVARS}
+{$IFNDEF HAS_CLASS_VARS}
 var
   IndyWebRequestHandler: TIdHTTPWebBrokerBridgeRequestHandler = nil;
 {$ENDIF}
@@ -953,8 +953,8 @@ begin
   inherited;
 end;
 
-{$IFDEF HAS_CLASSVARS}
-  {$IFDEF HAS_CLASSDESTRUCTOR}
+{$IFDEF HAS_CLASS_VARS}
+  {$IFDEF HAS_CLASS_DESTRUCTOR}
 class destructor TIdHTTPWebBrokerBridgeRequestHandler.Destroy;
 begin
   FreeAndNil(FWebRequestHandler);
@@ -964,7 +964,7 @@ end;
 
 function IdHTTPWebBrokerBridgeRequestHandler: TWebRequestHandler;
 begin
-  {$IFDEF HAS_CLASSVARS}
+  {$IFDEF HAS_CLASS_VARS}
   if not Assigned(TIdHTTPWebBrokerBridgeRequestHandler.FWebRequestHandler) then
     TIdHTTPWebBrokerBridgeRequestHandler.FWebRequestHandler := TIdHTTPWebBrokerBridgeRequestHandler.Create(nil);
   Result := TIdHTTPWebBrokerBridgeRequestHandler.FWebRequestHandler;
@@ -983,7 +983,7 @@ begin
     RunWebModuleClass(AThread, ARequestInfo, AResponseInfo)
   end else
   begin
-    {$IFDEF HAS_CLASSVARS}
+    {$IFDEF HAS_CLASS_VARS}
     TIdHTTPWebBrokerBridgeRequestHandler.FWebRequestHandler.Run(AThread, ARequestInfo, AResponseInfo);
     {$ELSE}
     IndyWebRequestHandler.Run(AThread, ARequestInfo, AResponseInfo);
@@ -1051,8 +1051,8 @@ end;
 
 initialization
   WebReq.WebRequestHandlerProc := IdHTTPWebBrokerBridgeRequestHandler;
-{$IFDEF HAS_CLASSVARS}
-  {$IFNDEF HAS_CLASSDESTRUCTOR}
+{$IFDEF HAS_CLASS_VARS}
+  {$IFNDEF HAS_CLASS_DESTRUCTOR}
 finalization
   FreeAndNil(TIdHTTPWebBrokerBridgeRequestHandler.FWebRequestHandler);
   {$ENDIF}

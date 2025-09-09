@@ -2865,7 +2865,7 @@ var
     end;
     if S <> '' then begin
       if IsNumeric(S, 1, 1) then begin
-        raise Exception.Create('Invalid Cookie Time');
+        raise Exception.Create('Invalid Cookie Time'); // TODO: add a resource string
       end;
     end;
     if not TryStrToInt(LTemp, LSecond) then begin
@@ -2873,13 +2873,13 @@ var
     end;
 
     if LHour > 23 then begin
-      raise Exception.Create('Invalid Cookie Time');
+      raise Exception.Create('Invalid Cookie Time'); // TODO: add a resource string
     end;
     if LMinute > 59 then begin
-      raise Exception.Create('Invalid Cookie Time');
+      raise Exception.Create('Invalid Cookie Time'); // TODO: add a resource string
     end;
     if LSecond > 59 then begin
-      raise Exception.Create('Invalid Cookie Time');
+      raise Exception.Create('Invalid Cookie Time'); // TODO: add a resource string
     end;
 
     Result := True;
@@ -2902,14 +2902,14 @@ var
     end;
     if S <> '' then begin
       if IsNumeric(S, 1, 1) then begin
-        raise Exception.Create('Invalid Cookie Day of Month');
+        raise Exception.Create('Invalid Cookie Day of Month'); // TODO: add a resource string
       end;
     end;
     if not TryStrToInt(LTemp, LDayOfMonth) then begin
       Exit;
     end;
     if (LDayOfMonth < 1) or (LDayOfMonth > 31) then begin
-      raise Exception.Create('Invalid Cookie Day of Month');
+      raise Exception.Create('Invalid Cookie Day of Month'); // TODO: add a resource string
     end;
 
     Result := True;
@@ -2937,14 +2937,14 @@ var
       end;
       if S <> '' then begin
         if IsNumeric(S, 1, 1) then begin
-          raise Exception.Create('Invalid Cookie Month');
+          raise Exception.Create('Invalid Cookie Month'); // TODO: add a resource string
         end;
       end;
       if not TryStrToInt(LTemp, LMonth) then begin
         Exit;
       end;
       if (LMonth < 1) or (LMonth > 12) then begin
-        raise Exception.Create('Invalid Cookie Month');
+        raise Exception.Create('Invalid Cookie Month'); // TODO: add a resource string
       end;
     end;
 
@@ -2974,7 +2974,7 @@ var
       Inc(LYear, 2000);
     end;
     if LYear < 1601 then begin
-      raise Exception.Create('Invalid Cookie Year');
+      raise Exception.Create('Invalid Cookie Year'); // TODO: add a resource string
     end;
 
     Result := True;
@@ -3030,7 +3030,7 @@ begin
     until False;
 
     if (not LFoundDayOfMonth) or (not LFoundMonth) or (not LFoundYear) or (not LFoundTime) then begin
-      raise Exception.Create('Invalid Cookie Date format');
+      raise Exception.Create('Invalid Cookie Date format'); // TODO: add a resource string
     end;
 
     Result := EncodeDate(LYear, LMonth, LDayOfMonth) + EncodeTime(LHour, LMinute, LSecond, 0);

@@ -254,6 +254,7 @@ begin
 end;
 
 procedure TIdReplyIMAP4.RaiseReplyError;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdReplyIMAP4Error.Create(Extra.Text); {do not localize}
 end;
@@ -510,6 +511,7 @@ begin
 end;
 
 procedure TIdReplyIMAP4.DoReplyError(ADescription: string; AnOffendingLine: string);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 var
   LMsg: string;
 begin

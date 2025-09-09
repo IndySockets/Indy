@@ -1,5 +1,8 @@
-// TODO: for FreePascal, use {$PUSH} in IdIOChecksOff.inc and {$POP} here
 {$IFDEF _IPlusWasEnabled} // detect previous setting
+  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
+    {$POP}
+  {$ELSE}
+    {$I+}
+  {$ENDIF}
   {$UNDEF _IPlusWasEnabled}
-  {$I+}
 {$ENDIF}

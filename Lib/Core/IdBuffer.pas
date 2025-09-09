@@ -417,6 +417,7 @@ begin
     VByteCount := Size+AIndex;
   end
   else if VByteCount > (Size+AIndex) then begin
+    // TODO: add a resource string
     raise EIdNotEnoughDataInBuffer.CreateFmt('%s (%d/%d)', [RSNotEnoughDataInBuffer, VByteCount, Size]); {do not localize}
   end;
 end;
@@ -471,7 +472,7 @@ function TIdBuffer.Extract(AByteCount: Integer = -1; AByteEncoding: IIdTextEncod
   {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
   ): string;
 {$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
+{$IFDEF USE_CLASS_INLINE}inline;{$ENDIF}
 begin
   Result := ExtractToString(AByteCount, AByteEncoding{$IFDEF STRING_IS_ANSI}, ADestEncoding{$ENDIF});
 end;
@@ -625,7 +626,7 @@ begin
 end;
 
 procedure TIdBuffer.Write(const ABytes: TIdBytes; const ADestIndex: Integer = -1);
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
+{$IFDEF USE_CLASS_INLINE}inline;{$ENDIF}
 begin
   Write(ABytes, Length(ABytes), 0, ADestIndex);
 end;
@@ -839,7 +840,7 @@ end;
 {$I IdDeprecatedImplBugOff.inc}
 function TIdBuffer.ExtractToLongWord(const AIndex: Integer): UInt32;
 {$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
+{$IFDEF USE_CLASS_INLINE}inline;{$ENDIF}
 begin
   Result := ExtractToUInt32(AIndex);
 end;
@@ -865,7 +866,7 @@ end;
 {$I IdDeprecatedImplBugOff.inc}
 function TIdBuffer.ExtractToWord(const AIndex: Integer): UInt16;
 {$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
+{$IFDEF USE_CLASS_INLINE}inline;{$ENDIF}
 begin
   Result := ExtractToUInt16(AIndex);
 end;
@@ -888,7 +889,7 @@ end;
 {$I IdDeprecatedImplBugOff.inc}
 function TIdBuffer.ExtractToByte(const AIndex: Integer): UInt8;
 {$I IdDeprecatedImplBugOn.inc}
-{$IFDEF USE_CLASSINLINE}inline;{$ENDIF}
+{$IFDEF USE_CLASS_INLINE}inline;{$ENDIF}
 begin
   Result := ExtractToUInt8(AIndex);
 end;
