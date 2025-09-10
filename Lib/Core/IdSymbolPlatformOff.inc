@@ -1,6 +1,4 @@
 {$IFDEF HAS_SYMBOL_PLATFORM}
-  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
-    {$PUSH}
-  {$ENDIF}
+  {$I IdCompilerOptionsPush.inc}
   {$WARN SYMBOL_PLATFORM OFF}
 {$ENDIF}

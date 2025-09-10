@@ -1455,6 +1455,11 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_OSXArm64}
 {$ENDIF}
 
+{$IFDEF VCL_13_OR_ABOVE}
+  {$DEFINE CAN_PUSHPOP_OPTIONS}
+  {$DEFINE USE_NORETURN}
+{$ENDIF}
+
 // Delphi XE+ cross-compiling
 {$IFNDEF FPC}
   {$IFDEF POSIX}
@@ -1581,7 +1586,7 @@
     {$DEFINE HAS_PRawByteString}
     {$DEFINE HAS_UIntToStr} // requires rev 40529+
   {$ENDIF}
-  {$DEFINE HAS_DIRECTIVE_PUSHPOP} // TODO: when was push/pop introduced?
+  {$DEFINE CAN_PUSHPOP_OPTIONS} // TODO: when was push/pop introduced?
   {$DEFINE USE_NORETURN} // TODO: when was noreturn introduced? Possibly after 2.6.x
 {$ENDIF}
 

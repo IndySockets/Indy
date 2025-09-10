@@ -1,6 +1,6 @@
 {$IFDEF _IPlusWasEnabled} // detect previous setting
-  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
-    {$POP}
+  {$IFDEF CAN_PUSHPOP_OPTIONS}
+    {$I IdCompilerOptionsPop.inc}
   {$ELSE}
     {$I+}
   {$ENDIF}

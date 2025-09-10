@@ -1,6 +1,4 @@
 {$IFDEF HAS_DEPRECATED}
-  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
-    {$PUSH}
-  {$ENDIF}
+  {$I IdCompilerOptionsPush.inc}
   {$WARN SYMBOL_DEPRECATED OFF}
 {$ENDIF}
