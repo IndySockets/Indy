@@ -1,7 +1,5 @@
 {$IFOPT W+} // detect stack frames
-  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
-    {$PUSH}
-  {$ENDIF}
+  {$I IdCompilerOptionsPush.inc}
   {$W-} // turn off stack frames
   {$DEFINE _WPlusWasEnabled}
 {$ENDIF}

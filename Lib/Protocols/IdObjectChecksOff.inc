@@ -6,6 +6,10 @@
 // usually not a problem when Indy is compiled into its own package, but if Indy's source is
 // compiled directly into a project that happens to be using -CR, this becomes a big problem.
 // So, we have to turn off that compiler option everywhere that Accessor Classes are being used...
+//
+// TODO: another solution is to use Class Helpers instead of Accessor classes. But older
+// compilers do not support Class Helpers...
+//
 {$IFDEF FPC}
   {$PUSH}
   {$OBJECTCHECKS OFF}

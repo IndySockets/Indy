@@ -4840,6 +4840,7 @@ end;
   {$ELSE}
 // Not Delphi, so just raise the exception as-is until we know what else to do with it...
 procedure IndyRaiseOuterException(AOuterException: Exception);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise AOuterException;
 end;

@@ -1,7 +1,5 @@
 {$IFOPT Q+} // detect overflow checking
-  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
-    {$PUSH}
-  {$ENDIF}
+  {$I IdCompilerOptionsPush.inc}
   {$Q-}
   {$DEFINE _QPlusWasEnabled}
 {$ENDIF}

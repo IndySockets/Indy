@@ -1,6 +1,6 @@
 {$IFDEF _QPlusWasEnabled}
-  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
-    {$POP}
+  {$IFDEF CAN_PUSHPOP_OPTIONS}
+    {$I IdCompilerOptionsPop.inc}
   {$ELSE}
     {$Q+}
   {$ENDIF}

@@ -1,7 +1,5 @@
 {$IFOPT R+} // detect range checking
-  {$IFDEF HAS_DIRECTIVE_PUSHPOP}
-    {$PUSH}
-  {$ENDIF}
+  {$I IdCompilerOptionsPush.inc}
   {$R-}
   {$DEFINE _RPlusWasEnabled}
 {$ENDIF}
