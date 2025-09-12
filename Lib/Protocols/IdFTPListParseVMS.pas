@@ -67,9 +67,9 @@ unit IdFTPListParseVMS;
   VMS TCPWare, plus some non-multinet systems.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

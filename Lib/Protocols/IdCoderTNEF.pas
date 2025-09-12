@@ -88,9 +88,9 @@ To do:
     See the "TODO"s in the code below.
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}Classes,

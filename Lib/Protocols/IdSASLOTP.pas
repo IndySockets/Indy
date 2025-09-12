@@ -37,8 +37,9 @@
 
 unit IdSASLOTP;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 uses
   IdSASL,
   IdSASLUserPass;

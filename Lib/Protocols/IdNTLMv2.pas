@@ -1,8 +1,8 @@
 unit IdNTLMv2;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal,

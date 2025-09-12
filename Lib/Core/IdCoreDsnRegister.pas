@@ -33,9 +33,9 @@
 
 unit IdCoreDsnRegister;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF DOTNET}

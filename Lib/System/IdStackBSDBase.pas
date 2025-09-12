@@ -150,9 +150,9 @@
 
 unit IdStackBSDBase;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 {$IFDEF DOTNET}
 Improper compile.
