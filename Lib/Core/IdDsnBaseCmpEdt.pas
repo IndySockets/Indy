@@ -74,7 +74,7 @@ uses
 procedure TIdBaseComponentEditor.ExecuteVerb(Index: Integer);
 begin
   case Index of
-    0 : ShowAboutBox(RSAAboutBoxCompName, gsIdVersion);
+    0 : ShowAboutBox(RSAAboutBoxCompName, gsIdVersion,gsIdProductVersion);
   end;
 end;
 
