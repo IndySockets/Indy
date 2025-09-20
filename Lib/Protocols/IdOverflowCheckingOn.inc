@@ -1,5 +1,8 @@
-// TODO: for FreePascal, use {$PUSH} in IdOverflowCheckingOff.inc and {$POP} here
 {$IFDEF _QPlusWasEnabled}
-  {$Q+}
+  {$IFDEF CAN_PUSHPOP_OPTIONS}
+    {$I IdCompilerOptionsPop.inc}
+  {$ELSE}
+    {$Q+}
+  {$ENDIF}
   {$UNDEF _QPlusWasEnabled}
 {$ENDIF}

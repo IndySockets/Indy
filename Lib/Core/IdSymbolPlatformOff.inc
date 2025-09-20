@@ -1,4 +1,4 @@
-// TODO: for FreePascal, use {$PUSH} here and {$POP} in IdSymbolPlatformOn.inc
 {$IFDEF HAS_SYMBOL_PLATFORM}
+  {$I IdCompilerOptionsPush.inc}
   {$WARN SYMBOL_PLATFORM OFF}
 {$ENDIF}

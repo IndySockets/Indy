@@ -56,7 +56,7 @@ end;
 procedure TPackageSecurity.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 begin
   if not (ACompiler in Delphi_DotNet) then Exit;
-  FName := iif(gfDesignTime in AFlags, 'dcl', '') + 'IndySecurity' + GCompilerID[ACompiler];
+  FName := iif(gfDesignTime in AFlags, 'dcl', '') + 'IndySecurity' + GPackageVer[ACompiler];
   FDesc := 'Security';
   FExt := '.dpk';
   inherited Generate(ACompiler, AFlags);
@@ -73,13 +73,13 @@ begin
     Code('  Borland.Delphi,');
     Code('  Borland.VclRtl,');
   end;
-  Code('  IndySystem' + GCompilerID[FCompiler] + ',');
-  Code('  IndyCore' + GCompilerID[FCompiler] + ',');
-  Code('  IndyProtocols'+ GCompilerID[FCompiler] + ',');
+  Code('  IndySystem' + GPackageVer[FCompiler] + ',');
+  Code('  IndyCore' + GPackageVer[FCompiler] + ',');
+  Code('  IndyProtocols'+ GPackageVer[FCompiler] + ',');
   if FDesignTime then begin
-    Code('  IndySecurity'+ GCompilerID[FCompiler] + ',');
-    Code('  dclIndyCore' + GCompilerID[FCompiler]+',');
-    Code('  dclIndyProtocols' + GCompilerID[FCompiler]+',');
+    Code('  IndySecurity'+ GPackageVer[FCompiler] + ',');
+    Code('  dclIndyCore' + GPackageVer[FCompiler]+',');
+    Code('  dclIndyProtocols' + GPackageVer[FCompiler]+',');
   end;
   Code('  Mono.Security,');
   Code('  System,');

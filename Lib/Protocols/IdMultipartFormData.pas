@@ -493,11 +493,13 @@ begin
 end;
 
 function TIdMultiPartFormDataStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdUnsupportedOperation.Create(RSUnsupportedOperation);
 end;
 
 procedure TIdMultiPartFormDataStream.IdSetSize(ASize: Int64);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdUnsupportedOperation.Create(RSUnsupportedOperation);
 end;

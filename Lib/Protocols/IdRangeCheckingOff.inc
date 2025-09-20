@@ -1,5 +1,5 @@
-// TODO: for FreePascal, use {$PUSH} here and {$POP} in IdRangeCheckingOn.inc
 {$IFOPT R+} // detect range checking
+  {$I IdCompilerOptionsPush.inc}
   {$R-}
   {$DEFINE _RPlusWasEnabled}
 {$ENDIF}

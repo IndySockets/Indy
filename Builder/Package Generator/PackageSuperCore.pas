@@ -61,7 +61,7 @@ end;
 
 procedure TPackageSuperCore.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 begin
-  FName := 'IndySuperCore' + GCompilerID[ACompiler];
+  FName := 'IndySuperCore' + GPackageVer[ACompiler];
   FDesc := 'SuperCore';
   FExt := '.dpk';
   inherited Generate(ACompiler, AFlags - [gfDesignTime]);
@@ -73,8 +73,8 @@ begin
   Code('');
   Code('requires');
   Code('  rtl,');
-  Code('  IndySystem' + GCompilerID[FCompiler] + ',');
-  Code('  IndyCore' + GCompilerID[FCompiler] + ';');
+  Code('  IndySystem' + GPackageVer[FCompiler] + ',');
+  Code('  IndyCore' + GPackageVer[FCompiler] + ';');
 end;
 
 end.

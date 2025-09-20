@@ -18,7 +18,7 @@ package Indy120Net;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Master'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   Borland.Delphi,

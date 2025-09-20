@@ -24,7 +24,7 @@ package dclIndyCore140;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Core Design Time'}
 {$DESIGNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   designide,

@@ -91,7 +91,7 @@ begin
   end;
 
   if gfRunTime in LFlags then begin
-    FName := 'IndyCore' + GCompilerID[ACompiler];
+    FName := 'IndyCore' + GPackageVer[ACompiler];
     FDesc := 'Core';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfDesignTime]);
@@ -99,7 +99,7 @@ begin
   end;
 
   if gfDesignTime in LFlags then begin
-    FName := 'dclIndyCore' + GCompilerID[ACompiler];
+    FName := 'dclIndyCore' + GPackageVer[ACompiler];
     FDesc := 'Core Design Time';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfRunTime]);
@@ -110,8 +110,8 @@ end;
 // TODO: make the options configurable...
 procedure TPackageCore.GenOptions;
 const
-  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphi13] + [ctDelphi2005];
-  Delphi_OmittedOptions                   = [Delphi_Native_Lowest..ctDelphi13Net, ctKylix3] - [ctDelphi8Net] + [ctDelphiXE];
+  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiPre2010NR] + [ctDelphi2005];
+  Delphi_OmittedOptions                   = [Delphi_Native_Lowest..ctDelphiPre2010NRNet, ctKylix3] - [ctDelphi8Net] + [ctDelphiXE];
   Delphi_Native_Ifdef_ImplicitBuilding    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
   Delphi_Native_Force_DebugInfo_Off       = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE7];
   Delphi_Native_Force_Optimization_On     = Delphi_Native - [ctDelphiXE2..Delphi_Native_Highest] + Delphi_DotNet + [ctKylix3];
@@ -122,8 +122,6 @@ const
   Delphi_Native_Define_DebugRelease       = [ctDelphiXE2..ctDelphiSydney];
   Delphi_Native_Define_Ver_DT             = [ctDelphiXE4..ctDelphiSydney] - [ctDelphiXE8..ctDelphiSeattle];
   Delphi_Native_Define_Ver_RT             = [ctDelphiXE4..ctDelphiSydney];
-  Delphi_Force_ImplicitBuild_Off_DT       = [ctDelphiRio..ctDelphiTokyo, ctDelphi8Net];
-  Delphi_Force_ImplicitBuild_Off_RT       = [ctDelphiXE4..ctDelphiTokyo, ctDelphi8Net];
 
   function OnOrOff(const AForceOff, AForceOn: TCompilers; const ADefault: Boolean): string;
   begin
@@ -202,11 +200,7 @@ begin
   end;
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
-  if FDesignTime then begin
-    Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off_DT, [], True) + '}');
-  end else begin
-    Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off_RT, [], True) + '}');
-  end;
+  Code('{$IMPLICITBUILD OFF}');
 end;
 
 const
@@ -259,9 +253,9 @@ begin
       Code('  designide,');
     end;
     if FCompiler <> ctDelphi8Net then begin
-      Code('  IndySystem' + GCompilerID[FCompiler] + ',');
+      Code('  IndySystem' + GPackageVer[FCompiler] + ',');
     end;
-    Code('  IndyCore' + GCompilerID[FCompiler] + ';');
+    Code('  IndyCore' + GPackageVer[FCompiler] + ';');
   end else
   begin
     if FCompiler in Delphi_DotNet then begin
@@ -287,7 +281,7 @@ begin
         Code('  {$ENDIF}');
       end;
     end;
-    Code('  IndySystem' + GCompilerID[FCompiler] + ';');
+    Code('  IndySystem' + GPackageVer[FCompiler] + ';');
   end;
 end;
 
@@ -311,7 +305,7 @@ begin
   end;
 
   if gfRunTime in LFlags then begin
-    FName := 'IndyCore' + GCompilerID[ACompiler];
+    FName := 'IndyCore' + GPackageVer[ACompiler];
     FDesc := 'Core Run-Time';
 
     FExt := '.rc.tmpl';
@@ -324,7 +318,7 @@ begin
   end;
 
   if gfDesignTime in LFlags then begin
-    FName := 'dclIndyCore' + GCompilerID[ACompiler];
+    FName := 'dclIndyCore' + GPackageVer[ACompiler];
     FDesc := 'Core Design-Time';
 
     FExt := '.rc.tmpl';

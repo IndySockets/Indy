@@ -18,7 +18,7 @@ package IndyCore90Net;
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Core'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   Borland.Delphi,

@@ -1,5 +1,5 @@
-// TODO: for FreePascal, use {$PUSH} here and {$POP} in IdStackFramesOn.inc
 {$IFOPT W+} // detect stack frames
-  {$DEFINE _WPlusWasEnabled}
+  {$I IdCompilerOptionsPush.inc}
   {$W-} // turn off stack frames
+  {$DEFINE _WPlusWasEnabled}
 {$ENDIF}

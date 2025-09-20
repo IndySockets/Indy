@@ -65,13 +65,13 @@ begin
 
   for LCompiler := Low(TCompiler) to High(TCompiler) do begin
     if LCompiler in ACompilers then begin
-      Code('brcc32 System\IndySystem'+GCompilerID[LCompiler]+'.rc');
+      Code('brcc32 System\IndySystem'+GPackageVer[LCompiler]+'.rc');
     end;
   end;
 
   for LCompiler := Low(TCompiler) to High(TCompiler) do begin
     if LCompiler in ACompilers then begin
-      Code('brcc32 Core\dclIndyCore'+GCompilerID[LCompiler]+'.rc');
+      Code('brcc32 Core\dclIndyCore'+GPackageVer[LCompiler]+'.rc');
     end;
   end;
 
@@ -79,19 +79,19 @@ begin
 
   for LCompiler := Low(TCompiler) to High(TCompiler) do begin
     if LCompiler in ACompilers then begin
-      Code('brcc32 Core\IndyCore'+GCompilerID[LCompiler]+'.rc');
+      Code('brcc32 Core\IndyCore'+GPackageVer[LCompiler]+'.rc');
     end;
   end;
 
   for LCompiler := Low(TCompiler) to High(TCompiler) do begin
     if LCompiler in ACompilers then begin
-      Code('brcc32 Protocols\dclIndyProtocols'+GCompilerID[LCompiler]+'.rc');
+      Code('brcc32 Protocols\dclIndyProtocols'+GPackageVer[LCompiler]+'.rc');
     end;
   end;
 
   for LCompiler := Low(TCompiler) to High(TCompiler) do begin
     if LCompiler in ACompilers then begin
-      Code('brcc32 Protocols\IndyProtocols'+GCompilerID[LCompiler]+'.rc');
+      Code('brcc32 Protocols\IndyProtocols'+GPackageVer[LCompiler]+'.rc');
     end;
   end;
 
@@ -115,6 +115,7 @@ begin
     LSubDir := SysUtils.IncludeTrailingPathDelimiter(FOutputSubDir);
     LPathname := LPathname + LSubDir;
   end;
+  WriteLn('Building resource files...');
   LCmdLine := 'cmd.exe /C ' + AnsiQuotedStr(LPathname + FName + FExt, '"');
   ZeroMemory(@SI, sizeof(SI));
   SI.cb := sizeof(SI);

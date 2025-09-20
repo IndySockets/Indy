@@ -133,7 +133,8 @@ begin
 end;
 
 procedure FIPSAlgorithmNotAllowed(const AAlgorithm: String);
-{$IFDEF USE_INLINE} inline; {$ENDIF}
+  {$IFDEF USE_INLINE}inline;{$ENDIF}
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdFIPSAlgorithmNotAllowed.CreateFmt(RSFIPSAlgorithmNotAllowed, [AAlgorithm]);
 end;

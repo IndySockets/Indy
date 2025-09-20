@@ -1,5 +1,8 @@
-// TODO: for FreePascal, use {$PUSH} in IdStackFramesOff.inc and {$POP} here
 {$IFDEF _WPlusWasEnabled}
+  {$IFDEF CAN_PUSHPOP_OPTIONS}
+    {$I IdCompilerOptionsPop.inc}
+  {$ELSE}
+    {$W+}
+  {$ENDIF}
   {$UNDEF _WPlusWasEnabled}
-  {$W+}
 {$ENDIF}

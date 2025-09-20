@@ -512,6 +512,7 @@ begin
 end;
 
 procedure TIdReplySMTP.RaiseReplyError;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdSMTPReplyError.CreateError(NumericCode, FEnhancedCode, Text.Text);
 end;

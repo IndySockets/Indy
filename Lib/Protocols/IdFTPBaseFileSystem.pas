@@ -128,21 +128,25 @@ begin
 end;
 
 procedure TIdFTPBaseFileSystem.ErrFileNotFound;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdFileSystemFileNotFound.Create(RSFTPFSysErrMsg);
 end;
 
 procedure TIdFTPBaseFileSystem.ErrNotADir;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdFileSystemNotADir.Create(RSFTPFSysErrMsg);
 end;
 
 procedure TIdFTPBaseFileSystem.ErrNotAFile;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdFileSystemNotAFile.Create(RSFTPFSysErrMsg);
 end;
 
 procedure TIdFTPBaseFileSystem.ErrPermissionDenied;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdFileSystemPermissionDenied.Create(RSFTPFSysErrMsg);
 end;

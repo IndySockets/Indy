@@ -626,6 +626,7 @@ begin
 end;
 
 procedure TIdStack.IPVersionUnsupported;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdIPVersionUnsupported.Create(RSIPVersionUnsupported);
 end;
@@ -923,6 +924,7 @@ end;
 {$ENDIF}
 
 procedure TIdStack.RaiseSocketError(AErr: integer);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   (*
     RRRRR    EEEEEE   AAAA   DDDDD         MM     MM  EEEEEE    !!  !!  !!

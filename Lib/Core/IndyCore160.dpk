@@ -27,7 +27,7 @@ package IndyCore160;
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION 'Indy 10 Core'}
 {$RUNONLY}
-{$IMPLICITBUILD ON}
+{$IMPLICITBUILD OFF}
 
 requires
   rtl,

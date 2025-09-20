@@ -70,7 +70,7 @@ type
    ctDelphi2006, ctDelphi2006Net,
    ctDelphi2007, ctDelphi2007Net,
    ctDelphi2009, ctDelphi2009Net,
-   ctDelphi13, ctDelphi13Net, // was not released, skipped to v14 (D2010)
+   ctDelphiPre2010NR, ctDelphiPre2010NRNet, // was not released, skipped to v14 (D2010)
    ctDelphi2010,
    ctDelphiXE,
    ctDelphiXE2,
@@ -87,6 +87,7 @@ type
    ctDelphiSydney,
    ctDelphiAlexandria,
    ctDelphiAthens,
+   ctDelphiFlorence,
    ctDotNet, // Visual Studio
    ctKylix3);
 
@@ -96,12 +97,12 @@ type
   TGenerateFlags = Set of TGenerateFlag;
 
 const
-  Delphi_DotNet                         = [ctDelphi8Net, ctDelphi2005Net, ctDelphi2006Net, ctDelphi2007Net, ctDelphi2009Net, ctDelphi13Net];
+  Delphi_DotNet                         = [ctDelphi8Net, ctDelphi2005Net, ctDelphi2006Net, ctDelphi2007Net, ctDelphi2009Net, ctDelphiPre2010NRNet];
   Delphi_DotNet_1_1                     = [ctDelphi8Net, ctDelphi2005Net, ctDelphi2006Net];
-  Delphi_DotNet_2_Or_Later              = [ctDelphi2007Net, ctDelphi2009Net, ctDelphi13Net];
+  Delphi_DotNet_2_Or_Later              = [ctDelphi2007Net, ctDelphi2009Net, ctDelphiPre2010NRNet];
 
   Delphi_Native_Lowest                  = ctDelphi4;
-  Delphi_Native_Highest                 = ctDelphiAthens;
+  Delphi_Native_Highest                 = ctDelphiFlorence;
   Delphi_Native                         = [Delphi_Native_Lowest..Delphi_Native_Highest] - Delphi_DotNet;
   Delphi_Native_Ifdef_Rtl               = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
   Delphi_Native_Ifdef_Rtl_CheckIOS      = Delphi_Native_Ifdef_Rtl - [ctDelphiXE2..ctDelphiXE3];
@@ -157,7 +158,7 @@ type
   end;
 
 const
-  GCompilerID: array[TCompiler] of string = (
+  GPackageVer: array[TCompiler] of string = (
     '',               // Unversioned
     '40',             // 4.0
     '50',             // 5.0
@@ -185,6 +186,7 @@ const
     '270',            // 10.4 Sydney
     '280',            // 11.0 Alexandria
     '290',            // 12.0 Athens
+    '370',            // 13.0 Florence (package version synced with compiler version!)
     '',               // .NET
     'K3');            // Kylix
 
@@ -216,6 +218,7 @@ const
     '340',            // 10.4 Sydney
     '350',            // 11.0 Alexandria
     '360',            // 12.0 Athens
+    '370',            // 13.0 Florence
     '',               // .NET
     '');              // Kylix
 
@@ -466,7 +469,7 @@ end;
 // TODO: make the options configurable...
 procedure TPackage.GenOptions;
 const
-  DelphiNative_Align8 = Delphi_Native - [Delphi_Native_Lowest..ctDelphi13] + [ctDelphi2005];
+  DelphiNative_Align8 = Delphi_Native - [Delphi_Native_Lowest..ctDelphiPre2010NR] + [ctDelphi2005];
 begin
   Code('');
   if FCompiler in Delphi_DotNet then begin
@@ -499,7 +502,7 @@ begin
   Code('{$IMAGEBASE $400000}');
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
-  Code('{$IMPLICITBUILD ON}');
+  Code('{$IMPLICITBUILD OFF}');
 end;
 
 procedure TPackage.Load(const ACriteria: string; const AUsePath: Boolean = False);

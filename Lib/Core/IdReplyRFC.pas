@@ -235,6 +235,7 @@ begin
 end;
 
 procedure TIdReplyRFC.RaiseReplyError;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdReplyRFCError.CreateError(NumericCode, Text.Text);
 end;

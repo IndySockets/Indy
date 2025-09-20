@@ -422,6 +422,7 @@ begin
 end;
 
 procedure TIdExplicitTLSClient.TLSNegCmdFailed;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   if Connected then begin
     Disconnect;
@@ -433,6 +434,7 @@ begin
 end;
 
 procedure TIdExplicitTLSClient.TLSNotAvailable;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   if Connected then begin
     Disconnect;

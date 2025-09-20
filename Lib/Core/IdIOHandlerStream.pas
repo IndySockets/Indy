@@ -325,6 +325,7 @@ begin
 end;
 
 procedure TIdIOHandlerStream.RaiseError(AError: Integer);
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdException.Create('Stream error'); {do not localize} // TODO: add a resource string, and create a new Exception class for this
 end;

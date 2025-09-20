@@ -359,6 +359,7 @@ begin
 end;
 
 procedure TIdUDPClient.RaiseUseProxyError;
+  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdMustUseOpenProxy.Create(RSUDPMustUseProxyOpen);
 end;

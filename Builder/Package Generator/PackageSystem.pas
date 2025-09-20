@@ -88,7 +88,7 @@ end;
 
 procedure TPackageSystem.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 begin
-  FName := 'IndySystem' + GCompilerID[ACompiler];
+  FName := 'IndySystem' + GPackageVer[ACompiler];
   FDesc := 'System';
   FExt := '.dpk';
   inherited Generate(ACompiler, AFlags - [gfDesignTime]);
@@ -98,7 +98,7 @@ end;
 // TODO: make the options configurable...
 procedure TPackageSystem.GenOptions;
 const
-  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphi13] + [ctDelphi2005];
+  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiPre2010NR] + [ctDelphi2005];
   Delphi_OmittedOptions                   = [Delphi_Native_Lowest..ctDelphiXE, ctKylix3] - [ctDelphi8Net];
   Delphi_Native_Ifdef_ImplicitBuilding    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
   Delphi_Native_Force_DebugInfo_Off       = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE7];
@@ -110,7 +110,6 @@ const
   Delphi_Native_Force_StackFrames_On      = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
   Delphi_Native_Define_DebugRelease       = [ctDelphiXE2..ctDelphiSydney];
   Delphi_Native_Define_Ver                = [ctDelphiXE4..ctDelphiSydney];
-  Delphi_Force_ImplicitBuild_Off          = [ctDelphiXE4..ctDelphiTokyo, ctDelphi8Net];
 
   function OnOrOff(const AForceOff, AForceOn: TCompilers; const ADefault: Boolean): string;
   begin
@@ -177,7 +176,7 @@ begin
   end;
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
-  Code('{$IMPLICITBUILD ' + OnOrOff(Delphi_Force_ImplicitBuild_Off, [], True) + '}');
+  Code('{$IMPLICITBUILD OFF}');
 end;
 
 procedure TPackageSystem.GenPreRequiresClause;
@@ -318,7 +317,7 @@ end;
 
 procedure TPackageSystem.GenerateRC(ACompiler: TCompiler; const AFlags: TGenerateFlags);
 begin
-  FName := 'IndySystem' + GCompilerID[ACompiler];
+  FName := 'IndySystem' + GPackageVer[ACompiler];
   FDesc := 'System Run-Time';
 
   FExt := '.rc.tmpl';
