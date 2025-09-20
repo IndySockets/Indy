@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="5">
+    <Name Value="indysystem"/>
+    <Type Value="RunAndDesignTime"/>
+    <Author Value="Chad Z. Hower (Kudzu) and the Indy Pit Crew - http://www.indyproject.org"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <SearchPaths>
+        <IncludeFiles Value="../Lib/System"/>
+        <OtherUnitFiles Value="../Lib/System"/>
+        <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+      </SearchPaths>
+      <Other>
+        <CustomOptions Value="-Ur"/>
+      </Other>
+    </CompilerOptions>
+    <Description Value="Indy - Internet Direct
+
+Indy is a well-known internet component suite for Delphi, C++Builder, and Free Pascal providing both low-level support (TCP, UDP, raw sockets) and over a 120 higher level protocols (SMTP, POP3, NNT, HTTP, FTP) for building both client and server applications."/>
+    <License Value="Duel License
+
+MPL 
+
+Indy Modified BSD License
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation, about box and/or other materials provided with the distribution. 
+
+No personal names or organizations names associated with the Indy project may be used to endorse or promote products derived from this software without specific prior written permission of the specific individual or organization. 
+
+THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;amp;quot;AS IS&apos;&apos; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."/>
+    <Version Major="10" Minor="6" Release="3" Build="3767"/>
+    <Files>
+      <Item>
+        <Filename Value="../Lib/System/IdAssemblyInfo.pas"/>
+        <Type Value="Include"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdBaseComponent.pas"/>
+        <UnitName Value="IdBaseComponent"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdComponent.pas"/>
+        <UnitName Value="IdComponent"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdCTypes.pas"/>
+        <UnitName Value="IdCTypes"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdException.pas"/>
+        <UnitName Value="IdException"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdGlobal.pas"/>
+        <UnitName Value="IdGlobal"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdIDN.pas"/>
+        <UnitName Value="IdIDN"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdResourceStrings.pas"/>
+        <UnitName Value="IdResourceStrings"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdResourceStringsIconv.pas"/>
+        <UnitName Value="IdResourceStringsIconv"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdResourceStringsKylixCompat.pas"/>
+        <UnitName Value="IdResourceStringsKylixCompat"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdResourceStringsTextEncoding.pas"/>
+        <UnitName Value="IdResourceStringsTextEncoding"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdResourceStringsUnix.pas"/>
+        <UnitName Value="IdResourceStringsUnix"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdStack.pas"/>
+        <UnitName Value="IdStack"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdStackBSDBase.pas"/>
+        <UnitName Value="IdStackBSDBase"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdStackConsts.pas"/>
+        <UnitName Value="IdStackConsts"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdStream.pas"/>
+        <UnitName Value="IdStream"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdStruct.pas"/>
+        <UnitName Value="IdStruct"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdTransactedFileStream.pas"/>
+        <UnitName Value="IdTransactedFileStream"/>
+      </Item>
+      <Item>
+        <Filename Value="../Lib/System/IdAntiFreezeBase.pas"/>
+        <UnitName Value="IdAntiFreezeBase"/>
+      </Item>
+    </Files>
+    <RequiredPkgs>
+      <Item>
+        <PackageName Value="FCL"/>
+      </Item>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
