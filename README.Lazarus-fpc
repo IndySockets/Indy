@@ -5,7 +5,7 @@ your system. If not then now is a good time to do so.
 
 1. Start the Lazarus IDE
 2. Select the Package-> Open Package File menu item
-3. Open the Indylaz.lpk package in the top directory of this source tree.
+3. Open the indylaz.lpk package in the top directory of this source tree.
 4. When the package manager opens, select Use->Install
 
 Lazarus should now recompile and when the IDE re-opens, you should now see the 
@@ -56,6 +56,7 @@ In this case, you need to add the following directories from the Indy source
 tree to your projects units search path (-Fu command line option)
 
 units/<cpu-arch>-<platform>
+
 
 
 
