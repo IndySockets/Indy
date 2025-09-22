@@ -41,7 +41,7 @@ unit IdAuthenticationSSPI;
 interface
 
 {$i IdCompilerDefines.inc}
-
+{$IFDEF USE_SSPI}
 uses
   IdGlobal,
   IdAuthentication,
@@ -430,8 +430,9 @@ type
     {$HPPEMIT '#pragma link "IdAuthenticationSSPI"'}
   {$ENDIF}
 
+{$ENDIF}
 implementation
-
+{$IFDEF USE_SSPI}
 uses
   IdGlobalProtocols,
   IdCoderMIME,
@@ -1317,6 +1318,6 @@ finalization
     UnregisterAuthenticationMethod('Negotiate'); {do not localize}
   end;
   FreeAndNil(gSSPIInterface);
-
+{$ENDIF}
 end.
 

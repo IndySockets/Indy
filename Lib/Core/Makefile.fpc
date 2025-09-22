@@ -1,21 +1,19 @@
-#   Makefile.fpc for indycorefpc 10.6.3.0
-
 [package]
-name=indycorefpc
-version=10.6.3.0
+name=indycore
+version=$(INDY_VERSION)
 main=indy
 
+[requires]
+packages=indysystem
 
 [compiler]
-includedir=../Inc
-unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)
-unitdir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)
-options=-gl
+options= -MDelphi $(OPT) -Scghi -CX -Ur -Xs -vew
+unittargetdir= ../../units/$(CPU_TARGET)-$(OS_TARGET)
+includedir=.
+unitdir=.
 
 [target]
 units=indycorefpc
-rsts=IdResourceStringsCore.rst
-
 implicitunits=IdAssignedNumbers \
   IdBuffer \
   IdCmdTCPClient \
@@ -26,6 +24,10 @@ implicitunits=IdAssignedNumbers \
   IdCustomTransparentProxy \
   IdExceptionCore \
   IdGlobalCore \
+  IdIcmpClient \
+  IdIntercept \
+  IdInterceptSimLog \
+  IdInterceptThrottler \
   IdIOHandler \
   IdIOHandlerSocket \
   IdIOHandlerStack \
@@ -34,10 +36,6 @@ implicitunits=IdAssignedNumbers \
   IdIPMCastBase \
   IdIPMCastClient \
   IdIPMCastServer \
-  IdIcmpClient \
-  IdIntercept \
-  IdInterceptSimLog \
-  IdInterceptThrottler \
   IdLogBase \
   IdLogDebug \
   IdLogEvent \
@@ -50,10 +48,10 @@ implicitunits=IdAssignedNumbers \
   IdReply \
   IdReplyRFC \
   IdResourceStringsCore \
-  IdScheduler \
-  IdSchedulerOfThread \
   IdSchedulerOfThreadDefault \
+  IdSchedulerOfThread \
   IdSchedulerOfThreadPool \
+  IdScheduler \
   IdServerIOHandler \
   IdServerIOHandlerSocket \
   IdServerIOHandlerStack \
@@ -61,29 +59,22 @@ implicitunits=IdAssignedNumbers \
   IdSocketHandle \
   IdSocks \
   IdSync \
+  IdTask \
   IdTCPClient \
   IdTCPConnection \
   IdTCPServer \
   IdTCPStream \
-  IdTask \
-  IdThread \
   IdThreadComponent \
+  IdThread \
   IdThreadSafe \
   IdTraceRoute \
   IdUDPBase \
   IdUDPClient \
   IdUDPServer \
-  IdYarn
+  IdYarn 
 
-
-[requires]
-packages=indysystemfpc
-packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)
 
 [install]
 fpcpackage=y
 fpcsubdir=packages/extra
 buildunit=indycorefpc
-
-[shared]	
-build=n

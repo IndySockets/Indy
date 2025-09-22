@@ -1,5 +1,7 @@
 # Indy - Internet Direct
 
+This fork is the basis of a pull request and should be ignored by most users.
+
 Indy is a well-known internet component suite for **Delphi**, **C++Builder**, and **Free Pascal** providing both low-level 
 support (TCP, UDP, raw sockets) and over a 120 higher level protocols (SMTP, POP3, NNT, HTTP, FTP) for building both client and server applications.
 

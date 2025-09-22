@@ -345,7 +345,9 @@ begin
   inherited Destroy;
   {$ELSE}
   //we have to deference our copy of the THandle so we don't free it twice.
+  {$IFNDEF FPC}  {not accessible for FPC}
   FHandle := INVALID_HANDLE_VALUE;
+  {$ENDIF}
   FreeAndNil( FFileStream );
   inherited Destroy;
   {$ENDIF}

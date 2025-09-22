@@ -1,0 +1,63 @@
+LAZARUS INSTALLATION GUIDE
+
+You should already have extracted this source tree to a permanent location on 
+your system. If not then now is a good time to do so.
+
+1. Start the Lazarus IDE
+2. Select the Package-> Open Package File menu item
+3. Open the indylaz.lpk package in the top directory of this source tree.
+4. When the package manager opens, select Use->Install
+
+Lazarus should now recompile and when the IDE re-opens, you should now see the 
+Indy components at the end of your component palette.
+
+Online user guides are available describing the Indy components and how to use 
+them. The runtime package indyprotocols should automatically be added to any 
+project using an Indy component. There is no need to add any other package.
+
+You can also use Indy from a console mode application. In this case, you will 
+have to explicitly add the indyprotocols runtime package as a project 
+requirement. In console mode applications, you are also responsible for adding 
+the appropriate Indy unit names to each of your project's units that use Indy 
+components, and to explicitly create each component you use.
+
+FPC INSTALLATION GUIDE
+
+You can also use Indy components in any FPC compiled program, even when you are 
+not using the Lazarus IDE. There are two possible strategies for the use of 
+Indy with FPC:
+
+1. Direct Use of Indy source code
+
+In this case, you need to add the following directories from the Indy source 
+tree to your project's units search path (-Fu command line option) and include
+files path (-Fi)
+
+Lib/Protocols
+Lib/Core
+Lib/System
+
+
+2 Pre-compiled Indy units
+
+You can also pre-compile the Indy components and link the compiled units into 
+your program. To compile the Indy components from the command line enter:
+
+fpcmake -r
+make
+
+The compiled units will be placed in the Indy source tree directory
+
+units/<cpu-arch>-<platform>
+
+e.g. units/x86_64-linux for 64-bit Linux
+
+In this case, you need to add the following directories from the Indy source 
+tree to your projects units search path (-Fu command line option)
+
+units/<cpu-arch>-<platform>
+
+
+
+
+

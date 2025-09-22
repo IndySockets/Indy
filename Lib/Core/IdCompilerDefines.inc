@@ -37,8 +37,11 @@
 
 // $DEFINE the following if the global objects in the IdStack and IdThread
 // units should be freed on finalization
-{.$DEFINE FREE_ON_FINAL}
+{$IFDEF FPC}
+{$DEFINE FREE_ON_FINAL}
+{$ELSE}
 {$UNDEF FREE_ON_FINAL}
+{$ENDIF}
 
 // Make sure the following is $DEFINE'd only for suitable environments
 // as specified further below.  This works in conjunction with the

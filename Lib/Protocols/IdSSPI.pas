@@ -39,6 +39,8 @@ unit IdSSPI;
 interface
 
 {$i IdCompilerDefines.inc}
+{$IFDEF USE_SSPI}
+
 
 uses
   IdGlobal,
@@ -2867,7 +2869,9 @@ TranslateNameW(
 
 *)
 
+{$ENDIF}
 implementation
+{$IFDEF USE_SSPI}
 
 procedure SecInvalidateHandle(var x: SecHandle);
 begin
@@ -2892,5 +2896,7 @@ function SEC_SUCCESS(Status: SECURITY_STATUS): Boolean;
 begin
   Result := Status >= 0;
 end;
+
+{$ENDIF}
 
 end.

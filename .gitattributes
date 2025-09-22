@@ -2712,3 +2712,11 @@ icons/tIdAntiFreeze.bmp -text svneol=unset#unset
 icons/tIdDecoderUUE.bmp -text svneol=unset#unset
 icons/tIdEncoderUUE.bmp -text svneol=unset#unset
 icons/tIdIdent.bmp -text svneol=unset#unset
+*.pas text
+*.inc text
+*.lpr text
+*.lpi text
+*.lps text
+*.dpk text
+*.dproj text
+
