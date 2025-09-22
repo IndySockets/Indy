@@ -8,22 +8,21 @@ unit indylaz;
 interface
 
 uses
-  IdDsnBaseCmpEdt, IdDsnCoreResourceStrings, IdDsnPropEdBinding, 
-  IdDsnPropEdBindingVCL, IdCoreDsnRegister, IdAboutVCL, IdDsnRegister, 
-  IdDsnResourceStrings, IdDsnSASLListEditor, IdDsnSASLListEditorForm, 
-  IdDsnSASLListEditorFormVCL, IdAbout, IdRegisterCore, IdRegister, 
-  LazarusPackageIntf;
+  IdDsnCoreResourceStrings, IdDsnPropEdBinding, IdDsnPropEdBindingVCL, 
+  IdCoreDsnRegister, IdAboutVCL, IdDsnRegister, IdDsnResourceStrings, 
+  IdDsnSASLListEditor, IdDsnSASLListEditorForm, IdDsnSASLListEditorFormVCL, 
+  IdAbout, IdRegisterCore, IdRegister, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
-  RegisterUnit('IdCoreDsnRegister' , @IdCoreDsnRegister.Register);
-  RegisterUnit('IdDsnRegister' , @IdDsnRegister.Register);
-  RegisterUnit('IdRegisterCore' , @IdRegisterCore.Register);
-  RegisterUnit('IdRegister' , @IdRegister.Register);
+  RegisterUnit('IdCoreDsnRegister', @IdCoreDsnRegister.Register);
+  RegisterUnit('IdDsnRegister', @IdDsnRegister.Register);
+  RegisterUnit('IdRegisterCore', @IdRegisterCore.Register);
+  RegisterUnit('IdRegister', @IdRegister.Register);
 end;
 
 initialization
-  RegisterPackage('indylaz' , @Register);
+  RegisterPackage('indylaz', @Register);
 end.
