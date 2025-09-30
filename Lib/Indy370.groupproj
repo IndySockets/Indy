@@ -1,0 +1,84 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{B38B9B98-63F1-4B9D-9EA6-1A5A2908476F}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="System\IndySystem370.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Core\IndyCore370.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Protocols\IndyProtocols370.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Core\dclIndyCore370.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Protocols\dclIndyProtocols370.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="IndySystem370">
+        <MSBuild Projects="System\IndySystem370.dproj"/>
+    </Target>
+    <Target Name="IndySystem370:Clean">
+        <MSBuild Projects="System\IndySystem370.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="IndySystem370:Make">
+        <MSBuild Projects="System\IndySystem370.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="IndyCore370">
+        <MSBuild Projects="Core\IndyCore370.dproj"/>
+    </Target>
+    <Target Name="IndyCore370:Clean">
+        <MSBuild Projects="Core\IndyCore370.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="IndyCore370:Make">
+        <MSBuild Projects="Core\IndyCore370.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="IndyProtocols370">
+        <MSBuild Projects="Protocols\IndyProtocols370.dproj"/>
+    </Target>
+    <Target Name="IndyProtocols370:Clean">
+        <MSBuild Projects="Protocols\IndyProtocols370.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="IndyProtocols370:Make">
+        <MSBuild Projects="Protocols\IndyProtocols370.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclIndyCore370">
+        <MSBuild Projects="Core\dclIndyCore370.dproj"/>
+    </Target>
+    <Target Name="dclIndyCore370:Clean">
+        <MSBuild Projects="Core\dclIndyCore370.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclIndyCore370:Make">
+        <MSBuild Projects="Core\dclIndyCore370.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="dclIndyProtocols370">
+        <MSBuild Projects="Protocols\dclIndyProtocols370.dproj"/>
+    </Target>
+    <Target Name="dclIndyProtocols370:Clean">
+        <MSBuild Projects="Protocols\dclIndyProtocols370.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="dclIndyProtocols370:Make">
+        <MSBuild Projects="Protocols\dclIndyProtocols370.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="IndySystem370;IndyCore370;IndyProtocols370;dclIndyCore370;dclIndyProtocols370"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="IndySystem370:Clean;IndyCore370:Clean;IndyProtocols370:Clean;dclIndyCore370:Clean;dclIndyProtocols370:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="IndySystem370:Make;IndyCore370:Make;IndyProtocols370:Make;dclIndyCore370:Make;dclIndyProtocols370:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
