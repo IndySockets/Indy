@@ -985,10 +985,15 @@ begin
   inherited Destroy;
 end;
 
-function TCompressionStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+procedure RaiseCompressionError;
   {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise ECompressionError.Create(sInvalidStreamOp);
+end;
+
+function TCompressionStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+begin
+  RaiseCompressionError;
 end;
 
 function TCompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
@@ -1018,7 +1023,7 @@ begin
   if (AOffset = 0) and (AOrigin = soCurrent) then begin
     Result := FZRec.total_in;
   end else begin
-    raise ECompressionError.Create(sInvalidStreamOp);
+    RaiseCompressionError;
   end;
 end;
 
@@ -1105,10 +1110,15 @@ begin
   Result := TIdC_UINT(ACount) - FZRec.avail_out;
 end;
 
-function TDecompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+procedure RaiseDecompressionError;
   {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EDecompressionError.Create(sInvalidStreamOp);
+end;
+
+function TDecompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+begin
+  RaiseDecompressionError;
 end;
 
 function TDecompressionStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
@@ -1141,8 +1151,7 @@ begin
     end;
   end else
   begin
-   // raise EDecompressionError.CreateRes(@sInvalidStreamOp);
-   raise EDecompressionError.Create(sInvalidStreamOp);
+    RaiseDecompressionError;
   end;
   Result := FZRec.total_out;
 end;

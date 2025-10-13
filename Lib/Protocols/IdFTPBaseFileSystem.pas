@@ -89,12 +89,12 @@ uses
 type
   TIdFTPBaseFileSystem = class(TIdBaseComponent)
   protected
-    procedure ErrPermissionDenied;
-    procedure ErrCantRemoveDir;
-    procedure ErrFileNotFound;
-    procedure ErrNotAFile;
-    procedure ErrNotADir;
-  public
+    procedure ErrPermissionDenied; {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
+    procedure ErrCantRemoveDir;    {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
+    procedure ErrFileNotFound;     {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
+    procedure ErrNotAFile;         {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
+    procedure ErrNotADir;          {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
+public
     procedure ChangeDir(AContext : TIdFTPServerContextBase; var VDirectory: TIdFTPFileName); virtual; abstract;
     procedure GetFileSize(AContext : TIdFTPServerContextBase; const AFilename: TIdFTPFileName; var VFileSize: Int64); virtual; abstract;
     procedure GetFileDate(AContext : TIdFTPServerContextBase; const AFilename: TIdFTPFileName; var VFileDate: TDateTime); virtual; abstract;
@@ -123,30 +123,31 @@ uses IdResourceStringsProtocols;
 { TIdFTPBaseFileSystem }
 
 procedure TIdFTPBaseFileSystem.ErrCantRemoveDir;
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
-  raise  EIdFileSystemCannotRemoveDir.Create(RSFTPFSysErrMsg);
+  raise EIdFileSystemCannotRemoveDir.Create(RSFTPFSysErrMsg);
 end;
 
 procedure TIdFTPBaseFileSystem.ErrFileNotFound;
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise EIdFileSystemFileNotFound.Create(RSFTPFSysErrMsg);
 end;
 
 procedure TIdFTPBaseFileSystem.ErrNotADir;
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise EIdFileSystemNotADir.Create(RSFTPFSysErrMsg);
 end;
 
 procedure TIdFTPBaseFileSystem.ErrNotAFile;
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise EIdFileSystemNotAFile.Create(RSFTPFSysErrMsg);
 end;
 
 procedure TIdFTPBaseFileSystem.ErrPermissionDenied;
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise EIdFileSystemPermissionDenied.Create(RSFTPFSysErrMsg);
 end;

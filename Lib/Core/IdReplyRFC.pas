@@ -234,10 +234,15 @@ begin
   end;
 end;
 
-procedure TIdReplyRFC.RaiseReplyError;
+procedure RaiseRFCError(ANumericCode: Integer; const AText: string);
   {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
-  raise EIdReplyRFCError.CreateError(NumericCode, Text.Text);
+  raise EIdReplyRFCError.CreateError(ANumericCode, AText);
+end;
+
+procedure TIdReplyRFC.RaiseReplyError;
+begin
+  RaiseRFCError(NumericCode, Text.Text);
 end;
 
 function TIdReplyRFC.ReplyExists: Boolean;

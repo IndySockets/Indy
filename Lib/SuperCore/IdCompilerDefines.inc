@@ -1446,6 +1446,10 @@
 {$IFDEF VCL_13_OR_ABOVE}
   {$DEFINE CAN_PUSHPOP_OPTIONS}
   {$DEFINE USE_NORETURN}
+  // it is sufficient to have 'noturn' just on an implementation
+  // and not on the declaration, the compiler won't care either way...
+  {.$DEFINE USE_NORETURN_DECL}
+  {$DEFINE USE_NORETURN_IMPL}
 {$ENDIF}
 
 // Delphi XE+ cross-compiling
@@ -1575,6 +1579,15 @@
   {$ENDIF}
   {$DEFINE CAN_PUSHPOP_OPTIONS} // TODO: when was push/pop introduced?
   {$DEFINE USE_NORETURN} // TODO: when was noreturn introduced? Possibly after 2.6.x
+  // FPC 3.3.1 has a regression where 'noreturn' on an implementation but not
+  // on the declaration will cause a compiler error. FPC 3.2.2 compiles fine...
+  {$IFDEF FPC_3_3_1_OR_ABOVE}
+    {$DEFINE USE_NORETURN_DECL}
+    {.$DEFINE USE_NORETURN_IMPL}
+  {$ELSE}
+    {.$DEFINE USE_NORETURN_DECL}
+    {$DEFINE USE_NORETURN_IMPL}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF DOTNET}

@@ -279,7 +279,7 @@ type
   protected
     FLocalAddresses: TStrings;
     //
-    procedure IPVersionUnsupported;
+    procedure IPVersionUnsupported; {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
     function MakeCanonicalIPv6Address(const AAddr: string): string; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use IdGlobal.MakeCanonicalIPv6Address()'{$ENDIF};{$ENDIF}
@@ -322,7 +322,7 @@ type
     function WSTranslateSocketErrorMsg(const AErr: integer): string; virtual;
     function CheckForSocketError(const AResult: Integer): Integer; overload;
     function CheckForSocketError(const AResult: Integer; const AIgnore: array of Integer): Integer; overload;
-    procedure RaiseLastSocketError;
+    procedure RaiseLastSocketError; {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
     procedure RaiseSocketError(AErr: integer); virtual;
     function NewSocketHandle(const ASocketType: TIdSocketType; const AProtocol: TIdSocketProtocol;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; const ANonBlocking: Boolean = False)
@@ -626,7 +626,7 @@ begin
 end;
 
 procedure TIdStack.IPVersionUnsupported;
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise EIdIPVersionUnsupported.Create(RSIPVersionUnsupported);
 end;
@@ -900,6 +900,7 @@ begin
 end;
 
 procedure TIdStack.RaiseLastSocketError;
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   RaiseSocketError(WSGetLastError);
 end;
@@ -923,7 +924,7 @@ end;
   {$ENDIF}
 {$ENDIF}
 
-procedure TIdStack.RaiseSocketError(AErr: integer);
+procedure RaiseSocketError(AErr: Integer; const AMsg: string);
   {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   (*
@@ -941,7 +942,7 @@ begin
     // will still run correctly, but the debugger will not stop on it if you
     // list it in the ignore list. But for most times its fine to put it in
     // the ignore list, it only affects your debugging.
-    raise EIdNotASocket.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
+    raise EIdNotASocket.CreateError(AErr, AMsg);
   end;
 
   // TODO: move this to IdStackVCLPosix...
@@ -949,7 +950,7 @@ begin
     {$IFDEF ANDROID}
   if (AErr = 9{EBADF}) or (AErr = 12{EBADR?}) or (AErr = 13{EACCES}) then begin
     if not HasAndroidPermission('android.permission.INTERNET') then begin {Do not Localize}
-      raise EIdInternetPermissionNeeded.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
+      raise EIdInternetPermissionNeeded.CreateError(AErr, AMsg);
     end;
   end;
     {$ENDIF}
@@ -979,7 +980,12 @@ begin
     RR  RR   EE      AA  AA  DD  DD        MM     MM  EE
     RR   RR  EEEEEE  AA  AA  DDDDD         MM     MM  EEEEEE    ..  ..  ..
   *)
-  raise EIdSocketError.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
+  raise EIdSocketError.CreateError(AErr, AMsg);
+end;
+
+procedure TIdStack.RaiseSocketError(AErr: integer);
+begin
+  RaiseSocketError(AErr, WSTranslateSocketErrorMsg(AErr));
 end;
 
 function TIdStack.WSTranslateSocketErrorMsg(const AErr: integer): string;

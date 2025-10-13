@@ -1534,13 +1534,13 @@ function IndyFormat(const AFormat: string; const Args: array of const): string;
 function IndyIncludeTrailingPathDelimiter(const S: string): string;
 function IndyExcludeTrailingPathDelimiter(const S: string): string;
 
-procedure IndyRaiseLastError;
+procedure IndyRaiseLastError; {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
 
 // This can only be called inside of an 'except' block! This is so that
 // Exception.RaiseOuterException() (when available) can capture the current
 // exception into the InnerException property of a new Exception that is
 // being raised...
-procedure IndyRaiseOuterException(AOuterException: Exception);
+procedure IndyRaiseOuterException(AOuterException: Exception); {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
 
 //You could possibly use the standard StrInt and StrIntDef but these
 //also remove spaces from the string using the trim functions.
@@ -1927,7 +1927,7 @@ function IndyLowerCase(const A1: string): string;
 function IndyCompareStr(const A1: string; const A2: string): Integer;
 function Ticks: UInt32; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use Ticks64()'{$ENDIF};{$ENDIF}
 function Ticks64: TIdTicks;
-procedure ToDo(const AMsg: string);
+procedure ToDo(const AMsg: string); {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
 
 function TwoByteToUInt16(AByte1, AByte2: Byte): UInt16;
 function TwoByteToWord(AByte1, AByte2: Byte): UInt16; {$IFDEF HAS_DEPRECATED}deprecated{$IFDEF HAS_DEPRECATED_MSG} 'Use TwoByteToUInt16()'{$ENDIF};{$ENDIF}
@@ -4757,7 +4757,7 @@ end;
 
 procedure IndyRaiseLastError;
   {$IFDEF USE_INLINE}inline;{$ENDIF}
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   {$IFNDEF HAS_RaiseLastOSError}
   RaiseLastWin32Error;
@@ -4769,7 +4769,7 @@ end;
 {$IFDEF HAS_Exception_RaiseOuterException}
 procedure IndyRaiseOuterException(AOuterException: Exception);
   {$IFDEF USE_INLINE}inline;{$ENDIF}
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   Exception.RaiseOuterException(AOuterException);
 end;
@@ -4782,7 +4782,7 @@ end;
 // rather than inside this function...
     {$IFDEF HAS_System_ReturnAddress}
 procedure IndyRaiseOuterException(AOuterException: Exception);
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise AOuterException at ReturnAddress;
 end;
@@ -4840,7 +4840,7 @@ end;
   {$ELSE}
 // Not Delphi, so just raise the exception as-is until we know what else to do with it...
 procedure IndyRaiseOuterException(AOuterException: Exception);
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise AOuterException;
 end;
@@ -7589,7 +7589,7 @@ end;
 
 procedure ToDo(const AMsg: string);
   {$IFDEF USE_INLINE}inline;{$ENDIF}
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise EIdException.Create(AMsg); // TODO: create a new Exception class for this
 end;

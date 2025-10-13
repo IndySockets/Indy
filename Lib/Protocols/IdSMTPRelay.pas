@@ -557,10 +557,15 @@ begin
   FDNSServer := Value;
 end;
 
-procedure TIdSMTPRelay.SetHost(const Value: String);
+procedure RaiseSMTPHostError;
   {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdDirectSMTPCannotAssignHost.Create(RSDirSMTPCantAssignHost);
+end;
+
+procedure TIdSMTPRelay.SetHost(const Value: String);
+begin
+  RaiseSMTPHostError;
 end;
 
 procedure TIdSMTPRelay.SetOnStatus(const Value: TIdSMTPRelayStatus);

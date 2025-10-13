@@ -104,7 +104,7 @@ type
     {$IFDEF USE_OBJECT_ARC}[Weak]{$ENDIF} FTransparentProxy: TIdCustomTransparentProxy;
     FImplicitTransparentProxy: Boolean;
     function UseProxy : Boolean;
-    procedure RaiseUseProxyError;
+    procedure RaiseUseProxyError; {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
     procedure DoOnConnected; virtual;
     procedure DoOnDisconnected; virtual;
     procedure InitComponent; override;
@@ -359,7 +359,7 @@ begin
 end;
 
 procedure TIdUDPClient.RaiseUseProxyError;
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise EIdMustUseOpenProxy.Create(RSUDPMustUseProxyOpen);
 end;

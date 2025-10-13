@@ -492,16 +492,20 @@ begin
   end;
 end;
 
-function TIdMultiPartFormDataStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
+procedure RaiseUnsupportedOperationError;
   {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   raise EIdUnsupportedOperation.Create(RSUnsupportedOperation);
 end;
 
-procedure TIdMultiPartFormDataStream.IdSetSize(ASize: Int64);
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+function TIdMultiPartFormDataStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
-  raise EIdUnsupportedOperation.Create(RSUnsupportedOperation);
+  RaiseUnsupportedOperationError;
+end;
+
+procedure TIdMultiPartFormDataStream.IdSetSize(ASize: Int64);
+begin
+  RaiseUnsupportedOperationError;
 end;
 
 { TIdFormDataFields }
