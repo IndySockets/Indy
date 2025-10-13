@@ -3089,35 +3089,39 @@ begin
     // I think - at least in terms of storage
     KeyList := TStringList.Create;
     try
-      // TODO: use TStreamReader instead, on versions that support it
-      KeyList.LoadFromFile(AFileName); {Do not localize}
-      for i := 0 to KeyList.Count -1 do begin
-        s := KeyList[i];
-        p := IndyPos('#', s); {Do not localize}
-        if p > 0 then begin
-          SetLength(s, p-1);
-        end;
-        if s <> '' then begin {Do not localize}
-          s := Trim(s);
-          LMimeType := IndyLowerCase(Fetch(s));
-          if LMimeType <> '' then begin {Do not localize}
-             while s <> '' do begin {Do not localize}
-               LExtension := IndyLowerCase(Fetch(s));
-               if LExtension <> '' then {Do not localize}
-               try
-                 if LExtension[1] <> '.' then begin
-                   LExtension := '.' + LExtension; {Do not localize}
+      try
+        // TODO: use TStreamReader instead, on versions that support it
+        KeyList.LoadFromFile(AFileName);
+        for i := 0 to KeyList.Count -1 do begin
+          s := KeyList[i];
+          p := IndyPos('#', s); {Do not localize}
+          if p > 0 then begin
+            SetLength(s, p-1);
+          end;
+          if s <> '' then begin {Do not localize}
+            s := Trim(s);
+            LMimeType := IndyLowerCase(Fetch(s));
+            if LMimeType <> '' then begin {Do not localize}
+               while s <> '' do begin {Do not localize}
+                 LExtension := IndyLowerCase(Fetch(s));
+                 if LExtension <> '' then {Do not localize}
+                 try
+                   if LExtension[1] <> '.' then begin {Do not localize}
+                     LExtension := '.' + LExtension; {Do not localize}
+                   end;
+                   AMIMEList.Values[LExtension] := LMimeType;
+                 except
+                   on EListError do {ignore} ;
                  end;
-                 AMIMEList.Values[LExtension] := LMimeType;
-               except
-                 on EListError do {ignore} ;
                end;
-             end;
+            end;
           end;
         end;
+      except
+        on EFOpenError do {ignore} ;
       end;
-    except
-      on EFOpenError do {ignore} ;
+    finally
+      KeyList.Free;
     end;
   End;
 end;
