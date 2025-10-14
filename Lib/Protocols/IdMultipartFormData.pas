@@ -500,6 +500,9 @@ end;
 
 function TIdMultiPartFormDataStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
+  {$IFNDEF USE_NORETURN}
+  Result := 0; // keep the compiler happy
+  {$ENDIF}
   RaiseUnsupportedOperationError;
 end;
 

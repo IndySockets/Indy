@@ -993,6 +993,9 @@ end;
 
 function TCompressionStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
+  {$IFNDEF USE_NORETURN}
+  Result := 0; // keep the compiler happy
+  {$ENDIF}
   RaiseCompressionError;
 end;
 
@@ -1118,6 +1121,9 @@ end;
 
 function TDecompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
+  {$IFNDEF USE_NORETURN}
+  Result := 0; // keep the compiler happy
+  {$ENDIF}
   RaiseDecompressionError;
 end;
 

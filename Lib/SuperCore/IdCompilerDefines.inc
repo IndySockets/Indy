@@ -1545,6 +1545,16 @@
   {$IFDEF FPC_2_6_0_OR_ABOVE}
     {$DEFINE HAS_NativeInt}
     {$DEFINE HAS_NativeUInt}
+    {.$DEFINE USE_NORETURN}
+    // FPC 3.3.1 has a regression where 'noreturn' on an implementation but not
+    // on the declaration will cause a compiler error. FPC 3.2.2 compiles fine...
+    {.$IFDEF FPC_3_3_1_OR_ABOVE}
+      //{$DEFINE USE_NORETURN_DECL}
+      //{.$DEFINE USE_NORETURN_IMPL}
+    {.$ELSE}
+      //{.$DEFINE USE_NORETURN_DECL}
+      //{$DEFINE USE_NORETURN_IMPL}
+    {.$ENDIF}
   {$ENDIF}
   {$IFDEF FPC_2_6_2_OR_ABOVE}
     {$DEFINE HAS_Int8}
@@ -1578,16 +1588,6 @@
     {$DEFINE HAS_UIntToStr} // requires rev 40529+
   {$ENDIF}
   {$DEFINE CAN_PUSHPOP_OPTIONS} // TODO: when was push/pop introduced?
-  {$DEFINE USE_NORETURN} // TODO: when was noreturn introduced? Possibly after 2.6.x
-  // FPC 3.3.1 has a regression where 'noreturn' on an implementation but not
-  // on the declaration will cause a compiler error. FPC 3.2.2 compiles fine...
-  {$IFDEF FPC_3_3_1_OR_ABOVE}
-    {$DEFINE USE_NORETURN_DECL}
-    {.$DEFINE USE_NORETURN_IMPL}
-  {$ELSE}
-    {.$DEFINE USE_NORETURN_DECL}
-    {$DEFINE USE_NORETURN_IMPL}
-  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF DOTNET}

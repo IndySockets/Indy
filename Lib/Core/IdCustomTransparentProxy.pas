@@ -172,6 +172,9 @@ end;
 
 function TIdCustomTransparentProxy.Listen(AIOHandler: TIdIOHandler; const ATimeOut: integer):boolean;
 begin
+  {$IFNDEF USE_NORETURN}
+  Result := False; // keep the compiler happy
+  {$ENDIF}
   RaiseProxyBindError;
 end;
 
@@ -258,6 +261,9 @@ function TIdCustomTransparentProxy.RecvFromUDP(AHandle: TIdSocketHandle;
   var ABuffer : TIdBytes; var VPeerIP: string; var VPeerPort: TIdPort;
   var VIPVersion: TIdIPVersion; AMSec: Integer = IdTimeoutDefault): Integer;
 begin
+  {$IFNDEF USE_NORETURN}
+  Result := 0; // keep the compiler happy
+  {$ENDIF}
   RaiseUDPNotSupportedError;
 end;
 
