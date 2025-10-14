@@ -924,7 +924,7 @@ end;
   {$ENDIF}
 {$ENDIF}
 
-procedure RaiseSocketError(AErr: Integer; const AMsg: string);
+procedure RaiseIdSocketError(AErr: Integer; const AMsg: string);
   {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
 begin
   (*
@@ -985,7 +985,7 @@ end;
 
 procedure TIdStack.RaiseSocketError(AErr: integer);
 begin
-  RaiseSocketError(AErr, WSTranslateSocketErrorMsg(AErr));
+  RaiseIdSocketError(AErr, WSTranslateSocketErrorMsg(AErr));
 end;
 
 function TIdStack.WSTranslateSocketErrorMsg(const AErr: integer): string;
