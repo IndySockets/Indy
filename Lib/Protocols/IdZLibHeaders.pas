@@ -612,7 +612,11 @@ const
   compress : function(dest: PByte; var destLen: LongWord; source: PByte; sourceLen: LongWord): Integer; cdecl = System.ZLib.compress;
   compress2 : function(dest: PByte; var destLen: LongWord; source: PByte; sourceLen: LongWord; level: Integer): Integer; cdecl = System.ZLib.compress2;
   compressBound : function(sourceLen: LongWord): LongWord; cdecl = System.ZLib.compressBound;
+  {$IFDEF VCL_10_4_OR_ABOVE}
+  crc32 : function(crc: UInt32; buf: PByte; len: Cardinal): UInt32; cdecl = System.ZLib.crc32;
+  {$ELSE}
   crc32 : function(crc: LongWord; buf: PByte; len: Cardinal): LongWord; cdecl = System.ZLib.crc32;
+  {$ENDIF}
   crc32_combine : function(crc1, crc2: LongWord; len2: z_off_t): LongWord; cdecl = System.ZLib.crc32_combine;
   deflate : function(var strm: z_stream; flush: Integer): Integer; cdecl = System.ZLib.deflate;
   deflateBound : function(var strm: z_stream; sourceLen: Cardinal): LongWord; cdecl = System.ZLib.deflateBound;
@@ -634,6 +638,7 @@ const
   inflateInit_ : function(var strm: z_stream; version: ZLibAString; stream_size: Integer): Integer; cdecl = System.ZLib.inflateInit_;
   inflateInit2_ : function(var strm: z_stream; windowBits: Integer; version: ZLibAString; stream_size: Integer): Integer; cdecl = System.ZLib.inflateInit2_;
   inflateReset : function(var strm: z_stream): Integer; cdecl = System.ZLib.inflateReset;
+  // TODO: System.ZLib.inflateReset2 was removed for Android sometime between Delphi XE4-10.3! I don't know when exactly...
   inflateReset2 : function(var strm: z_stream; windowBits: Integer): Integer; cdecl = System.ZLib.inflateReset2;
   inflateSetDictionary : function(var strm: z_stream; dictionary: PByte; dictLength: Cardinal): Integer; cdecl = System.ZLib.inflateSetDictionary;
   inflateSync : function(var strm: z_stream): Integer; cdecl = System.ZLib.inflateSync;
