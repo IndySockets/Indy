@@ -102,7 +102,7 @@ var
   procedure CheckMD2Permitted;
   procedure CheckMD4Permitted;
   procedure CheckMD5Permitted;
-  procedure FIPSAlgorithmNotAllowed(const AAlgorithm: String);
+  procedure FIPSAlgorithmNotAllowed(const AAlgorithm: String); {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
 
 implementation
 
@@ -134,7 +134,7 @@ end;
 
 procedure FIPSAlgorithmNotAllowed(const AAlgorithm: String);
   {$IFDEF USE_INLINE}inline;{$ENDIF}
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   raise EIdFIPSAlgorithmNotAllowed.CreateFmt(RSFIPSAlgorithmNotAllowed, [AAlgorithm]);
 end;

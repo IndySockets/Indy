@@ -124,15 +124,15 @@ type
     function GetSupportsTLS : Boolean; virtual; 
     procedure CheckIfCanUseTLS; virtual;
     procedure Loaded; override;
-    procedure TLSNotAvailable;
+    procedure TLSNotAvailable; {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
     procedure DoOnTLSNotAvailable;
     procedure ProcessTLSNotAvail;
 
-    procedure TLSNegCmdFailed;
+    procedure TLSNegCmdFailed; {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
     procedure DoOnTLSNegCmdFailed;
     procedure ProcessTLSNegCmdFailed;
 
-    procedure TLSHandShakeFailed;
+    procedure TLSHandShakeFailed; {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
     procedure DoOnTLSHandShakeFailed;
     procedure ProcessTLSHandShakeFailed;
 
@@ -409,6 +409,7 @@ begin
 end;
 
 procedure TIdExplicitTLSClient.TLSHandShakeFailed;
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   if Connected then begin
     // RLebeau 9/19/2013: do not send a goodbye command to the peer.
@@ -422,7 +423,7 @@ begin
 end;
 
 procedure TIdExplicitTLSClient.TLSNegCmdFailed;
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   if Connected then begin
     Disconnect;
@@ -434,7 +435,7 @@ begin
 end;
 
 procedure TIdExplicitTLSClient.TLSNotAvailable;
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   if Connected then begin
     Disconnect;

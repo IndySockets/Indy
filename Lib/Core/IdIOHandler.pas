@@ -494,7 +494,7 @@ type
      const ADelim: string; AUsesDotTransparency: Boolean; AByteEncoding: IIdTextEncoding = nil
      {$IFDEF STRING_IS_ANSI}; ADestEncoding: IIdTextEncoding = nil{$ENDIF}
      ); virtual;
-    procedure RaiseConnClosedGracefully;
+    procedure RaiseConnClosedGracefully; {$IFDEF USE_NORETURN_DECL}noreturn;{$ENDIF}
     procedure SetDestination(const AValue: string); virtual;
     procedure SetHost(const AValue: string); virtual;
     procedure SetPort(AValue: Integer); virtual;
@@ -2129,7 +2129,7 @@ begin
 end;
 
 procedure TIdIOHandler.RaiseConnClosedGracefully;
-  {$IFDEF USE_NORETURN}noreturn;{$ENDIF}
+  {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
   (* ************************************************************* //
   ------ If you receive an exception here, please read. ----------

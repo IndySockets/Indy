@@ -105,6 +105,9 @@ type
     {$ELSE}
     function GetFieldByName(const Name: string): string; override;
     {$ENDIF}
+    {$IFDEF VCL_13_OR_ABOVE}
+    procedure ExtractAllHeaders(Strings: TStrings); override;
+    {$ENDIF}
     function ReadClient(var Buffer{$IFDEF CLR}: TBytes{$ENDIF}; Count: Integer): Integer; override;
     function ReadString(Count: Integer): {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF}; override;
     {function ReadUnicodeString(Count: Integer): string;}
@@ -236,6 +239,8 @@ const
   INDEX_Connection       = 26;
   INDEX_Cookie           = 27;
   INDEX_Authorization    = 28;
+  INDEX_AuthUserName     = 29;
+  INDEX_AuthMethod       = 30;
 
 { TIdHTTPAppRequest }
 
@@ -436,6 +441,8 @@ begin
     INDEX_Connection      : LValue := FRequestInfo.RawHeaders.Values['Connection'];      {do not localize}
     INDEX_Cookie          : LValue := '';  // not available at present. FRequestInfo.Cookies....;
     INDEX_Authorization   : LValue := FRequestInfo.RawHeaders.Values['Authorization'];   {do not localize}
+    INDEX_AuthUserName    : LValue := '';  // authentication is not performed
+    INDEX_AuthMethod      : LValue := '';  // authentication is not performed
   else
     LValue := '';
   end;
@@ -451,6 +458,13 @@ end;
 function TIdHTTPAppRequest.GetFieldByName(const Name: string): string;
 begin
   Result := FRequestInfo.RawHeaders.Values[Name];
+end;
+{$ENDIF}
+
+{$IFDEF VCL_13_OR_ABOVE}
+procedure TIdHTTPAppRequest.ExtractAllHeaders(Strings: TStrings);
+begin
+  Strings.SetStrings(FRequestInfo.RawHeaders);
 end;
 {$ENDIF}
 
@@ -958,6 +972,7 @@ end;
 class destructor TIdHTTPWebBrokerBridgeRequestHandler.Destroy;
 begin
   FreeAndNil(FWebRequestHandler);
+  WebReq.WebRequestHandlerProc := nil;
 end;
   {$ENDIF}
 {$ENDIF}
@@ -1055,10 +1070,12 @@ initialization
   {$IFNDEF HAS_CLASS_DESTRUCTOR}
 finalization
   FreeAndNil(TIdHTTPWebBrokerBridgeRequestHandler.FWebRequestHandler);
+  WebReq.WebRequestHandlerProc := nil;
   {$ENDIF}
 {$ELSE}
 finalization
   FreeAndNil(IndyWebRequestHandler);
+  WebReq.WebRequestHandlerProc := nil;
 {$ENDIF}
 
 end.
