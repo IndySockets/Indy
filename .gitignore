@@ -69,3 +69,4 @@ __recovery/
 modules/
 
 # End of https://www.gitignore.io/api/delphi
+*.dsv
