@@ -891,6 +891,61 @@ begin
   FResponseInfo.CustomHeaders.AddStdValues(CustomHeaders);
 end;
 
+{$IFDEF VCL_13_OR_ABOVE}
+  // until Delphi 13 Update1 can be detected in IdCompilerDefines.inc,
+  // use {$IF DECLARED(...) here to enable the new class...)
+  {$IF DECLARED(TWebResponseStream)}
+    {$DEFINE HAS_TWebResponseStream}
+  {$IFEND}
+{$ENDIF}
+
+{$IFDEF HAS_TWebResponseStream}
+
+{ TIdHTTPAppResponseStream }
+
+type
+  TIdHTTPAppResponseStream = class(TWebResponseStream)
+  private
+    function GetIdResponse: TIdHTTPAppResponse; inline;
+  protected
+    function GetConnected: Boolean; override;
+    procedure StartResponse; override;
+    procedure FlushBuffer; override;
+  public
+    property IdResponse: TIdHTTPAppResponse read GetIdResponse;
+  end;
+
+function TIdHTTPAppResponseStream.GetIdResponse: TIdHTTPAppResponse;
+begin
+  Result := TIdHTTPAppResponse(Response);
+end;
+
+function TIdHTTPAppResponseStream.GetConnected: Boolean;
+begin
+  Result := inherited GetConnected;
+  if Result then
+  begin
+    IdResponse.FThread.Connection.IOHandler.CheckForDisconnect(False, True);
+    Result := IdResponse.FThread.Connection.IOHandler.Opened;
+  end;
+end;
+
+procedure TIdHTTPAppResponseStream.StartResponse;
+begin
+  IdResponse.FSent := True;
+  IdResponse.ContentLength := -2;
+  IdResponse.MoveCookiesAndCustomHeaders;
+  IdResponse.FResponseInfo.WriteHeader;
+end;
+
+procedure TIdHTTPAppResponseStream.FlushBuffer;
+begin
+  inherited FlushBuffer;
+  IdResponse.FThread.Connection.IOHandler.WriteBufferFlush;
+end;
+
+{$ENDIF}
+
 { TIdHTTPWebBrokerBridge }
 
 procedure TIdHTTPWebBrokerBridge.DoCommandOther(AThread: TIdContext;
@@ -1066,16 +1121,26 @@ end;
 
 initialization
   WebReq.WebRequestHandlerProc := IdHTTPWebBrokerBridgeRequestHandler;
+{$IFDEF HAS_TWebResponseStream}
+  TWebResponse.FGetResponseStream :=
+    function(AResponse: TWebResponse): TWebResponseStream
+    begin
+      Result := TIdHTTPAppResponseStream.Create(AResponse);
+    end;
+{$ENDIF}
+
+finalization
 {$IFDEF HAS_CLASS_VARS}
   {$IFNDEF HAS_CLASS_DESTRUCTOR}
-finalization
   FreeAndNil(TIdHTTPWebBrokerBridgeRequestHandler.FWebRequestHandler);
   WebReq.WebRequestHandlerProc := nil;
   {$ENDIF}
 {$ELSE}
-finalization
   FreeAndNil(IndyWebRequestHandler);
   WebReq.WebRequestHandlerProc := nil;
+{$ENDIF}
+{$IFDEF HAS_TWebResponseStream}
+  TWebResponse.FGetResponseStream := nil;
 {$ENDIF}
 
 end.

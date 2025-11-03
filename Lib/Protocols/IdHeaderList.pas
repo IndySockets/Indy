@@ -153,11 +153,17 @@ uses
 procedure TIdHeaderList.AddStdValues(ASrc: TStrings);
 var
   i: integer;
+  LValue: string;
 begin
   BeginUpdate;
   try
     for i := 0 to ASrc.Count - 1 do begin
-      AddValue(ASrc.Names[i], IndyValueFromIndex(ASrc, i));
+      LValue := IndyValueFromIndex(ASrc, i);
+      {$IFDEF HAS_TStrings_NameValueSeparator}
+      if (ASrc.NameValueSeparator = ':') and (LValue <> '') and (LValue[1] = ' ') then
+        LValue := Copy(LValue, 2, MaxInt);
+      {$ENDIF}
+      AddValue(ASrc.Names[i], LValue);
     end;
   finally
     EndUpdate;
@@ -219,6 +225,9 @@ constructor TIdHeaderList.Create(AQuoteType: TIdHeaderQuotingType);
 begin
   inherited Create;
   FNameValueSeparator := ': ';    {Do not Localize}
+  {$IFDEF HAS_TStrings_NameValueSeparator}
+  inherited NameValueSeparator := FNameValueSeparator[1];
+  {$ENDIF}
   FUnfoldLines := True;
   FFoldLines := True;
   { 78 was specified by a message draft available at
