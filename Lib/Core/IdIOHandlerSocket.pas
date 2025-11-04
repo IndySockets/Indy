@@ -234,7 +234,11 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64 }
-  Windows,
+    {$IFDEF VCL_XE2_OR_ABOVE}
+    WinAPI.Windows,
+    {$ELSE}
+    Windows,
+    {$ENDIF}
   {$ENDIF}
   SysUtils,
   IdStack,

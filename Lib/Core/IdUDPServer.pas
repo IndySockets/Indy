@@ -196,7 +196,11 @@ implementation
 uses
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-  Windows,
+      {$IFDEF VCL_XE2_OR_ABOVE}
+      WinAPI.Windows,
+      {$ELSE}
+      Windows,
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   IdGlobalCore, SysUtils;
