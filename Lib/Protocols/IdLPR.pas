@@ -72,7 +72,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers, IdGlobal, IdException, IdTCPClient,
   IdComponent;
 
@@ -190,7 +190,7 @@ implementation
 
 uses
   IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStackConsts,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdLPR }
 

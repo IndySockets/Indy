@@ -45,7 +45,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   // EIdException is the base class for all Exceptions raised in the Indy library.

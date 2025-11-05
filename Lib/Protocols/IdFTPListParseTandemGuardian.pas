@@ -35,7 +35,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
@@ -157,7 +157,8 @@ const
 implementation
 
 uses
-  IdFTPCommon, IdGlobalProtocols, SysUtils;
+  IdFTPCommon, IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdFTPLPTandemGuardian }
 

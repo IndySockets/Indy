@@ -72,7 +72,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdComponent,
   IdGlobal,
   IdMessage;
@@ -175,7 +175,8 @@ implementation
 
 uses
   IdException, IdResourceStringsProtocols,
-  IdTCPStream, IdBuffer, SysUtils;
+  IdTCPStream, IdBuffer,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 var
   GMessageDecoderList: TIdMessageDecoderList = nil;

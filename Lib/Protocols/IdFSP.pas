@@ -82,7 +82,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException,
   IdFTPList,
   IdGlobal,
@@ -416,11 +416,11 @@ uses
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFDEF USE_INLINE}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
     {$ELSE}
   //facilitate inlining only.
       {$IFDEF VCL_2009_OR_ABOVE}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
@@ -430,7 +430,8 @@ uses
   System.Threading,
     {$ENDIF}
   {$ENDIF}  
-  IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStream, SysUtils;
+  IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStream,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 function ParseASCIIZPos(const ABytes: TIdBytes ; const ALen : UInt32; var VPos : UInt32): String;
 var

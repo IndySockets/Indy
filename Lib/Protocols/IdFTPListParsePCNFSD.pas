@@ -30,7 +30,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
@@ -71,7 +71,8 @@ implementation
 
 uses
   IdException,
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   DIR = '<dir>';   {Do not translate}

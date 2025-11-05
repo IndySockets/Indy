@@ -49,7 +49,7 @@ interface
 }
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdUDPServer,
   IdSocketHandle,
@@ -75,7 +75,8 @@ implementation
 
 uses
   IdAssignedNumbers,
-  IdUDPClient, SysUtils;
+  IdUDPClient,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdMappedPortUDP.InitComponent;
 begin

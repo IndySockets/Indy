@@ -158,7 +158,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal, IdStack, IdStackConsts,
   System.Collections, System.IO, System.Net, System.Net.Sockets;
 

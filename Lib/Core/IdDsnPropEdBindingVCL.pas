@@ -61,12 +61,16 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
 {$IFDEF WIDGET_KYLIX}
   QActnList, QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt,
 {$ENDIF}
 {$IFDEF WIDGET_VCL_LIKE}
+  {$IFDEF USE_UNITSCOPENAMES}
+  Vcl.ActnList, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.Graphics, Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Dialogs,
+  {$ELSE}
   ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF LCL}
   LResources,
@@ -164,7 +168,7 @@ uses
   IdDsnCoreResourceStrings,
   IdStack,
   IdStackBSDBase,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   IPv6Wildcard1 = '::';                 {do not localize}

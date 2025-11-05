@@ -50,7 +50,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
 type
@@ -69,7 +69,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 {
 According to the "Programming UNIX Sockets in C - Frequently Asked Questions"

@@ -66,7 +66,7 @@ interface
 //TODO: This should be renamed to IdStreamTCP for consistency, and class too
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal, IdTCPConnection;
 
 type
@@ -88,7 +88,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 constructor TIdTCPStream.Create(AConnection: TIdTCPConnection; const AWriteThreshold: Integer = 0);
 begin

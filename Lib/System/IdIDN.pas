@@ -38,7 +38,7 @@ interface
 uses
   IdGlobal
   {$IFDEF WIN32_OR_WIN64}
-  , Windows
+  , {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows
   {$ENDIF}
   ;
 
@@ -200,7 +200,7 @@ implementation
 {$IFDEF WIN32_OR_WIN64}
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 var
   hIdnDL : TIdLibHandle = IdNilHandle;

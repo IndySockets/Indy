@@ -80,7 +80,7 @@ type
 implementation
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFIPS,
   IdGlobal,
   IdGlobalProtocols,
@@ -88,7 +88,7 @@ uses
   IdHashMessageDigest,
   IdHashSHA,
   IdResourceStringsProtocols,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   Dictionary: array[0..2047] of string = (

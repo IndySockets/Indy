@@ -47,7 +47,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdGlobal,
   IdTrivialFTPBase,
@@ -92,7 +92,7 @@ uses
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdStack,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdTrivialFTP.CheckOptionAck(const OptionPacket: TIdBytes; Reading: Boolean);
 var

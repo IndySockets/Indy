@@ -87,7 +87,8 @@ implementation
 
 uses
   IdGlobal, IdException, IdResourceStringsProtocols,
-  IdTCPClient, SysUtils;
+  IdTCPClient,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   NAMESEP = #0+#9+' :'; {do not localize}

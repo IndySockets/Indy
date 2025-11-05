@@ -31,7 +31,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdHTTP;
 
 const
@@ -83,7 +83,8 @@ type
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdWebDAV.DAVPropPatch(const AURL: string; const AXMLQuery, AResponseContent: TStream;
   const ADepth: string);

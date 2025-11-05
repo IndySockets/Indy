@@ -69,7 +69,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAuthentication,
   IdGlobal,
   IdGlobalProtocols,
@@ -300,7 +300,7 @@ var
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdEntityHeaderInfo }
 

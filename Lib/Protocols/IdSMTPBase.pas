@@ -178,13 +178,14 @@ implementation
 
 uses
   {$IFDEF VCL_XE3_OR_ABOVE}
-  System.Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$ENDIF}
   IdAssignedNumbers,
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols, IdIOHandler, IdReplySMTP,
   IdSSL,
-  IdStack, SysUtils; //required as we need to get the local computer DNS hostname.
+  IdStack, //required as we need to get the local computer DNS hostname.
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSMTPBase }
 

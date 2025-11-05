@@ -112,7 +112,7 @@ uses
   IdResourceStringsCore,
   IdStack,
   IdStackConsts,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdIPMCastServer.InitComponent;
 begin

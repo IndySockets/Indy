@@ -41,10 +41,16 @@ unit IdSystatUDP;
 }
 
 interface
-{$i IdCompilerDefines.inc}
-uses Classes, IdAssignedNumbers, IdUDPBase, IdUDPClient;
 
-const DefIdSysUDPTimeout =  1000; //one second
+{$i IdCompilerDefines.inc}
+
+uses
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdAssignedNumbers, IdUDPBase, IdUDPClient;
+
+const
+  DefIdSysUDPTimeout =  1000; //one second
+
 type
   TIdSystatUDP = class(TIdUDPClient)
   protected
@@ -71,7 +77,8 @@ Quoted from RFC 866:
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSystatUDP }
 

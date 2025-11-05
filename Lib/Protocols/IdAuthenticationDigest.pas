@@ -50,7 +50,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAuthentication,
   IdException,
   IdGlobal,
@@ -97,7 +97,7 @@ implementation
 
 uses
   IdGlobalProtocols, IdFIPS, IdHash, IdResourceStringsProtocols,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdDigestAuthentication }
 

@@ -167,7 +167,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdContainers,
   IdException,
   IdGlobal,
@@ -624,7 +624,8 @@ uses
   DateUtils,
   {$ENDIF}
   IdGlobalProtocols,
-  IdStack, SysUtils;
+  IdStack,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   ValidHexChars = '0123456789ABCDEFabcdef';

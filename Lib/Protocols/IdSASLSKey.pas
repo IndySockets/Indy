@@ -66,7 +66,8 @@ type
 implementation
 
 uses
-  IdFIPS, IdGlobal, IdGlobalProtocols, IdOTPCalculator, SysUtils;
+  IdFIPS, IdGlobal, IdGlobalProtocols, IdOTPCalculator,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   SKEYSERVICENAME = 'SKEY'; {do not localize}

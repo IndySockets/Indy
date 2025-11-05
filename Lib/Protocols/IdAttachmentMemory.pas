@@ -53,7 +53,8 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes, IdAttachment, IdMessageParts, IdGlobal;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdAttachment, IdMessageParts, IdGlobal;
 
 type
   TIdAttachmentMemory = class(TIdAttachment)
@@ -82,7 +83,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdAttachmentMemory }
 

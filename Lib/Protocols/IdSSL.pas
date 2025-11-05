@@ -60,7 +60,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdIOHandler,
   IdIOHandlerSocket,
@@ -162,7 +162,8 @@ var
 implementation
 
 uses
-  SysUtils, IdCustomTransparentProxy, IdURI;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  IdCustomTransparentProxy, IdURI;
 
 {$I IdSymbolDeprecatedOff.inc}
 

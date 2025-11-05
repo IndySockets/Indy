@@ -95,7 +95,7 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   IdentErrorText : Array[0..3] of string = (

@@ -5,7 +5,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, IdGlobal, IdException;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdGlobal, IdException;
 
 type
   TIdHeaderDecodingNeededEvent = procedure(const ACharSet: String; const AData: TIdBytes; var VResult: String; var VHandled: Boolean) of object;
@@ -41,7 +42,8 @@ uses
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
-  SysUtils, IdResourceStringsProtocols;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  IdResourceStringsProtocols;
 
 type
   TIdHeaderCoderList = class(TList{$IFDEF HAS_GENERICS_TList}<TIdHeaderCoderClass>{$ENDIF})

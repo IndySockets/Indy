@@ -60,7 +60,7 @@ interface
 //we need to put this in Delphi mode to work
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
@@ -237,17 +237,13 @@ implementation
 uses
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-      {$IFDEF VCL_XE2_OR_ABOVE}
-      WinAPI.Windows,
-      {$ELSE}
-      Windows,
-      {$ENDIF}
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF VCL_XE3_OR_ABOVE}
   System.SyncObjs,
   {$ENDIF}
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdThreadSafe }
 

@@ -54,11 +54,13 @@ been burnt with temporary files and server crashes before.
 
 }
 uses
- {$IFDEF WIN32_OR_WIN64}
- Windows,
-  Consts,
- {$ENDIF}
- Classes, SysUtils, IdGlobal;
+  {$IFDEF WIN32_OR_WIN64}
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Vcl.{$ENDIF}Consts,
+  {$ENDIF}
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  IdGlobal;
 
  {$IFDEF WIN32_OR_WIN64}
 const
@@ -124,7 +126,9 @@ type
   end;
 
 implementation
-uses RTLConsts;
+
+uses
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}RTLConsts;
 
  {$IFDEF WIN32_OR_WIN64}
 

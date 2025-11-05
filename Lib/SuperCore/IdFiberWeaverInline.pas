@@ -116,10 +116,13 @@ unit IdFiberWeaverInline;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
-  Classes, IdException,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdException,
   IdGlobal, IdFiber, IdFiberWeaver, IdThreadSafe,
-  SyncObjs;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SyncObjs;
 
 type
   TIdFiberWeaverInline = class;
@@ -183,8 +186,8 @@ type
 implementation
 
 uses
-  SysUtils,
-  Windows;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
 
 { TIdFiberWeaverInline }
 

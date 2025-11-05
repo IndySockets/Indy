@@ -89,7 +89,7 @@ type
 implementation
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$IFDEF WIDGET_WINFORMS}
   IdDsnPropEdBindingNET,
   IdAboutDotNET,
@@ -100,7 +100,7 @@ uses
   {$IFDEF DCC}
     {$IFDEF VCL_2005_OR_ABOVE}
   ToolsAPI,
-  SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
     {$ENDIF}
   {$ENDIF}
   IdDsnCoreResourceStrings,

@@ -193,7 +193,7 @@ interface
 }
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdCommandHandlers,
   IdContext,
@@ -322,7 +322,8 @@ uses
   IdReplyPOP3,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStack, SysUtils;
+  IdStack,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdPOP3Server.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
 var

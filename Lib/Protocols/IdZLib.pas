@@ -39,8 +39,8 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  SysUtils,
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdCTypes,
   IdGlobal,
   IdZLibHeaders;

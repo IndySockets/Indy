@@ -73,7 +73,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdRawBase,
   IdRawClient,
@@ -216,7 +216,8 @@ uses
     {$ENDIF}
   {$ENDIF}
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,
-  IdStack, IdStruct, SysUtils;
+  IdStack, IdStruct,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdCustomIcmpClient }
 

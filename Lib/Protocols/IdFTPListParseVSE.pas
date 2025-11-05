@@ -45,7 +45,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFTPCommon, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
@@ -152,7 +152,8 @@ implementation
 
 uses
   IdException,
-  IdGlobal, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdFTPLPVSERootDir }
 

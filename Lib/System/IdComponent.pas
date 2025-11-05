@@ -63,7 +63,7 @@ interface
 
 uses
   {$IFNDEF USE_OBJECT_ARC}
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$ENDIF}
   IdBaseComponent, IdGlobal, IdResourceStrings,
   IdStack;

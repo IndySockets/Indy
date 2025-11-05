@@ -174,8 +174,9 @@ interface
 {$ENDIF}
 
 uses
-  Classes,
-  IdGlobal, IdException, IdYarn, IdTask, IdThreadSafe, SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdGlobal, IdException, IdYarn, IdTask, IdThreadSafe,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   IdWaitAllThreadsTerminatedCount = 1 * 60 * 1000;

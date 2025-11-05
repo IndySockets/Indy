@@ -74,7 +74,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes
   {$IFDEF DOTNET}
   {$DEFINE IdDEBUG},
   System.ComponentModel.Design.Serialization,

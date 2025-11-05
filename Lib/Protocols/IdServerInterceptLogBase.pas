@@ -45,7 +45,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdIntercept, IdGlobal, IdLogBase, IdBaseComponent, Classes;
+  IdIntercept, IdGlobal, IdLogBase, IdBaseComponent,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
 
 type
   TIdServerInterceptLogBase = class(TIdServerIntercept)
@@ -85,7 +86,7 @@ uses
   IdIOHandlerSocket,
   IdResourceStringsCore,
   IdTCPConnection,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdServerInterceptLogFile }
 

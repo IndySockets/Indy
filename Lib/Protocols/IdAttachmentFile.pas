@@ -38,7 +38,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAttachment,
   IdMessageParts;
 
@@ -77,14 +77,15 @@ uses
   //facilitate inlining only.
   {$IFDEF USE_INLINE}
     {$IFDEF WINDOWS}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
     {$ENDIF}
     {$IFDEF DOTNET}
   System.IO,
     {$ENDIF}
   {$ENDIF}
   IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols,
-  IdMessage, SysUtils;
+  IdMessage,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdAttachmentFile }
 

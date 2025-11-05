@@ -80,10 +80,12 @@ unit IdWorkOpUnits;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdWorkOpUnit, IdGlobal,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdWorkOpUnitStreamBaseRead = class(TIdWorkOpUnitRead)

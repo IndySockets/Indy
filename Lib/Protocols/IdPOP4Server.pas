@@ -17,12 +17,15 @@
 }
 
 unit IdPOP4Server;
+
 {
 This is an experimental proposal based on Kudzu's idea.
 }
+
 interface
+
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdCmdTCPServer,
   IdCommandHandlers,
@@ -95,7 +98,10 @@ type
   end;
 
 implementation
-uses IdResourceStringsProtocols, IdCoderMIME, IdGlobal, IdGlobalProtocols, IdSSL, SysUtils;
+
+uses
+  IdResourceStringsProtocols, IdCoderMIME, IdGlobal, IdGlobalProtocols, IdSSL,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdPOP4Server }
 

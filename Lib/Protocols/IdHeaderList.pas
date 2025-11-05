@@ -68,7 +68,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, IdGlobalProtocols;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdGlobalProtocols;
 
 type
   TIdHeaderList = class(TStringList)
@@ -146,7 +147,7 @@ implementation
 
 uses
   IdGlobal,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdHeaderList }
 

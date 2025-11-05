@@ -191,7 +191,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdGlobal,
   IdException,
@@ -278,7 +278,7 @@ uses
   IdResourceStringsProtocols,
   IdReplyPOP3,
   IdCoderMIME,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdPOP3 }
 

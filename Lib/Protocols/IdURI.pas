@@ -131,7 +131,7 @@ implementation
 
 uses
   IdGlobalProtocols, IdResourceStringsProtocols, IdUriUtils,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdURI }
 

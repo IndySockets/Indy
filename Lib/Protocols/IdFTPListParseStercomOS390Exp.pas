@@ -36,7 +36,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFTPList, IdFTPListParseBase;
 
 type
@@ -77,7 +77,7 @@ implementation
 uses
   IdException,
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 {
   "Connect:Express OS/390 FTP Guide Version 4.1" Copyright

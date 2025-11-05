@@ -220,7 +220,7 @@ interface
 {$ENDIF}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdCustomTCPServer, //for TIdServerContext
   IdCmdTCPServer,
@@ -495,7 +495,7 @@ uses
   IdMessageCollection,
   IdResourceStringsProtocols,
   IdSSL,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 function TIdIMAP4Server.GetReplyClass: TIdReplyClass;
 begin

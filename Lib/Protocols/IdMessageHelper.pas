@@ -5,7 +5,8 @@ unit IdMessageHelper;
 interface
 
 uses
-  Classes, IdMessage;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdMessage;
 
 // TODO: move this to IdCompilerDefines.inc
 {$IFDEF DCC}
@@ -40,7 +41,9 @@ procedure TIdMessageHelper_SaveToStream(AMsg: TIdMessage; AStream: TStream; cons
 implementation
 
 uses
-  IdGlobal, IdMessageClient, SysUtils, IdResourceStringsProtocols;
+  IdGlobal, IdMessageClient,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  IdResourceStringsProtocols;
 
 { TIdMessageClientHelper }
 

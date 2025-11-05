@@ -65,7 +65,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdLogBase;
 
 type
@@ -91,7 +91,8 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdResourceStringsCore, IdBaseComponent, SysUtils;
+  IdGlobal, IdException, IdResourceStringsCore, IdBaseComponent,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdLogFile }
 

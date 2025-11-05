@@ -48,7 +48,7 @@ interface
 // Written by C Costelloe, 23rd September 2003
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdMessageCoder,
   IdGlobal;
 
@@ -69,7 +69,8 @@ implementation
 
 uses
   IdCoderMIME, IdGlobalProtocols, IdCoderQuotedPrintable,
-  IdCoderHeader, SysUtils;
+  IdCoderHeader,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdMessageEncoderInfoQuotedPrintable }
 

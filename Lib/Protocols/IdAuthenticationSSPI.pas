@@ -46,8 +46,8 @@ uses
   IdGlobal,
   IdAuthentication,
   IdCoder,
-  Windows,
-  SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
   IdSSPI;
 
 const

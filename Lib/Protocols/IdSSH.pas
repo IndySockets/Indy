@@ -32,7 +32,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdContainers,
   IdGlobalCore,
   IdIOHandler,
@@ -111,7 +111,8 @@ var
 
 implementation
 
-uses SysUtils;
+uses
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 Procedure RegisterSSH(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;

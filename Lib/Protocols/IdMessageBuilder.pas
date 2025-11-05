@@ -5,7 +5,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, IdMessage;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdMessage;
 
 type
   TIdMessageBuilderAttachment = class(TCollectionItem)
@@ -122,7 +123,8 @@ implementation
 
 uses
   IdGlobal, IdGlobalProtocols, IdMessageParts, IdAttachment, IdAttachmentFile,
-  IdAttachmentMemory, IdResourceStringsProtocols, IdText, SysUtils;
+  IdAttachmentMemory, IdResourceStringsProtocols, IdText,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   cTextPlain = 'text/plain'; {do not localize}

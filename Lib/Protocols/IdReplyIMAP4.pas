@@ -114,7 +114,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdReply;
 
 const
@@ -196,7 +196,8 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdReplyIMAP4 }
 

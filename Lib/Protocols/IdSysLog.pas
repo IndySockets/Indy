@@ -80,7 +80,8 @@ type
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSysLog }
 

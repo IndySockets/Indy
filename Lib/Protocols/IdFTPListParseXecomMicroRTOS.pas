@@ -42,7 +42,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdFTPList, IdFTPListParseBase;
 
@@ -80,7 +80,7 @@ implementation
 
 uses
   IdFTPCommon, IdGlobalProtocols, IdStrings,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdFTPLPXecomMicroRTOS }
 

@@ -599,13 +599,14 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers, IdCommandHandlers, IdGlobal, IdContext, IdException,
   IdExplicitTLSClientServerBase, IdFTPBaseFileSystem, IdFTPCommon,
   IdBaseComponent, IdFTPList, IdFTPListOutput, IdFTPServerContextBase,
   IdReply, IdReplyFTP, IdReplyRFC, IdServerIOHandler,
   IdTCPConnection, IdCmdTCPServer, IdThread, IdUserAccounts,
-  IdYarn, IdZLibCompressorBase, SysUtils;
+  IdYarn, IdZLibCompressorBase,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdFTPDirFormat = (ftpdfDOS, ftpdfUnix, ftpdfEPLF, ftpdfCustom, ftpdfOSDependent);

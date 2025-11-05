@@ -29,7 +29,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   // RLebeau 1/7/09: using integers for #128-#255 because in D2009, the compiler

@@ -53,7 +53,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer,
@@ -111,7 +111,8 @@ type
 implementation
 
 uses
-  IdGopherConsts, IdResourceStringsProtocols, SysUtils;
+  IdGopherConsts, IdResourceStringsProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdGopherServer.Create(AOwner: TComponent);

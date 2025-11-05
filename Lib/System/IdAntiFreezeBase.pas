@@ -100,11 +100,7 @@ uses
   System.Threading,
     {$ENDIF}
     {$IFDEF WINDOWS}
-      {$IFDEF FPC}
-  windows,
-      {$ELSE}
-  Windows,
-      {$ENDIF}
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}

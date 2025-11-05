@@ -210,9 +210,9 @@ interface
 uses
   //facilitate inlining only.
   {$IFDEF WINDOWS}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
   {$ENDIF}
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdCTypes,
   IdGlobal,
   IdException,
@@ -682,8 +682,8 @@ uses
   IdResourceStringsOpenSSL,
   IdStack,
   IdThreadSafe,
-  SysUtils,
-  SyncObjs;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SyncObjs;
 
 type
   // TODO: TIdThreadSafeObjectList instead?

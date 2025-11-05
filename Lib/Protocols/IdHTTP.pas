@@ -337,7 +337,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException, IdExceptionCore, IdAssignedNumbers, IdHeaderList, IdHTTPHeaderInfo, IdReplyRFC,
   IdSSL, IdZLibCompressorBase,
   IdTCPClient, IdURI, IdCookieManager, IdAuthentication, IdAuthenticationManager,
@@ -682,7 +682,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
   IdAllAuthentications, IdComponent, IdCoderMIME, IdTCPConnection,
   IdResourceStringsCore, IdResourceStringsProtocols, IdGlobalProtocols,
   IdIOHandler, IdIOHandlerSocket;

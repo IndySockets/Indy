@@ -45,7 +45,7 @@ interface
 uses
   IdServerInterceptLogBase,
   IdGlobal,
-  Classes;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
 
 type
   TIdServerInterceptLogFile = class(TIdServerInterceptLogBase)
@@ -63,7 +63,8 @@ type
 implementation
 
 uses
-  IdBaseComponent, SysUtils;
+  IdBaseComponent,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdServerInterceptLogFile }
 

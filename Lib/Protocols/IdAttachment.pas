@@ -50,7 +50,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdMessageParts;
 
 type
@@ -91,7 +91,7 @@ implementation
 
 uses
   IdGlobal, IdGlobalProtocols, IdCoderHeader,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdAttachment }
 

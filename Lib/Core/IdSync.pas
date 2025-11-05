@@ -86,7 +86,7 @@ interface
 {$ENDIF}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal
   {$IFDEF NotifyThreadNeeded}
   , IdThread
@@ -182,18 +182,14 @@ uses
   {$ENDIF}
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-      {$IFDEF VCL_XE2_OR_ABOVE}
-      WinAPI.Windows,
-      {$ELSE}
-      Windows,
-      {$ENDIF}
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  SysUtils
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils
   {$IFNDEF NotifyThreadNeeded}
   , IdThread
   {$ENDIF}

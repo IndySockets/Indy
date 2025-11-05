@@ -87,7 +87,8 @@ type
 implementation
 
 uses
-  IdComponent, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket,IdSimpleServer, IdTCPConnection, IdThread, SysUtils;
+  IdComponent, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket,IdSimpleServer, IdTCPConnection, IdThread,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdStdErrThread = class(TIdThread)

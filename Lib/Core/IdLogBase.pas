@@ -42,7 +42,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdIntercept, IdGlobal, IdBaseComponent;
 
 type
@@ -76,7 +76,8 @@ type
 implementation
 
 uses
-  IdResourceStringsCore, SysUtils;
+  IdResourceStringsCore,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   LOldStr : array [0..2] of string =

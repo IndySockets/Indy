@@ -77,7 +77,7 @@ implementation
 
 uses
   IdGlobal,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 class function TIdSASLCRAMBase.BuildKeydAuth(const APassword,
   AChallenge: string): string;

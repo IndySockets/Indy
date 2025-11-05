@@ -114,7 +114,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException;
 
 type
@@ -179,7 +179,7 @@ implementation
 uses
   IdGlobal,
   IdGlobalProtocols,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   // ATEXT without the double quote and space characters

@@ -30,7 +30,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, SyncObjs,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SyncObjs,
   IdTCPServer, IdTCPClient, IdTunnelCommon;
 
 type
@@ -147,8 +148,11 @@ type
 
 
 implementation
-  uses IdCoreGlobal, IdException,
-       IdGlobal, IdStack, IdResourceStrings, SysUtils;
+
+uses
+  IdCoreGlobal, IdException,
+  IdGlobal, IdStack, IdResourceStrings,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 
 ///////////////////////////////////////////////////////////////////////////////

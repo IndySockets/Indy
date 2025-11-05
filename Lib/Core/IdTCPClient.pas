@@ -139,7 +139,7 @@ unit IdTCPClient;
 interface
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal, IdExceptionCore, IdIOHandler, IdTCPConnection;
 
 (*$HPPEMIT '#if defined(_VCL_ALIAS_RECORDS)' *)
@@ -424,10 +424,21 @@ begin
 end;
 
 procedure TIdTCPClientCustom.SetHost(const AValue: string);
+var
+  LIP: string;
 begin
   FHost := AValue;
   if IOHandler <> nil then begin
     IOHandler.Host := AValue;
+  end;
+  if GStack.IsIP(AValue) then begin
+    IPVersion := Id_IPv4;
+  else
+  begin
+    LIP := MakeCanonicalIPv6Address(AValue);
+    if LIP <> '' then begin
+      IPVersion := Id_IPv6;
+    end;
   end;
 end;
 

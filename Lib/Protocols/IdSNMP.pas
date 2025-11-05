@@ -60,7 +60,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
@@ -199,7 +199,8 @@ type
 implementation
 
 uses
-  IdStack, IdStackConsts, SysUtils;
+  IdStack, IdStackConsts,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 //Hernan Sanchez
 function IPToID(Host: string): string;

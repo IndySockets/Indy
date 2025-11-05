@@ -481,7 +481,7 @@ implementation
 
 uses
   IdGlobalProtocols,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   MaxWeekAdd : UInt32 = $FFFFFFFF div IdDaysInWeek;

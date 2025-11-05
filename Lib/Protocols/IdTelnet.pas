@@ -90,7 +90,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdGlobal,
   IdException,
@@ -379,7 +379,7 @@ implementation
 uses
   IdResourceStringsCore,
   IdResourceStringsProtocols,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 constructor TIdTelnetReadThread.Create(AClient: TIdTelnet);
 begin

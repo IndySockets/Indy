@@ -13,11 +13,15 @@ Any differences between Unix-like operating systems have to dealt with in other
 ways.
 }
 
+{$IFNDEF DCC}
+  {$Message Fatal 'IdStackVCLPosix is only for Delphi.'}
+{$ENDIF}
+
 {$I IdSymbolPlatformOff.inc}
 {$I IdUnitPlatformOff.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdCTypes,
   Posix.SysSelect,
   Posix.SysSocket,
@@ -170,7 +174,7 @@ uses
   Posix.SysUio,
   Posix.Unistd,
   Posix.Fcntl,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
   {$UNDEF HAS_MSG_NOSIGNAL}
   {$IFDEF LINUX}  //this LINUX ifdef is deliberate

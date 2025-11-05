@@ -38,7 +38,7 @@ interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$ENDIF}
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
@@ -60,7 +60,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdDayTimeUDPServer }
 

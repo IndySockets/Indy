@@ -13,7 +13,7 @@ interface
 {*******************************************************}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException,
   IdGlobal,
   IdIOHandler,
@@ -157,7 +157,7 @@ implementation
 uses
   IdResourceStringsSSLDotNet,
   IdStack,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSSLIOHandlerSocketNET }
 

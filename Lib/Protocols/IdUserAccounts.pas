@@ -47,7 +47,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdBaseComponent,
   IdComponent;
@@ -228,7 +228,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { How add UserAccounts to your component:
 1) property UserAccounts: TIdCustomUserManager read FUserAccounts write SetUserAccounts;

@@ -122,7 +122,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFTPList, IdException;
 
 type
@@ -224,7 +224,8 @@ uses
   System.Generics.Collections,
   {$ENDIF}
   IdFTPCommon, IdFTPListTypes, IdGlobal, IdGlobalProtocols,
-  IdResourceStringsProtocols, IdStrings, SysUtils;
+  IdResourceStringsProtocols, IdStrings,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdFTPRegParseList = class(TList{$IFDEF HAS_GENERICS_TList}<TIdFTPListParseClass>{$ENDIF})

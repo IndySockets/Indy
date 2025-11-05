@@ -45,8 +45,10 @@ unit IdSuperCoreRegister;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
-  Classes;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
 
 {
   Note:  We separate this from IdCoreRegister because in Delphi 7,

@@ -119,7 +119,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdBaseComponent,
   IdGlobal,
   IdIOHandler,
@@ -168,7 +168,8 @@ type
 implementation
 
 uses
-  IdException, IdComponent, SysUtils;
+  IdException, IdComponent,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdIOHandlerStream }
 

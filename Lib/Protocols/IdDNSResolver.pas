@@ -201,7 +201,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdBuffer,
   IdComponent,
@@ -572,7 +572,8 @@ implementation
 uses
   IdBaseComponent,
   IdResourceStringsProtocols,
-  IdStack, SysUtils,
+  IdStack,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
   IdException;
 
 type

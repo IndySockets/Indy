@@ -7,7 +7,7 @@ interface
 uses
   IdCTypes,
   IdSSLOpenSSLHeaders,
-  Classes;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
 
 type
   TIdSSLULong = packed record
@@ -99,7 +99,7 @@ implementation
 
 uses
 {$IFDEF WIN32_OR_WIN64}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
 {$ENDIF}
 {$IFDEF USE_VCL_POSIX}
   Posix.Glue,
@@ -113,8 +113,8 @@ uses
   IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdThreadSafe,
-  SyncObjs,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SyncObjs,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 var
   SSLIsLoaded: TIdThreadSafeBoolean = nil;

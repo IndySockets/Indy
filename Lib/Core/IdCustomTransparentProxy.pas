@@ -65,7 +65,7 @@ interface
 //we need to put this in Delphi mode to work
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdComponent,
   IdException,
   IdGlobal,

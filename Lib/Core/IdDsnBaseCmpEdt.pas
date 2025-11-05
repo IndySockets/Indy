@@ -67,7 +67,7 @@ uses
   IdAbout,
   IdGlobal,
   IdDsnCoreResourceStrings,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdBaseComponentEditor }
 

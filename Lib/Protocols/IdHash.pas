@@ -57,7 +57,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFIPS,
   IdGlobal;
 
@@ -147,7 +147,8 @@ uses
   {$ELSE}
   IdStreamVCL,
   {$ENDIF}
-  IdGlobalProtocols, SysUtils;
+  IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 {$IFDEF DOTNET}
 function HashFunctionsLoaded : Boolean;

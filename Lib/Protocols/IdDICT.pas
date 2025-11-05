@@ -56,7 +56,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers, IdComponent,
   IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection;
 
@@ -116,7 +116,8 @@ implementation
 
 uses
   IdFIPS,
-  IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, SysUtils;
+  IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   DEF_CLIENT_FMT = 'Indy Library %s'; {do not localize}

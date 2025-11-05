@@ -65,7 +65,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdAssignedNumbers, IdContext,
   IdCustomTCPServer,
@@ -131,7 +131,8 @@ type
 implementation
 
 uses
-  IdException, IdResourceStringsProtocols, SysUtils;
+  IdException, IdResourceStringsProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdTelnetServer.Create(AOwner: TComponent);

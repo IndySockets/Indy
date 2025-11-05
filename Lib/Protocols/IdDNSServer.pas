@@ -288,7 +288,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdContainers,
   IdAssignedNumbers,
   IdSocketHandle,
@@ -627,7 +627,7 @@ uses
   {$ENDIF}
   IdIOHandler,
   IdStack,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 {Common Utilities}
 

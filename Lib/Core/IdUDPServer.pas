@@ -73,7 +73,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
@@ -196,14 +196,11 @@ implementation
 uses
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-      {$IFDEF VCL_XE2_OR_ABOVE}
-      WinAPI.Windows,
-      {$ELSE}
-      Windows,
-      {$ENDIF}
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
     {$ENDIF}
   {$ENDIF}
-  IdGlobalCore, SysUtils;
+  IdGlobalCore,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdUDPServer.BroadcastEnabledChanged;
 var

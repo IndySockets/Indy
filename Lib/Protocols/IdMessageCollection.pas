@@ -42,7 +42,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdMessage;
 
 type
@@ -75,7 +75,8 @@ type
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdMessageItem }
 

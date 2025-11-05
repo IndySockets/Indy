@@ -102,7 +102,7 @@ function CommaAdd(Const AStr1, AStr2:String):string;
 implementation
 
 uses
-  SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
   IdGlobal,
   IdGlobalProtocols;
 

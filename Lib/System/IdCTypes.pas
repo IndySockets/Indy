@@ -27,7 +27,7 @@ uses
   {
   ($IFDEF WINDOWS)
     ($IFDEF VCL_XE2_OR_ABOVE)
-uses Winapi.Windows;
+uses ($IFDEF USE_UNITSCOPENAMES)Winapi.($ENDIF)Windows;
     ($ENDIF)
   ($ENDIF)
   }
@@ -219,7 +219,7 @@ type
   PIdC_LONGDOUBLE = ^TIdC_LONGDOUBLE{PExtended};
 
   {.$IFDEF HAS_SIZE_T}
-  //TIdC_SIZET = Winapi.Windows.SIZE_T;
+  //TIdC_SIZET = ($USE_UNITSCOPENAMES)Winapi.($ENDIF)Windows.SIZE_T;
   {.$ELSE}
     {$IFDEF HAS_NativeUInt}
   TIdC_SIZET = NativeUInt;
@@ -233,13 +233,13 @@ type
     {$ENDIF}
   {.$ENDIF}
   {.$IFDEF HAS_PSIZE_T}
-  //PIdC_SIZET = Winapi.Windows.PSIZE_T;
+  //PIdC_SIZET = ($IFDEF USE_UNITSCOPENAMES)Winapi.($ENDIF)Windows.PSIZE_T;
   {.$ELSE}
   PIdC_SIZET = ^TIdC_SIZET;
   {.$ENDIF}
 
   {.$IFDEF HAS_SSIZE_T}
-  //TIdC_SSIZET = Winapi.Windows.SSIZE_T;
+  //TIdC_SSIZET = ($IFDEF USE_UNITSCOPENAMES)Winapi.($ENDIF)Windows.SSIZE_T;
   {.$ELSE}
     {$IFDEF HAS_NativeInt}
   TIdC_SSIZET = NativeInt;
@@ -253,7 +253,7 @@ type
     {$ENDIF}
   {.$ENDIF}
   {.$IFDEF HAS_PSSIZE_T}
-  //PIdC_SSIZET = Winapi.Windows.PSSIZE_T;
+  //PIdC_SSIZET = ($IFDEF USE_UNITSCOPENAMES)Winapi.($ENDIF)Windows.PSSIZE_T;
   {.$ELSE}
   PIdC_SSIZET = ^TIdC_SSIZET;
   {.$ENDIF}

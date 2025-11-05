@@ -171,7 +171,8 @@ type
 implementation
 
 uses
-  IdStackConsts, IdStack, SysUtils;
+  IdStackConsts, IdStack,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdUDPBase }
 

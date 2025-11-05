@@ -45,7 +45,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdBaseComponent,
   IdCoder,
   IdException,
@@ -122,7 +122,7 @@ uses
   IdGlobalProtocols,
   IdReply,
   IdResourceStringsProtocols,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSASLListEntry }
 

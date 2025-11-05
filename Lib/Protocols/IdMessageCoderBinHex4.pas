@@ -5,7 +5,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdMessageCoder,
   IdGlobal;
 
@@ -23,7 +23,8 @@ type
 implementation
 
 uses
-  IdCoderBinHex4, SysUtils;
+  IdCoderBinHex4,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdMessageEncoderInfoBinHex4 }
 

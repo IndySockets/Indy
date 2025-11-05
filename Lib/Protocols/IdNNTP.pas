@@ -149,7 +149,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers, IdExplicitTLSClientServerBase, IdException, IdGlobal,
   IdMessage, IdMessageClient, IdReplyRFC, 
   IdTCPConnection;
@@ -314,7 +314,8 @@ uses
   IdComponent,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
-  IdSSL, SysUtils;
+  IdSSL,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdNNTP.ParseXOVER(Aline : String;
   var AArticleIndex : Int64;

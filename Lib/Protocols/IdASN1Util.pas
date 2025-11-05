@@ -71,7 +71,7 @@ uses
   {$IFNDEF HAS_UInt32}
   IdGlobal,
   {$ENDIF}
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   ASN1_INT = $02;

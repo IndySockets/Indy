@@ -173,15 +173,15 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdGlobalProtocols,
-  SysUtils
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils
   // to facilite inlining
   {$IFNDEF HAS_GetLocalTimeOffset}
     {$IFDEF HAS_DateUtils_TTimeZone}
-  ,{$IFDEF VCL_XE2_OR_ABOVE}System.TimeSpan{$ELSE}TimeSpan{$ENDIF}
-  ,DateUtils
+  ,{$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}TimeSpan
+  ,{$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}DateUtils
     {$ENDIF}
   {$ENDIF}
   ;

@@ -279,7 +279,7 @@ const
 implementation
 
 uses
-  SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
   {$IFDEF DOTNET}
   System.Text,
   {$ENDIF}

@@ -122,9 +122,11 @@
 unit IdReplyRFC;
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdReply;
 
 type
@@ -166,7 +168,7 @@ implementation
 
 uses
   IdGlobal,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdReplyRFC }
 

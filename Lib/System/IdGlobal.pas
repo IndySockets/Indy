@@ -514,7 +514,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
   {$IFDEF DOTNET}
   System.Collections.Specialized,
   System.net,
@@ -529,14 +529,10 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WINDOWS}
-    {$IFDEF FPC}
-  windows,
-    {$ELSE}
-  Windows,
-    {$ENDIF}
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
   {$ENDIF}
-  Classes,
-  syncobjs,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SyncObjs,
   {$IFDEF UNIX}
     {$IFDEF KYLIXCOMPAT}
     Libc,
@@ -2060,7 +2056,7 @@ uses
     {$IFNDEF DOTNET}
       {$IFNDEF HAS_GetLocalTimeOffset}
         {$IFDEF HAS_DateUtils_TTimeZone}
-  {$IFDEF VCL_XE2_OR_ABOVE}System.TimeSpan{$ELSE}TimeSpan{$ENDIF},
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}TimeSpan,
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}

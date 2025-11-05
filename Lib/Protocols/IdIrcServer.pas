@@ -234,7 +234,8 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, SysUtils;
+  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdIRCServer.InitComponent;
 begin

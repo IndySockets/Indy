@@ -48,7 +48,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, IdCustomTransparentProxy, IdGlobal, IdIOHandler;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdCustomTransparentProxy, IdGlobal, IdIOHandler;
 
 type
   TIdConnectThroughHttpProxy = class(TIdCustomTransparentProxy)
@@ -75,7 +76,8 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdExceptionCore, IdHeaderList, IdGlobalProtocols, SysUtils;
+  IdCoderMIME, IdExceptionCore, IdHeaderList, IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdConnectThroughHttpProxy }
 

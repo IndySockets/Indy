@@ -47,7 +47,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes, 
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes, 
   IdAuthentication;
 
 Type
@@ -82,7 +82,7 @@ uses
   IdCoderMIME,
   IdFIPS,
   IdNTLM,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdNTLMAuthentication }
 

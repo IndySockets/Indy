@@ -27,7 +27,8 @@ type
 implementation
 
 uses
-  SysUtils, IdException;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  IdException;
 
 class function TIdHeaderCoderBig5.Decode(const ACharSet: string; const AData: TIdBytes): String;
 begin

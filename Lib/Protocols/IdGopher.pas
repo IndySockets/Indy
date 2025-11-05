@@ -112,7 +112,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdEMailAddress,
   IdGlobal,
@@ -251,7 +251,8 @@ implementation
 uses
   IdComponent,
   IdGlobalProtocols, IdGopherConsts,
-  IdTCPConnection, SysUtils;
+  IdTCPConnection,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdGopher }
 

@@ -420,7 +420,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,  IdException, IdFTPCommon;
 
 { Indy TIdFtp extensions to support automatic parsing of FTP directory listings }
@@ -505,7 +505,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TFTPListItem }
 

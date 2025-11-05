@@ -70,7 +70,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdCoder3to4,
   IdMessageCoder,
   IdMessage,
@@ -110,7 +110,8 @@ type
 implementation
 
 uses
-  IdCoderUUE, IdCoderXXE, IdException, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
+  IdCoderUUE, IdCoderXXE, IdException, IdGlobalProtocols, IdResourceStringsProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdMessageDecoderInfoUUE }
 

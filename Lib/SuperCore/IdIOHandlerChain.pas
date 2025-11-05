@@ -182,12 +182,14 @@ unit IdIOHandlerChain;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdBaseComponent, IdBuffer, IdGlobal, IdIOHandler, IdIOHandlerSocket,
   IdFiber, IdThreadSafe, IdWorkOpUnit, IdStackConsts, IdWinsock2, IdThread,
   IdFiberWeaver, IdStream, IdStreamVCL,
-  Windows;
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
 
 type
   TIdConnectMode = (cmNonBlock, cmIOCP);
@@ -307,7 +309,7 @@ implementation
 uses
   IdComponent, IdException, IdExceptionCore, IdStack, IdResourceStrings, IdWorkOpUnits,
   IdStackBSDBase, IdStackWindows,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   GCompletionKeyTerminate = $F0F0F0F0;

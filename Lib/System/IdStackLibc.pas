@@ -62,7 +62,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   Libc,
   IdStack,
   IdStackConsts,
@@ -210,7 +210,7 @@ implementation
 uses
   IdResourceStrings,
   IdException,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   psockaddr_in6 = ^sockaddr_in6;

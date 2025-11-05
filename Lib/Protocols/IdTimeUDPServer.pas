@@ -41,7 +41,7 @@ interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$ENDIF}
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPServer;
 
@@ -73,7 +73,8 @@ uses
   {$IFDEF USE_VCL_POSIX}
   Posix.SysTime,
   {$ENDIF}
-  IdGlobalProtocols, IdStack, SysUtils;
+  IdGlobalProtocols, IdStack,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdCustomTimeUDPServer.Create(AOwner: TComponent);

@@ -74,7 +74,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdBaseComponent;
 
@@ -460,7 +460,8 @@ implementation
 
 uses
   IdCoderQuotedPrintable,
-  IdGlobalProtocols, SysUtils;
+  IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const VCardProperties : array [0..27] of string = (
   'FN', 'N', 'NICKNAME', 'PHOTO',    {Do not Localize}

@@ -63,7 +63,8 @@ implementation
 
 uses
   IdException,
-  IdGlobal, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 function EnsureValidCharsByValidSet(const AFilePart, AValidChars : String; const  AReplaceWith : String='_'): String;
 var i : Integer;

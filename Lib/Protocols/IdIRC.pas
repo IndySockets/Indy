@@ -35,7 +35,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers, IdContext, IdCmdTCPClient, IdCommandHandlers,
   IdIOHandler, IdGlobal, IdException;
 
@@ -450,7 +450,8 @@ implementation
 
 uses
   IdGlobalProtocols, IdResourceStringsProtocols, IdSSL,
-  IdStack, IdBaseComponent, SysUtils;
+  IdStack, IdBaseComponent,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   IdIRCCTCP: array[0..11] of String = ('ACTION', 'SOUND', 'PING', 'FINGER', {do not localize}

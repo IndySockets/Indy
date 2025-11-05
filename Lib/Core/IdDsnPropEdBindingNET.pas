@@ -78,10 +78,12 @@ procedure FillHandleList(const AList: string; ADest: TIdSocketHandles);
 function GetListValues(const ASocketHandles : TIdSocketHandles) : String;
 
 implementation
+
 uses
   IdGlobal,
   IdIPAddress,
-  IdDsnCoreResourceStrings, IdStack, SysUtils;
+  IdDsnCoreResourceStrings, IdStack,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   IPv6Wildcard1 = '::';                 {do not localize}

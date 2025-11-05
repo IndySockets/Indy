@@ -13,7 +13,9 @@ unit ZLib;
 
 interface
 
-uses SysUtils, Classes;
+uses
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
 
 type
   TAlloc = function (AppData: Pointer; Items, Size: Integer): Pointer; cdecl;

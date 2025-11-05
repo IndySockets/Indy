@@ -14,7 +14,7 @@ uses
   ,UnixType
   {$ENDIF}
   {$IFDEF WINDOWS}
-  ,Windows
+  ,{$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows
   {$ENDIF}
   ;
 
@@ -221,7 +221,8 @@ implementation
 
 {$IFNDEF STATICLOAD_ICONV}
 uses
-  IdResourceStrings, SysUtils;
+  IdResourceStrings,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 var
   hIconv: THandle = 0;

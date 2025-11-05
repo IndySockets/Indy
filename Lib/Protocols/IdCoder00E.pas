@@ -39,7 +39,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdCoder3to4;
 
 type
@@ -58,7 +58,7 @@ implementation
 uses
   IdGlobal,
   IdStream,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdDecoder00E }
 

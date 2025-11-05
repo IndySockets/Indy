@@ -52,7 +52,7 @@ interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$ENDIF}
   IdAssignedNumbers,
   IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3;
@@ -96,7 +96,8 @@ implementation
 
 uses
   IdGlobal, IdException, IdResourceStringsProtocols,
-  IdTCPClient, IdTCPConnection, SysUtils;
+  IdTCPClient, IdTCPConnection,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdMappedPOP3 }
 

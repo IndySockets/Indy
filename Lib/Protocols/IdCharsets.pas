@@ -3607,7 +3607,7 @@ implementation
 
 uses
   IdGlobal,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 function FindPreferredCharset(const ACharSet: TIdCharSet): TIdCharSet;
 begin

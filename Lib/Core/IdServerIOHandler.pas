@@ -50,7 +50,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdSocketHandle, IdComponent, IdIOHandlerStack,
   IdIOHandler, IdThread, IdScheduler, IdYarn;
 

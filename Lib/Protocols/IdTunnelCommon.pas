@@ -60,7 +60,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  SysUtils, Classes, SyncObjs,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SyncObjs,
   IdException,
   IdHashCRC,
   IdStack,

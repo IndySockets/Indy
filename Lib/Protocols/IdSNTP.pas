@@ -80,7 +80,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdUDPClient;
 
@@ -143,7 +143,7 @@ uses
   IdGlobalProtocols,
   IdAssignedNumbers,
   IdStack,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdSNTP.DateTimeToNTP(ADateTime: TDateTime; var Second, Fraction: UInt32);
 var

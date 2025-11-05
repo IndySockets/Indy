@@ -183,7 +183,9 @@ To deal with this, I use the FPC predefined FPC_REQUIRES_PROPER_ALIGNMENT.
 {$ENDIF}
 
 uses
-  IdException, IdGlobal, SysUtils, Windows;
+  IdException, IdGlobal,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
 
 type
   EIdWinsockStubError = class(EIdException)

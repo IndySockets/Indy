@@ -68,7 +68,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
@@ -103,7 +103,8 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdFTPLPUnisysClearPath }
 

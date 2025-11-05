@@ -101,7 +101,9 @@ type
   end;
 
 implementation
-uses SysUtils;
+
+uses
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdServerIOHandlerSocket }
 

@@ -40,7 +40,7 @@ interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$ENDIF}
   IdComponent, IdException, IdGlobal, IdSocketHandle,
   IdStack;
@@ -133,7 +133,7 @@ implementation
 uses
   IdAssignedNumbers,
   IdResourceStringsCore,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdIPMCastBase }
 

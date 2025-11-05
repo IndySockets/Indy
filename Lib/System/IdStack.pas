@@ -139,8 +139,9 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
-  IdException, IdStackConsts, IdGlobal, SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdException, IdStackConsts, IdGlobal,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   EIdSocketError = class(EIdException)
@@ -429,7 +430,7 @@ uses
   {$ELSE}
     {$IFDEF WINDOWS}
       {$IFDEF USE_INLINE}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
       {$ENDIF}
   IdStackWindows,
     {$ELSE}

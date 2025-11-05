@@ -611,7 +611,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers, IdGlobal, IdExceptionCore,
   IdExplicitTLSClientServerBase, IdFTPCommon, IdFTPList, IdFTPListParseBase,
   IdException, IdIOHandler, IdIOHandlerSocket, IdReply, IdReplyFTP, IdBaseComponent,
@@ -1115,7 +1115,8 @@ uses
   IdFIPS,
   IdResourceStringsCore, IdIOHandlerStack, IdResourceStringsProtocols,
   IdSSL, IdGlobalProtocols, IdHash, IdHashCRC, IdHashSHA, IdHashMessageDigest,
-  IdStack, IdStackConsts, IdSimpleServer, IdOTPCalculator, SysUtils;
+  IdStack, IdStackConsts, IdSimpleServer, IdOTPCalculator,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   cIPVersions: array[TIdIPVersion] of String = ('1', '2'); {do not localize}

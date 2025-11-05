@@ -27,7 +27,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 class function TIdHeaderCoderPlain.Decode(const ACharSet: string; const AData: TIdBytes): String;
 begin

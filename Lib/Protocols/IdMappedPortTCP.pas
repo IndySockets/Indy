@@ -119,10 +119,11 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdContext,
   IdCustomTCPServer,
-  IdGlobal, IdStack, IdTCPConnection, IdYarn, SysUtils;
+  IdGlobal, IdStack, IdTCPConnection, IdYarn,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdMappedPortTCP = class;

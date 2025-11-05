@@ -69,7 +69,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdComponent, IdThread;
 
@@ -149,7 +149,8 @@ uses
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  IdStack, SysUtils;
+  IdStack,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdIPWatch }
 

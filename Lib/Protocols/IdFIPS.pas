@@ -107,7 +107,8 @@ var
 implementation
 
 uses
-  IdResourceStringsProtocols, SysUtils;
+  IdResourceStringsProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 // TODO: for .NET, implement functions that use .NET Hash/HMAC classes
 

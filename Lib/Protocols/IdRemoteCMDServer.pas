@@ -61,7 +61,8 @@ type
 implementation
 
 uses
-  IdSocketHandle, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket, IdStack, SysUtils;
+  IdSocketHandle, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket, IdStack,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdRemoteCMDServer }
 

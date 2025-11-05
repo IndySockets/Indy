@@ -27,7 +27,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFTPList, IdFTPListParseBase,IdFTPListTypes;
 
 type
@@ -54,7 +54,8 @@ type
 implementation
 
 uses
-  IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
+  IdFTPCommon, IdGlobal, IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdFTPLPChameleonNewt }
 

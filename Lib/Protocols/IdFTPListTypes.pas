@@ -53,7 +53,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdFTPList;
 
@@ -258,7 +258,8 @@ const
 implementation
 
 uses
-  IdFTPCommon, SysUtils;
+  IdFTPCommon,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdMinimalFTPListItem }
 

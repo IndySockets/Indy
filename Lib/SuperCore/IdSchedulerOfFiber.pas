@@ -54,8 +54,10 @@ unit IdSchedulerOfFiber;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFiberWeaver, IdTask, IdFiber, IdScheduler, IdYarn;
 
 type
@@ -100,7 +102,7 @@ implementation
 
 uses
   IdGlobal,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSchedulerOfFiber }
 

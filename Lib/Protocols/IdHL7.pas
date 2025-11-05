@@ -139,8 +139,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
-  Contnrs,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Contnrs,
   IdBaseComponent,
   IdContext,
   IdException,
@@ -148,7 +148,7 @@ uses
   IdTCPClient,
   IdTCPConnection,
   IdTCPServer,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   MSG_START: array[0..0] of Byte = ($0B);

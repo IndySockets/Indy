@@ -39,7 +39,8 @@ interface
 
 uses
   IdGlobal,
-  IdUDPBase, IdUDPClient, SysUtils;
+  IdUDPBase, IdUDPClient,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdTFTPMode = (tfNetAscii, tfOctet);

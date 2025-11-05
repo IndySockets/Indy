@@ -80,7 +80,7 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdHMACMD5,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 class function TIdSASLCRAMMD5.BuildKeydAuth(const APassword, AChallenge: string): string;
 var

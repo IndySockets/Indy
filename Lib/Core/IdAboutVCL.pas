@@ -9,12 +9,17 @@ uses
   QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt,
 {$ENDIF}
 {$IFDEF WIDGET_VCL_LIKE}
+  {$IFDEF USE_UNITSCOPENAMES}
+  Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.Graphics, Vcl.Controls, Vcl.ComCtrls, Vcl.Forms,
+  {$ELSE}
   StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms,
+  {$ENDIF}
 {$ENDIF}
 {$IFDEF WIDGET_LCL}
   LResources,
 {$ENDIF}
-  Classes, SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TfrmAbout = class(TForm)
@@ -71,7 +76,7 @@ uses
    //done this way because we reference HInstance in Delphi for loading
    //resources.  Lazarus does something different.
     {$IFDEF WIN32_OR_WIN64}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
     {$ENDIF}
   {$ENDIF}
   IdDsnCoreResourceStrings,

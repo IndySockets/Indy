@@ -58,10 +58,10 @@ interface
 
 uses
   {$IFDEF HAS_TInterlocked}
-  syncobjs, //here to facilitate inlining with Delphi
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SyncObjs, //here to facilitate inlining with Delphi
   {$ENDIF}
   IdGlobal,
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
   IdWinsock2;
 
 const
@@ -441,7 +441,7 @@ procedure CloseLibrary;
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 var
   hWship6Dll : TIdLibHandle = IdNilHandle; // Wship6.dll handle

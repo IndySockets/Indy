@@ -53,7 +53,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal, IdIntercept;
 
 type
@@ -77,7 +77,8 @@ type
 implementation
 
 uses
-  IdException, IdResourceStringsCore, SysUtils;
+  IdException, IdResourceStringsCore,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdInterceptSimLog }
 

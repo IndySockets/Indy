@@ -53,12 +53,12 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
-  HTTPApp,
-  SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNITSCOPENAMES}Web.{$ENDIF}HTTPApp,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
   IdContext, IdCustomHTTPServer, IdException, IdTCPServer, IdIOHandlerSocket,
   {$IFDEF CLR}System.Text,{$ENDIF}
-  WebReq;
+  {$IFDEF USE_UNITSCOPENAMES}Web.{$ENDIF}WebReq;
 
 type
   EWBBException = class(EIdException);

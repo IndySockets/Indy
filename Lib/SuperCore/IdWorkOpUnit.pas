@@ -78,9 +78,12 @@ unit IdWorkOpUnit;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
   IdFiber, IdIOHandlerSocket, IdStackConsts, IdWinsock2, IdGlobal,
-  SysUtils, Windows;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
 
 type
   TIdWorkOpUnit = class;

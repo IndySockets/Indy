@@ -111,7 +111,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
@@ -197,8 +197,10 @@ implementation
 uses
   IdException,
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  {$IFDEF HAS_UNIT_DateUtils}DateUtils,{$ENDIF}
-  SysUtils;
+  {$IFDEF HAS_UNIT_DateUtils}
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}DateUtils,
+  {$ENDIF}
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdFTPLPUnix }
 

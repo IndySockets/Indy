@@ -75,7 +75,7 @@ Original Author: Ozz Nixon
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$ENDIF}
   IdAssignedNumbers,
   IdContext,
@@ -114,7 +114,7 @@ uses
   {$ENDIF}
   IdGlobal, //here to facilitate inlining
   IdGlobalProtocols,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdCustomTimeServer.Create(AOwner: TComponent);

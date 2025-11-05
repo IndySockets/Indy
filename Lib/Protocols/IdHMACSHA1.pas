@@ -81,7 +81,8 @@ type
 implementation
 
 uses
-  SysUtils, IdResourceStringsProtocols;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  IdResourceStringsProtocols;
 
 { TIdHMACSHA1 }
 

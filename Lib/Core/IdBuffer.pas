@@ -279,10 +279,10 @@ unit IdBuffer;
 interface
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException,
   IdGlobal,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   EIdNotEnoughDataInBuffer = class(EIdException);

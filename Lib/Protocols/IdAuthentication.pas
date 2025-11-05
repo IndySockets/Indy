@@ -50,7 +50,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdHeaderList,
   IdGlobal,
   IdException;
@@ -126,7 +126,7 @@ uses
   {$IFDEF HAS_UNIT_Generics_Defaults}
   System.Generics.Defaults,
   {$ENDIF}
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 var
   AuthList: {$IFDEF HAS_GENERICS_TDictionary}TDictionary<String, TIdAuthenticationClass>{$ELSE}TStringList{$ENDIF} = nil;

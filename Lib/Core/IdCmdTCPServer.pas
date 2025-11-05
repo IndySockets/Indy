@@ -156,13 +156,13 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdCommandHandlers,
   IdContext,
   IdIOHandler,
   IdReply,
   IdTCPServer,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdCmdTCPServer = class;

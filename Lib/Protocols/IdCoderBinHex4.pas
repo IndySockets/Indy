@@ -152,13 +152,13 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException,
   IdCoder,
   IdCoder3to4,
   IdGlobal,
   IdStream,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdEncoderBinHex4 = class(TIdEncoder3to4)

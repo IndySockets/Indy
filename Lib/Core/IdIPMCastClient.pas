@@ -45,7 +45,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException,
   IdGlobal,
   IdIPMCastBase,
@@ -125,7 +125,7 @@ uses
   IdResourceStringsCore,
   IdStack,
   IdStackConsts,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdIPMCastClient }
 

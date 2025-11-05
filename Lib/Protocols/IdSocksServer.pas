@@ -99,7 +99,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer,
@@ -107,7 +107,7 @@ uses
   IdGlobal,
   IdTCPConnection,
   IdYarn,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   IdSocks4ReplySuccess = 90;

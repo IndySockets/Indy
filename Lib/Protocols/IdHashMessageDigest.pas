@@ -46,7 +46,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  IdFIPS, IdGlobal, IdHash, Classes;
+  IdFIPS, IdGlobal, IdHash,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
 
 type
   T4x4LongWordRecord = array[0..3] of UInt32;

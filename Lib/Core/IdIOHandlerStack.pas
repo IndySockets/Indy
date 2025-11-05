@@ -182,9 +182,9 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal, IdSocketHandle, IdIOHandlerSocket, IdExceptionCore, IdStack,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdIOHandlerStack = class(TIdIOHandlerSocket)
@@ -209,11 +209,7 @@ uses
   Posix.SysTime,
   {$ENDIF}
   {$IFDEF WINDOWS}
-    {$IFDEF VCL_XE2_OR_ABOVE}
-    WinAPI.Windows,
-    {$ELSE}
-    Windows,
-    {$ENDIF}
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
   {$ENDIF}
   IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdException,
   IdComponent, IdIOHandler, IdCustomTransparentProxy;

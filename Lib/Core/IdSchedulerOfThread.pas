@@ -130,7 +130,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException, IdGlobal, IdScheduler,
   IdThread, IdTask, IdYarn;
 
@@ -172,7 +172,8 @@ uses
   {$IFDEF KYLIXCOMPAT}
   Libc,
   {$ENDIF}
-  IdResourceStringsCore, IdThreadSafe, IdExceptionCore, SysUtils;
+  IdResourceStringsCore, IdThreadSafe, IdExceptionCore,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSchedulerOfThread }
 

@@ -69,12 +69,12 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdSocketHandle, IdTCPConnection, IdTask, IdYarn, IdThreadSafe,
   {$IFDEF HAS_GENERICS_TThreadList}
   System.Generics.Collections,
   {$ENDIF}
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   TIdContext = class;

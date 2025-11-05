@@ -60,7 +60,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException,
   IdIOHandler,
   IdZLibCompressorBase,
@@ -97,7 +97,8 @@ implementation
 
 uses
   IdAntiFreezeBase, IdComponent, IdResourceStringsProtocols, IdGlobal,
-  IdGlobalProtocols, IdZLib, SysUtils;
+  IdGlobalProtocols, IdZLib,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   bufferSize = 32768;

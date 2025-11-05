@@ -143,7 +143,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdComponent, IdReply, IdGlobal,
   IdContext, IdReplyRFC;
 
@@ -326,7 +326,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdCommandHandlers }
 

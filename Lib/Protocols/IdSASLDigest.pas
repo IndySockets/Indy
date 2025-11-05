@@ -3,8 +3,8 @@ unit IdSASLDigest;
 interface
 {$i IdCompilerDefines.inc}
 uses
-  Classes,
-  SysUtils, //here to facilitate inline expansion
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils, //here to facilitate inline expansion
   IdSASL, IdSASLUserPass, IdException;
 
 type

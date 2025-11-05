@@ -54,7 +54,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdCustomTCPServer, //for TIdServerContext
   IdCmdTCPServer,
@@ -296,7 +296,8 @@ uses
   IdCoderMIME,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
-  IdSSL, SysUtils;
+  IdSSL,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSMTPServer }
 

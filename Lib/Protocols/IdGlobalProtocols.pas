@@ -324,14 +324,14 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$IFDEF WINDOWS}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
   {$ENDIF}
   IdCharsets,
   IdGlobal,
   IdException,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   LWS = TAB + CHAR32;
@@ -631,11 +631,7 @@ uses
   IdResourceStringsProtocols,
   IdStack
   {$IFDEF HAS_IOUtils_TPath}
-    {$IFDEF VCL_XE2_OR_ABOVE}
-  , System.IOUtils
-    {$ELSE}
-  , IOUtils
-    {$ENDIF}
+  , {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}IOUtils
   {$ENDIF}
   {$IFDEF USE_OBJECT_ARC}
     {$IFDEF HAS_UNIT_Generics_Collections}
@@ -1588,7 +1584,7 @@ begin
     {$ELSE}
       {$IFDEF HAS_IOUtils_TPath}
   if lPath = '' then begin
-    lPath := {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}IOUtils.TPath.GetTempPath;
+    lPath := {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}IOUtils.TPath.GetTempPath;
   end;
       {$ENDIF}
     {$ENDIF}

@@ -42,7 +42,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
@@ -68,7 +68,8 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon,  IdGlobalProtocols, SysUtils;
+  IdGlobal, IdFTPCommon,  IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   DIR_TYPES : array [0..3] of string = ('*DIR','*DDIR','*LIB','*FLR');

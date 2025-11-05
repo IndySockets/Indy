@@ -67,7 +67,7 @@ interface
 //here only to put FPC in Delphi mode
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal, IdBaseComponent, IdException;
 
 type

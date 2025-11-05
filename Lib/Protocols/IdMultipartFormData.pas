@@ -106,7 +106,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdException,
   IdCharsets,
@@ -229,7 +229,7 @@ type
 implementation
 
 uses
-  SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
   IdCoderQuotedPrintable,
   IdCoderMIME,
   IdStream,

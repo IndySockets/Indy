@@ -431,7 +431,7 @@ Project -> Options -> Directories/Conditionals -> Search Path}
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$IFNDEF VCL_6_OR_ABOVE}IdCTypes,{$ENDIF}
   IdMessage,
   IdAssignedNumbers,
@@ -1143,11 +1143,11 @@ uses
   //facilitate inlining only.
   {$IFDEF WINDOWS}
     {$IFDEF USE_INLINE}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
     {$ELSE}
   //facilitate inlining only.
       {$IFDEF VCL_2009_OR_ABOVE}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
@@ -1183,7 +1183,7 @@ uses
   IdSSL,
   IdSASL,
   IdMessageHelper,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 // TODO: move this to IdCompilerDefines.inc
 {$IFDEF DCC}

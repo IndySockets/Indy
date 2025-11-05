@@ -126,11 +126,14 @@ unit IdFiber;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdThreadSafe, IdBaseComponent, IdYarn, IdTask,
-  SyncObjs, SysUtils,
-  Windows;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SyncObjs,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
 
 type
   // TIdFiberBase is the base for both fiber types and contains

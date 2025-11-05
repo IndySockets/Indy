@@ -832,7 +832,7 @@ uses
   IdException,
   IdGlobal,
   {$IFDEF WINDOWS}
-  Windows,
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
   IdWinsock2,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
@@ -847,7 +847,7 @@ uses
   baseunix,
   sockets,
   {$ENDIF}
-  SysUtils, 
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils, 
   IdCTypes;
 
 //temp for compile tests
@@ -18935,7 +18935,7 @@ procedure RAND_screen();
 implementation
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFIPS,
   IdGlobalProtocols,
   IdHashMessageDigest,
@@ -22878,7 +22878,7 @@ function LoadSSLCryptoLibrary: TIdLibHandle;
 var
   Err: DWORD;
 {$ELSE}
-  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
+  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IFDEF UNIX} instead?
 var
   i, j: Integer;
   LLibVersions: array [0..26] of string;
@@ -22894,7 +22894,7 @@ begin
     Exit;
   end;
   {$ELSE}
-    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
+    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IFDEF UNIX} instead?
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   Result := IdNilHandle;
   LCanLoadSymLinks := GIdCanLoadSymLinks;
@@ -22941,7 +22941,7 @@ function LoadSSLLibrary: TIdLibHandle;
 var
   Err: DWORD;
 {$ELSE}
-  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
+  {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IFDEF UNIX} instead?
 var
   i, j: Integer;
   LLibVersions: array [0..26] of string;
@@ -22964,7 +22964,7 @@ begin
     Exit;
   end;
   {$ELSE}
-    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IF DEFINED(UNIX)} instead?
+    {$IFDEF USE_BASEUNIX_OR_VCL_POSIX_OR_KYLIXCOMPAT} // TODO: use {$IFDEF UNIX} instead?
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   Result := IdNilHandle;
   LCanLoadSymLinks := GIdCanLoadSymLinks;

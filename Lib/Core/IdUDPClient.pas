@@ -72,7 +72,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdUDPBase,
   IdGlobal,
   IdSocketHandle,
@@ -157,7 +157,7 @@ implementation
 
 uses
   IdComponent, IdResourceStringsCore, IdSocks, IdStack, IdStackConsts,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdUDPClient }
 

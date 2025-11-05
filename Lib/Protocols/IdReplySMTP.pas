@@ -102,7 +102,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdException,
   IdReply,
@@ -319,7 +319,8 @@ const
 implementation
 
 uses
-  IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
+  IdGlobalProtocols, IdResourceStringsProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSMTPEnhancedCode }
 

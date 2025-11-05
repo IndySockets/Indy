@@ -765,7 +765,7 @@ procedure _memcpy(dest, source: Pointer; count: Integer); cdecl;
 implementation
 
 uses
-  SysUtils
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils
   {$IFNDEF STATICLOAD_ZLIB}
   , IdZLibConst
     {$IFDEF KYLIXCOMPAT}
@@ -775,7 +775,7 @@ uses
   , DynLibs // better add DynLibs only for fpc
     {$ENDIF}
     {$IFDEF WINDOWS}
-  , Windows
+  , {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows
     {$ENDIF}
   {$ELSE}
       {$IFDEF VCL_XE2_OR_ABOVE}

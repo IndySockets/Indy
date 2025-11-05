@@ -67,7 +67,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal, IdGlobalProtocols, IdBaseComponent;
 
 type
@@ -184,7 +184,8 @@ function logFacilityToNo(AFac : TIdSyslogFacility) : Word;
 implementation
 
 uses
-  IdAssignedNumbers, IdException, IdExceptionCore, IdResourceStringsProtocols, IdStack, IdUDPClient, SysUtils;
+  IdAssignedNumbers, IdException, IdExceptionCore, IdResourceStringsProtocols, IdStack, IdUDPClient,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   // facility

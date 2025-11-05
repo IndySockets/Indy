@@ -57,9 +57,14 @@ uses
   QControls, QForms, QStdCtrls, QButtons, QExtCtrls, QActnList, QGraphics,
   {$ENDIF}
   {$IFDEF WIDGET_VCL_LIKE}
+    {$IFDEF USE_UNITSCOPENAMES}
+  Vcl.Controls, Vcl.Forms, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.ActnList, Vcl.Graphics,
+    {$ELSE}
   Controls, Forms, StdCtrls, Buttons, ExtCtrls, ActnList, Graphics,
+    {$ENDIF}
   {$ENDIF}
-  Classes, IdSASLCollection;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdSASLCollection;
 
 type
   TfrmSASLListEditorVCL = class(TForm)
@@ -113,7 +118,7 @@ uses
   {$ENDIF}
   IdDsnCoreResourceStrings,
   IdGlobal, IdResourceStrings, IdSASL,
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TfrmSASLListEditorVCL }
 

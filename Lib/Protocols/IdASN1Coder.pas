@@ -27,8 +27,8 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
-  Contnrs;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Contnrs;
 
 type
 
@@ -158,7 +158,8 @@ function ToIdentifierType(iTag : integer) : TIdASN1IdentifierType;
 implementation
 
 uses
-  IdGlobal, IdException, SysUtils;
+  IdGlobal, IdException,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 function ToIdentifierType(iTag : integer) : TIdASN1IdentifierType;
 begin

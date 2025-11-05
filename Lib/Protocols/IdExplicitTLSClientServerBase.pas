@@ -73,7 +73,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdCmdTCPServer,
   IdException,
   IdGlobal,
@@ -166,7 +166,8 @@ type
 implementation
 
 uses
-  IdResourceStringsProtocols, IdSSL, IdBaseComponent, SysUtils;
+  IdResourceStringsProtocols, IdSSL, IdBaseComponent,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdExplicitTLSServer }
 

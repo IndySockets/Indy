@@ -158,7 +158,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdBaseComponent,
   IdMessageCoder,
   IdMessage,
@@ -216,7 +216,8 @@ implementation
 
 uses
   IdCoder, IdCoderMIME, IdGlobalProtocols,
-  IdCoderQuotedPrintable, IdCoderBinHex4, IdCoderHeader, SysUtils;
+  IdCoderQuotedPrintable, IdCoderBinHex4, IdCoderHeader,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   {

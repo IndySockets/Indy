@@ -139,7 +139,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdBaseComponent,
   IdStream,
   IdIOHandler;
@@ -193,7 +193,8 @@ implementation
 
 uses
   IdException,
-  IdGlobal, SysUtils;
+  IdGlobal,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 procedure TIdZLibCompressorBase.DecompressGZipStream(AInStream, AOutStream : TStream);
 

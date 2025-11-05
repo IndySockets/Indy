@@ -86,7 +86,7 @@ interface
 {$ENDIF}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdSocketHandle;
 
 {

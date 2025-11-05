@@ -48,7 +48,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   {$IFDEF DOTNET}
   Borland.Vcl.Design.DesignIntF,
   Borland.Vcl.Design.DesignEditors
@@ -109,7 +109,8 @@ uses
    IdFTPServer,
   {$ENDIF}
   IdSASL, IdSASLCollection,
-  SysUtils, TypInfo;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}TypInfo;
   {Since we are removing New Design-Time part, we remove the "New Message Part Editor"}
   {IdDsnNewMessagePart, }
 

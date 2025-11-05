@@ -86,8 +86,9 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  Classes,
-  IdBaseComponent, IdException, IdGlobal, IdThread, SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  IdBaseComponent, IdException, IdGlobal, IdThread,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   IdThreadComponentDefaultPriority = tpNormal;

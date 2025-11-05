@@ -88,7 +88,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdGlobal,
   IdFTPList;
 
@@ -289,7 +289,8 @@ uses
   {$IFDEF USE_VCL_POSIX}
   Posix.SysTime,
   {$ENDIF}
-  IdContainers, IdFTPCommon, IdGlobalProtocols, SysUtils;
+  IdContainers, IdFTPCommon, IdGlobalProtocols,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 type
   {$IFDEF HAS_GENERICS_TObjectList}

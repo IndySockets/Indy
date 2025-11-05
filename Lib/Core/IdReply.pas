@@ -118,7 +118,7 @@ interface
 //we need to put this in Delphi mode to work
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdException;
 
 type
@@ -192,7 +192,8 @@ type
 implementation
 
 uses
-  IdGlobal, IdResourceStringsCore, SysUtils;
+  IdGlobal, IdResourceStringsCore,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdReply }
 

@@ -143,7 +143,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdCustomTransparentProxy,
   IdBaseComponent,
   IdGlobal,
@@ -233,14 +233,10 @@ uses
   System.IO,
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64 }
-    {$IFDEF VCL_XE2_OR_ABOVE}
-    WinAPI.Windows,
-    {$ELSE}
-    Windows,
-    {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64}
+  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
   {$ENDIF}
-  SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
   IdStack,
   IdStackConsts,
   IdSocks;

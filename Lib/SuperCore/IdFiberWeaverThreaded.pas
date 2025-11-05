@@ -42,8 +42,10 @@ unit IdFiberWeaverThreaded;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdFiberWeaverInline,
   IdThread, IdSchedulerOfThread, IdFiberWeaver, IdFiber;
 
@@ -77,7 +79,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TTempThread }
 

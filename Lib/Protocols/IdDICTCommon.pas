@@ -40,7 +40,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  Classes;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
 
 type
   TIdMatchItem = class(TCollectionItem)
@@ -127,7 +127,8 @@ type
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdDefinitions }
 

@@ -63,7 +63,8 @@ implementation
 
 uses
   IdDsnCoreResourceStrings, System.Diagnostics,
-  IdGlobal, System.Reflection, System.Resources, SysUtils;
+  IdGlobal, System.Reflection, System.Resources,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 const
   ResourceBaseName = 'IdAboutNET';

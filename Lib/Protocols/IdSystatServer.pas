@@ -54,7 +54,7 @@ unit IdSystatServer;
 interface
 {$i IdCompilerDefines.inc}
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -90,7 +90,8 @@ Quoted from RFC 866:
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
 
 { TIdSystatServer }
 

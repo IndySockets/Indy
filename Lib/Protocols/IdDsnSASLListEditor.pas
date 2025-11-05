@@ -75,10 +75,11 @@ type
 implementation
 
 uses
-  Classes,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
   IdDsnResourceStrings, IdDsnSASLListEditorForm,
   IdSASL, IdSASLCollection,
-  SysUtils, TypInfo;
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}TypInfo;
 
 { TIdPropEdSASL }
 
