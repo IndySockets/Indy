@@ -140,7 +140,7 @@ uses
   QForms,
   {$ENDIF}
   {$IFDEF WIDGET_VCL_LIKE}
-  Forms,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Vcl.Forms{$ELSE}Forms{$ENDIF},
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFNDEF FMX}

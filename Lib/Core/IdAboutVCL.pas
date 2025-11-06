@@ -368,7 +368,7 @@ end;
 procedure TfrmAbout.lblURLClick(Sender: TObject);
 begin
   {$IFDEF WIN32_OR_WIN64}
-  Winapi.ShellAPI.ShellExecute(Handle, nil, PChar(FlblURL.Caption), nil, nil, 0);    {Do not Localize}
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.ShellAPI{$ELSE}ShellAPI{$ENDIF}.ShellExecute(Handle, nil, PChar(FlblURL.Caption), nil, nil, 0);    {Do not Localize}
   FlblURL.Font.Color := clPurple;
   {$ENDIF}
 end;

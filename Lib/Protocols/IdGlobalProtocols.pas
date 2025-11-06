@@ -617,12 +617,8 @@ uses
   DateUtils,
   {$ENDIF}
   {$IFDEF WINDOWS}
-  Messages,
-    {$IFDEF VCL_XE2_OR_ABOVE}
-    System.Win.Registry,
-    {$ELSE}
-    Registry,
-    {$ENDIF}
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Messages{$ELSE}Messages{$ENDIF},
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Win.Registry{$ELSE}Registry{$ENDIF},
   {$ENDIF}
   {$IFDEF DOTNET}
   System.IO,
