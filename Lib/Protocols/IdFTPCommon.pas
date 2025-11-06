@@ -176,7 +176,7 @@ uses
   {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdGlobal,
   IdGlobalProtocols,
-  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}s
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}
   // to facilite inlining
   {$IFNDEF HAS_GetLocalTimeOffset}
     {$IFDEF HAS_DateUtils_TTimeZone}

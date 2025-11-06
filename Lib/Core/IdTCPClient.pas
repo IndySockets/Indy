@@ -257,7 +257,7 @@ type
 implementation
 
 uses
-  IdComponent, IdResourceStringsCore, IdIOHandlerSocket;
+  IdComponent, IdStack, IdResourceStringsCore, IdIOHandlerSocket;
 
 { TIdTCPClientCustom }
 
@@ -433,6 +433,7 @@ begin
   end;
   if GStack.IsIP(AValue) then begin
     IPVersion := Id_IPv4;
+  end
   else
   begin
     LIP := MakeCanonicalIPv6Address(AValue);
