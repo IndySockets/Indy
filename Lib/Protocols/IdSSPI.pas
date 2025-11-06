@@ -42,7 +42,7 @@ interface
 
 uses
   IdGlobal,
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF};
 
 type
   PPVOID = ^PVOID;

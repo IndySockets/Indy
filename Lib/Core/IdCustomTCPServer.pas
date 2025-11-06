@@ -255,7 +255,7 @@ interface
 //here to flip FPC into Delphi mode
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
@@ -265,7 +265,7 @@ uses
   IdReply, IdScheduler, IdServerIOHandler,
   IdServerIOHandlerStack, IdSocketHandle, IdTCPConnection,
   IdThread, IdYarn,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   IdListenQueueDefault = 15;
@@ -426,7 +426,7 @@ implementation
 uses
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ENDIF}
   {$ENDIF}
   IdGlobalCore,

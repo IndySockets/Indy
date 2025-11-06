@@ -184,8 +184,8 @@ To deal with this, I use the FPC predefined FPC_REQUIRES_PROPER_ALIGNMENT.
 
 uses
   IdException, IdGlobal,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF};
 
 type
   EIdWinsockStubError = class(EIdException)
@@ -6010,10 +6010,10 @@ begin
       if LError = 0 then begin
         Exit;
       end;
-      Windows.FreeLibrary(hWinSockDll);
+      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FreeLibrary(hWinSockDll);
       hWinSockDll := IdNilHandle;
     end else begin
-      LError := Windows.GetLastError;
+      LError := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.GetLastError;
     end;
     raise EIdWinsockStubError.Build(LError, RSWinsockLoadError, [WINSOCK2_DLL]);
   end;
@@ -6026,7 +6026,7 @@ begin
   if hMSWSockDll = IdNilHandle then begin
     hMSWSockDll := SafeLoadLibrary(MSWSOCK_DLL);
     if hMSWSockDll = IdNilHandle then begin
-      raise EIdWinsockStubError.Build(Windows.GetLastError, RSWinsockLoadError, [MSWSOCK_DLL]);
+      raise EIdWinsockStubError.Build({$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.GetLastError, RSWinsockLoadError, [MSWSOCK_DLL]);
     end;
   end;
 end;
@@ -6057,7 +6057,7 @@ begin
     inherited Create(FTitle);
   end else
   begin
-    FWin32ErrorMessage := SysUtils.SysErrorMessage(AWin32Error);
+    FWin32ErrorMessage := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.SysErrorMessage(AWin32Error);
     inherited Create(FTitle + ': ' + FWin32ErrorMessage);    {Do not Localize}
   end;
 end;
@@ -8573,7 +8573,7 @@ end;
 function IN6_ADDR_EQUAL(const a: PIn6Addr; const b: PIn6Addr): Boolean;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.CompareMem(a, b, SIZE_TIN6ADDR);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.CompareMem(a, b, SIZE_TIN6ADDR);
 end;
 
 function IN6_IS_ADDR_UNSPECIFIED(const a: PIn6Addr): Boolean;

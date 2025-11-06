@@ -77,7 +77,7 @@ implementation
 uses
   IdGlobal,
   IdHMACSHA1,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF};
 
 class function TIdSASLCRAMSHA1.BuildKeydAuth(const APassword, AChallenge: string): string;
 var

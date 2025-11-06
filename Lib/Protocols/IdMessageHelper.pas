@@ -5,7 +5,7 @@ unit IdMessageHelper;
 interface
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdMessage;
 
 // TODO: move this to IdCompilerDefines.inc
@@ -42,7 +42,7 @@ implementation
 
 uses
   IdGlobal, IdMessageClient,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
   IdResourceStringsProtocols;
 
 { TIdMessageClientHelper }

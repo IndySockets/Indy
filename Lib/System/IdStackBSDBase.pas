@@ -160,7 +160,7 @@ This unit must NOT be linked into DotNet applications.
 {$ENDIF}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdException, IdStack, IdStackConsts, IdGlobal;
 
 type
@@ -358,7 +358,7 @@ uses
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 { TIdStackBSDBase }
 

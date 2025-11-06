@@ -64,7 +64,7 @@ implementation
 uses
   IdException,
   IdGlobal, IdGlobalProtocols,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 function EnsureValidCharsByValidSet(const AFilePart, AValidChars : String; const  AReplaceWith : String='_'): String;
 var i : Integer;

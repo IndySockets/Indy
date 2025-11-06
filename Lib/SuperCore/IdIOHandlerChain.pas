@@ -185,11 +185,11 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdBaseComponent, IdBuffer, IdGlobal, IdIOHandler, IdIOHandlerSocket,
   IdFiber, IdThreadSafe, IdWorkOpUnit, IdStackConsts, IdWinsock2, IdThread,
   IdFiberWeaver, IdStream, IdStreamVCL,
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF};
 
 type
   TIdConnectMode = (cmNonBlock, cmIOCP);
@@ -309,7 +309,7 @@ implementation
 uses
   IdComponent, IdException, IdExceptionCore, IdStack, IdResourceStrings, IdWorkOpUnits,
   IdStackBSDBase, IdStackWindows,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   GCompletionKeyTerminate = $F0F0F0F0;

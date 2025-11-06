@@ -56,7 +56,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdAntiFreezeBase;
 
 { Directive needed for generating a legacy non-UnitScoped C++Builder HPP }
@@ -144,7 +144,7 @@ uses
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFNDEF FMX}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WIDGET_WINFORMS}

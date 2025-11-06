@@ -109,7 +109,7 @@ procedure IdRawBuildUdp(const ASourcePort, ADestPort: UInt16;
 implementation
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: UInt16;
   const AHwAddressLen, AProtocolLen: UInt8; const AnOpType: UInt16;

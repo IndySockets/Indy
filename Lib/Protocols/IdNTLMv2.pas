@@ -153,12 +153,12 @@ function RC4FunctionsLoaded : Boolean;
 implementation
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
   {$IFDEF USE_VCL_POSIX}
   PosixTime, // TODO: should this be Posix.Time instead?
   {$ENDIF}
   {$IFDEF DOTNET}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   System.Runtime.InteropServices,
   System.Runtime.InteropServices.ComTypes,
   System.Security.Cryptography,
@@ -170,7 +170,7 @@ uses
     {$IFDEF WINDOWS}
     //Windows should really not be included but this protocol does use
     //some windows internals and is Windows-based.
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ENDIF}
   {$ENDIF}
   IdFIPS,
@@ -285,7 +285,7 @@ begin
     {$IFDEF WINCE}
     // TODO
     {$ELSE}
-  Windows.GetSystemTimeAsFileTime(Result);
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.GetSystemTimeAsFileTime(Result);
     {$ENDIF}
   {$ENDIF}
   {$IFDEF UNIX}

@@ -193,10 +193,10 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdGlobal, IdException, IdStackBSDBase, IdStackConsts, IdWinsock2, IdStack,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils, 
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}, 
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF};
 
 type
   EIdIPv6Unavailable = class(EIdException);
@@ -332,10 +332,10 @@ uses
   IdIDN, IdResourceStrings, IdWship6
   {$IFDEF USE_IPHLPAPI}
     {$IFDEF HAS_UNIT_IpTypes}
-  , {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}IpTypes
+  , {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.IpTypes{$ELSE}IpTypes{$ENDIF}
     {$ENDIF}
     {$IFDEF HAS_UNIT_IpHlpApi}
-  , {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}IpHlpApi
+  , {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.IpHlpApi{$ELSE}IpHlpApi{$ENDIF}
     {$ENDIF}
   {$ENDIF}
   ;

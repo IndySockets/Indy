@@ -74,7 +74,7 @@ uses
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ELSE}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   {$ENDIF}
   IdScheduler,
   IdSchedulerOfThread,
@@ -116,11 +116,11 @@ implementation
 uses
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ENDIF}
   {$ENDIF}
   IdGlobal,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 type
   TIdYarnOfThreadAccess = class(TIdYarnOfThread)

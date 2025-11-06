@@ -34,7 +34,7 @@ interface
 
 uses
   IdLogBase,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF};
 
 type
   TLogItemStatusEvent = procedure(ASender: TComponent; const AText: string) of object;

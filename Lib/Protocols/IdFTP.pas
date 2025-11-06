@@ -611,7 +611,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdAssignedNumbers, IdGlobal, IdExceptionCore,
   IdExplicitTLSClientServerBase, IdFTPCommon, IdFTPList, IdFTPListParseBase,
   IdException, IdIOHandler, IdIOHandlerSocket, IdReply, IdReplyFTP, IdBaseComponent,
@@ -1116,7 +1116,7 @@ uses
   IdResourceStringsCore, IdIOHandlerStack, IdResourceStringsProtocols,
   IdSSL, IdGlobalProtocols, IdHash, IdHashCRC, IdHashSHA, IdHashMessageDigest,
   IdStack, IdStackConsts, IdSimpleServer, IdOTPCalculator,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   cIPVersions: array[TIdIPVersion] of String = ('1', '2'); {do not localize}
@@ -1503,7 +1503,7 @@ var
 begin
   AResume := AResume and CanResume;
   if ACanOverwrite and (not AResume) then begin
-    SysUtils.DeleteFile(ADestFile);
+    {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.DeleteFile(ADestFile);
     LDestStream := TIdFileCreateStream.Create(ADestFile);
   end
   else if (not ACanOverwrite) and AResume then begin

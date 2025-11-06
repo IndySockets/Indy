@@ -76,7 +76,7 @@ interface
 uses
   IdServerIOHandler, IdIOHandlerChain, IdYarn,
   IdSocketHandle, IdThread, IdIOHandler, IdScheduler, IdFiber,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF};
 
 type
   TIdServerIOHandlerChain = class(TIdServerIOHandler)
@@ -105,7 +105,7 @@ implementation
 
 uses
   IdGlobal, IdSchedulerOfFiber, IdException, IdFiberWeaver,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF};
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF};
 
 procedure TIdServerIOHandlerChain.SetScheduler(
   AScheduler: TIdScheduler

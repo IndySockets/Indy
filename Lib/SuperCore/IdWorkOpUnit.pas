@@ -82,8 +82,8 @@ interface
 
 uses
   IdFiber, IdIOHandlerSocket, IdStackConsts, IdWinsock2, IdGlobal,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF};
 
 type
   TIdWorkOpUnit = class;

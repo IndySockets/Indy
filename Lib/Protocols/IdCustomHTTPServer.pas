@@ -161,7 +161,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
@@ -171,7 +171,7 @@ uses
   IdExceptionCore, IdGlobalProtocols, IdHeaderList, IdCustomTCPServer,
   IdTCPConnection, IdThread, IdCookie, IdHTTPHeaderInfo, IdStackConsts,
   IdBaseComponent, IdThreadSafe,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 type
   // Enums
@@ -574,12 +574,12 @@ uses
   System.Threading,
     {$ENDIF}
     {$IFDEF WINDOWS}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ENDIF}
   {$ENDIF}
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ENDIF}
   {$ENDIF}
   IdCoderMIME, IdResourceStringsProtocols, IdURI, IdIOHandler, IdIOHandlerSocket,

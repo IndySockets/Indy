@@ -33,7 +33,7 @@ uses
   IdGlobal,
   {$ENDIF}
   IdYarn,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 type
   TIdTask = class(TObject)

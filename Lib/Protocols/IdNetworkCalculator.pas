@@ -38,7 +38,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdGlobal,
   IdBaseComponent;
   
@@ -137,7 +137,7 @@ implementation
 
 uses
   IdException, IdGlobalProtocols, IdResourceStringsProtocols, IdStack,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 function MakeLongWordIP(const One, Two, Three, Four: Byte): UInt32;
 begin

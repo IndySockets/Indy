@@ -83,7 +83,7 @@ implementation
 {$IFDEF WINDOWS}
   {$IFDEF USE_INLINE}
 uses
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF};
   {$ENDIF}
 {$ENDIF}
 

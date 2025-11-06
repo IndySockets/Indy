@@ -188,7 +188,7 @@ interface
 //we need to put this in Delphi mode to work.
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdAssignedNumbers, IdException, IdBaseComponent,
   IdComponent, IdCustomTransparentProxy, IdGlobal, IdIOHandler,
   IdIOHandlerSocket, IdSocketHandle;
@@ -262,7 +262,7 @@ uses
   IdResourceStringsCore, IdExceptionCore, IdIPAddress, IdStack,
   IdTCPClient,
   IdIOHandlerStack,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 { TIdSocksInfo }
 

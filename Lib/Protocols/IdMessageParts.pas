@@ -67,7 +67,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdHeaderList,
   IdExceptionCore,
   IdGlobal;
@@ -170,7 +170,7 @@ implementation
 
 uses
   IdMessage, IdGlobalProtocols, IdResourceStringsProtocols, IdMessageCoder, IdCoderHeader,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 { TIdMessagePart }
 

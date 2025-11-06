@@ -42,7 +42,7 @@ interface
 //Put FPC into Delphi mode
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdLogBase, IdGlobal;
 
 type
@@ -67,7 +67,7 @@ type
 implementation
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 // TODO: This was orginally for VCL. For .Net what do we do? Convert back to
 // 7 bit? Log all? Logging all seems to be a disaster.

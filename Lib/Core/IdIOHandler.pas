@@ -401,7 +401,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdException,
   IdAntiFreezeBase, IdBuffer, IdBaseComponent, IdComponent, IdGlobal, IdExceptionCore,
   IdIntercept, IdResourceStringsCore, IdStream;
@@ -792,7 +792,7 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF OSX}
@@ -803,7 +803,7 @@ uses
   System.Generics.Collections,
   {$ENDIF}
   IdStack, IdStackConsts, IdResourceStrings,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 type
   {$IFDEF HAS_GENERICS_TList}

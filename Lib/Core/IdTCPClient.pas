@@ -139,7 +139,7 @@ unit IdTCPClient;
 interface
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdGlobal, IdExceptionCore, IdIOHandler, IdTCPConnection;
 
 (*$HPPEMIT '#if defined(_VCL_ALIAS_RECORDS)' *)

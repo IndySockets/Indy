@@ -29,7 +29,7 @@ interface
 
 uses
   IdBaseComponent, IdFiber,
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF};
 
 type
   TIdFiberWeaver = class(TIdBaseComponent)

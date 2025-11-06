@@ -130,7 +130,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdException, IdGlobal, IdStackConsts, IdStack;
   
 type
@@ -253,7 +253,7 @@ uses
   System.SyncObjs,
   {$ENDIF}
   IdAntiFreezeBase, IdComponent, IdResourceStrings,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 { TIdSocketHandle }
 

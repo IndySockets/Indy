@@ -302,7 +302,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdAttachment,
   IdBaseComponent,
   IdCoderHeader,
@@ -533,7 +533,7 @@ uses
   IdMessageCoderMIME, // Here so the 'MIME' in create will always suceed
   IdCharSets, IdGlobalProtocols, IdMessageCoder, IdResourceStringsProtocols,
   IdMessageClient, IdAttachmentFile,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   cPriorityStrs: array[TIdMessagePriority] of string = ('urgent', 'urgent', 'normal', 'non-urgent', 'non-urgent');

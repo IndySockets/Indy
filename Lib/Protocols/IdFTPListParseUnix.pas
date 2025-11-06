@@ -111,7 +111,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
@@ -198,9 +198,9 @@ uses
   IdException,
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
   {$IFDEF HAS_UNIT_DateUtils}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}DateUtils,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.DateUtils{$ELSE}DateUtils{$ENDIF},
   {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 { TIdFTPLPUnix }
 

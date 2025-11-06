@@ -514,7 +514,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
   {$IFDEF DOTNET}
   System.Collections.Specialized,
   System.net,
@@ -529,10 +529,10 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WINDOWS}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
   {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SyncObjs,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SyncObjs{$ELSE}SyncObjs{$ENDIF},
   {$IFDEF UNIX}
     {$IFDEF KYLIXCOMPAT}
     Libc,
@@ -1294,7 +1294,7 @@ type
     {$ENDIF}
   {$ELSE}
     {$IFNDEF NO_REDECLARE}
- // TCriticalSection = SyncObjs.TCriticalSection;
+ // TCriticalSection = {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SyncObjs.TCriticalSection;
     {$ENDIF}
   {$ENDIF}
 
@@ -1384,7 +1384,7 @@ type
   THandle = Int32;
   {$ELSE}
     {$IFDEF WINDOWS}
-//  THandle = Windows.THandle;
+//  THandle = ($IFDEF USE_UNIT_SCOPE_NAMES)Winapi.($ENDIF)Windows.THandle;
      {$ENDIF}
   {$ENDIF}
 
@@ -1487,7 +1487,7 @@ const
   {$IFDEF WINDOWS}
   GOSType = otWindows;
   GPathDelim = '\'; {do not localize}
-  Infinite = Windows.INFINITE; { redeclare here for use elsewhere without using Windows.pas }  // cls modified 1/23/2002
+  Infinite = {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.INFINITE; { redeclare here for use elsewhere without using Windows.pas }  // cls modified 1/23/2002
   {$ENDIF}
 
   {$IFDEF DOTNET}
@@ -2056,7 +2056,7 @@ uses
     {$IFNDEF DOTNET}
       {$IFNDEF HAS_GetLocalTimeOffset}
         {$IFDEF HAS_DateUtils_TTimeZone}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}TimeSpan,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.TimeSpan{$ELSE}TimeSpan{$ENDIF},
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
@@ -4690,7 +4690,7 @@ end;
 function LoadLibFunction(const ALibHandle: TIdLibHandle; const AProcName: TIdLibFuncName): Pointer;
 begin
   {$I IdRangeCheckingOff.inc}
-  Result := {$IFDEF WINDOWS}Windows.{$ENDIF}GetProcAddress(ALibHandle, PIdLibFuncNameChar(AProcName));
+  Result := {$IFDEF WINDOWS}{$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.{$ENDIF}GetProcAddress(ALibHandle, PIdLibFuncNameChar(AProcName));
   {$I IdRangeCheckingOn.inc}
 end;
 
@@ -4838,7 +4838,7 @@ end;
 procedure IndyRaiseOuterException(AOuterException: Exception);
   {$IFDEF USE_NORETURN_IMPL}noreturn;{$ENDIF}
 begin
-  raise AOuterException;
+  raise AOuterException {$IFDEF HAS_get_caller_addr}at get_caller_addr(get_frame), get_caller_frame(get_frame){$ENDIF};
 end;
   {$ENDIF}
 {$ENDIF}
@@ -6030,7 +6030,7 @@ begin
   // TODO: implement some kind of accumulator so the Result
   // keeps growing even when GetTickCount() wraps back to 0.
   // Or maybe access the CPU's TSC via the x86 RDTSC instruction...
-  Result := UInt64(Windows.GetTickCount);
+  Result := UInt64({$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.GetTickCount);
 end;
 
 function Stub_GetTickCount64: UInt64; stdcall;
@@ -6067,15 +6067,15 @@ begin
 
   {$IFDEF USE_HI_PERF_COUNTER_FOR_TICKS}
     {$IFDEF WINCE}
-  if Windows.QueryPerformanceCounter(@nTime) then begin
-    if Windows.QueryPerformanceFrequency(@freq) then begin
+  if {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.QueryPerformanceCounter(@nTime) then begin
+    if {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.QueryPerformanceFrequency(@freq) then begin
       Result := Trunc((nTime.QuadPart / Freq.QuadPart) * 1000) and High(TIdTicks);
       Exit;
     end;
   end;
     {$ELSE}
-  if Windows.QueryPerformanceCounter(nTime) then begin
-    if Windows.QueryPerformanceFrequency(freq) then begin
+  if {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.QueryPerformanceCounter(nTime) then begin
+    if {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.QueryPerformanceFrequency(freq) then begin
       Result := Trunc((nTime / Freq) * 1000) and High(TIdTicks);
       Exit;
     end;
@@ -7122,7 +7122,7 @@ end;
 function SBStrScan(Str: PChar; Chr: Char): PChar;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.StrScan(Str, Chr);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.StrScan(Str, Chr);
 end;
 {$ENDIF}
 
@@ -7131,13 +7131,13 @@ end;
 function InternalAnsiPos(const Substr, S: string): Integer;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.AnsiPos(Substr, S);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.AnsiPos(Substr, S);
 end;
 
 function InternalAnsiStrScan(Str: PChar; Chr: Char): PChar;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.AnsiStrScan(Str, Chr);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.AnsiStrScan(Str, Chr);
 end;
 {$ENDIF}
 
@@ -7208,7 +7208,7 @@ begin
   {$ELSE}
     {$IFDEF WINDOWS}
 
-  Windows.Sleep(ATime);
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.Sleep(ATime);
 
     {$ELSE}
       {$IFDEF UNIX}
@@ -7735,7 +7735,7 @@ begin
   {$IFDEF DOTNET}
   // RLebeau 10/29/09: temporary workaround until we figure out how to use
   // SysUtils.FormatBuf() correctly under .NET in D2009 RTM...
-  Result := SysUtils.Format(AFormat, Args);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.Format(AFormat, Args);
   {$ELSE}
     {$IFDEF HAS_TFormatSettings}
   EnglishFmt := GetEnglishSetting;
@@ -7743,7 +7743,7 @@ begin
   BufLen := Length(Buffer);
   if Length(AFormat) < (Length(Buffer) - (Length(Buffer) div 4)) then
   begin
-    Len := SysUtils.FormatBuf(Buffer, Length(Buffer) - 1, Pointer(AFormat)^,
+    Len := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.FormatBuf(Buffer, Length(Buffer) - 1, Pointer(AFormat)^,
       Length(AFormat), Args, EnglishFmt);
   end else
   begin
@@ -7757,7 +7757,7 @@ begin
       Inc(BufLen, BufLen);
       Result := '';          // prevent copying of existing data, for speed
       SetLength(Result, BufLen);
-      Len := SysUtils.FormatBuf(PChar(Result), BufLen - 1, Pointer(AFormat)^,
+      Len := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.FormatBuf(PChar(Result), BufLen - 1, Pointer(AFormat)^,
         Length(AFormat), Args, EnglishFmt);
     end;
     SetLength(Result, Len);
@@ -7769,7 +7769,7 @@ begin
     {$ENDIF}
   end;
       {$ELSE}
-  Result := SysUtils.Format(AFormat, Args, EnglishFmt);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.Format(AFormat, Args, EnglishFmt);
       {$ENDIF}
     {$ELSE}
   //Is there a way to get delphi5 to use locale in format? something like:
@@ -7778,7 +7778,7 @@ begin
   //  Application.UpdateFormatSettings := False; //needed?
   //  format()
   //  set locale back to prior
-  Result := SysUtils.Format(AFormat, Args);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.Format(AFormat, Args);
     {$ENDIF}
   {$ENDIF}
 end;
@@ -8064,9 +8064,9 @@ function IndyIncludeTrailingPathDelimiter(const S: string): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
-  Result := SysUtils.IncludeTrailingPathDelimiter(S);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.IncludeTrailingPathDelimiter(S);
   {$ELSE}
-  Result := SysUtils.IncludeTrailingBackslash(S);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.IncludeTrailingBackslash(S);
   {$ENDIF}
 end;
 
@@ -8074,9 +8074,9 @@ function IndyExcludeTrailingPathDelimiter(const S: string): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
   {$IFDEF HAS_SysUtils_IncludeExcludeTrailingPathDelimiter}
-  Result := SysUtils.ExcludeTrailingPathDelimiter(S);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.ExcludeTrailingPathDelimiter(S);
   {$ELSE}
-  Result := SysUtils.ExcludeTrailingBackslash(S);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.ExcludeTrailingBackslash(S);
   {$ENDIF}
 end;
 
@@ -8168,14 +8168,14 @@ begin
      until I = 0;
     end;
   end else begin
-    Result := SysUtils.StringReplace(S, OldPattern, NewPattern, [rfReplaceAll]);
+    Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.StringReplace(S, OldPattern, NewPattern, [rfReplaceAll]);
   end;
 end;
 
 function ReplaceOnlyFirst(const S, OldPattern, NewPattern: string): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.StringReplace(s, OldPattern, NewPattern, []);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.StringReplace(s, OldPattern, NewPattern, []);
 end;
 
 function IndyStrToInt(const S: string): Integer;
@@ -8225,7 +8225,7 @@ var
 {$ENDIF}
 begin
   {$IFDEF HAS_UNIT_DateUtils}
-  Result := DateUtils.IncMilliSecond(ADateTime, AMSec);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}DateUtils.IncMilliSecond(ADateTime, AMSec);
   {$ELSE}
   LTM := DateTimeToTimeStamp(ADateTime);
   LTM.Time := LTM.Time + AMSec;
@@ -8247,7 +8247,7 @@ begin
     Result := 0;
   end;
   {$ELSE}
-  LAge := SysUtils.FileAge(AFileName);
+  LAge := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.FileAge(AFileName);
   if LAge <> -1 then begin
     Result := FileDateToDateTime(LAge);
   end else begin
@@ -8268,7 +8268,7 @@ var
 {$ENDIF}
 begin
   {$IFDEF HAS_SysUtils_DirectoryExists}
-  Result := SysUtils.DirectoryExists(ADirectory);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.DirectoryExists(ADirectory);
   {$ELSE}
   // RLebeau 2/16/2006: Removed dependency on the FileCtrl unit
     {$IFDEF STRING_UNICODE_MISMATCH}
@@ -8284,13 +8284,13 @@ end;
 function IndyStrToInt64(const S: string; const ADefault: Int64): Int64;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.StrToInt64Def(Trim(S), ADefault);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.StrToInt64Def(Trim(S), ADefault);
 end;
 
 function IndyStrToInt64(const S: string): Int64;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.StrToInt64(Trim(S));
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.StrToInt64(Trim(S));
 end;
 
 function IndyStrToStreamSize(const S: string; const ADefault: TIdStreamSize): TIdStreamSize;
@@ -10060,18 +10060,18 @@ end;
 function IndyWindowsMajorVersion: Integer;
 begin
   {$IFDEF WINCE}
-  Result := SysUtils.WinCEMajorVersion;
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.WinCEMajorVersion;
   {$ELSE}
-  Result := SysUtils.Win32MajorVersion;
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.Win32MajorVersion;
   {$ENDIF}
 end;
 
 function IndyWindowsMinorVersion: Integer;
 begin
   {$IFDEF WINCE}
-  Result := SysUtils.WinCEMinorVersion;
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.WinCEMinorVersion;
   {$ELSE}
-  Result := SysUtils.Win32MinorVersion;
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.Win32MinorVersion;
   {$ENDIF}
 end;
 
@@ -10079,18 +10079,18 @@ function IndyWindowsBuildNumber: Integer;
 begin
   // for this, you need to strip off some junk to do comparisons
   {$IFDEF WINCE}
-  Result := SysUtils.WinCEBuildNumber and $FFFF;
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.WinCEBuildNumber and $FFFF;
   {$ELSE}
-  Result := SysUtils.Win32BuildNumber and $FFFF;
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.Win32BuildNumber and $FFFF;
   {$ENDIF}
 end;
 
 function IndyWindowsPlatform: Integer;
 begin
   {$IFDEF WINCE}
-  Result := SysUtils.WinCEPlatform;
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.WinCEPlatform;
   {$ELSE}
-  Result := SysUtils.Win32Platform;
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.Win32Platform;
   {$ENDIF}
 end;
 

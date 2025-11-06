@@ -38,7 +38,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdAttachment,
   IdMessageParts;
 
@@ -77,7 +77,7 @@ uses
   //facilitate inlining only.
   {$IFDEF USE_INLINE}
     {$IFDEF WINDOWS}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ENDIF}
     {$IFDEF DOTNET}
   System.IO,
@@ -85,7 +85,7 @@ uses
   {$ENDIF}
   IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols,
   IdMessage,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 { TIdAttachmentFile }
 
@@ -109,7 +109,7 @@ end;
 destructor TIdAttachmentFile.Destroy;
 begin
   if FileIsTempFile then begin
-    SysUtils.DeleteFile(StoredPathName);
+    {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.DeleteFile(StoredPathName);
   end;
   inherited Destroy;
 end;

@@ -48,7 +48,7 @@ interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   {$ENDIF}
   IdGlobal,
   IdAssignedNumbers, IdUDPBase, IdGlobalProtocols, IdUDPClient;
@@ -100,7 +100,7 @@ uses
   Posix.SysTime,
   {$ENDIF}
   IdStack,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils; //Sysutils added to facilitate inlining.
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}; //Sysutils added to facilitate inlining.
 
 { TIdCustomTimeUDP }
 

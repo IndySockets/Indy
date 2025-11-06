@@ -131,12 +131,12 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdException, IdExceptionCore,
   IdEMailAddress, IdGlobal, IdHeaderList,
   IdDNSResolver, IdMessage, IdMessageClient, IdBaseComponent,
   IdSMTPBase, IdReplySMTP,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   DEF_OneConnectionPerDomain = True;

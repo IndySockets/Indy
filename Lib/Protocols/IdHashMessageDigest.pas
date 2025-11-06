@@ -47,7 +47,7 @@ interface
 
 uses
   IdFIPS, IdGlobal, IdHash,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF};
 
 type
   T4x4LongWordRecord = array[0..3] of UInt32;

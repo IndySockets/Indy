@@ -72,12 +72,12 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   {$IFDEF HAS_UNIT_Generics_Collections}
   System.Generics.Collections,
   {$ENDIF}
   IdGlobal, IdException, IdGlobalProtocols, IdURI,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 type
   { Base Cookie class as described in [RFC6265] }

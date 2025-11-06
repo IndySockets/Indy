@@ -82,7 +82,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdException,
   IdFTPList,
   IdGlobal,
@@ -416,11 +416,11 @@ uses
   {$ENDIF}
   {$IFDEF WINDOWS}
     {$IFDEF USE_INLINE}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ELSE}
   //facilitate inlining only.
       {$IFDEF VCL_2009_OR_ABOVE}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
@@ -431,7 +431,7 @@ uses
     {$ENDIF}
   {$ENDIF}  
   IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStream,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 function ParseASCIIZPos(const ABytes: TIdBytes ; const ALen : UInt32; var VPos : UInt32): String;
 var
@@ -571,7 +571,7 @@ var
   LDestStream: TStream;
 begin
   if ACanOverwrite and (not AResume) then begin
-    SysUtils.DeleteFile(ADestFile);
+    {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.DeleteFile(ADestFile);
     LDestStream := TIdFileCreateStream.Create(ADestFile);
   end
   else if (not ACanOverwrite) and AResume then begin

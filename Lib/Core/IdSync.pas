@@ -86,7 +86,7 @@ interface
 {$ENDIF}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdGlobal
   {$IFDEF NotifyThreadNeeded}
   , IdThread
@@ -182,14 +182,14 @@ uses
   {$ENDIF}
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
   Posix.SysSelect,
   Posix.SysTime,
   {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}
   {$IFNDEF NotifyThreadNeeded}
   , IdThread
   {$ENDIF}
@@ -290,7 +290,7 @@ procedure DoThreadSync(
   SyncProc: TThreadMethod);
 begin
   {
-  if not Assigned(Classes.WakeMainThread) then
+  if not Assigned(($IFDEF USE_UNIT_SCOPE_NAMES)System.($ENDIF)Classes.WakeMainThread) then
   begin
     // TODO: if WakeMainThread is not assigned, need to force a message into
     // the main message queue so TApplication.Idle() will be called so it can
@@ -387,7 +387,7 @@ procedure DoThreadQueue(QueueProc: TThreadMethod
 );
 begin
   {
-  if not Assigned(Classes.WakeMainThread) then
+  if not Assigned(($IFDEF USE_UNIT_SCOPE_NAMES)System.($ENDIF)Classes.WakeMainThread) then
   begin
     // TODO: if WakeMainThread is not assigned, need to force a message into
     // the main message queue so TApplication.Idle() will be called so it can

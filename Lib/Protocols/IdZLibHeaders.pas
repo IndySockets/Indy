@@ -765,7 +765,7 @@ procedure _memcpy(dest, source: Pointer; count: Integer); cdecl;
 implementation
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}
   {$IFNDEF STATICLOAD_ZLIB}
   , IdZLibConst
     {$IFDEF KYLIXCOMPAT}
@@ -775,7 +775,7 @@ uses
   , DynLibs // better add DynLibs only for fpc
     {$ENDIF}
     {$IFDEF WINDOWS}
-  , {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows
+  , {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}
     {$ENDIF}
   {$ELSE}
       {$IFDEF VCL_XE2_OR_ABOVE}
@@ -918,7 +918,7 @@ begin
   if AError = 0 then begin
     inherited Create(ATitle);
   end else begin
-    FErrorMessage := SysUtils.SysErrorMessage(AError);
+    FErrorMessage := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.SysErrorMessage(AError);
     inherited Create(ATitle + ': ' + FErrorMessage);    {Do not Localize}
   end;
 end;

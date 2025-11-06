@@ -832,7 +832,7 @@ uses
   IdException,
   IdGlobal,
   {$IFDEF WINDOWS}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
   IdWinsock2,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
@@ -847,7 +847,7 @@ uses
   baseunix,
   sockets,
   {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils, 
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}, 
   IdCTypes;
 
 //temp for compile tests
@@ -18935,7 +18935,7 @@ procedure RAND_screen();
 implementation
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdFIPS,
   IdGlobalProtocols,
   IdHashMessageDigest,
@@ -24736,14 +24736,14 @@ begin
     {$IFDEF STATICLOAD_OPENSSL}
     bIsLoaded := False;
     {$ELSE}
-    {$IFDEF WINDOWS}Windows.{$ENDIF}FreeLibrary(hIdSSL);
+    {$IFDEF WINDOWS}{$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.{$ENDIF}FreeLibrary(hIdSSL);
     hIdSSL := IdNilHandle;
     {$ENDIF}
   end;
 
   {$IFNDEF STATICLOAD_OPENSSL}
   if hIdCrypto <> IdNilHandle then begin
-    {$IFDEF WINDOWS}Windows.{$ENDIF}FreeLibrary(hIdCrypto);
+    {$IFDEF WINDOWS}{$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.{$ENDIF}FreeLibrary(hIdCrypto);
     hIdCrypto := IdNilHandle;
   end;
   {$ENDIF}

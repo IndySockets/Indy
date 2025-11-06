@@ -28,7 +28,7 @@ interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   {$ENDIF}
   IdAssignedNumbers, IdTCPClient, IdTime;
 

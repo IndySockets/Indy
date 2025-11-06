@@ -348,7 +348,7 @@ Original Author and Maintainer:
 }
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdComponent,
   IdException,
   IdExceptionCore,
@@ -454,7 +454,7 @@ implementation
 
 uses
   IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdReplyRFC,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 function TIdTCPConnection.GetIntercept: TIdConnectionIntercept;
 var

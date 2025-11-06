@@ -112,7 +112,7 @@ interface
 }
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdAssignedNumbers,
   IdGlobal,
   IdHeaderList,
@@ -184,7 +184,7 @@ implementation
 uses
   IdResourceStringsProtocols, IdIOHandler, IdTCPClient,
   IdURI, IdGlobalProtocols, IdStack, IdStackConsts, IdTCPStream, IdException,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 constructor TIdHTTPProxyServerContext.Create(AConnection: TIdTCPConnection;
   AYarn: TIdYarn; AList: TIdContextThreadList = nil);

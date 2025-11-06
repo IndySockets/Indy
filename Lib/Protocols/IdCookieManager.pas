@@ -60,7 +60,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdBaseComponent,
   IdCookie,
   IdHeaderList,
@@ -113,7 +113,7 @@ uses
   System.Generics.Defaults,
   {$ENDIF}
   IdGlobal, IdGlobalProtocols,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 { TIdCookieManager }
 

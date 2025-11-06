@@ -21,7 +21,7 @@ ways.
 {$I IdUnitPlatformOff.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdCTypes,
   Posix.SysSelect,
   Posix.SysSocket,
@@ -174,7 +174,7 @@ uses
   Posix.SysUio,
   Posix.Unistd,
   Posix.Fcntl,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
   {$UNDEF HAS_MSG_NOSIGNAL}
   {$IFDEF LINUX}  //this LINUX ifdef is deliberate

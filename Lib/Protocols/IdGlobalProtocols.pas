@@ -324,14 +324,14 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   {$IFDEF WINDOWS}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
   {$ENDIF}
   IdCharsets,
   IdGlobal,
   IdException,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   LWS = TAB + CHAR32;
@@ -631,7 +631,7 @@ uses
   IdResourceStringsProtocols,
   IdStack
   {$IFDEF HAS_IOUtils_TPath}
-  , {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}IOUtils
+  , {$IFDEF USE_UNIT_SCOPE_NAMES}System.IOUtils{$ELSE}IOUtils{$ENDIF}
   {$ENDIF}
   {$IFDEF USE_OBJECT_ARC}
     {$IFDEF HAS_UNIT_Generics_Collections}
@@ -1584,7 +1584,7 @@ begin
     {$ELSE}
       {$IFDEF HAS_IOUtils_TPath}
   if lPath = '' then begin
-    lPath := {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}IOUtils.TPath.GetTempPath;
+    lPath := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}IOUtils.TPath.GetTempPath;
   end;
       {$ENDIF}
     {$ENDIF}
@@ -1777,10 +1777,10 @@ begin
     try
     {$ENDIF}
       // TODO: use GetFileAttributesEx(GetFileExInfoStandard) if available...
-      LHandle := Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
+      LHandle := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
       if LHandle <> INVALID_HANDLE_VALUE then begin
-        Windows.FindClose(LHandle);
-        if (LRec.dwFileAttributes and Windows.FILE_ATTRIBUTE_DIRECTORY) = 0 then begin
+        {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FindClose(LHandle);
+        if (LRec.dwFileAttributes and {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FILE_ATTRIBUTE_DIRECTORY) = 0 then begin
           // TODO: use ULARGE_INTEGER instead...
           Result := (Int64(LRec.nFileSizeHigh) shl 32) + LRec.nFileSizeLow;
         end;
@@ -1893,14 +1893,14 @@ begin
     try
       {$ENDIF}
       // TODO: use GetFileAttributesEx() on systems that support it
-      LHandle := Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
+      LHandle := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
       {$IFDEF WIN32_OR_WIN64}
     finally
       SetErrorMode(LOldErrorMode);
     end;
       {$ENDIF}
     if LHandle <> INVALID_HANDLE_VALUE then begin
-      Windows.FindClose(LHandle);
+      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FindClose(LHandle);
       {$IFDEF WINCE}
       FileTimeToSystemTime(@LRec, @LTime);
       Result := SystemTimeToDateTime(LTime);
@@ -1931,7 +1931,7 @@ begin
     , LRec) = 0 then
   begin
     LTime := LRec.st_mtime;
-    Result := DateUtils.UnixToDateTime(LTime);
+    Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}DateUtils.UnixToDateTime(LTime);
   end;
   {$ELSE}
     {$IFDEF KYLIXCOMPAT}
@@ -2032,24 +2032,24 @@ begin
   // RLebeau 2/1/2008: MSDN says that SetLocalTime() does the adjustment
   // automatically, so why is it being done manually?
   if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
-    if not Windows.OpenProcessToken(Windows.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY, hToken) then begin
+    if not {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.OpenProcessToken({$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY, hToken) then begin
       Exit;
     end;
-    if not Windows.LookupPrivilegeValue(nil, 'SeSystemtimePrivilege', tkp.Privileges[0].Luid) then begin    {Do not Localize}
-      Windows.CloseHandle(hToken);
+    if not {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.LookupPrivilegeValue(nil, 'SeSystemtimePrivilege', tkp.Privileges[0].Luid) then begin    {Do not Localize}
+      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.CloseHandle(hToken);
       Exit;
     end;
     tkp.PrivilegeCount := 1;
     tkp.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
-    if not Windows.AdjustTokenPrivileges(hToken, FALSE, tkp, SizeOf(tkp), tpko, buffer) then begin
-      Windows.CloseHandle(hToken);
+    if not {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.AdjustTokenPrivileges(hToken, FALSE, tkp, SizeOf(tkp), tpko, buffer) then begin
+      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.CloseHandle(hToken);
       Exit;
     end;
   end;
     {$ENDIF}
 
   DateTimeToSystemTime(Value, dSysTime);
-  Result := Windows.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
 
     {$IFNDEF WINCE}
   if Result then begin
@@ -2066,7 +2066,7 @@ begin
     // TODO: adjust the Time manually so only 1 call to SetLocalTime() is needed...
 
     if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
-      Windows.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
+      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
       // Windows 2000+ will broadcast WM_TIMECHANGE automatically...
       if not IndyCheckWindowsVersion(5) then begin // Windows 2000 = v5.0
         SendMessage(HWND_BROADCAST, WM_TIMECHANGE, 0, 0);
@@ -2079,8 +2079,8 @@ begin
   {Undo the Process Privilege change we had done for the
   set time and close the handle that was allocated}
   if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
-    Windows.AdjustTokenPrivileges(hToken, False, tpko, SizeOf(tpko), tkp, Buffer);
-    Windows.CloseHandle(hToken);
+    {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.AdjustTokenPrivileges(hToken, False, tpko, SizeOf(tpko), tkp, Buffer);
+    {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.CloseHandle(hToken);
   end;
     {$ENDIF}
   {$ENDIF}
@@ -4849,7 +4849,7 @@ begin
       {$IFDEF WINCE}
       // TODO
       {$ELSE}
-  Windows.GetSystemTimeAsFileTime(LFTime);
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.GetSystemTimeAsFileTime(LFTime);
   TInt64Rec(Result).Low := LFTime.dwLowDateTime;
   TInt64Rec(Result).High := LFTime.dwHighDateTime;
       {$ENDIF}

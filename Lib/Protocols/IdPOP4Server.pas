@@ -25,7 +25,7 @@ This is an experimental proposal based on Kudzu's idea.
 interface
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdAssignedNumbers,
   IdCmdTCPServer,
   IdCommandHandlers,
@@ -101,7 +101,7 @@ implementation
 
 uses
   IdResourceStringsProtocols, IdCoderMIME, IdGlobal, IdGlobalProtocols, IdSSL,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 { TIdPOP4Server }
 

@@ -481,7 +481,7 @@ implementation
 
 uses
   IdGlobalProtocols,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   MaxWeekAdd : UInt32 = $FFFFFFFF div IdDaysInWeek;
@@ -1278,7 +1278,7 @@ begin
     while ANumber >= IdDaysInShortLeapYearCycle do begin
       // Round off current year to nearest four.
       i := (FYear shr 2) shl 2;
-      if SysUtils.IsLeapYear(i) then begin
+      if {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.IsLeapYear(i) then begin
         // Normal
         SubtractYears(IdYearsInShortLeapYearCycle);
         ANumber := ANumber - UInt32(IdDaysInShortLeapYearCycle);

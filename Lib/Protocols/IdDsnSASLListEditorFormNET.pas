@@ -3,7 +3,7 @@ unit IdDsnSASLListEditorFormNET;
 interface
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   System.Drawing, System.Collections, System.ComponentModel,
   System.Windows.Forms, System.Data, IdSASLCollection;
 
@@ -66,7 +66,7 @@ uses
   IdGlobal,
   IdResourceStrings,
   IdSASL,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 {$R IdSASLListEditorForm.resources}
 const

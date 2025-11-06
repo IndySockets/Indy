@@ -44,7 +44,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdGlobal,
   IdFTPList, IdFTPListParseBase,IdFTPListTypes;
 
@@ -84,7 +84,7 @@ implementation
 
 uses
   IdFTPCommon, IdGlobalProtocols, IdStrings,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   MICROWARE_OS9 = 'MicroWare OS-9'; {do not localize}

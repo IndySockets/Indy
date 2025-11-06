@@ -402,7 +402,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdCoderMIME,
   IdExplicitTLSClientServerBase,
   IdGlobal,
@@ -484,7 +484,7 @@ uses
   IdCoderHeader, IdHeaderCoderBase, IdMessageCoder, IdComponent, IdException,
   IdResourceStringsProtocols, IdTCPConnection, IdTCPStream, IdIOHandler,
   IdAttachment, IdText,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   SContentType = 'Content-Type'; {do not localize}

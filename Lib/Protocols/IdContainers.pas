@@ -65,12 +65,12 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF}
   {$IFDEF HAS_UNIT_Generics_Collections}
   , System.Generics.Collections
   {$ELSE}
     {$IFDEF HAS_TObjectList}
-  , {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Contnrs
+  , {$IFDEF USE_UNIT_SCOPE_NAMES}System.Contnrs{$ELSE}Contnrs{$ENDIF}
     {$ENDIF}
   {$ENDIF}
   ;

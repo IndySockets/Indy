@@ -9,7 +9,7 @@ uses
   QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt,
 {$ENDIF}
 {$IFDEF WIDGET_VCL_LIKE}
-  {$IFDEF USE_UNITSCOPENAMES}
+  {$IFDEF USE_UNIT_SCOPE_NAMES}
   Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.Graphics, Vcl.Controls, Vcl.ComCtrls, Vcl.Forms,
   {$ELSE}
   StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms,
@@ -18,8 +18,8 @@ uses
 {$IFDEF WIDGET_LCL}
   LResources,
 {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 type
   TfrmAbout = class(TForm)
@@ -71,12 +71,14 @@ implementation
 {$ENDIF}
 
 uses
-  {$IFDEF WIN32_OR_WIN64}ShellApi, {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64}
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.ShellApi{$ELSE}ShellApi{$ENDIF},
+  {$ENDIF}
   {$IFNDEF WIDGET_LCL}
    //done this way because we reference HInstance in Delphi for loading
    //resources.  Lazarus does something different.
     {$IFDEF WIN32_OR_WIN64}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
     {$ENDIF}
   {$ENDIF}
   IdDsnCoreResourceStrings,

@@ -226,7 +226,7 @@ uses
   IdResourceStrings,
   IdResourceStringsUnix,
   IdException,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 
 //from: netdbh.inc, we can not include it with the I derrective and netdb.pas

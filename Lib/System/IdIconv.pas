@@ -14,7 +14,7 @@ uses
   ,UnixType
   {$ENDIF}
   {$IFDEF WINDOWS}
-  ,{$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows
+  ,{$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}
   {$ENDIF}
   ;
 
@@ -222,7 +222,7 @@ implementation
 {$IFNDEF STATICLOAD_ICONV}
 uses
   IdResourceStrings,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 var
   hIconv: THandle = 0;
@@ -244,7 +244,7 @@ begin
     inherited Create(ATitle);
   end else
   begin
-    FErrorMessage := SysUtils.SysErrorMessage(AError);
+    FErrorMessage := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.SysErrorMessage(AError);
     inherited Create(ATitle + ': ' + FErrorMessage);    {Do not Localize}
   end;
 

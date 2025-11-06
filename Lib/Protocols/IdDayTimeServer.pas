@@ -51,7 +51,7 @@ interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   {$ENDIF}
   IdAssignedNumbers,
   IdContext,
@@ -77,7 +77,7 @@ implementation
 
 uses
   IdGlobal,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
 constructor TIdDayTimeServer.Create(AOwner: TComponent);

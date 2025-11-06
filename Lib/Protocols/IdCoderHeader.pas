@@ -97,7 +97,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdComponent,
   IdEMailAddress,
   IdHeaderCoderBase;
@@ -119,7 +119,7 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdAllHeaderCoders,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   csAddressSpecials: String = '()[]<>:;.,@\"';  {Do not Localize}

@@ -140,7 +140,7 @@ Original Author: Ozz Nixon (Winshoes 7)
 }
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdYarn, IdCommandHandlers, IdException,
   IdGlobal, IdCmdTCPServer, IdExplicitTLSClientServerBase,
   IdTCPConnection, IdReply;
@@ -443,7 +443,7 @@ uses
   IdReplyRFC,
   IdStack,
   IdSSL,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 {CH const
   AuthTypes: array [1..2] of string = ('USER', 'PASS'); } {Do not localize}

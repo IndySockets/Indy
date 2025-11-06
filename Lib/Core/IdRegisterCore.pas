@@ -113,9 +113,9 @@ implementation
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   {$IFDEF FMX}
-  {$IFDEF USE_UNITSCOPENAMES}FMX.{$ENDIF}Controls,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}FMX.Controls{$ELSE}Controls{$ENDIF},
   {$ENDIF}
   {$IFDEF FPC}
   LResources,
@@ -129,11 +129,11 @@ uses
   DesignIntf,
   DesignEditors,
     {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}TypInfo,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.TypInfo{$ELSE}TypInfo{$ENDIF},
     {$IFDEF VCL_2010_OR_ABOVE}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Rtti,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Rtti{$ELSE}Rtti{$ENDIF},
     {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
   IdGlobal,
   {$ENDIF}
 

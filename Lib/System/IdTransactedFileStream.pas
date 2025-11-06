@@ -55,11 +55,11 @@ been burnt with temporary files and server crashes before.
 }
 uses
   {$IFDEF WIN32_OR_WIN64}
-  {$IFDEF USE_UNITSCOPENAMES}Winapi.{$ENDIF}Windows,
-  {$IFDEF USE_UNITSCOPENAMES}Vcl.{$ENDIF}Consts,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF},
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Vcl.Consts{$ELSE}Consts{$ENDIF},
   {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF},
   IdGlobal;
 
  {$IFDEF WIN32_OR_WIN64}
@@ -128,7 +128,7 @@ type
 implementation
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}RTLConsts;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.RTLConsts{$ELSE}RTLConsts{$ENDIF};
 
  {$IFDEF WIN32_OR_WIN64}
 

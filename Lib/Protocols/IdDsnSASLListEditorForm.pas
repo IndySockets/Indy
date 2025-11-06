@@ -54,7 +54,7 @@ interface
 
 uses
   {$IFDEF WIDGET_WINFORMS}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdDsnSASLListEditorFormNET;
   {$R 'IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources' 'IdDsnSASLListEditorFormNET.resx'}
   {$ENDIF}

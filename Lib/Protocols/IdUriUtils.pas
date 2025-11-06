@@ -25,12 +25,12 @@ uses
   IdGlobal
   {$IFNDEF DOTNET}
     {$IFDEF HAS_ConvertToUtf32}
-  , {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Character
+  , {$IFDEF USE_UNIT_SCOPE_NAMES}System.Character{$ELSE}Character{$ENDIF}
     {$ELSE}
   , IdException
     {$ENDIF}
     {$IFDEF HAS_String_IndexOf}
-  , {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils
+  , {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}
     {$ENDIF}
   {$ENDIF}
   ;

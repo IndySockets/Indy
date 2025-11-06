@@ -71,7 +71,7 @@ uses
   {$IFNDEF HAS_UInt32}
   IdGlobal,
   {$ENDIF}
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   ASN1_INT = $02;
@@ -499,7 +499,7 @@ end;
 function UIntToStr(AValue: UInt32): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.IntToStr(Int64(AValue));
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.IntToStr(Int64(AValue));
 end;
 {$ENDIF}
 

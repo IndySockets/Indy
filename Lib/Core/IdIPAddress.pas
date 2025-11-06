@@ -67,7 +67,7 @@ interface
 //we need to put this in Delphi mode to work
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdGlobal;
 
 type
@@ -101,7 +101,7 @@ implementation
 
 uses
   IdStack,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 //IPv4 address conversion
 //Much of this is based on http://www.pc-help.org/obscure.htm

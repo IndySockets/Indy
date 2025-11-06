@@ -83,7 +83,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdContext, IdAssignedNumbers, IdMappedPortTCP, IdStack, IdYarn,
   IdTCPConnection, IdThread, IdGlobal;
 
@@ -165,7 +165,7 @@ implementation
 uses
   IdGlobalProtocols, IdIOHandlerSocket,
   IdResourceStringsProtocols, IdTcpClient, IdSimpleServer, IdStackConsts,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   //  iLastGetCmd = 2;

@@ -72,7 +72,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdMessageCoder, IdMessage, IdExceptionCore, IdGlobal;
 
 type
@@ -122,7 +122,7 @@ implementation
 uses
   IdHashCRC,
   IdResourceStringsProtocols,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 function GetStrValue(const Line, Option: string; const AMaxCount: Integer = MaxInt) : string;
 var

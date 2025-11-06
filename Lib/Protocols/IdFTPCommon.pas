@@ -173,15 +173,15 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}Classes,
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF},
   IdGlobal,
   IdGlobalProtocols,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}s
   // to facilite inlining
   {$IFNDEF HAS_GetLocalTimeOffset}
     {$IFDEF HAS_DateUtils_TTimeZone}
-  ,{$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}TimeSpan
-  ,{$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}DateUtils
+  ,{$IFDEF USE_UNIT_SCOPE_NAMES}System.TimeSpan{$ELSE}TimeSpan{$ENDIF}
+  ,{$IFDEF USE_UNIT_SCOPE_NAMES}System.DateUtils{$ELSE}DateUtils{$ENDIF}
     {$ENDIF}
   {$ENDIF}
   ;
@@ -1602,7 +1602,7 @@ Also note, that in this version, TFormatSettings is not an object at all, it's a
 record with associated functions and procedures plus a creator.  Since we allocate
 it on the stack with the definition, we can't "free" it with FreeAndNil.  }
 var
-  LFormatSettings: SysUtils.TFormatSettings;
+  LFormatSettings: {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.TFormatSettings;
 {$ENDIF}
 begin
   Result := AYear;

@@ -83,7 +83,7 @@ uses
   IdGlobal,
   IdIPAddress,
   IdDsnCoreResourceStrings, IdStack,
-  {$IFDEF USE_UNITSCOPENAMES}System.{$ENDIF}SysUtils;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF};
 
 const
   IPv6Wildcard1 = '::';                 {do not localize}
