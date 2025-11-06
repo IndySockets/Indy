@@ -618,7 +618,7 @@ uses
   {$ENDIF}
   {$IFDEF WINDOWS}
   Messages,
-  Registry,
+  {$IFDEF VCL_XE2_OR_ABOVE}System.Win.Registry{$ELSE}Registry{$ENDIF},
   {$ENDIF}
   {$IFDEF DOTNET}
   System.IO,
