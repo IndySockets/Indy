@@ -14802,7 +14802,7 @@ type
 
   // PASN1_UTCTIME     = Pointer;
 
-//GREGOR - spremenjana deklaracija ker se tolèe
+//GREGOR - spremenjana deklaracija ker se tole
 //  Phostent	  = Pointer;
   {$NODEFINE Phostent2}
   Phostent2   = Pointer;
@@ -24736,14 +24736,14 @@ begin
     {$IFDEF STATICLOAD_OPENSSL}
     bIsLoaded := False;
     {$ELSE}
-    {$IFDEF WINDOWS}{$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.{$ENDIF}FreeLibrary(hIdSSL);
+    {$IFDEF WINDOWS}{$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.{$ENDIF}FreeLibrary(hIdSSL);
     hIdSSL := IdNilHandle;
     {$ENDIF}
   end;
 
   {$IFNDEF STATICLOAD_OPENSSL}
   if hIdCrypto <> IdNilHandle then begin
-    {$IFDEF WINDOWS}{$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.{$ENDIF}FreeLibrary(hIdCrypto);
+    {$IFDEF WINDOWS}{$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.{$ENDIF}FreeLibrary(hIdCrypto);
     hIdCrypto := IdNilHandle;
   end;
   {$ENDIF}

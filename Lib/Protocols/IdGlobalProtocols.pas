@@ -1584,7 +1584,7 @@ begin
     {$ELSE}
       {$IFDEF HAS_IOUtils_TPath}
   if lPath = '' then begin
-    lPath := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}IOUtils.TPath.GetTempPath;
+    lPath := {$IFDEF USE_UNIT_SCOPE_NAMES}System.IOUtils{$ELSE}IOUtils{$ENDIF}.TPath.GetTempPath;
   end;
       {$ENDIF}
     {$ENDIF}
@@ -1777,10 +1777,10 @@ begin
     try
     {$ENDIF}
       // TODO: use GetFileAttributesEx(GetFileExInfoStandard) if available...
-      LHandle := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
+      LHandle := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.FindFirstFile(PIdFileNameChar(AFileName), LRec);
       if LHandle <> INVALID_HANDLE_VALUE then begin
-        {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FindClose(LHandle);
-        if (LRec.dwFileAttributes and {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FILE_ATTRIBUTE_DIRECTORY) = 0 then begin
+        {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.FindClose(LHandle);
+        if (LRec.dwFileAttributes and {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.FILE_ATTRIBUTE_DIRECTORY) = 0 then begin
           // TODO: use ULARGE_INTEGER instead...
           Result := (Int64(LRec.nFileSizeHigh) shl 32) + LRec.nFileSizeLow;
         end;
@@ -1893,14 +1893,14 @@ begin
     try
       {$ENDIF}
       // TODO: use GetFileAttributesEx() on systems that support it
-      LHandle := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FindFirstFile(PIdFileNameChar(AFileName), LRec);
+      LHandle := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.FindFirstFile(PIdFileNameChar(AFileName), LRec);
       {$IFDEF WIN32_OR_WIN64}
     finally
       SetErrorMode(LOldErrorMode);
     end;
       {$ENDIF}
     if LHandle <> INVALID_HANDLE_VALUE then begin
-      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.FindClose(LHandle);
+      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.FindClose(LHandle);
       {$IFDEF WINCE}
       FileTimeToSystemTime(@LRec, @LTime);
       Result := SystemTimeToDateTime(LTime);
@@ -1931,7 +1931,7 @@ begin
     , LRec) = 0 then
   begin
     LTime := LRec.st_mtime;
-    Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}DateUtils.UnixToDateTime(LTime);
+    Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.DateUtils{$ELSE}DateUtils{$ENDIF}.UnixToDateTime(LTime);
   end;
   {$ELSE}
     {$IFDEF KYLIXCOMPAT}
@@ -2032,24 +2032,24 @@ begin
   // RLebeau 2/1/2008: MSDN says that SetLocalTime() does the adjustment
   // automatically, so why is it being done manually?
   if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
-    if not {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.OpenProcessToken({$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY, hToken) then begin
+    if not {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.OpenProcessToken({$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY, hToken) then begin
       Exit;
     end;
-    if not {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.LookupPrivilegeValue(nil, 'SeSystemtimePrivilege', tkp.Privileges[0].Luid) then begin    {Do not Localize}
-      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.CloseHandle(hToken);
+    if not {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.LookupPrivilegeValue(nil, 'SeSystemtimePrivilege', tkp.Privileges[0].Luid) then begin    {Do not Localize}
+      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.CloseHandle(hToken);
       Exit;
     end;
     tkp.PrivilegeCount := 1;
     tkp.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
-    if not {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.AdjustTokenPrivileges(hToken, FALSE, tkp, SizeOf(tkp), tpko, buffer) then begin
-      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.CloseHandle(hToken);
+    if not {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.AdjustTokenPrivileges(hToken, FALSE, tkp, SizeOf(tkp), tpko, buffer) then begin
+      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.CloseHandle(hToken);
       Exit;
     end;
   end;
     {$ENDIF}
 
   DateTimeToSystemTime(Value, dSysTime);
-  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
 
     {$IFNDEF WINCE}
   if Result then begin
@@ -2066,7 +2066,7 @@ begin
     // TODO: adjust the Time manually so only 1 call to SetLocalTime() is needed...
 
     if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
-      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
+      {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.SetLocalTime({$IFDEF FPC}@{$ENDIF}dSysTime);
       // Windows 2000+ will broadcast WM_TIMECHANGE automatically...
       if not IndyCheckWindowsVersion(5) then begin // Windows 2000 = v5.0
         SendMessage(HWND_BROADCAST, WM_TIMECHANGE, 0, 0);
@@ -2079,8 +2079,8 @@ begin
   {Undo the Process Privilege change we had done for the
   set time and close the handle that was allocated}
   if IndyWindowsPlatform = VER_PLATFORM_WIN32_NT then begin
-    {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.AdjustTokenPrivileges(hToken, False, tpko, SizeOf(tpko), tkp, Buffer);
-    {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.CloseHandle(hToken);
+    {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.AdjustTokenPrivileges(hToken, False, tpko, SizeOf(tpko), tkp, Buffer);
+    {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.CloseHandle(hToken);
   end;
     {$ENDIF}
   {$ENDIF}
@@ -2565,16 +2565,16 @@ const
     (TimeZone:'GST';  Offset:'+0400'), // Gulf Standard Time                                     {do not localize}
     (TimeZone:'GYT';  Offset:'-0400'), // Guyana Time                                            {do not localize}
     (TimeZone:'H';    Offset:'+0800'), // Hotel Time Zone - Military                             {do not localize}
-    (TimeZone:'HAA';  Offset:'-0300'), // Heure Avancée de l'Atlantique - North America          {do not localize}
-    (TimeZone:'HAC';  Offset:'-0500'), // Heure Avancée du Centre - North America                {do not localize}
+    (TimeZone:'HAA';  Offset:'-0300'), // Heure Avance de l'Atlantique - North America          {do not localize}
+    (TimeZone:'HAC';  Offset:'-0500'), // Heure Avance du Centre - North America                {do not localize}
     (TimeZone:'HADT'; Offset:'-0900'), // Hawaii-Aleutian Daylight Time - North America          {do not localize}
-    (TimeZone:'HAE';  Offset:'-0400'), // Heure Avancée de l'Est - North America                 {do not localize}
-    (TimeZone:'HAEC'; Offset:'+0200'), // Heure Avancée d'Europe Centrale francised name for CEST {do not localize}
-    (TimeZone:'HAP';  Offset:'-0700'), // Heure Avancée du Pacifique - North America             {do not localize}
-    (TimeZone:'HAR';  Offset:'-0600'), // Heure Avancée des Rocheuses - North America            {do not localize}
+    (TimeZone:'HAE';  Offset:'-0400'), // Heure Avance de l'Est - North America                 {do not localize}
+    (TimeZone:'HAEC'; Offset:'+0200'), // Heure Avance d'Europe Centrale francised name for CEST {do not localize}
+    (TimeZone:'HAP';  Offset:'-0700'), // Heure Avance du Pacifique - North America             {do not localize}
+    (TimeZone:'HAR';  Offset:'-0600'), // Heure Avance des Rocheuses - North America            {do not localize}
     (TimeZone:'HAST'; Offset:'-1000'), // Hawaii-Aleutian Standard Time - North America          {do not localize}
-    (TimeZone:'HAT';  Offset:'-0230'), // Heure Avancée de Terre-Neuve - North America           {do not localize}
-    (TimeZone:'HAY';  Offset:'-0800'), // Heure Avancée du Yukon - North America                 {do not localize}
+    (TimeZone:'HAT';  Offset:'-0230'), // Heure Avance de Terre-Neuve - North America           {do not localize}
+    (TimeZone:'HAY';  Offset:'-0800'), // Heure Avance du Yukon - North America                 {do not localize}
     (TimeZone:'HKT';  Offset:'+0800'), // Hong Kong Time                                         {do not localize}
     (TimeZone:'HMT';  Offset:'+0500'), // Heard and McDonald Islands Time                        {do not localize}
     (TimeZone:'HNA';  Offset:'-0400'), // Heure Normale de l'Atlantique - North America          {do not localize}
@@ -2611,11 +2611,11 @@ const
     (TimeZone:'MART'; Offset:'-0930'), // Marquesas Islands Time                                 {do not localize}
     (TimeZone:'MAWT'; Offset:'+0500'), // Mawson Station Time                                    {do not localize}
     (TimeZone:'MDT';  Offset:'-0600'), // Mountain Daylight Time - North America                 {do not localize}
-    (TimeZone:'MEHSZ';Offset:'+0300'), // Mitteleuropäische Hochsommerzeit - Europe              {do not localize}
+    (TimeZone:'MEHSZ';Offset:'+0300'), // Mitteleuropische Hochsommerzeit - Europe              {do not localize}
     (TimeZone:'MEST'; Offset:'+0200'), // Middle European Saving Time Same zone as CEST          {do not localize}
-    (TimeZone:'MESZ'; Offset:'+0200'), // Mitteleuroäische Sommerzeit - Europe                   {do not localize}
+    (TimeZone:'MESZ'; Offset:'+0200'), // Mitteleuroische Sommerzeit - Europe                   {do not localize}
     (TimeZone:'MET';  Offset:'+0100'), // Middle European Time Same zone as CET                  {do not localize}
-    (TimeZone:'MEZ';  Offset:'+0100'), // Mitteleuropäische Zeit - Europe                        {do not localize}
+    (TimeZone:'MEZ';  Offset:'+0100'), // Mitteleuropische Zeit - Europe                        {do not localize}
     (TimeZone:'MHT';  Offset:'+1200'), // Marshall Islands                                       {do not localize}
     (TimeZone:'MIST'; Offset:'+1100'), // Macquarie Island Station Time                          {do not localize}
     (TimeZone:'MIT';  Offset:'-0930'), // Marquesas Islands Time                                 {do not localize}
@@ -2657,7 +2657,7 @@ const
     (TimeZone:'PYT';  Offset:'-0400'), // Paraguay Time (South America)                          {do not localize}
     (TimeZone:'Q';    Offset:'-0400'), // Quebec Time Zone - Military                            {do not localize}
     (TimeZone:'R';    Offset:'-0500'), // Romeo Time Zone - Military                             {do not localize}
-    (TimeZone:'RET';  Offset:'+0400'), // Réunion Time                                           {do not localize}
+    (TimeZone:'RET';  Offset:'+0400'), // Runion Time                                           {do not localize}
     (TimeZone:'ROTT'; Offset:'-0300'), // Rothera Research Station Time                          {do not localize}
     (TimeZone:'S';    Offset:'-0600'), // Sierra Time Zone - Military                            {do not localize}
     (TimeZone:'SAKT'; Offset:'+1100'), // Sakhalin Island time                                   {do not localize}
@@ -4849,7 +4849,7 @@ begin
       {$IFDEF WINCE}
       // TODO
       {$ELSE}
-  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.GetSystemTimeAsFileTime(LFTime);
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.GetSystemTimeAsFileTime(LFTime);
   TInt64Rec(Result).Low := LFTime.dwLowDateTime;
   TInt64Rec(Result).High := LFTime.dwHighDateTime;
       {$ENDIF}

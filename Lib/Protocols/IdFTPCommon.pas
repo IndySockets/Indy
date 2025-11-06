@@ -990,7 +990,7 @@ function IsLineStr(const AData : String): Boolean;
 const
   //Note that there are two separate char codes are rended as '-' in the line below.
   //Be careful when editing because the codes are different.
-  //  LineSet = [' ','-','–','+'];    {Do not Localize}
+  //  LineSet = [' ','-','','+'];    {Do not Localize}
 
   // RLebeau 1/7/09: using Char() for #128-#255 because in D2009, the compiler
   // may change characters >= #128 from their Ansi codepage value to their true
@@ -1366,11 +1366,11 @@ This is from the UNIX world and it lets you query the server for the modificatio
 
 
 MDTM yyyymmddhhmmss[+-xxx]
-Where ‘yyyymmddhhmmss’ is a line of text with the year, month, day, hour, minutes, and seconds the file should get set to. The next part, “[+-xxx]”, is optional time zone information of the FTP client in minutes relative to UTC.
+Where yyyymmddhhmmss is a line of text with the year, month, day, hour, minutes, and seconds the file should get set to. The next part, [+-xxx], is optional time zone information of the FTP client in minutes relative to UTC.
 
 If the client provides this info FTP Serv-U takes care to convert the date and time to the proper local time at the server, so dates and times are kept consistent (a file created at 4 in the morning in the Eastern US would be created at 10 in Central Europe). If no time zone info is given FTP Serv-U assumes you are specifying local time at the server.
 
-An example, showing how to set the time if the client is in the Eastern US during summer time: “MDTM 19980719103029-240”. This sets the date and time to 19 July 1998, 10:30am 29 seconds, and indicates the client is 240 behind UT
+An example, showing how to set the time if the client is in the Eastern US during summer time: MDTM 19980719103029-240. This sets the date and time to 19 July 1998, 10:30am 29 seconds, and indicates the client is 240 behind UT
 }
 var
   LBuffer, LMSecPart : String;
@@ -1602,7 +1602,7 @@ Also note, that in this version, TFormatSettings is not an object at all, it's a
 record with associated functions and procedures plus a creator.  Since we allocate
 it on the stack with the definition, we can't "free" it with FreeAndNil.  }
 var
-  LFormatSettings: {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.TFormatSettings;
+  LFormatSettings: {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}.TFormatSettings;
 {$ENDIF}
 begin
   Result := AYear;
@@ -1930,8 +1930,8 @@ begin
       CharIsInSet(SData, 6, 'TSRWX-') and    {Do not Localize}
       {Distinct's FTP Server Active X may report a "Y" by mistake, saw in manual
       FTP Server, ActiveX Control, File Transfer Protocol (RFC 959), ActiveX Control,
-      for Microsoftâ Windowsä, Version 4.01
-      Copyright Ó 1996 - 1998 by Distinct Corporation
+      for Microsoft Windows, Version 4.01
+      Copyright  1996 - 1998 by Distinct Corporation
       All rights reserved
       }
       {Solaris returns "L" instead of "S" for setgid without group execute (mandatory locking)}
@@ -2520,7 +2520,7 @@ end;
 
 {
 based on information found in:
-"Connect:Enterprise® UNIX Remote User’s Guide Version 2.1 " Copyright
+"Connect:Enterprise UNIX Remote Users Guide Version 2.1 " Copyright
 1999, 2002, 2003 Sterling Commerce, Inc.
 
 }

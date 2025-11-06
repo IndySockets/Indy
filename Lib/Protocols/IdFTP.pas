@@ -1503,7 +1503,7 @@ var
 begin
   AResume := AResume and CanResume;
   if ACanOverwrite and (not AResume) then begin
-    {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.DeleteFile(ADestFile);
+    {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}.DeleteFile(ADestFile);
     LDestStream := TIdFileCreateStream.Create(ADestFile);
   end
   else if (not ACanOverwrite) and AResume then begin

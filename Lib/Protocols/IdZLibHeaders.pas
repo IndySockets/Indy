@@ -918,7 +918,7 @@ begin
   if AError = 0 then begin
     inherited Create(ATitle);
   end else begin
-    FErrorMessage := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.SysErrorMessage(AError);
+    FErrorMessage := {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}.SysErrorMessage(AError);
     inherited Create(ATitle + ': ' + FErrorMessage);    {Do not Localize}
   end;
 end;

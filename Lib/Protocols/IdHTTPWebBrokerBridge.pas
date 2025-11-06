@@ -776,10 +776,10 @@ begin
   // TODO: This code may not be in the correct location.
   if (FResponseInfo.ContentType = '') and
     ((FResponseInfo.ContentText <> '') or (Assigned(FResponseInfo.ContentStream))) and
-    ({$IFDEF USE_UNIT_SCOPE_NAMES}Web.{$ENDIF}HTTPApp.DefaultCharSet <> '') then
+    ({$IFDEF USE_UNIT_SCOPE_NAMES}Web.HTTPApp{$ELSE}HTTPApp{$ENDIF}.DefaultCharSet <> '') then
   begin
     // Indicate how to convert UTF16 when write.
-    ContentType := Format('text/html; charset=%s', [({$IFDEF USE_UNIT_SCOPE_NAMES}Web.{$ENDIF}HTTPApp.DefaultCharSet]); {Do not Localize}
+    ContentType := Format('text/html; charset=%s', [({$IFDEF USE_UNIT_SCOPE_NAMES}Web.HTTPApp{$ELSE}HTTPApp{$ENDIF}.DefaultCharSet]); {Do not Localize}
   end;
   {$ENDIF}
   FResponseInfo.WriteContent;
@@ -1013,12 +1013,12 @@ end;
 constructor TIdHTTPWebBrokerBridgeRequestHandler.Create(AOwner: TComponent);
 begin
   inherited;
-  {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}Classes.ApplicationHandleException := HandleException;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF}.ApplicationHandleException := HandleException;
 end;
 
 destructor TIdHTTPWebBrokerBridgeRequestHandler.Destroy;
 begin
-  {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}Classes.ApplicationHandleException := nil;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}System.Classes{$ELSE}Classes{$ENDIF}.ApplicationHandleException := nil;
   inherited;
 end;
 
@@ -1027,7 +1027,7 @@ end;
 class destructor TIdHTTPWebBrokerBridgeRequestHandler.Destroy;
 begin
   FreeAndNil(FWebRequestHandler);
-  {$IFDEF USE_UNIT_SCOPE_NAMES}Web.{$ENDIF}WebReq.WebRequestHandlerProc := nil;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Web.WebReq{$ELSE}WebReq{$ENDIF}.WebRequestHandlerProc := nil;
 end;
   {$ENDIF}
 {$ENDIF}
@@ -1120,7 +1120,7 @@ begin
 end;
 
 initialization
-  {$IFDEF USE_UNIT_SCOPE_NAMES}Web.{$ENDIF}WebReq.WebRequestHandlerProc := IdHTTPWebBrokerBridgeRequestHandler;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Web.WebReq{$ELSE}WebReq{$ENDIF}.WebRequestHandlerProc := IdHTTPWebBrokerBridgeRequestHandler;
 {$IFDEF HAS_TWebResponseStream}
   TWebResponse.FGetResponseStream :=
     function(AResponse: TWebResponse): TWebResponseStream
@@ -1133,11 +1133,11 @@ finalization
 {$IFDEF HAS_CLASS_VARS}
   {$IFNDEF HAS_CLASS_DESTRUCTOR}
   FreeAndNil(TIdHTTPWebBrokerBridgeRequestHandler.FWebRequestHandler);
-  {$IFDEF USE_UNIT_SCOPE_NAMES}Web.{$ENDIF}WebReq.WebRequestHandlerProc := nil;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Web.WebReq{$ELSE}WebReq{$ENDIF}.WebRequestHandlerProc := nil;
   {$ENDIF}
 {$ELSE}
   FreeAndNil(IndyWebRequestHandler);
-  {$IFDEF USE_UNIT_SCOPE_NAMES}Web.{$ENDIF}WebReq.WebRequestHandlerProc := nil;
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Web.WebReq{$ELSE}WebReq{$ENDIF}.WebRequestHandlerProc := nil;
 {$ENDIF}
 {$IFDEF HAS_TWebResponseStream}
   TWebResponse.FGetResponseStream := nil;

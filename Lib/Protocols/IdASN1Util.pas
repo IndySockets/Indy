@@ -499,7 +499,7 @@ end;
 function UIntToStr(AValue: UInt32): string;
 {$IFDEF USE_INLINE}inline;{$ENDIF}
 begin
-  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.IntToStr(Int64(AValue));
+  Result := {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}.IntToStr(Int64(AValue));
 end;
 {$ENDIF}
 

@@ -109,7 +109,7 @@ end;
 destructor TIdAttachmentFile.Destroy;
 begin
   if FileIsTempFile then begin
-    {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.DeleteFile(StoredPathName);
+    {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}.DeleteFile(StoredPathName);
   end;
   inherited Destroy;
 end;

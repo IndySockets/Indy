@@ -285,7 +285,7 @@ begin
     {$IFDEF WINCE}
     // TODO
     {$ELSE}
-  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.{$ENDIF}Windows.GetSystemTimeAsFileTime(Result);
+  {$IFDEF USE_UNIT_SCOPE_NAMES}Winapi.Windows{$ELSE}Windows{$ENDIF}.GetSystemTimeAsFileTime(Result);
     {$ENDIF}
   {$ENDIF}
   {$IFDEF UNIX}

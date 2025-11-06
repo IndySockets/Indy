@@ -866,7 +866,7 @@ function TIdDateTimeStamp.GetDayOfWeek : Integer;
 var
   a, y, m, d, mnth : Integer;
 begin
-  // Thanks to the "FAQ About Calendars" by Claus Tøndering for this algorithm
+  // Thanks to the "FAQ About Calendars" by Claus Tndering for this algorithm
   // http://www.tondering.dk/claus/calendar.html
   mnth := MonthOfYear;
   a := (14 - mnth) div 12;
@@ -1278,7 +1278,7 @@ begin
     while ANumber >= IdDaysInShortLeapYearCycle do begin
       // Round off current year to nearest four.
       i := (FYear shr 2) shl 2;
-      if {$IFDEF USE_UNIT_SCOPE_NAMES}System.{$ENDIF}SysUtils.IsLeapYear(i) then begin
+      if {$IFDEF USE_UNIT_SCOPE_NAMES}System.SysUtils{$ELSE}SysUtils{$ENDIF}.IsLeapYear(i) then begin
         // Normal
         SubtractYears(IdYearsInShortLeapYearCycle);
         ANumber := ANumber - UInt32(IdDaysInShortLeapYearCycle);
