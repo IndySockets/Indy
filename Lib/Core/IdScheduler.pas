@@ -121,7 +121,7 @@ uses
   {$ENDIF}
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-  {$IFDEF VCL_XE2_OR_ABOVE}Winapi.Windows{$ELSE}Windows{$ENDIF},
+    Windows,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}

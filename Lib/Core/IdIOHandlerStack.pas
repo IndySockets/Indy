@@ -209,7 +209,7 @@ uses
   Posix.SysTime,
   {$ENDIF}
   {$IFDEF WINDOWS}
-  {$IFDEF VCL_XE2_OR_ABOVE}Winapi.Windows{$ELSE}Windows{$ENDIF},
+  Windows,
   {$ENDIF}
   IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdException,
   IdComponent, IdIOHandler, IdCustomTransparentProxy;

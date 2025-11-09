@@ -616,10 +616,7 @@ uses
   {$IFDEF HAS_UNIT_DateUtils}
   DateUtils,
   {$ENDIF}
-  {$IFDEF WINDOWS}
-  Messages,
-  {$IFDEF VCL_XE2_OR_ABOVE}System.Win.Registry{$ELSE}Registry{$ENDIF},
-  {$ENDIF}
+  {$IFDEF WINDOWS}Messages,Registry,{$ENDIF}
   {$IFDEF DOTNET}
   System.IO,
   System.Text,
@@ -627,11 +624,7 @@ uses
   IdResourceStringsProtocols,
   IdStack
   {$IFDEF HAS_IOUtils_TPath}
-    {$IFDEF VCL_XE2_OR_ABOVE}
-  , System.IOUtils
-    {$ELSE}
   , IOUtils
-    {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_OBJECT_ARC}
     {$IFDEF HAS_UNIT_Generics_Collections}

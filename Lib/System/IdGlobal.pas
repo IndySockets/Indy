@@ -2060,7 +2060,7 @@ uses
     {$IFNDEF DOTNET}
       {$IFNDEF HAS_GetLocalTimeOffset}
         {$IFDEF HAS_DateUtils_TTimeZone}
-  {$IFDEF VCL_XE2_OR_ABOVE}System.TimeSpan{$ELSE}TimeSpan{$ENDIF},
+        TimeSpan,
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
