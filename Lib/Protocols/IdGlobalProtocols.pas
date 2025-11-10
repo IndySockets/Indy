@@ -616,7 +616,10 @@ uses
   {$IFDEF HAS_UNIT_DateUtils}
   DateUtils,
   {$ENDIF}
-  {$IFDEF WINDOWS}Messages,Registry,{$ENDIF}
+  {$IFDEF WINDOWS}
+  Messages,
+  Registry,
+  {$ENDIF}
   {$IFDEF DOTNET}
   System.IO,
   System.Text,
@@ -1577,7 +1580,7 @@ begin
     {$ELSE}
       {$IFDEF HAS_IOUtils_TPath}
   if lPath = '' then begin
-    lPath := {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}IOUtils.TPath.GetTempPath;
+    lPath := IOUtils.TPath.GetTempPath;
   end;
       {$ENDIF}
     {$ENDIF}

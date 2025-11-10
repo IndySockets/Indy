@@ -27,7 +27,7 @@ uses
   {
   ($IFDEF WINDOWS)
     ($IFDEF VCL_XE2_OR_ABOVE)
-uses Winapi.Windows;
+uses Windows;
     ($ENDIF)
   ($ENDIF)
   }

@@ -237,7 +237,7 @@ implementation
 uses
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-    Windows,
+  Windows,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF VCL_XE3_OR_ABOVE}

@@ -425,7 +425,7 @@ implementation
 uses
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-    Windows,
+  Windows,
     {$ENDIF}
   {$ENDIF}
   IdGlobalCore,

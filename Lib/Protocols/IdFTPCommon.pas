@@ -180,8 +180,8 @@ uses
   // to facilite inlining
   {$IFNDEF HAS_GetLocalTimeOffset}
     {$IFDEF HAS_DateUtils_TTimeZone}
-    ,TimeSpan
-    ,DateUtils
+  ,TimeSpan
+  ,DateUtils
     {$ENDIF}
   {$ENDIF}
   ;

@@ -121,7 +121,7 @@ uses
   {$ENDIF}
   {$IFDEF VCL_2010_OR_ABOVE}
     {$IFDEF WINDOWS}
-    Windows,
+  Windows,
     {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}

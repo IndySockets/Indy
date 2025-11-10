@@ -2060,7 +2060,7 @@ uses
     {$IFNDEF DOTNET}
       {$IFNDEF HAS_GetLocalTimeOffset}
         {$IFDEF HAS_DateUtils_TTimeZone}
-        TimeSpan,
+  TimeSpan,
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
