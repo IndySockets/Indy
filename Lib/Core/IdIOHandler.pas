@@ -792,7 +792,7 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64}
-  {$IFDEF VCL_XE2_OR_ABOVE}Winapi.Windows{$ELSE}Windows{$ENDIF},
+  Windows,
   {$ENDIF}
   {$IFDEF USE_VCL_POSIX}
     {$IFDEF OSX}
