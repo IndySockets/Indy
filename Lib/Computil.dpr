@@ -191,7 +191,7 @@ begin
       if ProductVersion >= 15 then begin
         RegCompanyName := 'Embarcadero';
       end
-      else if ProductVersion >= 13 then begin
+      else if ProductVersion >= 12 then begin
         RegCompanyName := 'CodeGear';
       end
       else begin
@@ -231,9 +231,6 @@ begin
       end
       else if ProductVersion = 13 then begin
         RegVersion := 0; // no Product v13
-      end
-      else if (ProductVersion = 12) and (ProductLanguage = 'D') then begin
-        RegVersion := 5;  // Delphi 2007
       end
       else if (ProductVersion > 9) or
               ((ProductVersion = 9) and (ProductLanguage = 'D')) then // (no C++Builder v9)
