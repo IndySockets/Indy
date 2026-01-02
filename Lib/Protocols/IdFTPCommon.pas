@@ -1919,8 +1919,9 @@ begin
       {LynxOS may report "f" or "r" for a regular file, "+" for a contiguous file,
       "i" for a non-persistent ipc special file, and "I" for a persistent ipc
       special file.  The Linux manpage for stat also reports "m" for XENIX shared
-      data subtype of IFNAM, and "w" for a BSD whiteout}
-      CharIsInSet(SData, 1, 'LD-BCPS+IMW') and   {Do not Localize}
+      data subtype of IFNAM, and "w" for a BSD whiteout.  z/OS uses "e" for
+      external links }
+      CharIsInSet(SData, 1, 'LD-BCPSE+IMW') and   {Do not Localize}
       CharIsInSet(SData, 2, 'TSRWX-') and    {Do not Localize}
       {Distinct TCP/IP FTP Server-32 3.0 errs by reporting an 'A" here }
       CharIsInSet(SData, 3, 'TSRWX-A') and   {Do not Localize}
