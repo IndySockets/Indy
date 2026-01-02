@@ -466,7 +466,9 @@ begin
     GIA_EAI_SOCKTYPE:   Result := WSAESOCKTNOSUPPORT;
     GIA_EAI_SYSTEM:
       begin
+        {$IFNDEF USE_NORETURN}
         Result := 0; // avoid warning
+        {$ENDIF}
         IndyRaiseLastError;
       end;
     else
