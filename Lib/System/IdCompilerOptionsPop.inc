@@ -3,6 +3,7 @@
     {$POP}
   {$ELSE}
     {$IFDEF DCC}
+      {$WARN POPOPT_WITH_NO_MATCHING OFF}
       {$POPOPT}
     {$ENDIF}
   {$ENDIF}
