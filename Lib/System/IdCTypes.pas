@@ -297,7 +297,7 @@ type
     tm_yday: TIdC_INT;        (* day in the year, range 0 to 365  *)
     tm_isdst: TIdC_INT;       (* daylight saving time             *)
     {$IFDEF LINUX}
-    // glibc struct tm extension:
+    // xjikka 20260112 glibc struct tm extension:
     // ASN1_TIME_to_tm() writes a full glibc struct tm (tm_gmtoff, tm_zone).
     // Without these fields TIdC_TM is too small, causing stack corruption
     // (e.g. invalid X509 ValidFrom/ValidTo values) on Linux targets.
@@ -313,4 +313,5 @@ type
 implementation
 
 end.
+
 
