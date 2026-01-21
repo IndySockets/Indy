@@ -57,9 +57,9 @@
 
 unit IdComponent;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFNDEF USE_OBJECT_ARC}
