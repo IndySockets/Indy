@@ -38,7 +38,9 @@ the C++ objects are compiled appropriately.
 The only things that still are cdecl are the callback functions.
 }
     {$IFNDEF BCB5_DUMMY_BUILD}
-      {$DEFINE STATICLOAD_ZLIB}
+      {$IFNDEF CPUARM}
+        {$DEFINE STATICLOAD_ZLIB}
+      {$ENDIF}
       {$IFDEF VCL_XE2_OR_ABOVE}
         {$DEFINE STATIC_CDECL_PROCS}
       {$ENDIF}
@@ -49,7 +51,9 @@ The only things that still are cdecl are the callback functions.
     {$ALIGN ON}
     {$MINENUMSIZE 4}
     {$IFNDEF BCB5_DUMMY_BUILD}
-      {$DEFINE STATICLOAD_ZLIB}
+      {$IFNDEF CPUARM}
+        {$DEFINE STATICLOAD_ZLIB}
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
 {$ELSE}
@@ -816,6 +820,7 @@ uses
     {$L ZLib\i386-Win32-ZLib\gzlib.obj}
   {$ENDIF}
   {$IFDEF WIN64}
+    {$IFNDEF CPUARM}
     {$L ZLib\x86_64-Win64-ZLib\deflate.obj}
     {$L ZLib\x86_64-Win64-ZLib\inflate.obj}
     {$L ZLib\x86_64-Win64-ZLib\infback.obj}
@@ -831,6 +836,7 @@ uses
     {$L ZLib\x86_64-Win64-ZLib\gzread.obj}
     {$L ZLib\x86_64-Win64-ZLib\gzwrite.obj}
     {$L ZLib\x86_64-Win64-ZLib\gzlib.obj}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
