@@ -1026,6 +1026,9 @@ begin
   if (AOffset = 0) and (AOrigin = soCurrent) then begin
     Result := FZRec.total_in;
   end else begin
+    {$IFNDEF USE_NORETURN}
+    Result := 0; // keep the compiler happy
+    {$ENDIF}
     RaiseCompressionError;
   end;
 end;
