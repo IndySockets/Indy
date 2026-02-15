@@ -22,9 +22,9 @@
 
 unit IdHMACSHA1;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdFIPS,

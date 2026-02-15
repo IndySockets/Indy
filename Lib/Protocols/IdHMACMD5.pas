@@ -22,9 +22,9 @@
 
 unit IdHMACMD5;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdFIPS,

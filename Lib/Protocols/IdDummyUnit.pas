@@ -37,8 +37,10 @@ Contributed by John Doe
 
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
+
 uses
     IdAntiFreeze;
 

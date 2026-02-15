@@ -397,9 +397,9 @@ unit IdMessageClient;
     Added support for generating encoded message body.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

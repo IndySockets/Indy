@@ -39,12 +39,11 @@
                   to properly format the Type 1 message.
 }
 
+{$i IdCompilerDefines.inc}
 
 unit IdAuthenticationNTLM;
 
 interface
-
-{$i IdCompilerDefines.inc}
 
 uses
   Classes, 

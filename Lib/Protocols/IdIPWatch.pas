@@ -64,9 +64,9 @@ unit IdIPWatch;
   Original Author: Dave Nosker - AfterWave Technologies (allbyte@jetlink.net)
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

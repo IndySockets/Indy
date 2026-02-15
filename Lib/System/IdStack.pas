@@ -134,9 +134,9 @@
 
 unit IdStack;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

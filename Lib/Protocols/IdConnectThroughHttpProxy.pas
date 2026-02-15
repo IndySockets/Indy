@@ -44,8 +44,9 @@ unit IdConnectThroughHttpProxy;
   http://www.web-cache.com/Writings/Internet-Drafts/draft-luotonen-web-proxy-tunneling-01.txt
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes, IdCustomTransparentProxy, IdGlobal, IdIOHandler;

@@ -33,12 +33,11 @@
 
 unit IdSSPI;
 
+{$i IdCompilerDefines.inc}
 {$ALIGN ON}
 {$MINENUMSIZE 4}
 
 interface
-
-{$i IdCompilerDefines.inc}
 
 uses
   IdGlobal,

@@ -13,10 +13,9 @@ JPM - note that I made dynamic loading for FreePascal (since that still may not
 suppport external .obj files properly.  It also makes it easier to support several
 different platforms in one file.
 }
+{$I IdCompilerDefines.inc}
 
 interface
-
-{$I IdCompilerDefines.inc}
 
 {$WRITEABLECONST OFF}
 {

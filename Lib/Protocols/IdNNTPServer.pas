@@ -131,9 +131,9 @@ Oct/Nov 2001
 
 unit IdNNTPServer;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 {
 Original Author: Ozz Nixon (Winshoes 7)

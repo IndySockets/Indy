@@ -24,8 +24,9 @@
 
 unit IdDiscardUDPServer;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdAssignedNumbers, IdUDPServer;

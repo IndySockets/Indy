@@ -210,9 +210,9 @@ Prior to this, it was a simple wrapper class with a few problems.
   UIDs or flags!
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 {$IFDEF DOTNET}
 {$I IdUnitPlatformOff.inc}

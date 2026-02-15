@@ -1,7 +1,9 @@
 unit IdSASLDigest;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
+
 uses
   Classes,
   SysUtils, //here to facilitate inline expansion

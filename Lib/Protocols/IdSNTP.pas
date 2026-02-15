@@ -76,8 +76,9 @@ unit IdSNTP;
   R. Brian Lindahl - Original Author
 *}
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

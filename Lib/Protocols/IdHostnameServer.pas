@@ -36,9 +36,9 @@
 
 unit IdHostnameServer;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 {
   Original Author: Ozz Nixon
