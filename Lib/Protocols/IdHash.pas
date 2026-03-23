@@ -176,7 +176,7 @@ function TIdHash.HashString(const ASrc: string; ADestEncoding: IIdTextEncoding =
   {$IFDEF STRING_IS_ANSI}; ASrcEncoding: IIdTextEncoding = nil{$ENDIF}
   ): TIdBytes;
 var
-  LStream: TStream;  // not TIdStringStream -  Unicode on DotNet!
+  LStream: TMemoryStream;  // not TIdStringStream -  Unicode on DotNet!
 begin
   LStream := TMemoryStream.Create; try
     WriteStringToStream(LStream, ASrc, ADestEncoding{$IFDEF STRING_IS_ANSI}, ASrcEncoding{$ENDIF});
@@ -196,12 +196,20 @@ function TIdHash.HashBytes(const ASrc: TIdBytes): TIdBytes;
 var
   LStream: TStream;
 begin
-  // TODO: use TBytesStream on versions that support it
-  LStream := TMemoryStream.Create; try
+  {$IFDEF DOTNET}
+  LStream := TMemoryStream.Create;
+  {$ELSE}
+  LStream := TIdReadOnlyMemoryBufferStream.Create(PByte(ASrc), Length(ASrc));
+  {$ENDIF}
+  try
+    {$IFDEF DOTNET}
     WriteTIdBytesToStream(LStream, ASrc);
     LStream.Position := 0;
+    {$ENDIF}
     Result := HashStream(LStream);
-  finally FreeAndNil(LStream); end;
+  finally
+    FreeAndNil(LStream);
+  end;
 end;
 
 function TIdHash.HashBytesAsHex(const ASrc: TIdBytes): String;
