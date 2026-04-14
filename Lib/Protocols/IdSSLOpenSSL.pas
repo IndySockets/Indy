@@ -3687,6 +3687,10 @@ begin
   if error <= 0 then begin
     EIdOSSLAcceptError.RaiseException(fSSL, error, RSSSLAcceptError);
   end;
+
+  // TODO: store the client's requested SNI servername in fHostName...
+  // fHostName := SSL_get_servername(fSSL, TLSEXT_NAMETYPE_host_name);
+
   if Supports(fParent, IIdSSLOpenSSLCallbackHelper, IInterface(LHelper)) then begin
     LParentIO := LHelper.GetIOHandlerSelf;
     if LParentIO <> nil then begin

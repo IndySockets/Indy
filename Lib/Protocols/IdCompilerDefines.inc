@@ -17,7 +17,7 @@
 
 {$DEFINE INDY100}
 {$DEFINE 10_6_3}     //so developers can IFDEF for this product version
-{$DEFINE 10_6_3_13}  //so developers can IFDEF for this specific version
+{$DEFINE 10_6_3_14}  //so developers can IFDEF for this specific version
 
 // When generating C++Builder output files, certain workarounds to compiler
 // problems need to be enabled! When invoking DCC on the command-line, use
@@ -781,9 +781,12 @@
 
 {$IFDEF VCL_14_OR_ABOVE}
   {$DEFINE VCL_13_OR_ABOVE}
+  {$DEFINE VCL_13_UPDATE1_OR_ABOVE}
 {$ELSE}
   {$IFDEF VCL_13}
     {$DEFINE VCL_13_OR_ABOVE}
+    // TODO: figure out how to detect this version
+    {.$DEFINE VCL_13_UPDATE1_OR_ABOVE}
   {$ENDIF}
 {$ENDIF}
 

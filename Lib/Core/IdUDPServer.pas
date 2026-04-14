@@ -222,6 +222,9 @@ begin
   begin
     LListenerThreads := FListenerThreads.LockList;
     try
+      // TODO: use two loops - one to close all of the sockets and signal all
+      // of the threads to terminate, then another to free the threads.
+      // This will be faster than doing everything one thread at a time...
       while LListenerThreads.Count > 0 do
       begin
         LListener := {$IFDEF HAS_GENERICS_TThreadList}LListenerThreads[0]{$ELSE}TIdUDPListenerThread(LListenerThreads[0]){$ENDIF};
