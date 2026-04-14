@@ -769,8 +769,15 @@ end;
 procedure TIdHTTPAppResponse.SendResponse;
 begin
   FSent := True;
+
+  // RLebeau 2/1/2026: DO NOT reset the ContentLength to -1 here. Doing so
+  // will prevent users from setting it for HEAD responses. It should already
+  // be -1 by default for each response, so just let the user decide what they
+  // want to set it to...
+  //
   // Reset to -1 so Indy will auto set it
-  FResponseInfo.ContentLength := -1;
+  //FResponseInfo.ContentLength := -1;
+
   MoveCookiesAndCustomHeaders;
   {$IFDEF VCL_10_1_OR_ABOVE}
   // TODO: This code may not be in the correct location.
@@ -782,6 +789,7 @@ begin
     ContentType := Format('text/html; charset=%s', [HTTPApp.DefaultCharSet]); {Do not Localize}
   end;
   {$ENDIF}
+
   FResponseInfo.WriteContent;
 end;
 
