@@ -101,9 +101,9 @@ unit IdMultipartFormData;
   Author: Shiv Kumar
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

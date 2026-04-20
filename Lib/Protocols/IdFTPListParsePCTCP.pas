@@ -1,8 +1,8 @@
 unit IdFTPListParsePCTCP;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

@@ -41,8 +41,9 @@ unit IdGopherConsts;
 {                                                       }
 {*******************************************************}
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal;

@@ -25,8 +25,9 @@
 
 unit IdTask;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF USE_OBJECT_ARC}
