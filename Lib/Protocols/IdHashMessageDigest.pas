@@ -42,9 +42,9 @@
 
 unit IdHashMessageDigest;
 
-interface
 {$i IdCompilerDefines.inc}
 
+interface
 uses
   IdFIPS, IdGlobal, IdHash, Classes;
 

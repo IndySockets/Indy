@@ -1,8 +1,8 @@
 unit IdSASL_NTLM;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal,

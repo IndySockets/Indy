@@ -153,9 +153,9 @@ unit IdMessageCoderMIME;
 // TODO: Predict output sizes and presize outputs, then use move on
 // presized outputs when possible, or presize only and reposition if stream
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

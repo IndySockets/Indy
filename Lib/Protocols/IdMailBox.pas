@@ -44,9 +44,9 @@ unit IdMailBox;
   IdMailBox (Created for use with the IdIMAP4 unit)
   By Idan Cohen i_cohen@yahoo.com
 }
+{$i IdCompilerDefines.inc}
 
 interface
-{$i IdCompilerDefines.inc}
 
 uses
   {$IFNDEF HAS_UInt32}

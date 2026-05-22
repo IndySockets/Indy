@@ -41,9 +41,10 @@ unit IdChargenServer;
   Original Author: Ozz Nixon
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+
+interface
 
 uses
   IdAssignedNumbers,

@@ -38,9 +38,9 @@
 
 unit IdRemoteCMDServer;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdContext,IdTCPClient, IdCustomTCPServer;

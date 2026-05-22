@@ -46,8 +46,9 @@
 
 unit IdTimeServer;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 {
  2000-3-May    J. Peter Mugaas

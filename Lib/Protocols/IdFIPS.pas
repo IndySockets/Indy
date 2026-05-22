@@ -1,8 +1,8 @@
 unit IdFIPS;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 {
   IMPORTANT!!!

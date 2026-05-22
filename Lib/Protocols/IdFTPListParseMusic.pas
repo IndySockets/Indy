@@ -37,9 +37,9 @@
 
 unit IdFTPListParseMusic;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

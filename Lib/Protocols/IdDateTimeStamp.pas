@@ -127,9 +127,9 @@ unit IdDateTimeStamp;
   ToDo: Conversion between Time Zones.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal,

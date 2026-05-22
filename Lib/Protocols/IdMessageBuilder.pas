@@ -1,8 +1,8 @@
 unit IdMessageBuilder;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes, IdMessage;

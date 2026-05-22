@@ -59,10 +59,11 @@
 
 unit IdCustomTransparentProxy;
 
-interface
-
 {$I IdCompilerDefines.inc}
 //we need to put this in Delphi mode to work
+
+interface
+
 
 uses
   Classes,

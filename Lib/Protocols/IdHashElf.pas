@@ -24,9 +24,9 @@
 
 unit IdHashElf;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal,

@@ -31,9 +31,8 @@ Punycode/IDN encoding and conversion. This behavior can be disabled using the
 AI_DISABLE_IDN_ENCODING flag discussed below.
 
    }
-interface
-
 {$I IdCompilerDefines.inc}
+interface
 
 uses
   IdGlobal

@@ -31,9 +31,9 @@
 
 unit IdSASLLogin;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdSASL,

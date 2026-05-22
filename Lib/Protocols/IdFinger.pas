@@ -57,9 +57,9 @@ unit IdFinger;
 {                                                       }
 {*******************************************************}
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdAssignedNumbers,

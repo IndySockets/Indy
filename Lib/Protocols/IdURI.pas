@@ -66,9 +66,9 @@ unit IdURI;
     http://username:password@hostname:port/path/document#bookmark
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdException,

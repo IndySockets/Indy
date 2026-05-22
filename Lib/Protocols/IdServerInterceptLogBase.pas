@@ -41,8 +41,9 @@
 
 unit IdServerInterceptLogBase;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdIntercept, IdGlobal, IdLogBase, IdBaseComponent, Classes;

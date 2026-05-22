@@ -18,9 +18,9 @@
 
 unit IdTraceRoute;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF DOTNET_2_OR_ABOVE}

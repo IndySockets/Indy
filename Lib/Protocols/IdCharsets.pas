@@ -119,9 +119,9 @@ unit IdCharsets;
   revised character set from the original character set.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 // once upon a time Indy had 3 different declarations of TIdCharSet
 // now all use this one. For reference, one of the more widely used

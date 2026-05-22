@@ -54,8 +54,9 @@ unit IdRSHServer;
     agonized over writing this component at all due to these risks.
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient;

@@ -102,9 +102,9 @@
 
 unit IdCoderQuotedPrintable;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

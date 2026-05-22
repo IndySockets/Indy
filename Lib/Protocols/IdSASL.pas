@@ -53,9 +53,9 @@ from the UserPass mechanism and link to a UserPass provider.
 
 unit IdSASL;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

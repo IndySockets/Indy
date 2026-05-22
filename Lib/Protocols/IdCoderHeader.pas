@@ -92,9 +92,9 @@ unit IdCoderHeader;
   - tiny fix for 8bit header encoding suggested by Andrew P.Rybin
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

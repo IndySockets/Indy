@@ -75,8 +75,9 @@
 
 unit IdServerIOHandlerSocket;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdSocketHandle, IdGlobal, IdThread, IdServerIOHandler, IdIOHandler,

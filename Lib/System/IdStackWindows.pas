@@ -188,9 +188,9 @@
 }
 unit IdStackWindows;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

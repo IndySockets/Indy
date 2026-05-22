@@ -196,9 +196,9 @@ VV 01/02/03 TQueryResult.DNSStrToDomain fix
 
 unit IdDNSResolver;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,
