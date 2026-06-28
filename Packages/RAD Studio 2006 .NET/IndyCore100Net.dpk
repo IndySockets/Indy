@@ -1,0 +1,89 @@
+﻿package IndyCore100Net;
+
+{$ALIGN 0}
+{$BOOLEVAL OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 Core'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  Borland.Delphi,
+  Borland.VclRtl,
+  IndySystem100Net;
+
+contains
+  IdAssignedNumbers in '..\..\Lib\Core\IdAssignedNumbers.pas',
+  IdBuffer in '..\..\Lib\Core\IdBuffer.pas',
+  IdCmdTCPClient in '..\..\Lib\Core\IdCmdTCPClient.pas',
+  IdCmdTCPServer in '..\..\Lib\Core\IdCmdTCPServer.pas',
+  IdCommandHandlers in '..\..\Lib\Core\IdCommandHandlers.pas',
+  IdContext in '..\..\Lib\Core\IdContext.pas',
+  IdCustomTCPServer in '..\..\Lib\Core\IdCustomTCPServer.pas',
+  IdCustomTransparentProxy in '..\..\Lib\Core\IdCustomTransparentProxy.pas',
+  IdExceptionCore in '..\..\Lib\Core\IdExceptionCore.pas',
+  IdGlobalCore in '..\..\Lib\Core\IdGlobalCore.pas',
+  IdIOHandler in '..\..\Lib\Core\IdIOHandler.pas',
+  IdIOHandlerSocket in '..\..\Lib\Core\IdIOHandlerSocket.pas',
+  IdIOHandlerStack in '..\..\Lib\Core\IdIOHandlerStack.pas',
+  IdIOHandlerStream in '..\..\Lib\Core\IdIOHandlerStream.pas',
+  IdIPAddress in '..\..\Lib\Core\IdIPAddress.pas',
+  IdIPMCastBase in '..\..\Lib\Core\IdIPMCastBase.pas',
+  IdIPMCastClient in '..\..\Lib\Core\IdIPMCastClient.pas',
+  IdIPMCastServer in '..\..\Lib\Core\IdIPMCastServer.pas',
+  IdIcmpClient in '..\..\Lib\Core\IdIcmpClient.pas',
+  IdIntercept in '..\..\Lib\Core\IdIntercept.pas',
+  IdInterceptSimLog in '..\..\Lib\Core\IdInterceptSimLog.pas',
+  IdInterceptThrottler in '..\..\Lib\Core\IdInterceptThrottler.pas',
+  IdLogBase in '..\..\Lib\Core\IdLogBase.pas',
+  IdLogDebug in '..\..\Lib\Core\IdLogDebug.pas',
+  IdLogEvent in '..\..\Lib\Core\IdLogEvent.pas',
+  IdLogFile in '..\..\Lib\Core\IdLogFile.pas',
+  IdLogStream in '..\..\Lib\Core\IdLogStream.pas',
+  IdRawBase in '..\..\Lib\Core\IdRawBase.pas',
+  IdRawClient in '..\..\Lib\Core\IdRawClient.pas',
+  IdRawFunctions in '..\..\Lib\Core\IdRawFunctions.pas',
+  IdRawHeaders in '..\..\Lib\Core\IdRawHeaders.pas',
+  IdReply in '..\..\Lib\Core\IdReply.pas',
+  IdReplyRFC in '..\..\Lib\Core\IdReplyRFC.pas',
+  IdResourceStringsCore in '..\..\Lib\Core\IdResourceStringsCore.pas',
+  IdScheduler in '..\..\Lib\Core\IdScheduler.pas',
+  IdSchedulerOfThread in '..\..\Lib\Core\IdSchedulerOfThread.pas',
+  IdSchedulerOfThreadDefault in '..\..\Lib\Core\IdSchedulerOfThreadDefault.pas',
+  IdSchedulerOfThreadPool in '..\..\Lib\Core\IdSchedulerOfThreadPool.pas',
+  IdServerIOHandler in '..\..\Lib\Core\IdServerIOHandler.pas',
+  IdServerIOHandlerSocket in '..\..\Lib\Core\IdServerIOHandlerSocket.pas',
+  IdServerIOHandlerStack in '..\..\Lib\Core\IdServerIOHandlerStack.pas',
+  IdSimpleServer in '..\..\Lib\Core\IdSimpleServer.pas',
+  IdSocketHandle in '..\..\Lib\Core\IdSocketHandle.pas',
+  IdSocks in '..\..\Lib\Core\IdSocks.pas',
+  IdSync in '..\..\Lib\Core\IdSync.pas',
+  IdTCPClient in '..\..\Lib\Core\IdTCPClient.pas',
+  IdTCPConnection in '..\..\Lib\Core\IdTCPConnection.pas',
+  IdTCPServer in '..\..\Lib\Core\IdTCPServer.pas',
+  IdTCPStream in '..\..\Lib\Core\IdTCPStream.pas',
+  IdTask in '..\..\Lib\Core\IdTask.pas',
+  IdThread in '..\..\Lib\Core\IdThread.pas',
+  IdThreadComponent in '..\..\Lib\Core\IdThreadComponent.pas',
+  IdThreadSafe in '..\..\Lib\Core\IdThreadSafe.pas',
+  IdTraceRoute in '..\..\Lib\Core\IdTraceRoute.pas',
+  IdUDPBase in '..\..\Lib\Core\IdUDPBase.pas',
+  IdUDPClient in '..\..\Lib\Core\IdUDPClient.pas',
+  IdUDPServer in '..\..\Lib\Core\IdUDPServer.pas',
+  IdYarn in '..\..\Lib\Core\IdYarn.pas';
+{$I IdCore90ASM90.inc}
+
+end.

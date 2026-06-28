@@ -69,4 +69,7 @@ __recovery/
 # Boss dependency manager vendor folder https://github.com/HashLoad/boss
 modules/
 
+# Indy package build output - all Full*.bat scripts emit here
+/Output/
+
 # End of https://www.gitignore.io/api/delphi

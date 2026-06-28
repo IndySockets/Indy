@@ -79,14 +79,14 @@ type
     procedure GenPreRequiresClause; override;
     procedure GenRequires; override;
     procedure GenPreContainsClause; override;
-    procedure GenPreContainsFile(const AUnit: string); override;
-    procedure GenPostContainsFile(const AUnit: string; const AIsLastFile: Boolean); override;
+    procedure GenPreContainsFile(const AUnit : string); override;
+    procedure GenPostContainsFile(const AUnit : string; const AIsLastFile : Boolean); override;
     procedure GenFooter; override;
     procedure GenResourceScript; override;
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
-    procedure GenerateRC(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
+    procedure GenerateRC(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
@@ -95,11 +95,11 @@ uses
   SysUtils;
 
 const
-  Delphi_Native_Ifdef_Windows_In_Contains       = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
-  Delphi_Native_Ifdef_Rtl_2                     = Delphi_Native_Ifdef_Rtl - [ctDelphiXE2..ctDelphiXE3];
-  Delphi_Native_Define_Windows_Before_Contains  = Delphi_Native_Ifdef_Windows_In_Contains;
+  Delphi_Native_Ifdef_Windows_In_Contains = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Ifdef_Rtl_2 = Delphi_Native_Ifdef_Rtl - [ctDelphiXE2..ctDelphiXE3];
+  Delphi_Native_Define_Windows_Before_Contains = Delphi_Native_Ifdef_Windows_In_Contains;
 
-{ TPackageProtocols }
+  { TPackageProtocols }
 
 constructor TPackageProtocols.Create;
 begin
@@ -107,114 +107,147 @@ begin
   FOutputSubDir := 'Lib\Protocols';
 end;
 
-procedure TPackageProtocols.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TPackageProtocols.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 var
-  LFlags: TGenerateFlags;
+  LFlags : TGenerateFlags;
 begin
   LFlags := AFlags;
-  if (LFlags * [gfRunTime, gfDesignTime]) = [] then begin
+  if (LFlags * [gfRunTime, gfDesignTime]) = [] then
+  begin
     Include(LFlags, gfRunTime);
   end;
 
-  if gfRunTime in LFlags then begin
-    FName := 'IndyProtocols' + GPackageVer[ACompiler];
+  if gfRunTime in LFlags then
+  begin
+    Prepare('IndyProtocols', ACompiler);
     FDesc := 'Protocols';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfDesignTime]);
     WriteFile;
+    GenDproj(ACompiler);
   end;
 
-  if gfDesignTime in LFlags then begin
-    FName := 'dclIndyProtocols' + GPackageVer[ACompiler];
+  if gfDesignTime in LFlags then
+  begin
+    Prepare('dclIndyProtocols', ACompiler);
     FDesc := 'Protocols Design Time';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfRunTime]);
     WriteFile;
+    GenDproj(ACompiler);
   end;
 end;
 
 // TODO: make the options configurable...
 procedure TPackageProtocols.GenOptions;
 const
-  Delphi_Native_Align8                    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiPre2010NR] + [ctDelphi2005];
-  Delphi_OmittedOptions_DT                = [Delphi_Native_Lowest..ctDelphiXE, ctKylix3] - [ctDelphi8Net];
-  Delphi_OmittedOptions_RT                = [Delphi_Native_Lowest..ctDelphiXE, ctKylix3];
-  Delphi_Native_Ifdef_ImplicitBuilding    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
-  Delphi_Native_Force_DebugInfo_Off       = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE7];
-  Delphi_Native_Force_Optimization_Off    = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
-  Delphi_Native_Force_OverflowChecks_Off  = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
-  Delphi_Native_Force_RangeChecks_Off     = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
-  Delphi_Native_Force_StackFrames_On      = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
-  Delphi_Native_Define_DebugRelease       = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
-  Delphi_Native_Define_Ver                = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE3];
+  Delphi_Native_Align8 = Delphi_Native - [Delphi_Native_Lowest..ctDelphiPre2010NR] + [ctDelphi2005];
+  Delphi_OmittedOptions_DT = [Delphi_Native_Lowest..ctDelphiXE, ctKylix3] - [ctDelphi8Net];
+  Delphi_OmittedOptions_RT = [Delphi_Native_Lowest..ctDelphiXE, ctKylix3];
+  Delphi_Native_Ifdef_ImplicitBuilding = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Force_DebugInfo_Off = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE7];
+  Delphi_Native_Force_Optimization_Off = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Force_OverflowChecks_Off = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Force_RangeChecks_Off = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Force_StackFrames_On = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Define_DebugRelease = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE];
+  Delphi_Native_Define_Ver = Delphi_Native - [Delphi_Native_Lowest..ctDelphiXE3];
 
-  function OnOrOff(const AForceOff, AForceOn: TCompilers; const ADefault: Boolean): string;
+  function OnOrOff(const AForceOff, AForceOn : TCompilers; const ADefault : Boolean) : string;
   begin
-    if FCompiler in AForceOff then begin
+    if FCompiler in AForceOff then
+    begin
       Result := 'OFF';
     end
-    else if FCompiler in AForceOn then begin
+    else if FCompiler in AForceOn then
+    begin
       Result := 'ON';
     end
-    else begin
+    else
+    begin
       Result := iif(ADefault, 'ON', 'OFF');
     end;
   end;
 
 begin
   Code('');
-  if FCompiler in Delphi_DotNet then begin
+  if FCompiler in Delphi_DotNet then
+  begin
     Code('{$ALIGN 0}');
-  end else begin
+  end
+  else
+  begin
     Code('{$R *.res}');
-    if FCompiler in Delphi_Native_Ifdef_ImplicitBuilding then begin
+    if FCompiler in Delphi_Native_Ifdef_ImplicitBuilding then
+    begin
       Code('{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}');
     end;
-    if FCompiler in Delphi_Native_Align8 then begin
+    if FCompiler in Delphi_Native_Align8 then
+    begin
       Code('{$ALIGN 8}');
     end;
   end;
-  if FDesignTime then begin
-    if not (FCompiler in Delphi_OmittedOptions_DT) then begin
+  if FDesignTime then
+  begin
+    if not (FCompiler in Delphi_OmittedOptions_DT) then
+    begin
       Code('{$ASSERTIONS ON}');
     end;
-  end else begin
-    if not (FCompiler in Delphi_OmittedOptions_RT) then begin
+  end
+  else
+  begin
+    if not (FCompiler in Delphi_OmittedOptions_RT) then
+    begin
       Code('{$ASSERTIONS ON}');
     end;
   end;
   Code('{$BOOLEVAL OFF}');
-  if FDesignTime then begin
-    if not (FCompiler in Delphi_OmittedOptions_DT) then begin
+  if FDesignTime then
+  begin
+    if not (FCompiler in Delphi_OmittedOptions_DT) then
+    begin
       Code('{$DEBUGINFO ' + OnOrOff(Delphi_Native_Force_DebugInfo_Off, [], FDebug) + '}');
     end;
-  end else begin
-    if not (FCompiler in Delphi_OmittedOptions_RT) then begin
+  end
+  else
+  begin
+    if not (FCompiler in Delphi_OmittedOptions_RT) then
+    begin
       Code('{$DEBUGINFO ' + OnOrOff(Delphi_Native_Force_DebugInfo_Off, [], FDebug) + '}');
     end;
   end;
   Code('{$EXTENDEDSYNTAX ON}');
   Code('{$IMPORTEDDATA ON}');
-  if FDesignTime then begin
-    if not (FCompiler in Delphi_OmittedOptions_DT) then begin
+  if FDesignTime then
+  begin
+    if not (FCompiler in Delphi_OmittedOptions_DT) then
+    begin
       Code('{$IOCHECKS ON}');
     end;
-  end else begin
-    if not (FCompiler in Delphi_OmittedOptions_RT) then begin
+  end
+  else
+  begin
+    if not (FCompiler in Delphi_OmittedOptions_RT) then
+    begin
       Code('{$IOCHECKS ON}');
     end;
   end;
   Code('{$LOCALSYMBOLS ' + OnOrOff([], [], FDebug) + '}');
   Code('{$LONGSTRINGS ON}');
   Code('{$OPENSTRINGS ON}');
-  Code('{$OPTIMIZATION ' + OnOrOff(Delphi_Native_Force_Optimization_Off, [], FDebug) +'}');
-  if FDesignTime then begin
-    if not (FCompiler in Delphi_OmittedOptions_DT) then begin
+  Code('{$OPTIMIZATION ' + OnOrOff(Delphi_Native_Force_Optimization_Off, [], FDebug) + '}');
+  if FDesignTime then
+  begin
+    if not (FCompiler in Delphi_OmittedOptions_DT) then
+    begin
       Code('{$OVERFLOWCHECKS ' + OnOrOff(Delphi_Native_Force_OverflowChecks_Off, [], FDebug) + '}');
       Code('{$RANGECHECKS ' + OnOrOff(Delphi_Native_Force_RangeChecks_Off, [], FDebug) + '}');
     end;
-  end else begin
-    if not (FCompiler in Delphi_OmittedOptions_RT) then begin
+  end
+  else
+  begin
+    if not (FCompiler in Delphi_OmittedOptions_RT) then
+    begin
       Code('{$OVERFLOWCHECKS ' + OnOrOff(Delphi_Native_Force_OverflowChecks_Off, [], FDebug) + '}');
       Code('{$RANGECHECKS ' + OnOrOff(Delphi_Native_Force_RangeChecks_Off, [], FDebug) + '}');
     end;
@@ -227,13 +260,16 @@ begin
   Code('{$WRITEABLECONST OFF}');
   Code('{$MINENUMSIZE 1}');
   Code('{$IMAGEBASE $400000}');
-  if FCompiler in Delphi_Native_Define_DebugRelease then begin
+  if FCompiler in Delphi_Native_Define_DebugRelease then
+  begin
     Code('{$DEFINE ' + iif(FDebug, 'DEBUG', 'RELEASE') + '}');
   end;
-  if FCompiler in Delphi_Native_Define_Ver then begin
+  if FCompiler in Delphi_Native_Define_Ver then
+  begin
     Code('{$DEFINE VER' + GCompilerVer[FCompiler] + '}');
   end;
-  if FCompiler in Delphi_Native_Ifdef_ImplicitBuilding then begin
+  if FCompiler in Delphi_Native_Ifdef_ImplicitBuilding then
+  begin
     Code('{$ENDIF IMPLICITBUILDING}');
   end;
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
@@ -243,9 +279,10 @@ end;
 
 procedure TPackageProtocols.GenPreRequiresClause;
 begin
-  if not FDesignTime then begin
+  if not FDesignTime then
+  begin
     if (FCompiler in Delphi_Native_Ifdef_Rtl) or
-       (FCompiler in Delphi_Native_Ifdef_Windows_In_Contains) then
+      (FCompiler in Delphi_Native_Ifdef_Windows_In_Contains) then
     begin
       Code('');
       Code('// RLebeau: cannot use IdCompilerDefines.inc here!');
@@ -256,7 +293,8 @@ end;
 procedure TPackageProtocols.GenRequires;
 begin
   Code('');
-  if (not FDesignTime) and (FCompiler in Delphi_Native_Ifdef_Rtl_2) then begin
+  if (not FDesignTime) and (FCompiler in Delphi_Native_Ifdef_Rtl_2) then
+  begin
     Code('{$DEFINE HAS_PKG_RTL}');
     code('{$IFDEF NEXTGEN}');
     Code('  {$IFDEF IOS}');
@@ -267,7 +305,8 @@ begin
     Code('');
   end;
   Code('requires');
-  if FDesignTime then begin
+  if FDesignTime then
+  begin
     if FCompiler in Delphi_DotNet then
     begin
       Code('  System.Windows.Forms,');
@@ -280,7 +319,8 @@ begin
     else if FCompiler = ctDelphi5 then
     begin
       Code('  Vcl50,');
-    end else
+    end
+    else
     begin
       if FCompiler in [ctDelphi6, ctDelphi7] then
       begin
@@ -288,45 +328,52 @@ begin
       end;
       Code('  designide,');
     end;
-    Code('  IndyProtocols' + GPackageVer[FCompiler] + ',');
-    Code('  IndySystem' + GPackageVer[FCompiler] + ',');
-    Code('  IndyCore' + GPackageVer[FCompiler] + ',');
-    Code('  dclIndyCore' + GPackageVer[FCompiler] + ';');
-  end else
+    Code('  ' + PackageName('IndyProtocols', FCompiler) + ',');
+    Code('  ' + PackageName('IndySystem', FCompiler) + ',');
+    Code('  ' + PackageName('IndyCore', FCompiler) + ',');
+    Code('  ' + PackageName('dclIndyCore', FCompiler) + ';');
+  end
+  else
   begin
-    if FCompiler in Delphi_DotNet then begin
+    if FCompiler in Delphi_DotNet then
+    begin
       Code('  Borland.Delphi,');
       Code('  Borland.VclRtl,');
     end
-    else if FCompiler = ctDelphi4 then begin
+    else if FCompiler = ctDelphi4 then
+    begin
       //Code('  Vcl40,');
     end
-    else if FCompiler = ctDelphi5 then begin
-      //Code('  Vcl50,');
-    end else
+    else if FCompiler = ctDelphi5 then
     begin
-      if FCompiler in Delphi_Native_Ifdef_Rtl_2 then begin
+      //Code('  Vcl50,');
+    end
+    else
+    begin
+      if FCompiler in Delphi_Native_Ifdef_Rtl_2 then
+      begin
         Code('  {$IFDEF HAS_PKG_RTL}');
       end
-      else if FCompiler = ctDelphiXE3 then begin
+      else if FCompiler = ctDelphiXE3 then
+      begin
         Code('  {$IFNDEF NEXTGEN}');
       end;
       Code('  rtl,');
       if (FCompiler in Delphi_Native_Ifdef_Rtl_2) or
-         (FCompiler = ctDelphiXE3) then
+        (FCompiler = ctDelphiXE3) then
       begin
         Code('  {$ENDIF}');
       end;
     end;
-    Code('  IndySystem' + GPackageVer[FCompiler] + ',');
-    Code('  IndyCore' + GPackageVer[FCompiler] + ';');
+    Code('  ' + PackageName('IndySystem', FCompiler) + ',');
+    Code('  ' + PackageName('IndyCore', FCompiler) + ';');
   end;
 end;
 
 procedure TPackageProtocols.GenPreContainsClause;
 begin
   if (not FDesignTime) and
-     (FCompiler in Delphi_Native_Define_Windows_Before_Contains) then
+    (FCompiler in Delphi_Native_Define_Windows_Before_Contains) then
   begin
     Code('{$IFNDEF WINDOWS}');
     Code('  {$IFDEF MSWINDOWS}');
@@ -337,22 +384,24 @@ begin
   end;
 end;
 
-procedure TPackageProtocols.GenPreContainsFile(const AUnit: string);
+procedure TPackageProtocols.GenPreContainsFile(const AUnit : string);
 begin
-  if FCompiler in Delphi_Native_Ifdef_Windows_In_Contains then begin
+  if FCompiler in Delphi_Native_Ifdef_Windows_In_Contains then
+  begin
     if SameText(AUnit, 'IdAuthenticationSSPI') or
-       SameText(AUnit, 'IdSSPI') then
+      SameText(AUnit, 'IdSSPI') then
     begin
       Code('  {$IFDEF WINDOWS}');
     end;
   end;
 end;
 
-procedure TPackageProtocols.GenPostContainsFile(const AUnit: string; const AIsLastFile: Boolean);
+procedure TPackageProtocols.GenPostContainsFile(const AUnit : string; const AIsLastFile : Boolean);
 begin
-  if FCompiler in Delphi_Native_Ifdef_Windows_In_Contains then begin
+  if FCompiler in Delphi_Native_Ifdef_Windows_In_Contains then
+  begin
     if SameText(AUnit, 'IdAuthenticationSSPI') or
-       SameText(AUnit, 'IdSSPI') then
+      SameText(AUnit, 'IdSSPI') then
     begin
       inherited GenPostContainsFile(AUnit, AIsLastFile);
       Code('  {$ENDIF}');
@@ -364,7 +413,8 @@ end;
 
 procedure TPackageProtocols.GenFooter;
 begin
-  if FCompiler in Delphi_DotNet then begin
+  if FCompiler in Delphi_DotNet then
+  begin
     //back door for embedding version information into an assembly
     //without having to do anything to the package directly.
     Code(iif(FDesignTime, '{$I IddclProtocols90ASM90.inc}', '{$I IdProtocols90ASM90.inc}'));
@@ -372,35 +422,40 @@ begin
   inherited GenFooter;
 end;
 
-procedure TPackageProtocols.GenerateRC(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TPackageProtocols.GenerateRC(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 var
-  LFlags: TGenerateFlags;
+  LFlags : TGenerateFlags;
 begin
   LFlags := AFlags;
-  if (LFlags * [gfRunTime, gfDesignTime]) = [] then begin
+  if (LFlags * [gfRunTime, gfDesignTime]) = [] then
+  begin
     Include(LFlags, gfRunTime);
   end;
 
-  if gfRunTime in LFlags then begin
-    FName := 'IndyProtocols' + GPackageVer[ACompiler];
+  if gfRunTime in LFlags then
+  begin
+    Prepare('IndyProtocols', ACompiler);
     FDesc := 'Protocols Run-Time';
 
-    FExt := '.rc.tmpl';
-    inherited GenerateRC(ACompiler, LFlags - [gfDesignTime] + [gfTemplate]);
-    WriteFile;
+    // .rc.tmpl (SubWCRev $WCREV$ template) generation disabled for now:
+    //FExt := '.rc.tmpl';
+    //inherited GenerateRC(ACompiler, LFlags - [gfDesignTime] + [gfTemplate]);
+    //WriteFile;
 
     FExt := '.rc';
     inherited GenerateRC(ACompiler, LFlags - [gfDesignTime, gfTemplate]);
     WriteFile;
   end;
 
-  if gfDesignTime in LFlags then begin
-    FName := 'dclIndyProtocols' + GPackageVer[ACompiler];
+  if gfDesignTime in LFlags then
+  begin
+    Prepare('dclIndyProtocols', ACompiler);
     FDesc := 'Protocols Design-Time';
 
-    FExt := '.rc.tmpl';
-    inherited GenerateRC(ACompiler, LFlags - [gfRunTime] + [gfTemplate]);
-    WriteFile;
+    // .rc.tmpl (SubWCRev $WCREV$ template) generation disabled for now:
+    //FExt := '.rc.tmpl';
+    //inherited GenerateRC(ACompiler, LFlags - [gfRunTime] + [gfTemplate]);
+    //WriteFile;
 
     FExt := '.rc';
     inherited GenerateRC(ACompiler, LFlags - [gfRunTime, gfTemplate]);

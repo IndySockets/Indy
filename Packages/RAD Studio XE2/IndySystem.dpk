@@ -1,0 +1,78 @@
+﻿package IndySystem;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+{$LIBSUFFIX '160'}
+
+// RLebeau: cannot use IdCompilerDefines.inc here!
+
+{$IFNDEF NEXTGEN}
+requires
+  rtl;
+{$ENDIF}
+
+{$IFNDEF WINDOWS}
+  {$IFDEF MSWINDOWS}
+    {$DEFINE WINDOWS}
+  {$ENDIF}
+{$ENDIF}
+
+contains
+  IdAntiFreezeBase in '..\..\Lib\System\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Lib\System\IdBaseComponent.pas',
+  IdCTypes in '..\..\Lib\System\IdCTypes.pas',
+  IdComponent in '..\..\Lib\System\IdComponent.pas',
+  IdException in '..\..\Lib\System\IdException.pas',
+  IdGlobal in '..\..\Lib\System\IdGlobal.pas',
+  IdIDN in '..\..\Lib\System\IdIDN.pas',
+  IdResourceStrings in '..\..\Lib\System\IdResourceStrings.pas',
+  {$IFNDEF WINDOWS}
+  IdResourceStringsUnix in '..\..\Lib\System\IdResourceStringsUnix.pas',
+  IdResourceStringsVCLPosix in '..\..\Lib\System\IdResourceStringsVCLPosix.pas',
+  {$ENDIF}
+  IdStack in '..\..\Lib\System\IdStack.pas',
+  IdStackBSDBase in '..\..\Lib\System\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Lib\System\IdStackConsts.pas',
+  {$IFDEF WINDOWS}
+  IdStackWindows in '..\..\Lib\System\IdStackWindows.pas',
+  {$ELSE}
+  IdStackVCLPosix in '..\..\Lib\System\IdStackVCLPosix.pas',
+  {$ENDIF}
+  IdStream in '..\..\Lib\System\IdStream.pas',
+  IdStreamVCL in '..\..\Lib\System\IdStreamVCL.pas',
+  IdStruct in '..\..\Lib\System\IdStruct.pas',
+  {$IFDEF WINDOWS}
+  IdWinsock2 in '..\..\Lib\System\IdWinsock2.pas',
+  IdWship6 in '..\..\Lib\System\IdWship6.pas'
+  {$ELSE}
+  IdVCLPosixSupplemental in '..\..\Lib\System\IdVCLPosixSupplemental.pas'
+  {$ENDIF}
+  ;
+
+end.

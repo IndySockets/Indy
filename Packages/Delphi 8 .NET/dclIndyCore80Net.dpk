@@ -1,0 +1,41 @@
+﻿package dclIndyCore80Net;
+
+{$ALIGN 0}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 Core Design Time'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  Borland.Studio.Vcl.Design,
+  IndyCore80Net;
+
+contains
+  IdAboutDotNET in '..\..\Lib\Core\IdAboutDotNET.pas',
+  IdAntiFreeze in '..\..\Lib\Core\IdAntiFreeze.pas',
+  IdCoreDsnRegister in '..\..\Lib\Core\IdCoreDsnRegister.pas',
+  IdDsnCoreResourceStrings in '..\..\Lib\Core\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBindingNET in '..\..\Lib\Core\IdDsnPropEdBindingNET.pas',
+  IdRegisterCore in '..\..\Lib\Core\IdRegisterCore.pas';
+{$I IddclCore90ASM90.inc}
+
+end.

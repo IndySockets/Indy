@@ -32,13 +32,15 @@ type
     procedure RunBuildRes;
   public
     constructor Create; override;
-    procedure Generate(ACompilers: TCompilers; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompilers : TCompilers; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
 
 uses
-  SysUtils, DModule, Windows;
+  SysUtils,
+  DModule,
+  Windows;
 
 { TBuildRes }
 
@@ -48,9 +50,16 @@ begin
   FOutputSubDir := 'Lib';
 end;
 
-procedure TBuildRes.Generate(ACompilers: TCompilers; const AFlags: TGenerateFlags);
+procedure TBuildRes.Generate(ACompilers : TCompilers; const AFlags : TGenerateFlags);
 var
-  LCompiler: TCompiler;
+  LCompiler : TCompiler;
+  LFolder : string;
+
+  procedure BuildRC(const ABase : string);
+  begin
+    Code('brcc32 "' + LFolder + '\' + PackageName(ABase, LCompiler) + '.rc"');
+  end;
+
 begin
   //We don't call many of the inherited Protected methods because
   //those are for Packages while I'm making a unit.
@@ -58,40 +67,27 @@ begin
 
   FName := 'buildres';
   FExt := '.bat';
+  // buildres now lives at the Packages\ root and compiles each version's .rc files
+  // (which were relocated into Packages\<version>\ with de-suffixed names for D6+).
+  FOutputSubDir := 'Packages';
 
   FCompiler := ctUnversioned;
   FCode.Clear;
   FDesignTime := False;
 
-  for LCompiler := Low(TCompiler) to High(TCompiler) do begin
-    if LCompiler in ACompilers then begin
-      Code('brcc32 System\IndySystem'+GPackageVer[LCompiler]+'.rc');
-    end;
-  end;
+  // shared design-time resource still lives with the source under Lib\Core
+  Code('brcc32 "..\Lib\Core\IdAboutVCL.rc"');
 
-  for LCompiler := Low(TCompiler) to High(TCompiler) do begin
-    if LCompiler in ACompilers then begin
-      Code('brcc32 Core\dclIndyCore'+GPackageVer[LCompiler]+'.rc');
-    end;
-  end;
-
-  Code('brcc32 Core\IdAboutVCL.rc');
-
-  for LCompiler := Low(TCompiler) to High(TCompiler) do begin
-    if LCompiler in ACompilers then begin
-      Code('brcc32 Core\IndyCore'+GPackageVer[LCompiler]+'.rc');
-    end;
-  end;
-
-  for LCompiler := Low(TCompiler) to High(TCompiler) do begin
-    if LCompiler in ACompilers then begin
-      Code('brcc32 Protocols\dclIndyProtocols'+GPackageVer[LCompiler]+'.rc');
-    end;
-  end;
-
-  for LCompiler := Low(TCompiler) to High(TCompiler) do begin
-    if LCompiler in ACompilers then begin
-      Code('brcc32 Protocols\IndyProtocols'+GPackageVer[LCompiler]+'.rc');
+  for LCompiler := Low(TCompiler) to High(TCompiler) do
+  begin
+    if (LCompiler in ACompilers) and (GPackageFolder[LCompiler] <> '') then
+    begin
+      LFolder := GPackageFolder[LCompiler];
+      BuildRC('IndySystem');
+      BuildRC('IndyCore');
+      BuildRC('dclIndyCore');
+      BuildRC('IndyProtocols');
+      BuildRC('dclIndyProtocols');
     end;
   end;
 
@@ -103,15 +99,16 @@ end;
 
 procedure TBuildRes.RunBuildRes;
 var
-  LPathname: string;
-  LSubDir: string;
-  LCmdLine: string;
-  SI: TStartupInfo;
-  PI: TProcessInformation;
-  LExitCode: DWORD;
+  LPathname : string;
+  LSubDir : string;
+  LCmdLine : string;
+  SI : TStartupInfo;
+  PI : TProcessInformation;
+  LExitCode : DWORD;
 begin
   LPathname := SysUtils.IncludeTrailingPathDelimiter(DM.OutputPath);
-  if FOutputSubDir <> '' then begin
+  if FOutputSubDir <> '' then
+  begin
     LSubDir := SysUtils.IncludeTrailingPathDelimiter(FOutputSubDir);
     LPathname := LPathname + LSubDir;
   end;
@@ -127,7 +124,8 @@ begin
     CloseHandle(PI.hProcess);
     if LExitCode <> 0 then
       WriteLn('Error from ' + LSubDir + FName + FExt);
-  end else
+  end
+  else
   begin
     WriteLn('Unable to run ' + LSubDir + FName + FExt);
   end;

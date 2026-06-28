@@ -1,9 +1,0 @@
-{$IFDEF CAN_PUSHPOP_OPTIONS}
-  {$IFDEF FPC}
-    {$POP}
-  {$ELSE}
-    {$IFDEF DCC}
-      {$POPOPT}
-    {$ENDIF}
-  {$ENDIF}
-{$ENDIF}

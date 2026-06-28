@@ -1,4 +1,0 @@
-{$IFDEF DEPRECATED_IMPL_BUG}
-  {$I IdCompilerOptionsPush.inc}
-  {$WARN SYMBOL_DEPRECATED OFF}
-{$ENDIF}

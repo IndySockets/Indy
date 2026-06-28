@@ -30,7 +30,7 @@ type
   TCleanCmd = class(TPackage)
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
@@ -48,61 +48,68 @@ end;
 
 type
   TCleanInfo = record
-    ProductName: string;
-    Symbol: string;
-    FileSuffix: string;
+    ProductName : string;
+    Symbol : string;
+    FileSuffix : string;
   end;
 const
-  GCleanCompilers: array[TCompiler] of TCleanInfo = (
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: 'Delphi 2007';          Symbol: 'D12';  FileSuffix: '2007'),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: 'Delphi 2009';          Symbol: 'D13';  FileSuffix: '2009'),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: 'Delphi 2010';          Symbol: 'D14';  FileSuffix: '2010'),
-    (ProductName: 'Delphi XE';            Symbol: 'D15';  FileSuffix: 'XE'),
-    (ProductName: 'Delphi XE2';           Symbol: 'D16';  FileSuffix: 'XE2'),
-    (ProductName: 'Delphi XE3';           Symbol: 'D17';  FileSuffix: 'XE3'),
-    (ProductName: 'Delphi XE4';           Symbol: 'D18';  FileSuffix: 'XE4'),
-    (ProductName: 'Delphi XE5';           Symbol: 'D19';  FileSuffix: 'XE5'),
-    (ProductName: 'Delphi XE6';           Symbol: 'D20';  FileSuffix: 'XE6'),
-    (ProductName: 'Delphi XE7';           Symbol: 'D21';  FileSuffix: 'XE7'),
-    (ProductName: 'Delphi XE8';           Symbol: 'D22';  FileSuffix: 'XE8'),
-    (ProductName: 'Delphi 10.0 Seattle';  Symbol: 'D23';  FileSuffix: 'Seattle'),
-    (ProductName: 'Delphi 10.1 Berlin';   Symbol: 'D24';  FileSuffix: 'Berlin'),
-    (ProductName: 'Delphi 10.2 Tokyo';    Symbol: 'D25';  FileSuffix: 'Tokyo'),
-    (ProductName: 'Delphi 10.3 Rio';      Symbol: 'D26';  FileSuffix: 'Rio'),
-    (ProductName: 'Delphi 10.4 Sydney';   Symbol: 'D27';  FileSuffix: 'Sydney'),
-    (ProductName: 'Delphi 11 Alexandria'; Symbol: 'D28';  FileSuffix: 'Alexandria'),
-    (ProductName: 'Delphi 12 Athens';     Symbol: 'D29';  FileSuffix: 'Athens'),
-    (ProductName: 'Delphi 13 Florence';   Symbol: 'D37';  FileSuffix: 'Florence'),
-    (ProductName: '';                     Symbol: '';     FileSuffix: ''),
-    (ProductName: '';                     Symbol: '';     FileSuffix: '')
-  );
+  GCleanCompilers : array[TCompiler] of TCleanInfo = (
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : 'Delphi 2007'; Symbol : 'D12'; FileSuffix : '2007'),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : 'Delphi 2009'; Symbol : 'D13'; FileSuffix : '2009'),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : 'Delphi 2010'; Symbol : 'D14'; FileSuffix : '2010'),
+    (ProductName : 'Delphi XE'; Symbol : 'D15'; FileSuffix : 'XE'),
+    (ProductName : 'Delphi XE2'; Symbol : 'D16'; FileSuffix : 'XE2'),
+    (ProductName : 'Delphi XE3'; Symbol : 'D17'; FileSuffix : 'XE3'),
+    (ProductName : 'Delphi XE4'; Symbol : 'D18'; FileSuffix : 'XE4'),
+    (ProductName : 'Delphi XE5'; Symbol : 'D19'; FileSuffix : 'XE5'),
+    (ProductName : 'Delphi XE6'; Symbol : 'D20'; FileSuffix : 'XE6'),
+    (ProductName : 'Delphi XE7'; Symbol : 'D21'; FileSuffix : 'XE7'),
+    (ProductName : 'Delphi XE8'; Symbol : 'D22'; FileSuffix : 'XE8'),
+    (ProductName : 'Delphi 10.0 Seattle'; Symbol : 'D23'; FileSuffix : 'Seattle'),
+    (ProductName : 'Delphi 10.1 Berlin'; Symbol : 'D24'; FileSuffix : 'Berlin'),
+    (ProductName : 'Delphi 10.2 Tokyo'; Symbol : 'D25'; FileSuffix : 'Tokyo'),
+    (ProductName : 'Delphi 10.3 Rio'; Symbol : 'D26'; FileSuffix : 'Rio'),
+    (ProductName : 'Delphi 10.4 Sydney'; Symbol : 'D27'; FileSuffix : 'Sydney'),
+    (ProductName : 'Delphi 11 Alexandria'; Symbol : 'D28'; FileSuffix : 'Alexandria'),
+    (ProductName : 'Delphi 12 Athens'; Symbol : 'D29'; FileSuffix : 'Athens'),
+    (ProductName : 'Delphi 13 Florence'; Symbol : 'D37'; FileSuffix : 'Florence'),
+    (ProductName : ''; Symbol : ''; FileSuffix : ''),
+    (ProductName : ''; Symbol : ''; FileSuffix : '')
+    );
 
-procedure TCleanCmd.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TCleanCmd.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 begin
   //We don't call many of the inherited Protected methods because
   //those are for Packages while I'm making a unit.
   //inherited;
 
   if (GCleanCompilers[ACompiler].ProductName = '') or
-     (GCleanCompilers[ACompiler].Symbol = '') then Exit;
+    (GCleanCompilers[ACompiler].Symbol = '') then
+    Exit;
 
   FName := 'Clean_' + GCleanCompilers[ACompiler].FileSuffix;
   FExt := '.cmd';
+  // Clean scripts live in each version's Packages\<version> folder; the shared
+  // Computil.exe and Clean_IDE.cmd live one level up at the Packages\ root.
+  if GPackageFolder[ACompiler] <> '' then
+  begin
+    FOutputSubDir := 'Packages\' + GPackageFolder[ACompiler];
+  end;
 
   FCompiler := ACompiler;
   FCode.Clear;
@@ -111,9 +118,11 @@ begin
   Code('@echo off');
   Code('set DelphiProd=' + GCleanCompilers[ACompiler].ProductName);
   Code('');
+  Code('cd /d "%~dp0"');
+  Code('');
   Code('if exist SetEnv.bat del SetEnv.bat');
-  Code('if not exist computil.exe goto NoComputil');
-  Code('computil Setup' + GCleanCompilers[ACompiler].Symbol);
+  Code('if not exist "%~dp0..\Computil.exe" goto NoComputil');
+  Code('"%~dp0..\Computil.exe" Setup' + GCleanCompilers[ACompiler].Symbol);
   Code('if defined ND' + GCleanCompilers[ACompiler].Symbol + ' goto RSVARS');
   Code('if not exist SetEnv.bat goto NoNDD');
   Code('');
@@ -126,11 +135,11 @@ begin
   Code('');
   Code('set logfn=Clean' + GCleanCompilers[ACompiler].Symbol + '.log');
   Code('');
-  Code('call Clean_IDE.cmd');
+  Code('call "%~dp0..\Clean_IDE.cmd"');
   Code('goto END');
   Code('');
   Code(':NoCompUtil');
-  Code('echo Computil.exe not found--run this batch script from the "Lib" folder of the Indy repository, recently pulled from GitHub.');
+  Code('echo Computil.exe not found--run this batch script from its version folder under Packages.');
   Code('goto END');
   Code('');
   Code(':NoNDD');

@@ -1,0 +1,42 @@
+﻿package IndySystem110Net;
+
+{$ALIGN 0}
+{$BOOLEVAL OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  Borland.Delphi,
+  Borland.VclRtl;
+
+contains
+  IdAntiFreezeBase in '..\..\Lib\System\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Lib\System\IdBaseComponent.pas',
+  IdComponent in '..\..\Lib\System\IdComponent.pas',
+  IdException in '..\..\Lib\System\IdException.pas',
+  IdGlobal in '..\..\Lib\System\IdGlobal.pas',
+  IdResourceStrings in '..\..\Lib\System\IdResourceStrings.pas',
+  IdStack in '..\..\Lib\System\IdStack.pas',
+  IdStackConsts in '..\..\Lib\System\IdStackConsts.pas',
+  IdStackDotNet in '..\..\Lib\System\IdStackDotNet.pas',
+  IdStream in '..\..\Lib\System\IdStream.pas',
+  IdStreamNET in '..\..\Lib\System\IdStreamNET.pas',
+  IdStruct in '..\..\Lib\System\IdStruct.pas';
+{$I IdSystem90ASM90.inc}
+
+end.

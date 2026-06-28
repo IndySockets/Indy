@@ -1,0 +1,46 @@
+﻿package IndySystem;
+
+{$R *.res}
+{$BOOLEVAL OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+{$LIBSUFFIX '80'}
+
+requires
+  rtl;
+
+contains
+  IdAntiFreezeBase in '..\..\Lib\System\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Lib\System\IdBaseComponent.pas',
+  IdCTypes in '..\..\Lib\System\IdCTypes.pas',
+  IdComponent in '..\..\Lib\System\IdComponent.pas',
+  IdException in '..\..\Lib\System\IdException.pas',
+  IdGlobal in '..\..\Lib\System\IdGlobal.pas',
+  IdIDN in '..\..\Lib\System\IdIDN.pas',
+  IdResourceStrings in '..\..\Lib\System\IdResourceStrings.pas',
+  IdStack in '..\..\Lib\System\IdStack.pas',
+  IdStackBSDBase in '..\..\Lib\System\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Lib\System\IdStackConsts.pas',
+  IdStackWindows in '..\..\Lib\System\IdStackWindows.pas',
+  IdStream in '..\..\Lib\System\IdStream.pas',
+  IdStreamVCL in '..\..\Lib\System\IdStreamVCL.pas',
+  IdStruct in '..\..\Lib\System\IdStruct.pas',
+  IdWinsock2 in '..\..\Lib\System\IdWinsock2.pas',
+  IdWship6 in '..\..\Lib\System\IdWship6.pas';
+
+end.

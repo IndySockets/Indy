@@ -1,0 +1,153 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{EC04471C-07B1-417C-AAB7-9057CDC19654}</ProjectGuid>
+        <MainSource>IndyCore.dpk</MainSource>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <TargetedPlatforms>3</TargetedPlatforms>
+        <AppType>Package</AppType>
+        <FrameworkType>None</FrameworkType>
+        <ProjectVersion>15.4</ProjectVersion>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <ProjectName Condition="'$(ProjectName)'==''">IndyCore</ProjectName>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <DllSuffix>200</DllSuffix>
+        <DCC_Description>Indy 10 Core</DCC_Description>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_UnitSearchPath>..\..\Lib;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
+        <GenDll>true</GenDll>
+        <GenPackage>true</GenPackage>
+        <DCC_OutputNeverBuildDcps>true</DCC_OutputNeverBuildDcps>
+        <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
+        <DCC_ImageBase>00400000</DCC_ImageBase>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>MainSource</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="IndySystem.dcp"/>
+        <DCCReference Include="..\..\Lib\Core\IdAssignedNumbers.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdBuffer.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdCmdTCPClient.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdCmdTCPServer.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdCommandHandlers.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdContext.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdCustomTCPServer.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdCustomTransparentProxy.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdExceptionCore.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdGlobalCore.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIOHandler.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIOHandlerSocket.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIOHandlerStack.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIOHandlerStream.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIPAddress.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIPMCastBase.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIPMCastClient.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIPMCastServer.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIcmpClient.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdIntercept.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdInterceptSimLog.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdInterceptThrottler.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdLogBase.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdLogDebug.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdLogEvent.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdLogFile.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdLogStream.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdRawBase.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdRawClient.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdRawFunctions.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdRawHeaders.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdReply.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdReplyRFC.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdResourceStringsCore.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdScheduler.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdSchedulerOfThread.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdSchedulerOfThreadDefault.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdSchedulerOfThreadPool.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdServerIOHandler.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdServerIOHandlerSocket.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdServerIOHandlerStack.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdSimpleServer.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdSocketHandle.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdSocks.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdSync.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdTCPClient.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdTCPConnection.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdTCPServer.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdTCPStream.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdTask.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdThread.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdThreadComponent.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdThreadSafe.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdTraceRoute.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdUDPBase.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdUDPClient.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdUDPServer.pas"/>
+        <DCCReference Include="..\..\Lib\Core\IdYarn.pas"/>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType>Package</Borland.ProjectType>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">IndyCore.dpk</Source>
+                </Source>
+                <Platforms>
+                    <Platform value="Win32">True</Platform>
+                    <Platform value="Win64">True</Platform>
+                </Platforms>
+            </Delphi.Personality>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

@@ -32,13 +32,14 @@ type
     procedure GenLaz;
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
 
 uses
-  SysUtils, DModule;
+  SysUtils,
+  DModule;
 
 { TBuildRes }
 
@@ -46,10 +47,10 @@ constructor TPackageLazarus.Create;
 begin
   inherited;
   FName := 'indylaz';
-  FOutputSubDir := 'Lib';
+  FOutputSubDir := 'Packages\FPC';
 end;
 
-procedure TPackageLazarus.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TPackageLazarus.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 begin
   //We don't call many of the inherited Protected methods because
   //those are for Packages while I'm making a unit.
@@ -71,7 +72,7 @@ end;
 
 procedure TPackageLazarus.GenLaz;
 var
-  BuildStr: String;
+  BuildStr : string;
 begin
   FCode.Clear;
 
@@ -92,8 +93,8 @@ begin
   Code('      <Version Value="11"/>');
   Code('      <PathDelim Value="\"/>');
   Code('      <SearchPaths>');
-  Code('        <IncludeFiles Value=".;Core;Protocols;System"/>');
-  Code('        <OtherUnitFiles Value=".;Core;Protocols;System"/>');
+  Code('        <IncludeFiles Value="..\..\Lib;..\..\Lib\Core;..\..\Lib\Protocols;..\..\Lib\System"/>');
+  Code('        <OtherUnitFiles Value="..\..\Lib;..\..\Lib\Core;..\..\Lib\Protocols;..\..\Lib\System"/>');
   Code('        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>');
   Code('      </SearchPaths>');
   Code('      <Parsing>');
@@ -122,110 +123,112 @@ begin
   Code('');
   Code('THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;quot;AS IS&apos;&apos; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.');
   Code('"/>');
-  Code('    <Version Major="' + IndyVersion_Major_Str + '" Minor="' + IndyVersion_Minor_Str + '" Release="' + IndyVersion_Release_Str + '" Build="' + BuildStr + '"/>');
+  Code('    <Version Major="' + IndyVersion_Major_Str + '" Minor="' + IndyVersion_Minor_Str + '" Release="' + IndyVersion_Release_Str + '" Build="' + BuildStr
+    +
+    '"/>');
 
-{ TODO: update the DB And then uncomment this...
+  { TODO: update the DB And then uncomment this...
 
-  var TotalCount := FUnits.Count;
-  for I := 0 to FUnits.Count-1 do
-  begin
-    if DB.Ini.ReadBool(FUnits[I], 'FPCHasLRSFile', False) then begin
-      Inc(TotalCount);
+    var TotalCount := FUnits.Count;
+    for I := 0 to FUnits.Count-1 do
+    begin
+      if DB.Ini.ReadBool(FUnits[I], 'FPCHasLRSFile', False) then begin
+        Inc(TotalCount);
+      end;
     end;
-  end;
 
-  Code('    <Files Count="' + IntToStr(TotalCount) + '">');
+    Code('    <Files Count="' + IntToStr(TotalCount) + '">');
 
-  var ItemNum := 1;
-  for I := 0 to FUnits.Count-1 do
-  begin
-    var LDir := IncludeTrailingPathDelimiter(FDirs[i]);
-    Code('      <Item' + IntToStr(ItemNum) + '>');
-    Code('        <Filename Value="' + LDir + FUnits[I] + '.pas"/>');
-    if LFiles[I].FPCHasRegProc then begin
-      Code('        <HasRegisterProc Value="True"/>');
-    end;
-    Code('        <UnitName Value="' + FUnits[I] + '"/>');
-    Code('      </Item' + IntToStr(ItemNum) + '>');
-    Inc(ItemNum);
-    if DB.Ini.ReadBool(FUnits[I], 'FPCHasLRSFile', False) then begin
+    var ItemNum := 1;
+    for I := 0 to FUnits.Count-1 do
+    begin
+      var LDir := IncludeTrailingPathDelimiter(FDirs[i]);
       Code('      <Item' + IntToStr(ItemNum) + '>');
-      Code('        <Filename Value="' + LDir + FUnits[I] + '.lrs"/>');
-      Code('        <Type Value="LRS"/>');
+      Code('        <Filename Value="' + LDir + FUnits[I] + '.pas"/>');
+      if LFiles[I].FPCHasRegProc then begin
+        Code('        <HasRegisterProc Value="True"/>');
+      end;
+      Code('        <UnitName Value="' + FUnits[I] + '"/>');
       Code('      </Item' + IntToStr(ItemNum) + '>');
       Inc(ItemNum);
+      if DB.Ini.ReadBool(FUnits[I], 'FPCHasLRSFile', False) then begin
+        Code('      <Item' + IntToStr(ItemNum) + '>');
+        Code('        <Filename Value="' + LDir + FUnits[I] + '.lrs"/>');
+        Code('        <Type Value="LRS"/>');
+        Code('      </Item' + IntToStr(ItemNum) + '>');
+        Inc(ItemNum);
+      end;
     end;
-  end;
 
-  Code('    </Files>');
-}
+    Code('    </Files>');
+  }
   Code('    <Files Count="16">');
   Code('      <Item1>');
-  Code('        <Filename Value="Core\IdAboutVCL.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Core\IdAboutVCL.pas"/>');
   Code('        <UnitName Value="IdAboutVCL"/>');
   Code('      </Item1>');
   Code('      <Item2>');
-  Code('        <Filename Value="Core\IdAboutVCL.lrs"/>');
+  Code('        <Filename Value="..\..\Lib\Core\IdAboutVCL.lrs"/>');
   Code('        <Type Value="LRS"/>');
   Code('      </Item2>');
   Code('      <Item3>');
-  Code('        <Filename Value="Core\IdAntiFreeze.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Core\IdAntiFreeze.pas"/>');
   Code('        <UnitName Value="IdAntiFreeze"/>');
   Code('      </Item3>');
   Code('      <Item4>');
-  Code('        <Filename Value="Core\IdCoreDsnRegister.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Core\IdCoreDsnRegister.pas"/>');
   Code('        <HasRegisterProc Value="True"/>');
   Code('        <UnitName Value="IdCoreDsnRegister"/>');
   Code('      </Item4>');
   Code('      <Item5>');
-  Code('        <Filename Value="Core\IdDsnCoreResourceStrings.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Core\IdDsnCoreResourceStrings.pas"/>');
   Code('        <UnitName Value="IdDsnCoreResourceStrings"/>');
   Code('      </Item5>');
   Code('      <Item6>');
-  Code('        <Filename Value="Core\IdDsnPropEdBindingVCL.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Core\IdDsnPropEdBindingVCL.pas"/>');
   Code('        <UnitName Value="IdDsnPropEdBindingVCL"/>');
   Code('      </Item6>');
   Code('      <Item7>');
-  Code('        <Filename Value="Protocols\IdDsnRegister.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Protocols\IdDsnRegister.pas"/>');
   Code('        <HasRegisterProc Value="True"/>');
   Code('        <UnitName Value="IdDsnRegister"/>');
   Code('      </Item7>');
   Code('      <Item8>');
-  Code('        <Filename Value="Protocols\IdDsnResourceStrings.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Protocols\IdDsnResourceStrings.pas"/>');
   Code('        <UnitName Value="IdDsnResourceStrings"/>');
   Code('      </Item8>');
   Code('      <Item9>');
-  Code('        <Filename Value="Protocols\IdDsnSASLListEditorFormVCL.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Protocols\IdDsnSASLListEditorFormVCL.pas"/>');
   Code('        <UnitName Value="IdDsnSASLListEditorFormVCL"/>');
   Code('      </Item9>');
   Code('      <Item10>');
-  Code('        <Filename Value="Protocols\IdDsnSASLListEditorFormVCL.lrs"/>');
+  Code('        <Filename Value="..\..\Lib\Protocols\IdDsnSASLListEditorFormVCL.lrs"/>');
   Code('        <Type Value="LRS"/>');
   Code('      </Item10>');
   Code('      <Item11>');
-  Code('        <Filename Value="Protocols\IdRegister.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Protocols\IdRegister.pas"/>');
   Code('        <HasRegisterProc Value="True"/>');
   Code('        <UnitName Value="IdRegister"/>');
   Code('      </Item11>');
   Code('      <Item12>');
-  Code('        <Filename Value="Protocols\IdRegister.lrs"/>');
+  Code('        <Filename Value="..\..\Lib\Protocols\IdRegister.lrs"/>');
   Code('        <Type Value="LRS"/>');
   Code('      </Item12>');
   Code('      <Item13>');
-  Code('        <Filename Value="Core\IdRegisterCore.pas"/>');
+  Code('        <Filename Value="..\..\Lib\Core\IdRegisterCore.pas"/>');
   Code('        <HasRegisterProc Value="True"/>');
   Code('        <UnitName Value="IdRegisterCore"/>');
   Code('      </Item13>');
   Code('      <Item14>');
-  Code('        <Filename Value="Core\IdRegisterCore.lrs"/>');
+  Code('        <Filename Value="..\..\Lib\Core\IdRegisterCore.lrs"/>');
   Code('        <Type Value="LRS"/>');
   Code('      </Item14>');
   Code('      <Item15>');
-  Code('        <Filename Value="System\IdStreamVCL.pas"/>');
+  Code('        <Filename Value="..\..\Lib\System\IdStreamVCL.pas"/>');
   Code('        <UnitName Value="IdStreamVCL"/>');
   Code('      </Item15>');
   Code('      <Item16>');
-  Code('        <Filename Value="System\IdStream.pas"/>');
+  Code('        <Filename Value="..\..\Lib\System\IdStream.pas"/>');
   Code('        <UnitName Value="IdStream"/>');
   Code('      </Item16>');
   Code('    </Files>');
@@ -254,3 +257,4 @@ begin
 end;
 
 end.
+

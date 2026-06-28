@@ -46,7 +46,7 @@ type
     procedure GenRequires; override;
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
@@ -59,9 +59,9 @@ begin
   FOutputSubDir := 'Lib\SuperCore';
 end;
 
-procedure TPackageSuperCore.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TPackageSuperCore.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 begin
-  FName := 'IndySuperCore' + GPackageVer[ACompiler];
+  Prepare('IndySuperCore', ACompiler);
   FDesc := 'SuperCore';
   FExt := '.dpk';
   inherited Generate(ACompiler, AFlags - [gfDesignTime]);
@@ -73,8 +73,8 @@ begin
   Code('');
   Code('requires');
   Code('  rtl,');
-  Code('  IndySystem' + GPackageVer[FCompiler] + ',');
-  Code('  IndyCore' + GPackageVer[FCompiler] + ';');
+  Code('  ' + PackageName('IndySystem', FCompiler) + ',');
+  Code('  ' + PackageName('IndyCore', FCompiler) + ';');
 end;
 
 end.
