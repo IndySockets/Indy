@@ -121,8 +121,8 @@ begin
   Code('cd "%~dp0"');
   Code('');
   Code('if exist SetEnv.bat del SetEnv.bat');
-  Code('if not exist "%~dp0..\Computil.exe" goto NoComputil');
-  Code('"%~dp0..\Computil.exe" Setup' + GCleanCompilers[ACompiler].Symbol);
+  Code('if not exist "..\Computil.exe" goto NoComputil');
+  Code('"..\Computil.exe" Setup' + GCleanCompilers[ACompiler].Symbol);
   Code('if defined ND' + GCleanCompilers[ACompiler].Symbol + ' goto RSVARS');
   Code('if not exist SetEnv.bat goto NoNDD');
   Code('');
@@ -135,7 +135,7 @@ begin
   Code('');
   Code('set logfn=Clean' + GCleanCompilers[ACompiler].Symbol + '.log');
   Code('');
-  Code('call "%~dp0..\Clean_IDE.cmd"');
+  Code('call "..\Clean_IDE.cmd"');
   Code('goto END');
   Code('');
   Code(':NoCompUtil');
