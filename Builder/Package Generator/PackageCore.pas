@@ -97,7 +97,7 @@ begin
 
   if gfRunTime in LFlags then
   begin
-    Prepare('IndyCore', ACompiler);
+    Prepare('IndyCore', ACompiler, GuidIndyCore);
     FDesc := 'Core';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfDesignTime]);
@@ -107,7 +107,7 @@ begin
 
   if gfDesignTime in LFlags then
   begin
-    Prepare('dclIndyCore', ACompiler);
+    Prepare('dclIndyCore', ACompiler, GuidDclIndyCore);
     FDesc := 'Core Design Time';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfRunTime]);

@@ -118,7 +118,7 @@ begin
   Code('@echo off');
   Code('set DelphiProd=' + GCleanCompilers[ACompiler].ProductName);
   Code('');
-  Code('cd /d "%~dp0"');
+  Code('cd "%~dp0"');
   Code('');
   Code('if exist SetEnv.bat del SetEnv.bat');
   Code('if not exist "%~dp0..\Computil.exe" goto NoComputil');

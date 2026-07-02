@@ -77,14 +77,14 @@ begin
     Code('  Borland.Delphi,');
     Code('  Borland.VclRtl,');
   end;
-  Code('  IndySystem' + GPackageVer[FCompiler] + ',');
-  Code('  IndyCore' + GPackageVer[FCompiler] + ',');
-  Code('  IndyProtocols' + GPackageVer[FCompiler] + ',');
+  Code('  ' + PackageName('IndySystem', FCompiler) + ',');
+  Code('  ' + PackageName('IndyCore', FCompiler) + ',');
+  Code('  ' + PackageName('IndyProtocols', FCompiler) + ',');
   if FDesignTime then
   begin
-    Code('  IndySecurity' + GPackageVer[FCompiler] + ',');
-    Code('  dclIndyCore' + GPackageVer[FCompiler] + ',');
-    Code('  dclIndyProtocols' + GPackageVer[FCompiler] + ',');
+    Code('  ' + PackageName('IndySecurity', FCompiler) + ',');
+    Code('  ' + PackageName('dclIndyCore', FCompiler) + ',');
+    Code('  ' + PackageName('dclIndyProtocols',  FCompiler) + ',');
   end;
   Code('  Mono.Security,');
   Code('  System,');

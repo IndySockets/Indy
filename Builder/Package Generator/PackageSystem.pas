@@ -89,7 +89,7 @@ end;
 
 procedure TPackageSystem.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 begin
-  Prepare('IndySystem', ACompiler);
+  Prepare('IndySystem', ACompiler, GuidIndySystem);
   FDesc := 'System';
   FExt := '.dpk';
   inherited Generate(ACompiler, AFlags - [gfDesignTime]);

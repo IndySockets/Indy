@@ -120,11 +120,18 @@ const
   //  the suffix baked into the package name.)
   Delphi_Native_LibSuffix = Delphi_Native - [ctDelphi4, ctDelphi5];
   // Delphi 11+ can use the automatic LIBSUFFIX feature ({$LIBSUFFIX AUTO}).
-  Delphi_Native_LibSuffix_Auto = [ctDelphiAlexandria, ctDelphiAthens, ctDelphiFlorence];
+  Delphi_Native_LibSuffix_Auto = [ctDelphiAlexandria..Delphi_Native_Highest] ;
   // Native Delphi versions whose IDE project format is .dproj (MSBuild). Delphi 2007
   // introduced .dproj; earlier versions used .dpk(+.cfg) / .bdsproj and get no .dproj.
   // (ctDelphiPre2010NR / the .NET variants are excluded.)
-  Delphi_Native_Dproj = [ctDelphi2007, ctDelphi2009, ctDelphi2010, ctDelphiXE..ctDelphiFlorence];
+  Delphi_Native_Dproj = [ctDelphi2007..Delphi_Native_Highest];
+
+  // Stable per-package ProjectGuid values (used for the .dproj <ProjectGuid>).
+  GuidIndySystem       = '{168608C4-572C-4A59-BDC9-217C6E49D16A}';
+  GuidIndyCore         = '{EC04471C-07B1-417C-AAB7-9057CDC19654}';
+  GuidIndyProtocols    = '{449AFDFE-87E5-4A27-A606-3D18DCC49E19}';
+  GuidDclIndyCore      = '{1D46A695-5727-4259-8F1C-AD2CF5BB5BA3}';
+  GuidDclIndyProtocols = '{2197FF7F-515A-47D7-B1DF-E5B6705CE0F8}';
 
 type
   TPackage = class
@@ -136,6 +143,7 @@ type
     FDirs : TStringList;
     FExt : string;
     FName : string;
+    FGuid : string;                     // the package's ProjectGuid; empty when the package has no .dproj
     FUnits : TStringList;
     FVersion : string;
     FDesignTime : Boolean;
@@ -146,7 +154,7 @@ type
     FOutputBplName : string;            // the final (always-suffixed) .bpl base name, used for version info
     FDprojRefs : TStringList;           // <DCCReference> unit lines, built during GenContains for the .dproj
     //
-    procedure Prepare(const ABase : string; ACompiler : TCompiler);
+    procedure Prepare(const ABase : string; ACompiler : TCompiler; const AGuid : string = '');
     procedure Code(const ACode : string);
     procedure GenHeader; virtual;
     procedure GenOptions; virtual;
@@ -376,8 +384,9 @@ end;
 
 { TPackage }
 
-procedure TPackage.Prepare(const ABase : string; ACompiler : TCompiler);
+procedure TPackage.Prepare(const ABase : string; ACompiler : TCompiler; const AGuid : string);
 begin
+  FGuid := AGuid;
   // The package filename/identifier (de-suffixed for native D6+, suffixed otherwise)
   FName := PackageName(ABase, ACompiler);
   // The final .bpl base name always keeps the suffix (LIBSUFFIX restores it)
@@ -531,11 +540,6 @@ begin
   FDebug := gfDebug in AFlags;
   GenHeader;
   GenOptions;
-  // Native Delphi 6+ carry the version via LIBSUFFIX instead of a name suffix.
-  if FCompiler in Delphi_Native_LibSuffix then
-  begin
-    Code(LibSuffixDirective(FCompiler));
-  end;
   GenPreRequiresClause;
   GenRequires;
   GenContains;
@@ -594,19 +598,10 @@ begin
     Exit;
   end;
 
-  // Stable per-package identity, keyed off the (de-suffixed) package name.
-  if FName = 'IndySystem' then
-    LGuid := '{168608C4-572C-4A59-BDC9-217C6E49D16A}'
-  else if FName = 'IndyCore' then
-    LGuid := '{EC04471C-07B1-417C-AAB7-9057CDC19654}'
-  else if FName = 'IndyProtocols' then
-    LGuid := '{449AFDFE-87E5-4A27-A606-3D18DCC49E19}'
-  else if FName = 'dclIndyCore' then
-    LGuid := '{1D46A695-5727-4259-8F1C-AD2CF5BB5BA3}'
-  else if FName = 'dclIndyProtocols' then
-    LGuid := '{2197FF7F-515A-47D7-B1DF-E5B6705CE0F8}'
-  else
-    Exit;                               // unknown package -> no .dproj
+  // Stable per-package identity, supplied by Prepare(); empty -> no .dproj.
+  if FGuid = '' then
+    Exit;
+  LGuid := FGuid;
 
   case ACompiler of
     ctDelphi2007 : LProjVer := '11.0';
@@ -662,7 +657,7 @@ begin
         LPlats.Add('Win64');
       if ACompiler >= ctDelphiAthens then
         LPlats.Add('Win64x');
-      if ACompiler = ctDelphiFlorence then
+      if ACompiler >= ctDelphiFlorence then
         LPlats.Add('WinARM64EC');
     end;
     LTargeted := 0;
@@ -908,6 +903,12 @@ begin
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
   Code('{$IMPLICITBUILD OFF}');
+  // Native Delphi 6+ carry the version via LIBSUFFIX instead of a name suffix.
+  if FCompiler in Delphi_Native_LibSuffix then
+  begin
+    Code(LibSuffixDirective(FCompiler));
+  end;
+
 end;
 
 procedure TPackage.Load(const ACriteria : string; const AUsePath : Boolean = True);

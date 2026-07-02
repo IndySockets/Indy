@@ -119,7 +119,7 @@ begin
 
   if gfRunTime in LFlags then
   begin
-    Prepare('IndyProtocols', ACompiler);
+    Prepare('IndyProtocols', ACompiler, GuidIndyProtocols);
     FDesc := 'Protocols';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfDesignTime]);
@@ -129,7 +129,7 @@ begin
 
   if gfDesignTime in LFlags then
   begin
-    Prepare('dclIndyProtocols', ACompiler);
+    Prepare('dclIndyProtocols', ACompiler, GuidDclIndyProtocols);
     FDesc := 'Protocols Design Time';
     FExt := '.dpk';
     inherited Generate(ACompiler, LFlags - [gfRunTime]);
