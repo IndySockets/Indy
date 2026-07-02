@@ -1018,7 +1018,7 @@ begin
   Code('   VALUE "FileDescription", "Internet Direct (Indy) ' + IndyVersion_ProductVersion_Str + ' - ' + FDesc + ' Package\0"');
   Code('   VALUE "FileVersion", "' + FileVersion + '\0"');
   Code('   VALUE "InternalName", "' + LBplName + '\0"');
-  Code('   VALUE "LegalCopyright", "Copyright � 1993 - ' + IntToStr(DateUtils.YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"');
+  Code('   VALUE "LegalCopyright", "Copyright © 1993 - ' + IntToStr(DateUtils.YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"');
   Code('   VALUE "OriginalFilename", "' + LBplName + '.bpl\0"');
   Code('   VALUE "ProductName", "Indy\0"');
   Code('   VALUE "ProductVersion", "' + IndyVersion_ProductVersion_Str + '\0"');
