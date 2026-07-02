@@ -1,4 +1,4 @@
-{
+﻿{
   $Project$
   $Workfile$
   $Revision$
@@ -61,11 +61,11 @@ begin
   FDesignTime := False;
   FTemplate := False;
 
-  // All .inc files now live in the Lib root (the per-package System/Core/
+  // All .inc files now live in the Lib\Includes (the per-package System/Core/
   // Protocols/Security/FCL/SuperCore copies were consolidated to avoid
   // duplication). Lib is on the unit search path, so {$I <name>.inc} still
   // resolves from each unit's subfolder. One write each, into Lib.
-  FOutputSubDir := 'Lib';
+  FOutputSubDir := 'Lib\Includes';
 
   if gfTemplate in AFlags then
   begin
@@ -182,7 +182,7 @@ begin
   Code('[assembly: AssemblyConfiguration('''')]');
   Code('[assembly: AssemblyCompany(''Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyProduct(''Indy for Microsoft .NET Framework'')]');
-  Code('[assembly: AssemblyCopyright(''Copyright � 1993 - ' + IntToStr(YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
+  Code('[assembly: AssemblyCopyright(''Copyright © 1993 - ' + IntToStr(YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyTrademark('''')]');
   Code('[assembly: AssemblyCulture('''')]');
   Code('[assembly: AssemblyTitle(''Indy .NET ' + FDesc + ' Package'')]');
@@ -237,7 +237,7 @@ begin
   Code('[assembly: AssemblyConfiguration('''')]');
   Code('[assembly: AssemblyCompany(''Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyProduct(''Indy for Microsoft .NET Framework'')]');
-  Code('[assembly: AssemblyCopyright(''Copyright � 1993 - ' + IntToStr(YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
+  Code('[assembly: AssemblyCopyright(''Copyright © 1993 - ' + IntToStr(YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyTrademark('''')]');
   Code('[assembly: AssemblyCulture('''')]');
   Code('');
@@ -299,7 +299,7 @@ begin
   // TODO: put the version defines into their own .inc file that
   // IdCompilerDefines.inc can then include...
 
-  LFileName := DM.OutputPath + 'Lib\IdCompilerDefines.inc';
+  LFileName := DM.OutputPath + 'Lib\Includes\IdCompilerDefines.inc';
 
   LProductDefine := '{$DEFINE ' + StringReplace(IndyVersion_ProductVersion_Str, '.', '_', [rfReplaceAll]) + '}';
   LVersionDefine := '{$DEFINE ' + StringReplace(IndyVersion_FileVersion_Str, '.', '_', [rfReplaceAll]) + '}';

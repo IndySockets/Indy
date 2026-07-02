@@ -1,11 +1,11 @@
 ﻿@echo off
 set DelphiProd=Delphi 10.0 Seattle
 
-cd /d "%~dp0"
+cd "%~dp0"
 
 if exist SetEnv.bat del SetEnv.bat
-if not exist "%~dp0..\Computil.exe" goto NoComputil
-"%~dp0..\Computil.exe" SetupD23
+if not exist "..\Computil.exe" goto NoComputil
+"..\Computil.exe" SetupD23
 if defined NDD23 goto RSVARS
 if not exist SetEnv.bat goto NoNDD
 
@@ -18,7 +18,7 @@ if not defined BDS goto NoBDS
 
 set logfn=CleanD23.log
 
-call "%~dp0..\Clean_IDE.cmd"
+call "..\Clean_IDE.cmd"
 goto END
 
 :NoCompUtil

@@ -1,4 +1,4 @@
-package dclIndyCore;
+﻿package dclIndyCore;
 
 {$R *.res}
 {$ALIGN 8}

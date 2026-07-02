@@ -1,11 +1,11 @@
 ﻿@echo off
 set DelphiProd=Delphi XE3
 
-cd /d "%~dp0"
+cd "%~dp0"
 
 if exist SetEnv.bat del SetEnv.bat
-if not exist "%~dp0..\Computil.exe" goto NoComputil
-"%~dp0..\Computil.exe" SetupD17
+if not exist "..\Computil.exe" goto NoComputil
+"..\Computil.exe" SetupD17
 if defined NDD17 goto RSVARS
 if not exist SetEnv.bat goto NoNDD
 
@@ -18,7 +18,7 @@ if not defined BDS goto NoBDS
 
 set logfn=CleanD17.log
 
-call "%~dp0..\Clean_IDE.cmd"
+call "..\Clean_IDE.cmd"
 goto END
 
 :NoCompUtil

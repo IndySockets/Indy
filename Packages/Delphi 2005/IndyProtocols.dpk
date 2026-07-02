@@ -1,4 +1,4 @@
-package IndyProtocols;
+﻿package IndyProtocols;
 
 {$R *.res}
 {$ALIGN 8}

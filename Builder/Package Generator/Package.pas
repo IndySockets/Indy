@@ -151,6 +151,7 @@ type
     FTemplate : Boolean;
     FOutputSubDir : string;
     FSourceRoot : string;               // relative path from the output folder back to Lib\ (e.g. '..\..\Lib\')
+    FIncludePath : string;
     FOutputBplName : string;            // the final (always-suffixed) .bpl base name, used for version info
     FDprojRefs : TStringList;           // <DCCReference> unit lines, built during GenContains for the .dproj
     //
@@ -424,6 +425,7 @@ begin
   // Packages now live in Packages\<version>\, two levels above Lib\<subdir>\ where
   // the source still resides, so 'contains' entries are written relative to there.
   FSourceRoot := '..\..\Lib\';
+  FIncludePath := FSourceRoot + 'Includes';
   FCode := TStringList.Create;
   FDirs := TStringList.Create;
   FUnits := TStringList.Create;
@@ -712,7 +714,7 @@ begin
     // Design-time packages pull in VCL units (e.g. Vcl.StdCtrls via IdAboutVCL), so they need
     // the Vcl unit-scope namespace; runtime packages are non-visual and don't.
     Code('        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;' + iif(FDesignTime, 'Vcl;', '') + 'System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>');
-    Code('        <DCC_UnitSearchPath>' + ExcludeTrailingPathDelimiter(FSourceRoot) + ';$(DCC_UnitSearchPath)</DCC_UnitSearchPath>');
+    Code('        <DCC_UnitSearchPath>' + ExcludeTrailingPathDelimiter(FIncludePath) + ';$(DCC_UnitSearchPath)</DCC_UnitSearchPath>');
     Code('        <' + LPkgKind + '>true</' + LPkgKind + '>');
     Code('        <GenDll>true</GenDll>');
     Code('        <GenPackage>true</GenPackage>');
@@ -966,7 +968,7 @@ begin
   if (LCodeOld = '') or (LCodeOld <> FCode.Text) then
   begin
     ForceDirectories(ExtractFilePath(LPathname)); // create Packages\<version>\ if needed
-    FCode.SaveToFile(LPathname);
+    FCode.SaveToFile(LPathname, TEncoding.UTF8); //force encoding for consistency.
     WriteLn('Generated ' + LSubDir + FName + FExt);
   end;
 end;

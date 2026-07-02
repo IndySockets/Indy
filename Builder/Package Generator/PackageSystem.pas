@@ -194,6 +194,11 @@ begin
   Code('{$DESCRIPTION ''Indy ' + FVersion + TrimRight(' ' + FDesc) + '''}');
   Code(iif(FDesignTime, '{$DESIGNONLY}', '{$RUNONLY}'));
   Code('{$IMPLICITBUILD OFF}');
+  // Native Delphi 6+ carry the version via LIBSUFFIX instead of a name suffix.
+  if FCompiler in Delphi_Native_LibSuffix then
+  begin
+    Code(LibSuffixDirective(FCompiler));
+  end;
 end;
 
 procedure TPackageSystem.GenPreRequiresClause;

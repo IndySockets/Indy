@@ -1,4 +1,4 @@
-package IndyCore;
+﻿package IndyCore;
 
 {$R *.res}
 {$BOOLEVAL OFF}
