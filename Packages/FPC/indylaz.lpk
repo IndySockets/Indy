@@ -10,8 +10,8 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <IncludeFiles Value="..\..\Lib;..\..\Lib\Core;..\..\Lib\Protocols;..\..\Lib\System"/>
-        <OtherUnitFiles Value="..\..\Lib;..\..\Lib\Core;..\..\Lib\Protocols;..\..\Lib\System"/>
+        <IncludeFiles Value="..\..\Lib;..\..\Lib\Source\Includes;..\..\Lib\Source\Core;..\..\Lib\Source\Protocols;..\..\Lib\Source\System"/>
+        <OtherUnitFiles Value="..\..\Lib;..\..\Lib\Source\Includes;..\..\Lib\Source\Core;..\..\Lib\Source\Protocols;..\..\Lib\Source\System"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
       <Parsing>
@@ -43,71 +43,71 @@ THIS SOFTWARE IS PROVIDED BY Chad Z. Hower (Kudzu) and the Indy Pit Crew &amp;qu
     <Version Major="10" Minor="7" Release="0" Build="0"/>
     <Files Count="16">
       <Item1>
-        <Filename Value="..\..\Lib\Core\IdAboutVCL.pas"/>
+        <Filename Value="..\..\Lib\Source\Core\IdAboutVCL.pas"/>
         <UnitName Value="IdAboutVCL"/>
       </Item1>
       <Item2>
-        <Filename Value="..\..\Lib\Core\IdAboutVCL.lrs"/>
+        <Filename Value="..\..\Lib\Source\Core\IdAboutVCL.lrs"/>
         <Type Value="LRS"/>
       </Item2>
       <Item3>
-        <Filename Value="..\..\Lib\Core\IdAntiFreeze.pas"/>
+        <Filename Value="..\..\Lib\Source\Core\IdAntiFreeze.pas"/>
         <UnitName Value="IdAntiFreeze"/>
       </Item3>
       <Item4>
-        <Filename Value="..\..\Lib\Core\IdCoreDsnRegister.pas"/>
+        <Filename Value="..\..\Lib\Source\Core\IdCoreDsnRegister.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="IdCoreDsnRegister"/>
       </Item4>
       <Item5>
-        <Filename Value="..\..\Lib\Core\IdDsnCoreResourceStrings.pas"/>
+        <Filename Value="..\..\Lib\Source\Core\IdDsnCoreResourceStrings.pas"/>
         <UnitName Value="IdDsnCoreResourceStrings"/>
       </Item5>
       <Item6>
-        <Filename Value="..\..\Lib\Core\IdDsnPropEdBindingVCL.pas"/>
+        <Filename Value="..\..\Lib\Source\Core\IdDsnPropEdBindingVCL.pas"/>
         <UnitName Value="IdDsnPropEdBindingVCL"/>
       </Item6>
       <Item7>
-        <Filename Value="..\..\Lib\Protocols\IdDsnRegister.pas"/>
+        <Filename Value="..\..\Lib\Source\Protocols\IdDsnRegister.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="IdDsnRegister"/>
       </Item7>
       <Item8>
-        <Filename Value="..\..\Lib\Protocols\IdDsnResourceStrings.pas"/>
+        <Filename Value="..\..\Lib\Source\Protocols\IdDsnResourceStrings.pas"/>
         <UnitName Value="IdDsnResourceStrings"/>
       </Item8>
       <Item9>
-        <Filename Value="..\..\Lib\Protocols\IdDsnSASLListEditorFormVCL.pas"/>
+        <Filename Value="..\..\Lib\Source\Protocols\IdDsnSASLListEditorFormVCL.pas"/>
         <UnitName Value="IdDsnSASLListEditorFormVCL"/>
       </Item9>
       <Item10>
-        <Filename Value="..\..\Lib\Protocols\IdDsnSASLListEditorFormVCL.lrs"/>
+        <Filename Value="..\..\Lib\Source\Protocols\IdDsnSASLListEditorFormVCL.lrs"/>
         <Type Value="LRS"/>
       </Item10>
       <Item11>
-        <Filename Value="..\..\Lib\Protocols\IdRegister.pas"/>
+        <Filename Value="..\..\Lib\Source\Protocols\IdRegister.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="IdRegister"/>
       </Item11>
       <Item12>
-        <Filename Value="..\..\Lib\Protocols\IdRegister.lrs"/>
+        <Filename Value="..\..\Lib\Source\Protocols\IdRegister.lrs"/>
         <Type Value="LRS"/>
       </Item12>
       <Item13>
-        <Filename Value="..\..\Lib\Core\IdRegisterCore.pas"/>
+        <Filename Value="..\..\Lib\Source\Core\IdRegisterCore.pas"/>
         <HasRegisterProc Value="True"/>
         <UnitName Value="IdRegisterCore"/>
       </Item13>
       <Item14>
-        <Filename Value="..\..\Lib\Core\IdRegisterCore.lrs"/>
+        <Filename Value="..\..\Lib\Source\Core\IdRegisterCore.lrs"/>
         <Type Value="LRS"/>
       </Item14>
       <Item15>
-        <Filename Value="..\..\Lib\System\IdStreamVCL.pas"/>
+        <Filename Value="..\..\Lib\Source\System\IdStreamVCL.pas"/>
         <UnitName Value="IdStreamVCL"/>
       </Item15>
       <Item16>
-        <Filename Value="..\..\Lib\System\IdStream.pas"/>
+        <Filename Value="..\..\Lib\Source\System\IdStream.pas"/>
         <UnitName Value="IdStream"/>
       </Item16>
     </Files>

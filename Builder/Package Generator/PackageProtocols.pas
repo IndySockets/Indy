@@ -104,7 +104,7 @@ const
 constructor TPackageProtocols.Create;
 begin
   inherited;
-  FOutputSubDir := 'Lib\Protocols';
+  FOutputSubDir := 'Lib\Source\Protocols';
 end;
 
 procedure TPackageProtocols.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);

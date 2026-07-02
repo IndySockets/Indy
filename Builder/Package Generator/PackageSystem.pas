@@ -84,7 +84,7 @@ const
 constructor TPackageSystem.Create;
 begin
   inherited;
-  FOutputSubDir := 'Lib\System';
+  FOutputSubDir := 'Lib\Source\System';
 end;
 
 procedure TPackageSystem.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);

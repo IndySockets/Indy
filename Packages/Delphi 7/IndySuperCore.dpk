@@ -27,14 +27,14 @@ requires
   IndyCore;
 
 contains
-  IdFiber in '..\..\Lib\SuperCore\IdFiber.pas',
-  IdFiberWeaver in '..\..\Lib\SuperCore\IdFiberWeaver.pas',
-  IdFiberWeaverInline in '..\..\Lib\SuperCore\IdFiberWeaverInline.pas',
-  IdFiberWeaverThreaded in '..\..\Lib\SuperCore\IdFiberWeaverThreaded.pas',
-  IdIOHandlerChain in '..\..\Lib\SuperCore\IdIOHandlerChain.pas',
-  IdSchedulerOfFiber in '..\..\Lib\SuperCore\IdSchedulerOfFiber.pas',
-  IdServerIOHandlerChain in '..\..\Lib\SuperCore\IdServerIOHandlerChain.pas',
-  IdWorkOpUnit in '..\..\Lib\SuperCore\IdWorkOpUnit.pas',
-  IdWorkOpUnits in '..\..\Lib\SuperCore\IdWorkOpUnits.pas';
+  IdFiber in '..\..\Lib\Source\SuperCore\IdFiber.pas',
+  IdFiberWeaver in '..\..\Lib\Source\SuperCore\IdFiberWeaver.pas',
+  IdFiberWeaverInline in '..\..\Lib\Source\SuperCore\IdFiberWeaverInline.pas',
+  IdFiberWeaverThreaded in '..\..\Lib\Source\SuperCore\IdFiberWeaverThreaded.pas',
+  IdIOHandlerChain in '..\..\Lib\Source\SuperCore\IdIOHandlerChain.pas',
+  IdSchedulerOfFiber in '..\..\Lib\Source\SuperCore\IdSchedulerOfFiber.pas',
+  IdServerIOHandlerChain in '..\..\Lib\Source\SuperCore\IdServerIOHandlerChain.pas',
+  IdWorkOpUnit in '..\..\Lib\Source\SuperCore\IdWorkOpUnit.pas',
+  IdWorkOpUnits in '..\..\Lib\Source\SuperCore\IdWorkOpUnits.pas';
 
 end.

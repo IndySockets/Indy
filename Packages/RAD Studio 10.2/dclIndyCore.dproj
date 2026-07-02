@@ -33,7 +33,7 @@
         <DllSuffix>250</DllSuffix>
         <DCC_Description>Indy 10 Core Design Time</DCC_Description>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>..\..\Lib\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\Lib\Source\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DesignOnlyPackage>true</DesignOnlyPackage>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
@@ -58,12 +58,12 @@
         <DCCReference Include="designide.dcp"/>
         <DCCReference Include="IndySystem.dcp"/>
         <DCCReference Include="IndyCore.dcp"/>
-        <DCCReference Include="..\..\Lib\Core\IdAboutVCL.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdAntiFreeze.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdCoreDsnRegister.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdDsnCoreResourceStrings.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdDsnPropEdBindingVCL.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdRegisterCore.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdAboutVCL.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdAntiFreeze.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdCoreDsnRegister.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdDsnCoreResourceStrings.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdDsnPropEdBindingVCL.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdRegisterCore.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_1</Key>
             <CfgParent>Base</CfgParent>

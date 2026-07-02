@@ -32,12 +32,12 @@ requires
   System.XML;
 
 contains
-  IdCarrierStream in '..\..\Lib\Security\IdCarrierStream.pas',
-  IdIOHandlerTls in '..\..\Lib\Security\IdIOHandlerTls.pas',
-  IdServerIOHandlerTls in '..\..\Lib\Security\IdServerIOHandlerTls.pas',
-  IdSocketStream in '..\..\Lib\Security\IdSocketStream.pas',
-  IdTlsClientOptions in '..\..\Lib\Security\IdTlsClientOptions.pas',
-  IdTlsServerOptions in '..\..\Lib\Security\IdTlsServerOptions.pas';
+  IdCarrierStream in '..\..\Lib\Source\Security\IdCarrierStream.pas',
+  IdIOHandlerTls in '..\..\Lib\Source\Security\IdIOHandlerTls.pas',
+  IdServerIOHandlerTls in '..\..\Lib\Source\Security\IdServerIOHandlerTls.pas',
+  IdSocketStream in '..\..\Lib\Source\Security\IdSocketStream.pas',
+  IdTlsClientOptions in '..\..\Lib\Source\Security\IdTlsClientOptions.pas',
+  IdTlsServerOptions in '..\..\Lib\Source\Security\IdTlsServerOptions.pas';
 {$I IdSecurity90ASM90.inc}
 
 end.

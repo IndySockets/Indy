@@ -150,7 +150,7 @@ type
     FDebug : Boolean;
     FTemplate : Boolean;
     FOutputSubDir : string;
-    FSourceRoot : string;               // relative path from the output folder back to Lib\ (e.g. '..\..\Lib\')
+    FSourceRoot : string;               // relative path from the output folder back to the source root (e.g. '..\..\Lib\Source\')
     FIncludePath : string;
     FOutputBplName : string;            // the final (always-suffixed) .bpl base name, used for version info
     FDprojRefs : TStringList;           // <DCCReference> unit lines, built during GenContains for the .dproj
@@ -422,9 +422,9 @@ begin
   FContainsClause := 'contains';
   FExt := '.dpk';
   FVersion := IndyVersion_Major_Str;
-  // Packages now live in Packages\<version>\, two levels above Lib\<subdir>\ where
-  // the source still resides, so 'contains' entries are written relative to there.
-  FSourceRoot := '..\..\Lib\';
+  // Packages now live in Packages\<version>\, two levels above Lib\Source\<subdir>\ where
+  // the source now resides, so 'contains' entries are written relative to there.
+  FSourceRoot := '..\..\Lib\Source\';
   FIncludePath := FSourceRoot + 'Includes';
   FCode := TStringList.Create;
   FDirs := TStringList.Create;

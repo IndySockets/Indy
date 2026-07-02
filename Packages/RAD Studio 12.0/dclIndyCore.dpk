@@ -35,11 +35,11 @@ requires
   IndyCore;
 
 contains
-  IdAboutVCL in '..\..\Lib\Core\IdAboutVCL.pas',
-  IdAntiFreeze in '..\..\Lib\Core\IdAntiFreeze.pas',
-  IdCoreDsnRegister in '..\..\Lib\Core\IdCoreDsnRegister.pas',
-  IdDsnCoreResourceStrings in '..\..\Lib\Core\IdDsnCoreResourceStrings.pas',
-  IdDsnPropEdBindingVCL in '..\..\Lib\Core\IdDsnPropEdBindingVCL.pas',
-  IdRegisterCore in '..\..\Lib\Core\IdRegisterCore.pas';
+  IdAboutVCL in '..\..\Lib\Source\Core\IdAboutVCL.pas',
+  IdAntiFreeze in '..\..\Lib\Source\Core\IdAntiFreeze.pas',
+  IdCoreDsnRegister in '..\..\Lib\Source\Core\IdCoreDsnRegister.pas',
+  IdDsnCoreResourceStrings in '..\..\Lib\Source\Core\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBindingVCL in '..\..\Lib\Source\Core\IdDsnPropEdBindingVCL.pas',
+  IdRegisterCore in '..\..\Lib\Source\Core\IdRegisterCore.pas';
 
 end.

@@ -33,7 +33,7 @@
         <DllSuffix>110Net</DllSuffix>
         <DCC_Description>Indy 10 System</DCC_Description>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>..\..\Lib\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\Lib\Source\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
@@ -56,18 +56,18 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\..\Lib\System\IdAntiFreezeBase.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdBaseComponent.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdComponent.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdException.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdGlobal.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdResourceStrings.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStack.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStackConsts.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStackDotNet.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStream.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStreamNET.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStruct.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdAntiFreezeBase.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdBaseComponent.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdComponent.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdException.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdGlobal.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdResourceStrings.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStack.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStackConsts.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStackDotNet.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStream.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStreamNET.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStruct.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_1</Key>
             <CfgParent>Base</CfgParent>

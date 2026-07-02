@@ -27,12 +27,12 @@ requires
   IndyCore90Net;
 
 contains
-  IdAboutDotNET in '..\..\Lib\Core\IdAboutDotNET.pas',
-  IdAntiFreeze in '..\..\Lib\Core\IdAntiFreeze.pas',
-  IdCoreDsnRegister in '..\..\Lib\Core\IdCoreDsnRegister.pas',
-  IdDsnCoreResourceStrings in '..\..\Lib\Core\IdDsnCoreResourceStrings.pas',
-  IdDsnPropEdBindingNET in '..\..\Lib\Core\IdDsnPropEdBindingNET.pas',
-  IdRegisterCore in '..\..\Lib\Core\IdRegisterCore.pas';
+  IdAboutDotNET in '..\..\Lib\Source\Core\IdAboutDotNET.pas',
+  IdAntiFreeze in '..\..\Lib\Source\Core\IdAntiFreeze.pas',
+  IdCoreDsnRegister in '..\..\Lib\Source\Core\IdCoreDsnRegister.pas',
+  IdDsnCoreResourceStrings in '..\..\Lib\Source\Core\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBindingNET in '..\..\Lib\Source\Core\IdDsnPropEdBindingNET.pas',
+  IdRegisterCore in '..\..\Lib\Source\Core\IdRegisterCore.pas';
 {$I IddclCore90ASM90.inc}
 
 end.

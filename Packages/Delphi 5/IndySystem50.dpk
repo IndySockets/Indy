@@ -1,4 +1,4 @@
-package IndySystem50;
+﻿package IndySystem50;
 
 {$R *.res}
 {$BOOLEVAL OFF}
@@ -24,22 +24,22 @@ requires
   Vcl50;
 
 contains
-  IdAntiFreezeBase in '..\..\Lib\System\IdAntiFreezeBase.pas',
-  IdBaseComponent in '..\..\Lib\System\IdBaseComponent.pas',
-  IdCTypes in '..\..\Lib\System\IdCTypes.pas',
-  IdComponent in '..\..\Lib\System\IdComponent.pas',
-  IdException in '..\..\Lib\System\IdException.pas',
-  IdGlobal in '..\..\Lib\System\IdGlobal.pas',
-  IdIDN in '..\..\Lib\System\IdIDN.pas',
-  IdResourceStrings in '..\..\Lib\System\IdResourceStrings.pas',
-  IdStack in '..\..\Lib\System\IdStack.pas',
-  IdStackBSDBase in '..\..\Lib\System\IdStackBSDBase.pas',
-  IdStackConsts in '..\..\Lib\System\IdStackConsts.pas',
-  IdStackWindows in '..\..\Lib\System\IdStackWindows.pas',
-  IdStream in '..\..\Lib\System\IdStream.pas',
-  IdStreamVCL in '..\..\Lib\System\IdStreamVCL.pas',
-  IdStruct in '..\..\Lib\System\IdStruct.pas',
-  IdWinsock2 in '..\..\Lib\System\IdWinsock2.pas',
-  IdWship6 in '..\..\Lib\System\IdWship6.pas';
+  IdAntiFreezeBase in '..\..\Lib\Source\System\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Lib\Source\System\IdBaseComponent.pas',
+  IdCTypes in '..\..\Lib\Source\System\IdCTypes.pas',
+  IdComponent in '..\..\Lib\Source\System\IdComponent.pas',
+  IdException in '..\..\Lib\Source\System\IdException.pas',
+  IdGlobal in '..\..\Lib\Source\System\IdGlobal.pas',
+  IdIDN in '..\..\Lib\Source\System\IdIDN.pas',
+  IdResourceStrings in '..\..\Lib\Source\System\IdResourceStrings.pas',
+  IdStack in '..\..\Lib\Source\System\IdStack.pas',
+  IdStackBSDBase in '..\..\Lib\Source\System\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Lib\Source\System\IdStackConsts.pas',
+  IdStackWindows in '..\..\Lib\Source\System\IdStackWindows.pas',
+  IdStream in '..\..\Lib\Source\System\IdStream.pas',
+  IdStreamVCL in '..\..\Lib\Source\System\IdStreamVCL.pas',
+  IdStruct in '..\..\Lib\Source\System\IdStruct.pas',
+  IdWinsock2 in '..\..\Lib\Source\System\IdWinsock2.pas',
+  IdWship6 in '..\..\Lib\Source\System\IdWship6.pas';
 
 end.

@@ -82,7 +82,7 @@ uses
 constructor TPackageCore.Create;
 begin
   inherited;
-  FOutputSubDir := 'Lib\Core';
+  FOutputSubDir := 'Lib\Source\Core';
 end;
 
 procedure TPackageCore.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
@@ -416,7 +416,7 @@ var
 begin
   FCode.Clear;
 
-  LFileName := DM.OutputPath + 'Lib\Core\IdDsnCoreResourceStrings.pas';
+  LFileName := DM.OutputPath + 'Lib\Source\Core\IdDsnCoreResourceStrings.pas';
 
   // TStreamReader would be preferred, but its broken!
   Data := TStringList.Create;
@@ -437,9 +437,9 @@ begin
 
   FName := 'IdDsnCoreResourceStrings';
   FExt := '.pas';
-  // this is a source unit that lives with the rest of the source under Lib\Core,
+  // this is a source unit that lives with the rest of the source under Lib\Source\Core,
   // not a relocated package (Prepare() may have repointed FOutputSubDir).
-  FOutputSubDir := 'Lib\Core';
+  FOutputSubDir := 'Lib\Source\Core';
   WriteFile;
 end;
 

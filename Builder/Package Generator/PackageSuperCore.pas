@@ -56,7 +56,7 @@ implementation
 constructor TPackageSuperCore.Create;
 begin
   inherited;
-  FOutputSubDir := 'Lib\SuperCore';
+  FOutputSubDir := 'Lib\Source\SuperCore';
 end;
 
 procedure TPackageSuperCore.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);

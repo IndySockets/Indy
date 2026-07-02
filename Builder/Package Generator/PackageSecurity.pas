@@ -50,7 +50,7 @@ uses
 constructor TPackageSecurity.Create;
 begin
   inherited;
-  FOutputSubDir := 'Lib\Security';
+  FOutputSubDir := 'Lib\Source\Security';
 end;
 
 procedure TPackageSecurity.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);

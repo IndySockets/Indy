@@ -33,7 +33,7 @@
         <DllSuffix>180</DllSuffix>
         <DCC_Description>Indy 10 Protocols Design Time</DCC_Description>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>..\..\Lib\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\Lib\Source\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DesignOnlyPackage>true</DesignOnlyPackage>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
@@ -60,10 +60,10 @@
         <DCCReference Include="IndySystem.dcp"/>
         <DCCReference Include="IndyCore.dcp"/>
         <DCCReference Include="dclIndyCore.dcp"/>
-        <DCCReference Include="..\..\Lib\Protocols\IdDsnRegister.pas"/>
-        <DCCReference Include="..\..\Lib\Protocols\IdDsnResourceStrings.pas"/>
-        <DCCReference Include="..\..\Lib\Protocols\IdDsnSASLListEditorFormVCL.pas"/>
-        <DCCReference Include="..\..\Lib\Protocols\IdRegister.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Protocols\IdDsnRegister.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Protocols\IdDsnResourceStrings.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Protocols\IdDsnSASLListEditorFormVCL.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Protocols\IdRegister.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_1</Key>
             <CfgParent>Base</CfgParent>

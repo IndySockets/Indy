@@ -53,34 +53,34 @@ requires
 {$ENDIF}
 
 contains
-  IdAntiFreezeBase in '..\..\Lib\System\IdAntiFreezeBase.pas',
-  IdBaseComponent in '..\..\Lib\System\IdBaseComponent.pas',
-  IdCTypes in '..\..\Lib\System\IdCTypes.pas',
-  IdComponent in '..\..\Lib\System\IdComponent.pas',
-  IdException in '..\..\Lib\System\IdException.pas',
-  IdGlobal in '..\..\Lib\System\IdGlobal.pas',
-  IdIDN in '..\..\Lib\System\IdIDN.pas',
-  IdResourceStrings in '..\..\Lib\System\IdResourceStrings.pas',
+  IdAntiFreezeBase in '..\..\Lib\Source\System\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Lib\Source\System\IdBaseComponent.pas',
+  IdCTypes in '..\..\Lib\Source\System\IdCTypes.pas',
+  IdComponent in '..\..\Lib\Source\System\IdComponent.pas',
+  IdException in '..\..\Lib\Source\System\IdException.pas',
+  IdGlobal in '..\..\Lib\Source\System\IdGlobal.pas',
+  IdIDN in '..\..\Lib\Source\System\IdIDN.pas',
+  IdResourceStrings in '..\..\Lib\Source\System\IdResourceStrings.pas',
   {$IFNDEF WINDOWS}
-  IdResourceStringsUnix in '..\..\Lib\System\IdResourceStringsUnix.pas',
-  IdResourceStringsVCLPosix in '..\..\Lib\System\IdResourceStringsVCLPosix.pas',
+  IdResourceStringsUnix in '..\..\Lib\Source\System\IdResourceStringsUnix.pas',
+  IdResourceStringsVCLPosix in '..\..\Lib\Source\System\IdResourceStringsVCLPosix.pas',
   {$ENDIF}
-  IdStack in '..\..\Lib\System\IdStack.pas',
-  IdStackBSDBase in '..\..\Lib\System\IdStackBSDBase.pas',
-  IdStackConsts in '..\..\Lib\System\IdStackConsts.pas',
+  IdStack in '..\..\Lib\Source\System\IdStack.pas',
+  IdStackBSDBase in '..\..\Lib\Source\System\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Lib\Source\System\IdStackConsts.pas',
   {$IFDEF WINDOWS}
-  IdStackWindows in '..\..\Lib\System\IdStackWindows.pas',
+  IdStackWindows in '..\..\Lib\Source\System\IdStackWindows.pas',
   {$ELSE}
-  IdStackVCLPosix in '..\..\Lib\System\IdStackVCLPosix.pas',
+  IdStackVCLPosix in '..\..\Lib\Source\System\IdStackVCLPosix.pas',
   {$ENDIF}
-  IdStream in '..\..\Lib\System\IdStream.pas',
-  IdStreamVCL in '..\..\Lib\System\IdStreamVCL.pas',
-  IdStruct in '..\..\Lib\System\IdStruct.pas',
+  IdStream in '..\..\Lib\Source\System\IdStream.pas',
+  IdStreamVCL in '..\..\Lib\Source\System\IdStreamVCL.pas',
+  IdStruct in '..\..\Lib\Source\System\IdStruct.pas',
   {$IFDEF WINDOWS}
-  IdWinsock2 in '..\..\Lib\System\IdWinsock2.pas',
-  IdWship6 in '..\..\Lib\System\IdWship6.pas'
+  IdWinsock2 in '..\..\Lib\Source\System\IdWinsock2.pas',
+  IdWship6 in '..\..\Lib\Source\System\IdWship6.pas'
   {$ELSE}
-  IdVCLPosixSupplemental in '..\..\Lib\System\IdVCLPosixSupplemental.pas'
+  IdVCLPosixSupplemental in '..\..\Lib\Source\System\IdVCLPosixSupplemental.pas'
   {$ENDIF}
   ;
 

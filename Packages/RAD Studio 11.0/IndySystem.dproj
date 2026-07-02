@@ -38,7 +38,7 @@
         <DllSuffix>$(Auto)</DllSuffix>
         <DCC_Description>Indy 10 System</DCC_Description>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>..\..\Lib\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\Lib\Source\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
@@ -62,27 +62,27 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
-        <DCCReference Include="..\..\Lib\System\IdAntiFreezeBase.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdBaseComponent.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdCTypes.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdComponent.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdException.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdGlobal.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdIDN.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdResourceStrings.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdResourceStringsUnix.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdResourceStringsVCLPosix.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStack.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStackBSDBase.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStackConsts.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStackWindows.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStackVCLPosix.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStream.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStreamVCL.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdStruct.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdWinsock2.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdWship6.pas"/>
-        <DCCReference Include="..\..\Lib\System\IdVCLPosixSupplemental.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdAntiFreezeBase.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdBaseComponent.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdCTypes.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdComponent.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdException.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdGlobal.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdIDN.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdResourceStrings.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdResourceStringsUnix.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdResourceStringsVCLPosix.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStack.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStackBSDBase.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStackConsts.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStackWindows.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStackVCLPosix.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStream.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStreamVCL.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdStruct.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdWinsock2.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdWship6.pas"/>
+        <DCCReference Include="..\..\Lib\Source\System\IdVCLPosixSupplemental.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_1</Key>
             <CfgParent>Base</CfgParent>

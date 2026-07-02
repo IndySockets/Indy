@@ -34,7 +34,7 @@ requires
   System.XML;
 
 contains
-  IdRegisterSecurity in '..\..\Lib\Security\IdRegisterSecurity.pas';
+  IdRegisterSecurity in '..\..\Lib\Source\Security\IdRegisterSecurity.pas';
 {$I IddclSecurity90ASM90.inc}
 
 end.

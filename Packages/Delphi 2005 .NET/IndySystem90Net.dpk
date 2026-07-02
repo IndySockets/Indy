@@ -25,18 +25,18 @@ requires
   Borland.VclRtl;
 
 contains
-  IdAntiFreezeBase in '..\..\Lib\System\IdAntiFreezeBase.pas',
-  IdBaseComponent in '..\..\Lib\System\IdBaseComponent.pas',
-  IdComponent in '..\..\Lib\System\IdComponent.pas',
-  IdException in '..\..\Lib\System\IdException.pas',
-  IdGlobal in '..\..\Lib\System\IdGlobal.pas',
-  IdResourceStrings in '..\..\Lib\System\IdResourceStrings.pas',
-  IdStack in '..\..\Lib\System\IdStack.pas',
-  IdStackConsts in '..\..\Lib\System\IdStackConsts.pas',
-  IdStackDotNet in '..\..\Lib\System\IdStackDotNet.pas',
-  IdStream in '..\..\Lib\System\IdStream.pas',
-  IdStreamNET in '..\..\Lib\System\IdStreamNET.pas',
-  IdStruct in '..\..\Lib\System\IdStruct.pas';
+  IdAntiFreezeBase in '..\..\Lib\Source\System\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Lib\Source\System\IdBaseComponent.pas',
+  IdComponent in '..\..\Lib\Source\System\IdComponent.pas',
+  IdException in '..\..\Lib\Source\System\IdException.pas',
+  IdGlobal in '..\..\Lib\Source\System\IdGlobal.pas',
+  IdResourceStrings in '..\..\Lib\Source\System\IdResourceStrings.pas',
+  IdStack in '..\..\Lib\Source\System\IdStack.pas',
+  IdStackConsts in '..\..\Lib\Source\System\IdStackConsts.pas',
+  IdStackDotNet in '..\..\Lib\Source\System\IdStackDotNet.pas',
+  IdStream in '..\..\Lib\Source\System\IdStream.pas',
+  IdStreamNET in '..\..\Lib\Source\System\IdStreamNET.pas',
+  IdStruct in '..\..\Lib\Source\System\IdStruct.pas';
 {$I IdSystem90ASM90.inc}
 
 end.

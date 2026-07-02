@@ -29,10 +29,10 @@ requires
   dclIndyCore110Net;
 
 contains
-  IdDsnRegister in '..\..\Lib\Protocols\IdDsnRegister.pas',
-  IdDsnResourceStrings in '..\..\Lib\Protocols\IdDsnResourceStrings.pas',
-  IdDsnSASLListEditorFormNET in '..\..\Lib\Protocols\IdDsnSASLListEditorFormNET.pas',
-  IdRegister in '..\..\Lib\Protocols\IdRegister.pas';
+  IdDsnRegister in '..\..\Lib\Source\Protocols\IdDsnRegister.pas',
+  IdDsnResourceStrings in '..\..\Lib\Source\Protocols\IdDsnResourceStrings.pas',
+  IdDsnSASLListEditorFormNET in '..\..\Lib\Source\Protocols\IdDsnSASLListEditorFormNET.pas',
+  IdRegister in '..\..\Lib\Source\Protocols\IdRegister.pas';
 {$I IddclProtocols90ASM90.inc}
 
 end.

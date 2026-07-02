@@ -57,7 +57,7 @@ var
 
   procedure BuildRC(const ABase : string);
   begin
-    Code('brcc32 "' + LFolder + '\' + PackageName(ABase, LCompiler) + '.rc"');
+    Code('resinator "' + LFolder + '\' + PackageName(ABase, LCompiler) + '.rc"');
   end;
 
 begin
@@ -75,8 +75,8 @@ begin
   FCode.Clear;
   FDesignTime := False;
 
-  // shared design-time resource still lives with the source under Lib\Core
-  Code('brcc32 "..\Lib\Core\IdAboutVCL.rc"');
+  // shared design-time resource still lives with the source under Lib\Source\Core
+  Code('resinator "..\Lib\Source\Core\IdAboutVCL.rc"');
 
   for LCompiler := Low(TCompiler) to High(TCompiler) do
   begin

@@ -1,4 +1,4 @@
-1 VERSIONINFO 
+﻿1 VERSIONINFO 
 FILEVERSION 10,7,0,0
 PRODUCTVERSION 10,7,0,0
 FILEFLAGSMASK 0x3FL
@@ -15,7 +15,7 @@ FILESUBTYPE 0x0L
    VALUE "FileDescription", "Internet Direct (Indy) 10.7.0 - Core Run-Time Package\0"
    VALUE "FileVersion", "10.7.0.0\0"
    VALUE "InternalName", "IndyCore230\0"
-   VALUE "LegalCopyright", "Copyright � 1993 - 2026 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
+   VALUE "LegalCopyright", "Copyright © 1993 - 2026 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew\0"
    VALUE "OriginalFilename", "IndyCore230.bpl\0"
    VALUE "ProductName", "Indy\0"
    VALUE "ProductVersion", "10.7.0\0"

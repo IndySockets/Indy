@@ -1,4 +1,4 @@
-package dclIndyProtocols40;
+﻿package dclIndyProtocols40;
 
 {$R *.res}
 {$BOOLEVAL OFF}
@@ -28,9 +28,9 @@ requires
   dclIndyCore40;
 
 contains
-  IdDsnRegister in '..\..\Lib\Protocols\IdDsnRegister.pas',
-  IdDsnResourceStrings in '..\..\Lib\Protocols\IdDsnResourceStrings.pas',
-  IdDsnSASLListEditorFormVCL in '..\..\Lib\Protocols\IdDsnSASLListEditorFormVCL.pas',
-  IdRegister in '..\..\Lib\Protocols\IdRegister.pas';
+  IdDsnRegister in '..\..\Lib\Source\Protocols\IdDsnRegister.pas',
+  IdDsnResourceStrings in '..\..\Lib\Source\Protocols\IdDsnResourceStrings.pas',
+  IdDsnSASLListEditorFormVCL in '..\..\Lib\Source\Protocols\IdDsnSASLListEditorFormVCL.pas',
+  IdRegister in '..\..\Lib\Source\Protocols\IdRegister.pas';
 
 end.

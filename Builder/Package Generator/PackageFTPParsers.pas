@@ -62,7 +62,7 @@ uses
 constructor TFTPParsers.Create;
 begin
   inherited;
-  FOutputSubDir := 'Lib\Protocols';
+  FOutputSubDir := 'Lib\Source\Protocols';
 end;
 
 procedure TFTPParsers.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);

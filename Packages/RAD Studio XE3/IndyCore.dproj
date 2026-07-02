@@ -38,7 +38,7 @@
         <DllSuffix>170</DllSuffix>
         <DCC_Description>Indy 10 Core</DCC_Description>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <DCC_UnitSearchPath>..\..\Lib\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\Lib\Source\Includes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
         <GenDll>true</GenDll>
         <GenPackage>true</GenPackage>
@@ -63,64 +63,64 @@
         </DelphiCompile>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="IndySystem.dcp"/>
-        <DCCReference Include="..\..\Lib\Core\IdAssignedNumbers.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdBuffer.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdCmdTCPClient.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdCmdTCPServer.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdCommandHandlers.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdContext.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdCustomTCPServer.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdCustomTransparentProxy.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdExceptionCore.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdGlobalCore.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIOHandler.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIOHandlerSocket.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIOHandlerStack.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIOHandlerStream.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIPAddress.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIPMCastBase.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIPMCastClient.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIPMCastServer.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIcmpClient.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdIntercept.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdInterceptSimLog.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdInterceptThrottler.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdLogBase.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdLogDebug.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdLogEvent.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdLogFile.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdLogStream.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdRawBase.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdRawClient.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdRawFunctions.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdRawHeaders.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdReply.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdReplyRFC.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdResourceStringsCore.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdScheduler.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdSchedulerOfThread.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdSchedulerOfThreadDefault.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdSchedulerOfThreadPool.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdServerIOHandler.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdServerIOHandlerSocket.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdServerIOHandlerStack.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdSimpleServer.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdSocketHandle.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdSocks.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdSync.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdTCPClient.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdTCPConnection.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdTCPServer.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdTCPStream.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdTask.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdThread.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdThreadComponent.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdThreadSafe.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdTraceRoute.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdUDPBase.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdUDPClient.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdUDPServer.pas"/>
-        <DCCReference Include="..\..\Lib\Core\IdYarn.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdAssignedNumbers.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdBuffer.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdCmdTCPClient.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdCmdTCPServer.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdCommandHandlers.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdContext.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdCustomTCPServer.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdCustomTransparentProxy.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdExceptionCore.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdGlobalCore.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIOHandler.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIOHandlerSocket.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIOHandlerStack.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIOHandlerStream.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIPAddress.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIPMCastBase.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIPMCastClient.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIPMCastServer.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIcmpClient.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdIntercept.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdInterceptSimLog.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdInterceptThrottler.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdLogBase.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdLogDebug.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdLogEvent.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdLogFile.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdLogStream.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdRawBase.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdRawClient.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdRawFunctions.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdRawHeaders.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdReply.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdReplyRFC.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdResourceStringsCore.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdScheduler.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdSchedulerOfThread.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdSchedulerOfThreadDefault.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdSchedulerOfThreadPool.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdServerIOHandler.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdServerIOHandlerSocket.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdServerIOHandlerStack.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdSimpleServer.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdSocketHandle.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdSocks.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdSync.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdTCPClient.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdTCPConnection.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdTCPServer.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdTCPStream.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdTask.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdThread.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdThreadComponent.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdThreadSafe.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdTraceRoute.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdUDPBase.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdUDPClient.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdUDPServer.pas"/>
+        <DCCReference Include="..\..\Lib\Source\Core\IdYarn.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_1</Key>
             <CfgParent>Base</CfgParent>

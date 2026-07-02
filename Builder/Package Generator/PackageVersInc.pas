@@ -61,11 +61,11 @@ begin
   FDesignTime := False;
   FTemplate := False;
 
-  // All .inc files now live in the Lib\Includes (the per-package System/Core/
+  // All .inc files now live in the Lib\Source\Includes (the per-package System/Core/
   // Protocols/Security/FCL/SuperCore copies were consolidated to avoid
-  // duplication). Lib is on the unit search path, so {$I <name>.inc} still
-  // resolves from each unit's subfolder. One write each, into Lib.
-  FOutputSubDir := 'Lib\Includes';
+  // duplication). The include folder is on the unit search path, so {$I <name>.inc}
+  // still resolves from each unit's subfolder. One write each, into Lib\Source\Includes.
+  FOutputSubDir := 'Lib\Source\Includes';
 
   if gfTemplate in AFlags then
   begin
@@ -200,7 +200,7 @@ var
 begin
   FCode.Clear;
 
-  LFileName := DM.OutputPath + 'Lib\System\IdAssemblyInfo.pas';
+  LFileName := DM.OutputPath + 'Lib\Source\System\IdAssemblyInfo.pas';
   if FileExists(LFileName) then
   begin
     // TStreamReader would be preferred, but its broken!
@@ -299,7 +299,7 @@ begin
   // TODO: put the version defines into their own .inc file that
   // IdCompilerDefines.inc can then include...
 
-  LFileName := DM.OutputPath + 'Lib\Includes\IdCompilerDefines.inc';
+  LFileName := DM.OutputPath + 'Lib\Source\Includes\IdCompilerDefines.inc';
 
   LProductDefine := '{$DEFINE ' + StringReplace(IndyVersion_ProductVersion_Str, '.', '_', [rfReplaceAll]) + '}';
   LVersionDefine := '{$DEFINE ' + StringReplace(IndyVersion_FileVersion_Str, '.', '_', [rfReplaceAll]) + '}';
