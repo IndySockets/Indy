@@ -1,0 +1,43 @@
+﻿package IndySystemK3;
+
+{$R *.res}
+{$BOOLEVAL OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl;
+
+contains
+  IdAntiFreezeBase in '..\..\Source\System\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Source\System\IdBaseComponent.pas',
+  IdCTypes in '..\..\Source\System\IdCTypes.pas',
+  IdComponent in '..\..\Source\System\IdComponent.pas',
+  IdException in '..\..\Source\System\IdException.pas',
+  IdGlobal in '..\..\Source\System\IdGlobal.pas',
+  IdIDN in '..\..\Source\System\IdIDN.pas',
+  IdResourceStrings in '..\..\Source\System\IdResourceStrings.pas',
+  IdStack in '..\..\Source\System\IdStack.pas',
+  IdStackBSDBase in '..\..\Source\System\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Source\System\IdStackConsts.pas',
+  IdStackLibc in '..\..\Source\System\IdStackLibc.pas',
+  IdStream in '..\..\Source\System\IdStream.pas',
+  IdStreamVCL in '..\..\Source\System\IdStreamVCL.pas',
+  IdStruct in '..\..\Source\System\IdStruct.pas';
+
+end.

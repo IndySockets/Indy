@@ -57,7 +57,7 @@ var
 
   procedure BuildRC(const ABase : string);
   begin
-    Code('resinator "' + LFolder + '\' + PackageName(ABase, LCompiler) + '.rc"');
+    Code('rc "' + LFolder + '\' + PackageName(ABase, LCompiler) + '.rc"');
   end;
 
 begin
@@ -67,16 +67,17 @@ begin
 
   FName := 'buildres';
   FExt := '.bat';
-  // buildres now lives at the Packages\ root and compiles each version's .rc files
-  // (which were relocated into Packages\<version>\ with de-suffixed names for D6+).
-  FOutputSubDir := 'Packages';
+  // buildres now lives at the Lib\Packages\ root and compiles each version's .rc files
+  // (which were relocated into Lib\Packages\<version>\ with de-suffixed names for D6+).
+  FOutputSubDir := 'Lib\Packages';
 
   FCompiler := ctUnversioned;
   FCode.Clear;
   FDesignTime := False;
 
   // shared design-time resource still lives with the source under Lib\Source\Core
-  Code('resinator "..\Lib\Source\Core\IdAboutVCL.rc"');
+  // (buildres.bat runs from Lib\Packages\, so up one to Lib\ then into Source\Core).
+  Code('rc "..\Source\Core\IdAboutVCL.rc"');
 
   for LCompiler := Low(TCompiler) to High(TCompiler) do
   begin

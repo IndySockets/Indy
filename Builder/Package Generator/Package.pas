@@ -150,7 +150,7 @@ type
     FDebug : Boolean;
     FTemplate : Boolean;
     FOutputSubDir : string;
-    FSourceRoot : string;               // relative path from the output folder back to the source root (e.g. '..\..\Lib\Source\')
+    FSourceRoot : string;               // relative path from the output folder back to the source root (e.g. '..\..\Source\')
     FIncludePath : string;
     FOutputBplName : string;            // the final (always-suffixed) .bpl base name, used for version info
     FDprojRefs : TStringList;           // <DCCReference> unit lines, built during GenContains for the .dproj
@@ -253,7 +253,7 @@ const
     '',                                 // .NET
     '');                                // Kylix
 
-  // Per-compiler output folder under Packages\ (matches the on-disk folder names).
+  // Per-compiler output folder under Lib\Packages\ (matches the on-disk folder names).
   GPackageFolder : array[TCompiler] of string = (
     '',                                 // Unversioned
     'Delphi 4',                         // 4.0
@@ -392,10 +392,10 @@ begin
   FName := PackageName(ABase, ACompiler);
   // The final .bpl base name always keeps the suffix (LIBSUFFIX restores it)
   FOutputBplName := ABase + GPackageVer[ACompiler];
-  // All packages for a compiler now live together in one Packages\<version> folder
+  // All packages for a compiler now live together in one Lib\Packages\<version> folder
   if GPackageFolder[ACompiler] <> '' then
   begin
-    FOutputSubDir := 'Packages\' + GPackageFolder[ACompiler];
+    FOutputSubDir := 'Lib\Packages\' + GPackageFolder[ACompiler];
   end;
 end;
 
@@ -422,9 +422,9 @@ begin
   FContainsClause := 'contains';
   FExt := '.dpk';
   FVersion := IndyVersion_Major_Str;
-  // Packages now live in Packages\<version>\, two levels above Lib\Source\<subdir>\ where
-  // the source now resides, so 'contains' entries are written relative to there.
-  FSourceRoot := '..\..\Lib\Source\';
+  // Packages now live in Lib\Packages\<version>\, a sibling of Lib\Source\<subdir>\ where
+  // the source resides, so 'contains' entries go up two (to Lib\) then into Source\.
+  FSourceRoot := '..\..\Source\';
   FIncludePath := FSourceRoot + 'Includes';
   FCode := TStringList.Create;
   FDirs := TStringList.Create;
@@ -967,7 +967,7 @@ begin
   // as not requiring user to lock all packages
   if (LCodeOld = '') or (LCodeOld <> FCode.Text) then
   begin
-    ForceDirectories(ExtractFilePath(LPathname)); // create Packages\<version>\ if needed
+    ForceDirectories(ExtractFilePath(LPathname)); // create Lib\Packages\<version>\ if needed
     FCode.SaveToFile(LPathname, TEncoding.UTF8); //force encoding for consistency.
     WriteLn('Generated ' + LSubDir + FName + FExt);
   end;

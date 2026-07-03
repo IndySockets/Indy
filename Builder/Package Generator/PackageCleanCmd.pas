@@ -104,11 +104,11 @@ begin
 
   FName := 'Clean_' + GCleanCompilers[ACompiler].FileSuffix;
   FExt := '.cmd';
-  // Clean scripts live in each version's Packages\<version> folder; the shared
-  // Computil.exe and Clean_IDE.cmd live one level up at the Packages\ root.
+  // Clean scripts live in each version's Lib\Packages\<version> folder; the shared
+  // Computil.exe and Clean_IDE.cmd live one level up at the Lib\Packages\ root.
   if GPackageFolder[ACompiler] <> '' then
   begin
-    FOutputSubDir := 'Packages\' + GPackageFolder[ACompiler];
+    FOutputSubDir := 'Lib\Packages\' + GPackageFolder[ACompiler];
   end;
 
   FCompiler := ACompiler;
@@ -139,7 +139,7 @@ begin
   Code('goto END');
   Code('');
   Code(':NoCompUtil');
-  Code('echo Computil.exe not found--run this batch script from its version folder under Packages.');
+  Code('echo Computil.exe not found--run this batch script from its version folder under Lib\Packages.');
   Code('goto END');
   Code('');
   Code(':NoNDD');

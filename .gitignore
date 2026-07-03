@@ -72,4 +72,7 @@ modules/
 # Indy package build output - all Full*.bat scripts emit here
 /Output/
 
+# Transient temp build dir used by the C++Builder Fullc_*.bat scripts (artifacts are relocated to /Output/)
+/Lib/Output/
+
 # End of https://www.gitignore.io/api/delphi

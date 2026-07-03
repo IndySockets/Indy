@@ -75,7 +75,7 @@ end;
 procedure TPackageVisualStudio.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 begin
   FName := 'Indy.Sockets' + iif(gfDebug in AFlags, 'Debug', '');
-  FOutputSubDir := 'Packages\' + GPackageFolder[ACompiler];
+  FOutputSubDir := 'Lib\Packages\' + GPackageFolder[ACompiler];
   FDesc := '.Net Assembly';
   AddUnit('IdAssemblyInfo', 'System');
   inherited Generate(ACompiler, AFlags - [gfDesignTime]);
