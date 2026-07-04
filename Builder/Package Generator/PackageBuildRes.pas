@@ -42,6 +42,13 @@ uses
   DModule,
   Windows;
 
+const
+{$IF CompilerVersion >= 37.0}
+  cResourceCompiler = 'resinator';
+{$ELSE}
+  cResourceCompiler = 'rc';
+{$ENDIF}
+
 { TBuildRes }
 
 constructor TBuildRes.Create;
@@ -57,7 +64,7 @@ var
 
   procedure BuildRC(const ABase : string);
   begin
-    Code('rc "' + LFolder + '\' + PackageName(ABase, LCompiler) + '.rc"');
+    Code(cResourceCompiler + ' "' + LFolder + '\' + PackageName(ABase, LCompiler) + '.rc"');
   end;
 
 begin
@@ -77,7 +84,7 @@ begin
 
   // shared design-time resource still lives with the source under Lib\Source\Core
   // (buildres.bat runs from Lib\Packages\, so up one to Lib\ then into Source\Core).
-  Code('rc "..\Source\Core\IdAboutVCL.rc"');
+  Code(cResourceCompiler + ' "..\Source\Core\IdAboutVCL.rc"');
 
   for LCompiler := Low(TCompiler) to High(TCompiler) do
   begin
