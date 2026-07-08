@@ -1420,6 +1420,13 @@
       // where the EThreadNameException exception raised by TThread.NameThreadForDebugging()
       // is not handled correctly.
       {$UNDEF HAS_NAMED_THREADS}
+      // RLebeau 7/8/2026: In Delphi 10.3 Rio (any earlier?), Embarcadero had
+      // misdeclared the ifaddrs.ifa_name field for Linux as being PMarshaledAString
+      // instead of MarshaledAString. This causes memory corruption when using
+      // TIdStackVCLPosix.GetLocalAddressList() on Linux. The declaration was fixed
+      // in a later Delphi version - not sure exactly which version, but the problem
+      // is definately fixed by Delphi 12.0 Athens.
+      {$DEFINE IFADDRS_IFANAME_BUG}
     {$ENDIF}
   {$ENDIF}
   {$IFDEF ANDROID}
@@ -1444,6 +1451,14 @@
   {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm32}
   {$DEFINE HAS_ComponentPlatformsAttribute_AndroidArm64}
   {$DEFINE HAS_ComponentPlatformsAttribute_OSXArm64}
+{$ENDIF}
+
+{$IFDEF VCL_12_OR_ABOVE}
+  {$IFDEF DCC}
+    {$IFDEF LINUX}
+      {$UNDEF IFADDRS_IFANAME_BUG}
+    {$ENDIF}
+  {$ENDIF}
 {$ENDIF}
 
 {$IFDEF VCL_13_OR_ABOVE}

@@ -564,13 +564,21 @@ begin
             end;
           end;
           if LAddress <> nil then begin
+            {$IFDEF IFADDRS_IFANAME_BUG}
+            LName := String(MarshaledAString(LAddrInfo^.ifa_name));
+            {$ELSE}
             LName := String(LAddrInfo^.ifa_name);
+            {$ENDIF}
             {$I IdObjectChecksOff.inc}
             TIdStackLocalAddressAccess(LAddress).FDescription := LName;
             TIdStackLocalAddressAccess(LAddress).FFriendlyName := LName;
             TIdStackLocalAddressAccess(LAddress).FInterfaceName := LName;
             {$IFDEF HAS_if_nametoindex}
+              {$IFDEF IFADDRS_IFANAME_BUG}
+            TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(MarshaledAString(LAddrInfo^.ifa_name));
+              {$ELSE}
             TIdStackLocalAddressAccess(LAddress).FInterfaceIndex := if_nametoindex(LAddrInfo^.ifa_name);
+              {$ENDIF}
             {$ENDIF}
             {$I IdObjectChecksOn.inc}
           end;
