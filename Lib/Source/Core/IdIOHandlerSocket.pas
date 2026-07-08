@@ -233,7 +233,7 @@ uses
   System.IO,
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF WIN32_OR_WIN64 }
+  {$IFDEF WIN32_OR_WIN64}
   Windows,
   {$ENDIF}
   SysUtils,

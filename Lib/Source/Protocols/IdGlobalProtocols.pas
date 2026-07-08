@@ -627,11 +627,7 @@ uses
   IdResourceStringsProtocols,
   IdStack
   {$IFDEF HAS_IOUtils_TPath}
-    {$IFDEF VCL_XE2_OR_ABOVE}
-  , System.IOUtils
-    {$ELSE}
   , IOUtils
-    {$ENDIF}
   {$ENDIF}
   {$IFDEF USE_OBJECT_ARC}
     {$IFDEF HAS_UNIT_Generics_Collections}
@@ -1584,7 +1580,7 @@ begin
     {$ELSE}
       {$IFDEF HAS_IOUtils_TPath}
   if lPath = '' then begin
-    lPath := {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}IOUtils.TPath.GetTempPath;
+    lPath := IOUtils.TPath.GetTempPath;
   end;
       {$ENDIF}
     {$ENDIF}
@@ -4890,13 +4886,11 @@ end;
     {$DEFINE NO_NATIVE_ASM}
   {$ENDIF}
 {$ENDIF}
-{$IFDEF OSX} // !!! ADDED OSX BY EMBT
-  {$IFDEF CPUX64}
-    {$DEFINE NO_NATIVE_ASM}
-  {$ENDIF}
-  {$IFDEF CPUARM64}
-    {$DEFINE NO_NATIVE_ASM}
-  {$ENDIF}
+{$IFDEF CPUX64}
+  {$DEFINE NO_NATIVE_ASM}
+{$ENDIF}
+{$IFDEF CPUARM64}
+  {$DEFINE NO_NATIVE_ASM}
 {$ENDIF}
 {$IFDEF ANDROID}
   {$DEFINE NO_NATIVE_ASM}

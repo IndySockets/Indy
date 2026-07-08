@@ -273,12 +273,18 @@ end;
 
 procedure TIdLPR.Print(const ABuffer: TIdBytes);
 var
-  LStream: TMemoryStream;
+  LStream: TStream;
 begin
+  {$IFDEF DOTNET}
   LStream := TMemoryStream.Create;
+  {$ELSE}
+  LStream := TIdReadOnlyMemoryBufferStream.Create(PByte(ABuffer), Length(ABuffer));
+  {$ENDIF}
   try
+    {$IFDEF DOTNET}
     WriteTIdBytesToStream(LStream, ABuffer);
     LStream.Position := 0;
+    {$ENDIF}
     InternalPrint(LStream);
   finally
     FreeAndNil(LStream);

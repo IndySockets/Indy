@@ -513,8 +513,14 @@ begin
           // in it, otherwise we are buffering the entire file in memory
           // before decoding it...
           LBuffer := LBuffer + LLine;
-        end else if LLine <> '' then begin
-          LDecoder.Decode(LLine);
+        end else
+        begin
+          // for base64, some systems insert whitespace at the front of a line,
+          // but TIdDecoderMIME doesn't handle that at this time, so trim it here...
+          LLine := Trim(LLine);
+          if LLine <> '' then begin
+            LDecoder.Decode(LLine);
+          end;
         end;
       end;
     until False;

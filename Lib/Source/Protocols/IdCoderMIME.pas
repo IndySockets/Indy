@@ -93,7 +93,7 @@ end;
 
 procedure TIdDecoderMIMELineByLine.DecodeEnd;
 var
-  LStream: TMemoryStream;
+  LStream: TStream;
   LPos: Integer;
 begin
   if Length(FLeftFromLastTime) > 0 then begin
@@ -103,10 +103,16 @@ begin
       FLeftFromLastTime[LPos] := Ord(FFillChar);
       Inc(LPos);
     end;
+    {$IFDEF DOTNET}
     LStream := TMemoryStream.Create;
+    {$ELSE}
+    LStream := TIdReadOnlyMemoryBufferStream.Create(PByte(FLeftFromLastTime), Length(FLeftFromLastTime));
+    {$ENDIF}
     try
+      {$IFDEF DOTNET}
       WriteTIdBytesToStream(LStream, FLeftFromLastTime);
       LStream.Position := 0;
+      {$ENDIF}
       inherited Decode(LStream);
     finally
       FreeAndNil(LStream);
@@ -120,7 +126,7 @@ procedure TIdDecoderMIMELineByLine.Decode(ASrcStream: TStream; const ABytes: Int
 var
   LMod, LDiv: integer;
   LIn, LSrc: TIdBytes;
-  LStream: TMemoryStream;
+  LStream: TStream;
 begin
   LIn := FLeftFromLastTime;
   if ReadTIdBytesFromStream(ASrcStream, LSrc, ABytes) > 0 then begin
@@ -134,10 +140,16 @@ begin
   end else begin
     SetLength(FLeftFromLastTime, 0);
   end;
+  {$IFDEF DOTNET}
   LStream := TMemoryStream.Create;
+  {$ELSE}
+  LStream := TIdReadOnlyMemoryBufferStream.Create(PByte(LIn), Length(LIn));
+  {$ENDIF}
   try
+    {$IFDEF DOTNET}
     WriteTIdBytesToStream(LStream, LIn);
     LStream.Position := 0;
+    {$ENDIF}
     inherited Decode(LStream, ABytes);
   finally
     FreeAndNil(LStream);

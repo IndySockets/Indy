@@ -93,13 +93,13 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}Classes,
+  Classes,
   IdGlobal,
   IdMessage,
   IdException,
   IdAttachment,
   IdAttachmentFile,
-  {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}SysUtils;
+  SysUtils;
 
 type
   TIdCoderTNEF = class(TObject)
@@ -191,7 +191,7 @@ implementation
 
 uses
   {$IFDEF HAS_UNIT_DateUtils}
-  {$IFDEF VCL_XE2_OR_ABOVE}System.{$ENDIF}DateUtils,
+  DateUtils,
   {$ENDIF}
   IdMessageClient, IdText, IdStream;
 

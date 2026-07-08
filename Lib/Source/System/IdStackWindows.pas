@@ -1162,7 +1162,9 @@ begin
       LPort := IndyStrToInt(AServiceName);
     except
       on EConvertError do begin
+        {$IFNDEF USE_NORETURN}
         LPort := -1;
+        {$ENDIF}
         IndyRaiseOuterException(EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]));
       end;
     end;

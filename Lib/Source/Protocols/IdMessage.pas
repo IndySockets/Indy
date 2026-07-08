@@ -1029,10 +1029,10 @@ begin
 
   {CC2: Set MESSAGE_LEVEL "encoding" (really the format or layout)}
   LMIMEVersion := Headers.Values['MIME-Version']; {do not localize}
-  if LMIMEVersion = '' then begin
+  if (LMIMEVersion = '') and (LBoundary = '') then begin
     Encoding := mePlainText;
   end else begin
-    // TODO: this should be true if a MIME boundary is present.
+    // this should be true if a MIME boundary is present.
     // The MIME version is optional...
     Encoding := meMIME;
   end;
