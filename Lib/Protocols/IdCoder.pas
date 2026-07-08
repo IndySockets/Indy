@@ -378,13 +378,19 @@ end;
 
 class function TIdEncoder.EncodeBytes(const ABytes: TIdBytes): string;
 var
-  LStream: TMemoryStream;
+  LStream: TStream;
 begin
   if ABytes <> nil then begin
+    {$IFDEF DOTNET}
     LStream := TMemoryStream.Create;
+    {$ELSE}
+    LStream := TIdReadOnlyMemoryBufferStream.Create(PByte(ABytes), Length(ABytes));
+    {$ENDIF}
     try
+      {$IFDEF DOTNET}
       WriteTIdBytesToStream(LStream, ABytes);
       LStream.Position := 0;
+      {$ENDIF}
       Result := EncodeStream(LStream);
     finally
       FreeAndNil(LStream);
@@ -396,13 +402,19 @@ end;
 
 class procedure TIdEncoder.EncodeBytes(const ABytes: TIdBytes; ADestStrings: TStrings);
 var
-  LStream: TMemoryStream;
+  LStream: TStream;
 begin
   if ABytes <> nil then begin
+    {$IFDEF DOTNET}
     LStream := TMemoryStream.Create;
+    {$ELSE}
+    LStream := TIdReadOnlyMemoryBufferStream.Create(PByte(ABytes), Length(ABytes));
+    {$ENDIF}
     try
+      {$IFDEF DOTNET}
       WriteTIdBytesToStream(LStream, ABytes);
       LStream.Position := 0;
+      {$ENDIF}
       EncodeStream(LStream, ADestStrings);
     finally
       FreeAndNil(LStream);
@@ -412,13 +424,19 @@ end;
 
 class procedure TIdEncoder.EncodeBytes(const ABytes: TIdBytes; ADestStream: TStream);
 var
-  LStream: TMemoryStream;
+  LStream: TStream;
 begin
   if ABytes <> nil then begin
+    {$IFDEF DOTNET}
     LStream := TMemoryStream.Create;
+    {$ELSE}
+    LStream := TIdReadOnlyMemoryBufferStream.Create(PByte(ABytes), Length(ABytes));
+    {$ENDIF}
     try
+      {$IFDEF DOTNET}
       WriteTIdBytesToStream(LStream, ABytes);
       LStream.Position := 0;
+      {$ENDIF}
       EncodeStream(LStream, ADestStream);
     finally
       FreeAndNil(LStream);

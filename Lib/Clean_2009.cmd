@@ -3,18 +3,18 @@ set DelphiProd=Delphi 2009
 
 if exist SetEnv.bat del SetEnv.bat
 if not exist computil.exe goto NoComputil
-computil SetupD13
-if defined NDD13 goto RSVARS
+computil SetupD12
+if defined NDD12 goto RSVARS
 if not exist SetEnv.bat goto NoNDD
 
 call SetEnv.bat > nul:
-if not defined NDD13 goto NoNDD
+if not defined NDD12 goto NoNDD
 
 :RSVARS
-call "%NDD13%bin\rsvars.bat"
+call "%NDD12%bin\rsvars.bat"
 if not defined BDS goto NoBDS
 
-set logfn=CleanD13.log
+set logfn=CleanD12.log
 
 call Clean_IDE.cmd
 goto END

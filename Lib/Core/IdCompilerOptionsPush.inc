@@ -3,6 +3,7 @@
     {$PUSH}
   {$ELSE}
     {$IFDEF DCC}
+      {$WARN MISSING_POPOPT OFF}
       {$PUSHOPT}
     {$ENDIF}
   {$ENDIF}

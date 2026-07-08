@@ -279,6 +279,9 @@ begin
   //calls prefixed by fp to avoid clashing with libc
 
   if Result <> ID_SOCKET_ERROR then begin
+    {$IFDEF DARWIN} // TODO: use HAS_SOCKET_NOSIGPIPE instead...
+    SetSocketOption(Result, Id_SOL_SOCKET, SO_NOSIGPIPE, 1);
+    {$ENDIF}
     case LAddr.sin6_family of
       PF_INET : begin
         with Psockaddr(@LAddr)^ do
@@ -381,9 +384,6 @@ begin
       IPVersionUnsupported;
     end;
   end;
-  {$IFDEF DARWIN} // TODO: use HAS_SOCKET_NOSIGPIPE instead...
-  SetSocketOption(ASocket, Id_SOL_SOCKET, SO_NOSIGPIPE, 1);
-  {$ENDIF}
 end;
 
 function TIdStackUnix.HostByName(const AHostName: string;
@@ -674,6 +674,9 @@ var
 begin
   Result := fpsocket(AFamily, AStruct, AProtocol);
   if Result <> Id_INVALID_SOCKET then begin
+    {$IFDEF DARWIN} // TODO: use HAS_SOCKET_NOSIGPIPE instead...
+    SetSocketOption(Result, Id_SOL_SOCKET, SO_NOSIGPIPE, 1);
+    {$ENDIF}
     //SetBlocking(Result, not ANonBlocking);
     LValue := UInt32(ANonBlocking);
     fpioctl(Result, FIONBIO, @LValue);

@@ -1289,7 +1289,6 @@ begin
         if i = 0 then begin
           raise EIdHTTPErrorParsingCommand.Create(RSHTTPErrorParsingCommand);
         end;
-        LCloseConnection := not KeepAlive;
         // TODO: don't recreate the Request and Response objects on each loop
         // iteration. Just create them once before entering the loop, and then
         // reset them as needed on each iteration...
