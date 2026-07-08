@@ -48,25 +48,26 @@ type
   TFTPParsers = class(TPackage)
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
 
 uses
-  SysUtils, DModule;
+  SysUtils,
+  DModule;
 
 { TFTPParsers }
 
 constructor TFTPParsers.Create;
 begin
   inherited;
-  FOutputSubDir := 'Lib\Protocols';
+  FOutputSubDir := 'Lib\Source\Protocols';
 end;
 
-procedure TFTPParsers.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TFTPParsers.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 var
-  i: Integer;
+  i : Integer;
 begin
   //We don't call many of the inherited Protected methods because
   //those are for Packages while I'm making a unit.
@@ -107,7 +108,8 @@ begin
   Code('implementation');
   Code('');
   Code('uses');
-  for i := 0 to FUnits.Count - 1 do begin
+  for i := 0 to FUnits.Count - 1 do
+  begin
     Code('  ' + ChangeFileExt(FUnits[i], '') + iif(i < FUnits.Count - 1, ',', ';'));
   end;
   //

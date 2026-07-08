@@ -124,7 +124,7 @@ var
   SR: TSearchRec;
   UnitName: String;
 begin
-  if FindFirst(GIndyPath + 'Lib\System\*.pas', faAnyFile, SR) = 0 then
+  if FindFirst(GIndyPath + 'Lib\Source\System\*.pas', faAnyFile, SR) = 0 then
   try
     repeat
       UnitName := ChangeFileExt(SR.Name, '');
@@ -139,7 +139,7 @@ begin
     FindClose(SR);
   end;
 
-  if FindFirst(GIndyPath + 'Lib\Core\*.pas', faAnyFile, SR) = 0 then
+  if FindFirst(GIndyPath + 'Lib\Source\Core\*.pas', faAnyFile, SR) = 0 then
   try
     repeat
       UnitName := ChangeFileExt(SR.Name, '');
@@ -154,7 +154,7 @@ begin
     FindClose(SR);
   end;
 
-  if FindFirst(GIndyPath + 'Lib\Protocols\*.pas', faAnyFile, SR) = 0 then
+  if FindFirst(GIndyPath + 'Lib\Source\Protocols\*.pas', faAnyFile, SR) = 0 then
   try
     repeat
       UnitName := ChangeFileExt(SR.Name, '');

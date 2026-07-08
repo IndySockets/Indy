@@ -1,0 +1,4 @@
+{$IFDEF HAS_SYMBOL_PLATFORM}
+  {$I IdCompilerOptionsPush.inc}
+  {$WARN SYMBOL_PLATFORM OFF}
+{$ENDIF}

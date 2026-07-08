@@ -1,0 +1,87 @@
+﻿package IndySystem;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$DEFINE VER250}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+{$LIBSUFFIX '180'}
+
+// RLebeau: cannot use IdCompilerDefines.inc here!
+
+{$DEFINE HAS_PKG_RTL}
+{$IFDEF NEXTGEN}
+  {$IFDEF IOS}
+    // there is no RTL package available for iOS
+    {$UNDEF HAS_PKG_RTL}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF HAS_PKG_RTL}
+requires
+  rtl;
+{$ENDIF}
+
+{$IFNDEF WINDOWS}
+  {$IFDEF MSWINDOWS}
+    {$DEFINE WINDOWS}
+  {$ENDIF}
+{$ENDIF}
+
+contains
+  IdAntiFreezeBase in '..\..\Source\System\IdAntiFreezeBase.pas',
+  IdBaseComponent in '..\..\Source\System\IdBaseComponent.pas',
+  IdCTypes in '..\..\Source\System\IdCTypes.pas',
+  IdComponent in '..\..\Source\System\IdComponent.pas',
+  IdException in '..\..\Source\System\IdException.pas',
+  IdGlobal in '..\..\Source\System\IdGlobal.pas',
+  IdIDN in '..\..\Source\System\IdIDN.pas',
+  IdResourceStrings in '..\..\Source\System\IdResourceStrings.pas',
+  {$IFNDEF WINDOWS}
+  IdResourceStringsUnix in '..\..\Source\System\IdResourceStringsUnix.pas',
+  IdResourceStringsVCLPosix in '..\..\Source\System\IdResourceStringsVCLPosix.pas',
+  {$ENDIF}
+  IdStack in '..\..\Source\System\IdStack.pas',
+  IdStackBSDBase in '..\..\Source\System\IdStackBSDBase.pas',
+  IdStackConsts in '..\..\Source\System\IdStackConsts.pas',
+  {$IFDEF WINDOWS}
+  IdStackWindows in '..\..\Source\System\IdStackWindows.pas',
+  {$ELSE}
+  IdStackVCLPosix in '..\..\Source\System\IdStackVCLPosix.pas',
+  {$ENDIF}
+  IdStream in '..\..\Source\System\IdStream.pas',
+  IdStreamVCL in '..\..\Source\System\IdStreamVCL.pas',
+  IdStruct in '..\..\Source\System\IdStruct.pas',
+  {$IFDEF WINDOWS}
+  IdWinsock2 in '..\..\Source\System\IdWinsock2.pas',
+  IdWship6 in '..\..\Source\System\IdWship6.pas'
+  {$ELSE}
+  IdVCLPosixSupplemental in '..\..\Source\System\IdVCLPosixSupplemental.pas'
+  {$ENDIF}
+  ;
+
+end.

@@ -57,7 +57,7 @@ type
     procedure GenFooter; override;
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
@@ -72,9 +72,10 @@ begin
   FOutputSubDir := 'Lib';
 end;
 
-procedure TPackageVisualStudio.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TPackageVisualStudio.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 begin
   FName := 'Indy.Sockets' + iif(gfDebug in AFlags, 'Debug', '');
+  FOutputSubDir := 'Lib\Packages\' + GPackageFolder[ACompiler];
   FDesc := '.Net Assembly';
   AddUnit('IdAssemblyInfo', 'System');
   inherited Generate(ACompiler, AFlags - [gfDesignTime]);
@@ -100,9 +101,12 @@ end;
 
 procedure TPackageVisualStudio.GenContains;
 begin
-  if FDebug then begin
+  if FDebug then
+  begin
     inherited GenContains();
-  end else begin
+  end
+  else
+  begin
     inherited GenContains('Indy.Sockets.Id', False);
   end;
 end;
@@ -165,3 +169,4 @@ begin
 end;
 
 end.
+

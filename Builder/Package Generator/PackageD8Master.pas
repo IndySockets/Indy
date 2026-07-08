@@ -46,7 +46,7 @@ type
     procedure GenRequires; override;
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
@@ -59,9 +59,9 @@ begin
   FOutputSubDir := 'Lib';
 end;
 
-procedure TPackageD8Master.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TPackageD8Master.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 begin
-  FName := 'Indy' + GPackageVer[ACompiler];
+  Prepare('Indy', ACompiler);
   FDesc := 'Master';
   FExt := '.dpk';
   inherited Generate(ACompiler, AFlags);

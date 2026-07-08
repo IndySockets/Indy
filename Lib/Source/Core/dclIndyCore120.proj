@@ -1,0 +1,26 @@
+<Project DefaultTargets="default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<BuildProject>indy</BuildProject>
+	</PropertyGroup>
+
+	<Import Project="$(TPADDONS)\tpaddons.Targets"/>
+	<ItemGroup>
+
+		<BuildTarget Include="dclIndyCore120.dpk">
+			<BuildAs>package</BuildAs>
+			<Language>delphi</Language>
+			<Platform>win32</Platform>
+		</BuildTarget>
+
+		<Compile Include="dclIndyCore120.dpk">
+			<CompilerOptions>$(DCCSWTS) $(BCBSWTS)</CompilerOptions>
+		</Compile>
+
+		<ResourceFiles Include="
+				dclIndyCore120.rc
+		">
+			<TargetExtension>.res</TargetExtension>
+		</ResourceFiles>
+	</ItemGroup>
+	<Target Name="default" DependsOnTargets="mkdir;buildresources;tpbuild"/>
+</Project>

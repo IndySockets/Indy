@@ -1,0 +1,108 @@
+﻿package IndyCore;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Indy 10 Core'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+{$LIBSUFFIX AUTO}
+
+// RLebeau: cannot use IdCompilerDefines.inc here!
+
+{$DEFINE HAS_PKG_RTL}
+{$IFDEF NEXTGEN}
+  {$IFDEF IOS}
+    // there is no RTL package available for iOS
+    {$UNDEF HAS_PKG_RTL}
+  {$ENDIF}
+{$ENDIF}
+
+requires
+  {$IFDEF HAS_PKG_RTL}
+  rtl,
+  {$ENDIF}
+  IndySystem;
+
+contains
+  IdAssignedNumbers in '..\..\Source\Core\IdAssignedNumbers.pas',
+  IdBuffer in '..\..\Source\Core\IdBuffer.pas',
+  IdCmdTCPClient in '..\..\Source\Core\IdCmdTCPClient.pas',
+  IdCmdTCPServer in '..\..\Source\Core\IdCmdTCPServer.pas',
+  IdCommandHandlers in '..\..\Source\Core\IdCommandHandlers.pas',
+  IdContext in '..\..\Source\Core\IdContext.pas',
+  IdCustomTCPServer in '..\..\Source\Core\IdCustomTCPServer.pas',
+  IdCustomTransparentProxy in '..\..\Source\Core\IdCustomTransparentProxy.pas',
+  IdExceptionCore in '..\..\Source\Core\IdExceptionCore.pas',
+  IdGlobalCore in '..\..\Source\Core\IdGlobalCore.pas',
+  IdIOHandler in '..\..\Source\Core\IdIOHandler.pas',
+  IdIOHandlerSocket in '..\..\Source\Core\IdIOHandlerSocket.pas',
+  IdIOHandlerStack in '..\..\Source\Core\IdIOHandlerStack.pas',
+  IdIOHandlerStream in '..\..\Source\Core\IdIOHandlerStream.pas',
+  IdIPAddress in '..\..\Source\Core\IdIPAddress.pas',
+  IdIPMCastBase in '..\..\Source\Core\IdIPMCastBase.pas',
+  IdIPMCastClient in '..\..\Source\Core\IdIPMCastClient.pas',
+  IdIPMCastServer in '..\..\Source\Core\IdIPMCastServer.pas',
+  IdIcmpClient in '..\..\Source\Core\IdIcmpClient.pas',
+  IdIntercept in '..\..\Source\Core\IdIntercept.pas',
+  IdInterceptSimLog in '..\..\Source\Core\IdInterceptSimLog.pas',
+  IdInterceptThrottler in '..\..\Source\Core\IdInterceptThrottler.pas',
+  IdLogBase in '..\..\Source\Core\IdLogBase.pas',
+  IdLogDebug in '..\..\Source\Core\IdLogDebug.pas',
+  IdLogEvent in '..\..\Source\Core\IdLogEvent.pas',
+  IdLogFile in '..\..\Source\Core\IdLogFile.pas',
+  IdLogStream in '..\..\Source\Core\IdLogStream.pas',
+  IdRawBase in '..\..\Source\Core\IdRawBase.pas',
+  IdRawClient in '..\..\Source\Core\IdRawClient.pas',
+  IdRawFunctions in '..\..\Source\Core\IdRawFunctions.pas',
+  IdRawHeaders in '..\..\Source\Core\IdRawHeaders.pas',
+  IdReply in '..\..\Source\Core\IdReply.pas',
+  IdReplyRFC in '..\..\Source\Core\IdReplyRFC.pas',
+  IdResourceStringsCore in '..\..\Source\Core\IdResourceStringsCore.pas',
+  IdScheduler in '..\..\Source\Core\IdScheduler.pas',
+  IdSchedulerOfThread in '..\..\Source\Core\IdSchedulerOfThread.pas',
+  IdSchedulerOfThreadDefault in '..\..\Source\Core\IdSchedulerOfThreadDefault.pas',
+  IdSchedulerOfThreadPool in '..\..\Source\Core\IdSchedulerOfThreadPool.pas',
+  IdServerIOHandler in '..\..\Source\Core\IdServerIOHandler.pas',
+  IdServerIOHandlerSocket in '..\..\Source\Core\IdServerIOHandlerSocket.pas',
+  IdServerIOHandlerStack in '..\..\Source\Core\IdServerIOHandlerStack.pas',
+  IdSimpleServer in '..\..\Source\Core\IdSimpleServer.pas',
+  IdSocketHandle in '..\..\Source\Core\IdSocketHandle.pas',
+  IdSocks in '..\..\Source\Core\IdSocks.pas',
+  IdSync in '..\..\Source\Core\IdSync.pas',
+  IdTCPClient in '..\..\Source\Core\IdTCPClient.pas',
+  IdTCPConnection in '..\..\Source\Core\IdTCPConnection.pas',
+  IdTCPServer in '..\..\Source\Core\IdTCPServer.pas',
+  IdTCPStream in '..\..\Source\Core\IdTCPStream.pas',
+  IdTask in '..\..\Source\Core\IdTask.pas',
+  IdThread in '..\..\Source\Core\IdThread.pas',
+  IdThreadComponent in '..\..\Source\Core\IdThreadComponent.pas',
+  IdThreadSafe in '..\..\Source\Core\IdThreadSafe.pas',
+  IdTraceRoute in '..\..\Source\Core\IdTraceRoute.pas',
+  IdUDPBase in '..\..\Source\Core\IdUDPBase.pas',
+  IdUDPClient in '..\..\Source\Core\IdUDPClient.pas',
+  IdUDPServer in '..\..\Source\Core\IdUDPServer.pas',
+  IdYarn in '..\..\Source\Core\IdYarn.pas';
+
+end.

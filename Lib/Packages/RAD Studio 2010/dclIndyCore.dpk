@@ -1,0 +1,43 @@
+﻿package dclIndyCore;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 Core Design Time'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+{$LIBSUFFIX '140'}
+
+requires
+  designide,
+  IndySystem,
+  IndyCore;
+
+contains
+  IdAboutVCL in '..\..\Source\Core\IdAboutVCL.pas',
+  IdAntiFreeze in '..\..\Source\Core\IdAntiFreeze.pas',
+  IdCoreDsnRegister in '..\..\Source\Core\IdCoreDsnRegister.pas',
+  IdDsnCoreResourceStrings in '..\..\Source\Core\IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBindingVCL in '..\..\Source\Core\IdDsnPropEdBindingVCL.pas',
+  IdRegisterCore in '..\..\Source\Core\IdRegisterCore.pas';
+
+end.

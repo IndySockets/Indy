@@ -348,16 +348,16 @@ begin
         Exit;
       end;
 
-      MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=System', 'indysystemfpc', OutputPath + '\Lib\System');
-      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=System', 'indysystemlaz.lpk', OutputPath + '\Lib\System');
+      MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=System', 'indysystemfpc', OutputPath + '\Lib\Source\System');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=System', 'indysystemlaz.lpk', OutputPath + '\Lib\Source\System');
 
-      MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Core', 'indycorefpc', OutputPath + '\Lib\Core');
-      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Core', 'indycorelaz.lpk', OutputPath + '\Lib\Core');
-      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=True, Pkg=Core', 'dclindycorelaz.lpk', OutputPath + '\Lib\Core');
+      MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Core', 'indycorefpc', OutputPath + '\Lib\Source\Core');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Core', 'indycorelaz.lpk', OutputPath + '\Lib\Source\Core');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=True, Pkg=Core', 'dclindycorelaz.lpk', OutputPath + '\Lib\Source\Core');
 
-      MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Protocols', 'indyprotocolsfpc', OutputPath + '\Lib\Protocols');
-      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Protocols', 'indyprotocolslaz.lpk', OutputPath + '\Lib\Protocols');
-      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=True, Pkg=Protocols', 'dclindyprotocolslaz.lpk', OutputPath + '\Lib\Protocols');
+      MakeFPCPackage('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Protocols', 'indyprotocolsfpc', OutputPath + '\Lib\Source\Protocols');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=False, Pkg=Protocols', 'indyprotocolslaz.lpk', OutputPath + '\Lib\Source\Protocols');
+      WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=True, Pkg=Protocols', 'dclindyprotocolslaz.lpk', OutputPath + '\Lib\Source\Protocols');
 
       WriteLPK('FPC=True, FPCListInPkg=True, DesignUnit=True', 'indylaz.lpk', OutputPath + '\Lib');
 

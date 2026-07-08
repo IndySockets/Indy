@@ -1,4 +1,4 @@
-{
+ï»¿{
   $Project$
   $Workfile$
   $Revision$
@@ -35,13 +35,17 @@ type
     procedure GenIdCompilerDefines;
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
 
 uses
-  Classes, SysUtils, DateUtils, StrUtils, DModule;
+  Classes,
+  SysUtils,
+  DateUtils,
+  StrUtils,
+  DModule;
 
 { TVersInc }
 
@@ -51,111 +55,93 @@ begin
   FExt := '.inc';
 end;
 
-procedure TVersInc.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TVersInc.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 begin
   FCompiler := ACompiler;
   FDesignTime := False;
   FTemplate := False;
 
-  if gfTemplate in AFlags then begin
+  // All .inc files now live in the Lib\Source\Includes (the per-package System/Core/
+  // Protocols/Security/FCL/SuperCore copies were consolidated to avoid
+  // duplication). The include folder is on the unit search path, so {$I <name>.inc}
+  // still resolves from each unit's subfolder. One write each, into Lib\Source\Includes.
+  FOutputSubDir := 'Lib\Source\Includes';
+
+  if gfTemplate in AFlags then
+  begin
     FTemplate := True;
 
     FName := 'IdVers';
     FExt := '.inc.tmpl';
     GenIdVers;
-    FOutputSubDir := 'Lib\System';
-    WriteFile;
-    FOutputSubDir := 'Lib\FCL';
     WriteFile;
 
     FTemplate := False;
     FExt := '.inc';
   end;
 
-  if gfRunTime in AFlags then begin
+  if gfRunTime in AFlags then
+  begin
     FDesignTime := False;
 
     FName := 'IdVers';
     GenIdVers;
-    FOutputSubDir := 'Lib\System';
-    WriteFile;
-    FOutputSubDir := 'Lib\FCL';
     WriteFile;
 
     FName := 'IdSystem90ASM90';
     FDesc := 'System Run-Time';
     GenAsmVers;
-    FOutputSubDir := 'Lib\System';
     WriteFile;
 
     FName := 'IdCore90ASM90';
     FDesc := 'Core Run-Time';
     GenAsmVers;
-    FOutputSubDir := 'Lib\Core';
     WriteFile;
 
     FName := 'IdProtocols90ASM90';
     FDesc := 'Protocols Run-Time';
     GenAsmVers;
-    FOutputSubDir := 'Lib\Protocols';
     WriteFile;
 
     FName := 'IdSecurity90ASM90';
     FDesc := 'Security Run-Time';
     GenAsmVers;
-    FOutputSubDir := 'Lib\Security';
-    WriteFile;
-
-    // Why is the above file also in the Protocols directory???
-    FOutputSubDir := 'Lib\Protocols';
     WriteFile;
 
     FName := 'IdAssemblyInfo';
     FDesc := '';
-    FOutputSubDir := 'Lib\System';
     GenAsmInfo;
     WriteFile;
 
     FName := 'IdCompilerDefines';
     GenIdCompilerDefines;
-    FOutputSubDir := 'Lib\System';
-    WriteFile;
-    FOutputSubDir := 'Lib\Core';
-    WriteFile;
-    FOutputSubDir := 'Lib\Protocols';
-    WriteFile;
-    FOutputSubDir := 'Lib\FCL';
-    WriteFile;
-    FOutputSubDir := 'Lib\SuperCore';
     WriteFile;
   end;
 
-  if gfDesignTime in AFlags then begin
+  if gfDesignTime in AFlags then
+  begin
     FDesignTime := True;
 
     FName := 'IddclCore90ASM90';
     FDesc := 'Core Design-Time';
     GenAsmVers;
-    FOutputSubDir := 'Lib\Core';
     WriteFile;
 
     FName := 'IddclProtocols90ASM90';
     FDesc := 'Protocols Design-Time';
     GenAsmVers;
-    FOutputSubDir := 'Lib\Protocols';
     WriteFile;
 
     FName := 'IddclSecurity90ASM90';
     FDesc := 'Security Design-Time';
     GenAsmVers;
-    FOutputSubDir := 'Lib\Security';
     WriteFile;
   end;
 end;
 
 procedure TVersInc.GenIdVers;
 var
-  FileVersion, BuildStr: String;
+  FileVersion, BuildStr : string;
 begin
   FCode.Clear;
 
@@ -191,11 +177,12 @@ procedure TVersInc.GenAsmVers;
 begin
   FCode.Clear;
 
-  Code('[assembly: AssemblyDescription(''Internet Direct (Indy) ' + IndyVersion_ProductVersion_Str + ' ' + FDesc + ' Package for Borland Developer Studio'')]');
+  Code('[assembly: AssemblyDescription(''Internet Direct (Indy) ' + IndyVersion_ProductVersion_Str + ' ' + FDesc +
+    ' Package for Borland Developer Studio'')]');
   Code('[assembly: AssemblyConfiguration('''')]');
   Code('[assembly: AssemblyCompany(''Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyProduct(''Indy for Microsoft .NET Framework'')]');
-  Code('[assembly: AssemblyCopyright(''Copyright © 1993 - ' + IntToStr(YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
+  Code('[assembly: AssemblyCopyright(''Copyright Â© 1993 - ' + IntToStr(YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyTrademark('''')]');
   Code('[assembly: AssemblyCulture('''')]');
   Code('[assembly: AssemblyTitle(''Indy .NET ' + FDesc + ' Package'')]');
@@ -207,19 +194,21 @@ end;
 
 procedure TVersInc.GenAsmInfo;
 var
-  LFileName, LLine: string;
-  Data: TStringList;
-  I: Integer;
+  LFileName, LLine  : string;
+  Data              : TStringList;
+  I                 : Integer;
 begin
   FCode.Clear;
 
-  LFileName := DM.OutputPath + 'Lib\System\IdAssemblyInfo.pas';
-  if FileExists(LFileName) then begin
+  LFileName := DM.OutputPath + 'Lib\Source\System\IdAssemblyInfo.pas';
+  if FileExists(LFileName) then
+  begin
     // TStreamReader would be preferred, but its broken!
     Data := TStringList.Create;
     try
       Data.LoadFromFile(LFileName);
-      for I := 0 to Data.Count-1 do begin
+      for I := 0 to Data.Count - 1 do
+      begin
         LLine := Data[I];
         if LLine <> 'unit IdAssemblyInfo;' then
           Code(LLine)
@@ -244,11 +233,11 @@ begin
   Code('// associated with an assembly.');
   Code('//');
   Code('[assembly: AssemblyTitle(''Indy'')]');
-  Code('[assembly: AssemblyDescription(''Internet Direct (Indy) ' + IndyVersion_ProductVersion_Str +' for Visual Studio .NET'')]');
+  Code('[assembly: AssemblyDescription(''Internet Direct (Indy) ' + IndyVersion_ProductVersion_Str + ' for Visual Studio .NET'')]');
   Code('[assembly: AssemblyConfiguration('''')]');
   Code('[assembly: AssemblyCompany(''Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyProduct(''Indy for Microsoft .NET Framework'')]');
-  Code('[assembly: AssemblyCopyright(''Copyright © 1993 - ' + IntToStr(YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
+  Code('[assembly: AssemblyCopyright(''Copyright Â© 1993 - ' + IntToStr(YearOf(Date)) + ' Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew'')]');
   Code('[assembly: AssemblyTrademark('''')]');
   Code('[assembly: AssemblyCulture('''')]');
   Code('');
@@ -301,16 +290,16 @@ end;
 
 procedure TVersInc.GenIdCompilerDefines;
 var
-  LFileName, LOldDefinePrefix, LProductDefine, LVersionDefine: string;
-  Data: TStringList;
-  I, LPadding: Integer;
+  LFileName, LOldDefinePrefix, LProductDefine, LVersionDefine : string;
+  Data              : TStringList;
+  I, LPadding       : Integer;
 begin
   FCode.Clear;
 
   // TODO: put the version defines into their own .inc file that
   // IdCompilerDefines.inc can then include...
 
-  LFileName := DM.OutputPath + 'Lib\System\IdCompilerDefines.inc';
+  LFileName := DM.OutputPath + 'Lib\Source\Includes\IdCompilerDefines.inc';
 
   LProductDefine := '{$DEFINE ' + StringReplace(IndyVersion_ProductVersion_Str, '.', '_', [rfReplaceAll]) + '}';
   LVersionDefine := '{$DEFINE ' + StringReplace(IndyVersion_FileVersion_Str, '.', '_', [rfReplaceAll]) + '}';
@@ -322,14 +311,18 @@ begin
   try
     Data.LoadFromFile(LFileName);
     LOldDefinePrefix := '{$DEFINE ' + IndyVersion_Major_Str + '_';
-    for I := 0 to Data.Count-1 do begin
+    for I := 0 to Data.Count - 1 do
+    begin
       if StartsStr(LOldDefinePrefix, Data[I]) then
       begin
         Data[I] := LProductDefine + StringOfChar(' ', LPadding) + '  //so developers can IFDEF for this product version';
-        if StartsStr(LOldDefinePrefix, Data[I+1]) then begin
-          Data[I+1] := LVersionDefine;
-        end else begin
-          Data.Insert(I+1, LVersionDefine);
+        if StartsStr(LOldDefinePrefix, Data[I + 1]) then
+        begin
+          Data[I + 1] := LVersionDefine;
+        end
+        else
+        begin
+          Data.Insert(I + 1, LVersionDefine);
         end;
         Break;
       end;

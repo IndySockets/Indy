@@ -37,7 +37,7 @@ type
     procedure GenFooter; override;
   public
     constructor Create; override;
-    procedure Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags); override;
+    procedure Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags); override;
   end;
 
 implementation
@@ -50,13 +50,14 @@ uses
 constructor TPackageSecurity.Create;
 begin
   inherited;
-  FOutputSubDir := 'Lib\Security';
+  FOutputSubDir := 'Lib\Source\Security';
 end;
 
-procedure TPackageSecurity.Generate(ACompiler: TCompiler; const AFlags: TGenerateFlags);
+procedure TPackageSecurity.Generate(ACompiler : TCompiler; const AFlags : TGenerateFlags);
 begin
-  if not (ACompiler in Delphi_DotNet) then Exit;
-  FName := iif(gfDesignTime in AFlags, 'dcl', '') + 'IndySecurity' + GPackageVer[ACompiler];
+  if not (ACompiler in Delphi_DotNet) then
+    Exit;
+  Prepare(iif(gfDesignTime in AFlags, 'dclIndySecurity', 'IndySecurity'), ACompiler);
   FDesc := 'Security';
   FExt := '.dpk';
   inherited Generate(ACompiler, AFlags);
@@ -67,19 +68,23 @@ procedure TPackageSecurity.GenRequires;
 begin
   Code('');
   Code('requires');
-  if FDesignTime then begin
+  if FDesignTime then
+  begin
     Code('  Borland.Studio.Vcl.Design,');
-  end else begin
+  end
+  else
+  begin
     Code('  Borland.Delphi,');
     Code('  Borland.VclRtl,');
   end;
-  Code('  IndySystem' + GPackageVer[FCompiler] + ',');
-  Code('  IndyCore' + GPackageVer[FCompiler] + ',');
-  Code('  IndyProtocols'+ GPackageVer[FCompiler] + ',');
-  if FDesignTime then begin
-    Code('  IndySecurity'+ GPackageVer[FCompiler] + ',');
-    Code('  dclIndyCore' + GPackageVer[FCompiler]+',');
-    Code('  dclIndyProtocols' + GPackageVer[FCompiler]+',');
+  Code('  ' + PackageName('IndySystem', FCompiler) + ',');
+  Code('  ' + PackageName('IndyCore', FCompiler) + ',');
+  Code('  ' + PackageName('IndyProtocols', FCompiler) + ',');
+  if FDesignTime then
+  begin
+    Code('  ' + PackageName('IndySecurity', FCompiler) + ',');
+    Code('  ' + PackageName('dclIndyCore', FCompiler) + ',');
+    Code('  ' + PackageName('dclIndyProtocols',  FCompiler) + ',');
   end;
   Code('  Mono.Security,');
   Code('  System,');
@@ -96,3 +101,4 @@ begin
 end;
 
 end.
+

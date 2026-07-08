@@ -1,24 +1,24 @@
 @echo off
-call Fullc_4
-call Fullc_5
-call Fullc_6
-call Fullc_2006
-call Fullc_2007
-call Fullc_2009
-call Fullc_2010
-call Fullc_XE
-call Fullc_XE2
-call Fullc_XE3
-call Fullc_XE4
-call Fullc_XE5
-call Fullc_XE6
-call Fullc_XE7
-call Fullc_XE8
-call Fullc_Seattle
-call Fullc_Berlin
-call Fullc_Tokyo
-call Fullc_Rio
-call Fullc_Sydney
-call Fullc_Alexandria
-call Fullc_Athens
-call Fullc_Florence
+call "..\Packages\Delphi 4\Fullc_4.bat"
+call "..\Packages\Delphi 5\Fullc_5.bat"
+call "..\Packages\Delphi 6\Fullc_6.bat"
+call "..\Packages\RAD Studio 2006\Fullc_2006.bat"
+call "..\Packages\RAD Studio 2007\Fullc_2007.bat"
+call "..\Packages\RAD Studio 2009\Fullc_2009.bat"
+call "..\Packages\RAD Studio 2010\Fullc_2010.bat"
+call "..\Packages\RAD Studio XE\Fullc_XE.bat"
+call "..\Packages\RAD Studio XE2\Fullc_XE2.bat"
+call "..\Packages\RAD Studio XE3\Fullc_XE3.bat"
+call "..\Packages\RAD Studio XE4\Fullc_XE4.bat"
+call "..\Packages\RAD Studio XE5\Fullc_XE5.bat"
+call "..\Packages\RAD Studio XE6\Fullc_XE6.bat"
+call "..\Packages\RAD Studio XE7\Fullc_XE7.bat"
+call "..\Packages\RAD Studio XE8\Fullc_XE8.bat"
+call "..\Packages\RAD Studio 10.0\Fullc_Seattle.bat"
+call "..\Packages\RAD Studio 10.1\Fullc_Berlin.bat"
+call "..\Packages\RAD Studio 10.2\Fullc_Tokyo.bat"
+call "..\Packages\RAD Studio 10.3\Fullc_Rio.bat"
+call "..\Packages\RAD Studio 10.4\Fullc_Sydney.bat"
+call "..\Packages\RAD Studio 11.0\Fullc_Alexandria.bat"
+call "..\Packages\RAD Studio 12.0\Fullc_Athens.bat"
+call "..\Packages\RAD Studio 13.0\Fullc_Florence.bat"
