@@ -139,14 +139,26 @@ type
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
   {$ELSE}
-    {$IFDEF HAS_PtrInt}
-  TIdC_TIMET = PtrInt;
-    {$ELSE}
-      {$IFDEF CPU32}
-  TIdC_TIMET = TIdC_INT32;
-      {$ENDIF}
-      {$IFDEF CPU64}
+    // On windows time_t is per default always 64-bit!
+    // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/time-time32-time64?view=msvc-170
+    // time is a wrapper for _time64 and time_t is, by default, equivalent to __time64_t. If you
+    // need to force the compiler to interpret time_t as the old 32-bit time_t, you can define
+    // _USE_32BIT_TIME_T. We don't recommend _USE_32BIT_TIME_T, because your application may fail
+    // after January 18, 2038; the use of this macro isn't allowed on 64-bit platforms.
+    {$IFDEF WINDOWS}
   TIdC_TIMET = TIdC_INT64;
+    // On Unix systems time_t is bit depended
+    // https://www.ibm.com/docs/en/ibm-mq/9.1?topic=platforms-standard-data-types-unix-linux-windows
+    {$ELSE}
+      {$IFDEF HAS_PtrInt}
+  TIdC_TIMET = PtrInt;
+      {$ELSE}
+        {$IFDEF CPU32}
+  TIdC_TIMET = TIdC_INT32;
+        {$ENDIF}
+        {$IFDEF CPU64}
+  TIdC_TIMET = TIdC_INT64;
+        {$ENDIF}
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
@@ -261,14 +273,26 @@ type
   {$IFDEF HAS_TIME_T}
   TIdC_TIMET = time_t;
   {$ELSE}
-    {$IFDEF HAS_NativeInt}
-  TIdC_TIMET = NativeInt;
-    {$ELSE}
-      {$IFDEF CPU32}
-  TIdC_TIMET = TIdC_INT32;
-      {$ENDIF}
-      {$IFDEF CPU64}
+    // On windows time_t is per default always 64-bit!
+    // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/time-time32-time64?view=msvc-170
+    // time is a wrapper for _time64 and time_t is, by default, equivalent to __time64_t. If you
+    // need to force the compiler to interpret time_t as the old 32-bit time_t, you can define
+    // _USE_32BIT_TIME_T. We don't recommend _USE_32BIT_TIME_T, because your application may fail
+    // after January 18, 2038; the use of this macro isn't allowed on 64-bit platforms.
+    {$IFDEF WINDOWS}
   TIdC_TIMET = TIdC_INT64;
+    // On Unix systems time_t is bit depended
+    // https://www.ibm.com/docs/en/ibm-mq/9.1?topic=platforms-standard-data-types-unix-linux-windows
+    {$ELSE}
+      {$IFDEF HAS_NativeInt}
+  TIdC_TIMET = NativeInt;
+      {$ELSE}
+        {$IFDEF CPU32}
+  TIdC_TIMET = TIdC_INT32;
+        {$ENDIF}
+        {$IFDEF CPU64}
+  TIdC_TIMET = TIdC_INT64;
+        {$ENDIF}
       {$ENDIF}
     {$ENDIF}
   {$ENDIF}
