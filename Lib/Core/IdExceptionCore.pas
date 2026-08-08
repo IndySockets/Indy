@@ -86,9 +86,11 @@
 
 unit IdExceptionCore;
 
-interface
 {$I IdCompilerDefines.inc}
 //needed to put FCP into Delphi mode
+
+interface
+
 uses
   IdException, IdStack;
 

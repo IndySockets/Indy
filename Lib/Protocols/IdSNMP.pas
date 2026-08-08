@@ -54,10 +54,9 @@ The Synapse SNMP component was converted for use in INDY.
 |          (Found at URL: http://www.ararat.cz/synapse/)                       |
 |==============================================================================|
 }
+{$i IdCompilerDefines.inc}
 
 interface
-
-{$i IdCompilerDefines.inc}
 
 uses
   Classes,

@@ -34,8 +34,9 @@ unit IdHTTPServer;
   Additional chages and bug fixes - Doychin Bondzhev (doychin@dsoft-bg.com)
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdCustomHTTPServer;

@@ -66,9 +66,9 @@
 
 unit IdSchedulerOfThreadPool;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF HAS_UNIT_Generics_Collections}

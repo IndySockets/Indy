@@ -56,9 +56,10 @@ unit IdSASL_CRAM_MD5;
   RFC 2195 (IMAP/POP3 AUTHorize Extension for Simple Challenge/Response)
   IETF draft draft-ietf-ipsec-hmac-md5-txt.00
 }
+{$i IdCompilerDefines.inc}
 
 interface
-{$i IdCompilerDefines.inc}
+
 
 uses
   IdSASL,

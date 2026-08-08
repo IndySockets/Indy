@@ -152,9 +152,9 @@
 }
 unit IdCoder3to4;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

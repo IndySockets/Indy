@@ -1,8 +1,8 @@
 unit IdCTypes;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 {
 This unit should not contain ANY program code.  It is meant to be extremely 

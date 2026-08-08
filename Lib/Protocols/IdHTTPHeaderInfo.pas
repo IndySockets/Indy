@@ -64,9 +64,9 @@ unit IdHTTPHeaderInfo;
   Author: Doychin Bondzhev (doychin@dsoft-bg.com)
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

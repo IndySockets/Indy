@@ -45,9 +45,9 @@ unit IdRexecServer;
   This is based on the IdRexec.pas unit and
   programming comments at http://www.abandoned.org/nemon/rexeclib.py
 }
+{$i IdCompilerDefines.inc}
 
 interface
-{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient;

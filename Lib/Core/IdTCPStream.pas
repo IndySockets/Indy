@@ -60,9 +60,10 @@
 
 unit IdTCPStream;
 
+{$I IdCompilerDefines.inc}
+
 interface
 
-{$I IdCompilerDefines.inc}
 //TODO: This should be renamed to IdStreamTCP for consistency, and class too
 
 uses

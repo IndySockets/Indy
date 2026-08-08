@@ -331,10 +331,9 @@ unit IdHTTP;
   TODO:  Figure out what to do with ConnectTimeout.
   Ideally, that should be in the core and is not the same as a read Timeout.
 }
+{$I IdCompilerDefines.inc}
 
 interface
-
-{$I IdCompilerDefines.inc}
 
 uses
   Classes,

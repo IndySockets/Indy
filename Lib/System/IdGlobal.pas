@@ -509,9 +509,9 @@
 
 unit IdGlobal;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   SysUtils,

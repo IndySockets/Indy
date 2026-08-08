@@ -29,9 +29,9 @@ unit IdFTPServerContextBase;
   than just the Username
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdCustomTCPServer, IdFTPList;

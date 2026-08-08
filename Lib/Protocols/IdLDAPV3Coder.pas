@@ -22,9 +22,9 @@
 
 unit IdLDAPV3Coder;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdASN1Coder,

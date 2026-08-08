@@ -18,9 +18,9 @@
 
 unit IdStream;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
 {$IFDEF DOTNET}

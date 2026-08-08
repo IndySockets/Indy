@@ -80,10 +80,10 @@ unit IdThreadComponent;
  History:  Based on my TmcThread
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
+interface
 
 uses
   Classes,

@@ -38,9 +38,9 @@ unit IdBlockCipherIntercept;
  Purpose:  Secure communications
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

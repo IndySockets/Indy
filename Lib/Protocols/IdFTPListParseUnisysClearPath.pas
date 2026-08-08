@@ -63,9 +63,9 @@ unit IdFTPListParseUnisysClearPath;
   in Unix format. If not, we'll deal with it given some data samples.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

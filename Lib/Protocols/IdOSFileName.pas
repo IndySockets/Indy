@@ -35,9 +35,9 @@
 
 unit IdOSFileName;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdBaseComponent, IdFTPCommon;

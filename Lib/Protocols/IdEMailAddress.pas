@@ -109,9 +109,9 @@ unit IdEMailAddress;
     Allen O'Neill
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

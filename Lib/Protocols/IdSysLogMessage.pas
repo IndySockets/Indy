@@ -62,9 +62,9 @@ unit IdSysLogMessage;
   08/09/01: Dev started
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

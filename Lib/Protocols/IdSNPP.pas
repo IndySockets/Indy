@@ -53,8 +53,9 @@
 
 unit IdSNPP;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdComponent, IdGlobal, IdException, IdGlobalProtocols,

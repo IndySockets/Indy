@@ -48,9 +48,9 @@
 }
 unit IdAttachmentMemory;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes, IdAttachment, IdMessageParts, IdGlobal;

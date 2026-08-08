@@ -22,8 +22,9 @@
 
 unit IdTCPServer;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses IdCustomTCPServer;
 

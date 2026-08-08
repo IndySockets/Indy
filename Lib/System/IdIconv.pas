@@ -1,8 +1,8 @@
 unit IdIconv;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF FPC}

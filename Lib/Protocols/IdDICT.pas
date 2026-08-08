@@ -51,9 +51,9 @@
 
 unit IdDICT;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

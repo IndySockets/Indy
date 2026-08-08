@@ -67,10 +67,10 @@ unit IdIcmpClient;
 
 // SG 25/1/02: Modified the component to support multithreaded PING and traceroute
 
-interface
-
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
+interface
 
 uses
   Classes,

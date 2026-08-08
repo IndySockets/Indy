@@ -1,8 +1,8 @@
 unit IdAboutVCL;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
 {$IFDEF WIDGET_KYLIX}

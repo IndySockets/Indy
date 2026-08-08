@@ -52,8 +52,9 @@ unit IdWhois;
 Original Author: Hadi Hariri
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}
