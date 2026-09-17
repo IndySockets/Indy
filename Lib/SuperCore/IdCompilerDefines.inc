@@ -1464,7 +1464,7 @@
 {$IFDEF VCL_13_OR_ABOVE}
   {$DEFINE CAN_PUSHPOP_OPTIONS}
   {$DEFINE USE_NORETURN}
-  // it is sufficient to have 'noturn' just on an implementation
+  // it is sufficient to have 'noreturn' just on an implementation
   // and not on the declaration, the compiler won't care either way...
   {.$DEFINE USE_NORETURN_DECL}
   {$DEFINE USE_NORETURN_IMPL}
