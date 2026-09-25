@@ -407,6 +407,7 @@ begin
   inherited Create(ACollection);
   FCreatedAt := Now;
   FLastAccessed := FCreatedAt;
+  FSameSite := 'None'; {Do not Localize}
 end;
 
 destructor TIdCookie.Destroy;
@@ -926,7 +927,11 @@ begin
   if LExpires <> 0.0 then begin
     AddCookieProperty(Result, 'Expires', LocalDateTimeToCookieStr(LExpires)); {Do not Localize}
   end;
-  AddCookieProperty(Result, 'SameSite', FSameSite); {Do not Localize}
+  // Browsers reject a cookie that has "SameSite=None" without "Secure",
+  // so omit the attribute in that case and let the browser use its default...
+  if FSecure or (not TextIsSame(FSameSite, 'None')) then begin {Do not Localize}
+    AddCookieProperty(Result, 'SameSite', FSameSite); {Do not Localize}
+  end;
 end;
 
 {
