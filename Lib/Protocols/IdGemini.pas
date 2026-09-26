@@ -43,8 +43,8 @@ type
     destructor Destroy; override;
     function Request(const AURL: string): TGeminiResponse; overload;
     function Request(const AURL, AInput: string): TGeminiResponse; overload;
-    // The default TLS handler. Nil when the application assigned its own
-    // IOHandler, in which case configure that handler instead.
+    // The default TLS handler, created by this component. Assigning IOHandler
+    // replaces it; configure your own handler, not this property, in that case.
     property SSLIOHandler: TIdSSLIOHandlerSocketOpenSSL read FSSLIOHandler;
   published
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default True;
@@ -83,24 +83,16 @@ begin
   FRedirectMax := 5;
   Port := 1965;
   
-  // Create and configure SSL/TLS handler, but only if the application has not
-  // assigned one itself. Indy's own OpenSSL support stops at 1.0.x, so a
-  // program that wants a newer TLS stack assigns its own handler before the
-  // first request and keeps it. This mirrors what TIdHTTP does.
-  if IOHandler = nil then
-  begin
-    FSSLIOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(Self);
-    FSSLIOHandler.SSLOptions.Method := sslvTLSv1_2;
-    FSSLIOHandler.SSLOptions.Mode := sslmClient;
-    FSSLIOHandler.SSLOptions.VerifyMode := [];
-    FSSLIOHandler.SSLOptions.VerifyDepth := 0;
-    IOHandler := FSSLIOHandler;
-  end;
-  // The Gemini header line (status code + meta) is limited to 1024 bytes.
-  // Enforce that limit so a server cannot overflow our line buffer. The limit
-  // is on the base class, so it applies to any TLS handler.
-  if IOHandler is TIdSSLIOHandlerSocketBase then
-    TIdSSLIOHandlerSocketBase(IOHandler).MaxLineLength := 1024;
+  // Create and configure a default SSL/TLS handler. Indy's own OpenSSL support
+  // stops at 1.0.x, so this is only a default: an application that wants a
+  // different TLS stack, or different TLS options, replaces IOHandler with its
+  // own handler and configures that instead.
+  FSSLIOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(Self);
+  FSSLIOHandler.SSLOptions.Method := sslvTLSv1_2;
+  FSSLIOHandler.SSLOptions.Mode := sslmClient;
+  FSSLIOHandler.SSLOptions.VerifyMode := [];
+  FSSLIOHandler.SSLOptions.VerifyDepth := 0;
+  IOHandler := FSSLIOHandler;
   
   InitIDNLibrary;
 end;
