@@ -90,6 +90,13 @@ begin
   FSSLIOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(Self);
   FSSLIOHandler.SSLOptions.Method := sslvTLSv1_2;
   FSSLIOHandler.SSLOptions.Mode := sslmClient;
+  // Do not validate the server certificate by default. Gemini servers are
+  // commonly self-signed, and indy's OpenSSL layer does not check the host
+  // name against the certificate, so validating the chain would reject
+  // self-signed servers without proving the host matches anyway. An
+  // application that cares should set VerifyMode to [sslvrfPeer] and decide
+  // in OnVerifyPeer, typically by pinning the SHA256 fingerprint of a
+  // certificate the user has confirmed once.
   FSSLIOHandler.SSLOptions.VerifyMode := [];
   FSSLIOHandler.SSLOptions.VerifyDepth := 0;
   IOHandler := FSSLIOHandler;
