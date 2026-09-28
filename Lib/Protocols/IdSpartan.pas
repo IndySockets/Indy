@@ -149,7 +149,7 @@ begin
   end;
   // the body is a line, and it has to be kept in a variable of its own, the
   // temporary of the expression is gone before the write happens
-  Line := AInput + #13#10;
+  Line := AInput + EOL;
   Data := TMemoryStream.Create;
   try
     Data.Write(Line[1], Length(Line));
