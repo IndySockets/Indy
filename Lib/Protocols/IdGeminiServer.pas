@@ -27,7 +27,6 @@ type
     procedure InitComponent; override;
   public
     destructor Destroy; override;
-    class procedure WriteStringToStream(Stream: TStream; const S: string; Encoding: TEncoding = nil);
     function GetClientCertificate(AContext: TIdContext): string;
     // The default TLS handler, created by this component. Assigning IOHandler
     // replaces it, in which case set the certificate and key on your own
@@ -95,18 +94,6 @@ begin
   else
     Result := '50'; // Unknown status defaults to server error
   end;
-end;
-
-class procedure TIdGeminiServer.WriteStringToStream(Stream: TStream; const S: string; Encoding: TEncoding);
-var
-  Bytes: TBytes;
-begin
-  if Encoding = nil then
-    Encoding := TEncoding.UTF8;
-
-  Bytes := Encoding.GetBytes(S);
-  if Length(Bytes) > 0 then
-    Stream.WriteBuffer(Bytes[0], Length(Bytes));
 end;
 
 function TIdGeminiServer.GetClientCertificate(AContext: TIdContext): string;

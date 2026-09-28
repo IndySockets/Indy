@@ -152,7 +152,11 @@ begin
   Line := AInput + EOL;
   Data := TMemoryStream.Create;
   try
-    Data.Write(Line[1], Length(Line));
+    // written through IdGlobal rather than by hand, because a string is a
+    // sequence of WideChars under {$H+} and Length counts characters while
+    // Write counts bytes, so the hand-written form would send half of
+    // everything past the first non-ASCII character
+    WriteStringToStream(Data, Line);
     Result := Request(AHost, Path, Data);
   finally
     Data.Free;

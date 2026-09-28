@@ -18,7 +18,6 @@ type
   protected
     procedure InitComponent; override;
   public
-    class procedure WriteStringToStream(Stream: TStream; const S: string; Encoding: TEncoding = nil);
   published
     property OnSpartanRequest: TSpartanRequestEvent read FOnSpartanRequest write FOnSpartanRequest;
     property DefaultPort default 300;
@@ -60,18 +59,6 @@ begin
   {$ENDIF}
 
   Result := AHost;
-end;
-
-class procedure TIdSpartanServer.WriteStringToStream(Stream: TStream; const S: string; Encoding: TEncoding);
-var
-  Bytes: TBytes;
-begin
-  if Encoding = nil then
-    Encoding := TEncoding.UTF8;
-
-  Bytes := Encoding.GetBytes(S);
-  if Length(Bytes) > 0 then
-    Stream.WriteBuffer(Bytes[0], Length(Bytes));
 end;
 
 procedure TIdSpartanServer.InternalExecute(AContext: TIdContext);
