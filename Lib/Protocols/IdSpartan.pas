@@ -144,7 +144,7 @@ var
 begin
   if AInput = '' then
   begin
-    Result := Request(AHost, Path, nil);
+    Result := Request(AHost, Path, TStream(nil));
     Exit;
   end;
   // the body is a line, and it has to be kept in a variable of its own, the
@@ -194,11 +194,10 @@ begin
     IOHandler.WriteLn(ReqLine);
 
     // Send data if present
+    // ASize of 0 means "all of it", and Write() rewinds the stream itself in
+    // that case, so setting Position here would only duplicate what it does
     if Assigned(Data) then
-    begin
-      Data.Position := 0;
-      IOHandler.Write(Data, Len);
-    end;
+      IOHandler.Write(Data);
 
     // Read status line
     StatusLine := IOHandler.ReadLn;
