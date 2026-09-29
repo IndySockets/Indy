@@ -4,8 +4,8 @@ unit IdGeminiServer;
 interface
 
 uses
-  SysUtils, Classes, IdTCPServer, IdContext, IdGlobal, IdAssignedNumbers, IdSSL, 
-  IdServerIOHandlerSSLOpenSSL, IdSSLOpenSSL, IdURI, IdIDN;
+  SysUtils, Classes, IdTCPServer, IdContext, IdGlobal, IdAssignedNumbers, IdSSL,
+  IdException, IdExceptionCore, IdServerIOHandlerSSLOpenSSL, IdSSLOpenSSL, IdURI, IdIDN;
 
 type
   TGeminiStatus = (gsUnknown, gsInput, gsSensitiveInput, gsSuccess, 
@@ -20,6 +20,7 @@ type
     FOnGeminiRequest: TGeminiRequestEvent;
     FSSLIOHandler: TIdServerIOHandlerSSLOpenSSL;
     procedure InternalExecute(AContext: TIdContext);
+    procedure WriteStatus(AContext: TIdContext; const AStatus: string);
     function StatusToCode(Status: TGeminiStatus): string;
     function VerifyPeer(ACertificate: TIdX509; AOk: Boolean;
       ADepth, AError: Integer): Boolean;
@@ -65,6 +66,17 @@ begin
   IOHandler := FSSLIOHandler;
 
   InitIDNLibrary;
+end;
+
+procedure TIdGeminiServer.WriteStatus(AContext: TIdContext; const AStatus: string);
+begin
+  // Only worth writing if there is still a peer to write it to.  A failure of
+  // the write itself is deliberately not caught: the server is closing this
+  // connection either way, and an error from here would only hide whatever
+  // the server was already going to report about it.
+  if AContext.Connection.Connected then begin
+    AContext.Connection.IOHandler.WriteLn(AStatus);
+  end;
 end;
 
 function TIdGeminiServer.VerifyPeer(ACertificate: TIdX509; AOk: Boolean;
@@ -132,27 +144,36 @@ begin
     // negotiation) actually runs against the shared server SSL context.
     TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := False;
 
-    // Guard against overly long request lines (spec allows max 1024 bytes for
-    // the URL itself). This prevents a hostile client from flooding our buffers.
-    AContext.Connection.IOHandler.MaxLineLength := 1026;
-
-    // Read request line (URL + CRLF)
+    // Read the request line (URL + CRLF).  The spec allows 1024 bytes for the
+    // URL itself, and ReadLn() does not count the terminator when it validates
+    // the length, so 1024 is the number to pass, not 1026.
+    //
+    // The terminator is given as EOL because ReadLn()'s default is LF, and a
+    // Gemini request ends with CRLF.  The limit is passed per call rather than
+    // by setting IOHandler.MaxLineLength, which would reach into the handler's
+    // own configuration and fight with whatever else the application is doing
+    // with it.
     try
-      RequestURL := AContext.Connection.IOHandler.ReadLn;
+      RequestURL := AContext.Connection.IOHandler.ReadLn(EOL, -1, 1024);
     except
-      on E: Exception do
+      // An over-long request line is the client's mistake and gets a 59; a
+      // read timeout or a dead socket is not something a status line can be
+      // written to, and letting those through is the server's own business
+      // rather than something to answer.  Catching Exception here would turn
+      // a timeout into a malformed request, and would also swallow anything
+      // the handler raises for a reason that has nothing to do with the
+      // request at all.
+      on E: EIdReadLnMaxLineLengthExceeded do
       begin
-        // Client disconnected mid-request or request line exceeded the size limit
-        if AContext.Connection.Connected then
-        begin
-          try
-            AContext.Connection.IOHandler.WriteLn('59 Malformed request');
-          except
-            on E: Exception do begin
-              Exit;
-            end;
-          end;
-        end;
+        WriteStatus(AContext, '59 Request line too long');
+        Exit;
+      end;
+      on E: EIdReadTimeout do
+      begin
+        Exit;
+      end;
+      on E: EIdConnClosedGracefully do
+      begin
         Exit;
       end;
     end;
@@ -161,13 +182,6 @@ begin
     if RequestURL = '' then
     begin
       AContext.Connection.IOHandler.WriteLn('59 Empty request');
-      Exit;
-    end;
-
-    // Check URL length (max 1024 bytes per spec)
-    if Length(RequestURL) > 1024 then
-    begin
-      AContext.Connection.IOHandler.WriteLn('59 URL too long');
       Exit;
     end;
 
