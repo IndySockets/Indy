@@ -130,7 +130,7 @@ end;
 function TIdGemini.ResolveURL(const ABaseURL, ARelative: string): string;
 var
   LBase: TIdURI;
-  LPath, LQuery, LSeg: string;
+  LPath, LQuery, LSeg, LBasePath, LBaseDoc: string;
   LStack: array of string;
   LCount, LI: Integer;
   LC: Char;
@@ -140,29 +140,42 @@ begin
   // URL, following RFC 3986 section 5.
   LBase := TIdURI.Create(ABaseURL);
   try
-    Result := LBase.Protocol + '://' + LBase.Host;
-    if LBase.Port <> '' then begin
-      Result := Result + ':' + LBase.Port;
-    end;
+    // The base's own query and fragment are not part of the path, and this
+    // function only ever wants the path, so ask TIdURI to leave them out
+    // instead of taking them apart again further down.
+    LBase.Params := '';
+    LBase.Bookmark := '';
+    // With the path, the query and the fragment blanked, GetFullURI([]) is
+    // just the origin: the scheme, the host, and the port unless the scheme
+    // has a default one.  Asking TIdURI for that rather than concatenating the
+    // pieces by hand also brackets an IPv6 host, which the concatenation did
+    // not.
+    LBasePath := LBase.Path;
+    LBaseDoc := LBase.Document;
+    LBase.Path := '';
+    LBase.Document := '';
+    Result := LBase.GetFullURI([]);
     if ARelative = '' then begin
       // Empty reference inherits the full base-path
-      LPath := LBase.Path + LBase.Document;
+      LPath := LBasePath + LBaseDoc;
     end else if (ARelative[1] = '?') or (ARelative[1] = '#') then begin
       // Query/fragment-only reference keeps the base document
-      LPath := LBase.Path + LBase.Document + ARelative;
+      LPath := LBasePath + LBaseDoc + ARelative;
     end else if ARelative[1] = '/' then begin
       // protocol-relative or absolute-path reference
       LPath := ARelative;
     end else begin
       // TIdURI.Path always ends with '/' and holds the directory portion of
       // the base URL, so merging yields the correct parent directory.
-      LPath := LBase.Path + ARelative;
+      LPath := LBasePath + ARelative;
     end;
   finally
     FreeAndNil(LBase);
   end;
 
-  // Separate a possible query/fragment portion from the path
+  // Separate a possible query/fragment portion from the path.  The base's own
+  // query and fragment are already gone, so this is only ever about the query
+  // of ARelative, but a relative reference can carry one just as well.
   LQuery := '';
   LI := 1;
   while LI <= Length(LPath) do begin
