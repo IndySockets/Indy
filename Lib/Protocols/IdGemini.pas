@@ -266,26 +266,37 @@ begin
     else
       Port := IdPORT_GEMINI;
 
-    // Connect if not already connected
-    if not Connected then
+    // Connect unconditionally.  Gemini allows one request per connection and
+    // the server closes after answering, so being connected here is the
+    // exception rather than the rule, and testing for it only risks talking on
+    // somebody else's connection.
+    //
+    // One request per connection, so the connection belongs to this request.
+    // Leaving it to the caller to manage means a second request can land on a
+    // connection the server is about to close, so it is dropped and made here.
+    if Connected then
     begin
-      // TIdTCPClient does not start TLS automatically; flip PassThrough
-      // so the handler's ConnectClient() runs the handshake. Done through the
-      // base class so it works with whatever handler is in use.
-      if IOHandler is TIdSSLIOHandlerSocketBase then
-        TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
-      Connect;
+      Disconnect;
     end;
+
+    // TIdTCPClient does not start TLS by itself; flip PassThrough so the
+    // handler's ConnectClient() runs the handshake.  Done through the base
+    // class so it works with whichever handler is in use.
+    if IOHandler is TIdSSLIOHandlerSocketBase then
+      TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
+    Connect;
 
     // Send request (URL + CRLF)
     IOHandler.WriteLn(AURL);
 
-    // Re-assert the 1024 byte header limit, in case the application replaced
-    // the IOHandler after construction, which restores the 16 KB default.
-    IOHandler.MaxLineLength := 1024;
-
-    // Read status line
-    StatusLine := IOHandler.ReadLn;
+    // Read the status line, which is a status code, a space, and the meta
+    // string, and is limited to 1024 bytes by the spec.  ReadLn() does not
+    // count the terminator when it validates, so 1024 is the number to pass.
+    // The limit goes in as an argument rather than into IOHandler.MaxLineLength
+    // so the application's own handler configuration is left alone.  EOL is
+    // given explicitly because ReadLn()'s default terminator is LF and a
+    // Gemini response ends with CRLF.
+    StatusLine := IOHandler.ReadLn(EOL, -1, 1024);
     
     if Length(StatusLine) < 3 then
     begin
@@ -324,15 +335,18 @@ begin
         Result.Charset := '';
       end;
 
-      // Read content until connection closes
+      // Read content until the server closes the connection, which is how a
+      // Gemini response ends.  A graceful close part way through is the normal
+      // way this loop ends rather than a failure, so it is caught; anything
+      // else is a real error and is left to propagate.
       Result.Content := TMemoryStream.Create;
       try
         IOHandler.ReadStream(Result.Content, -1, True);
         Result.Content.Position := 0;
       except
-        on E: EIdSilentException do
+        on EIdConnClosedGracefully do
         begin
-          // Connection closed gracefully - expected for Gemini
+          // expected: the server closed after the body
         end;
       end;
     end;
@@ -366,11 +380,7 @@ begin
       if Result <> nil then
         FreeAndNil(Result);
 
-      // Disconnect before making new request (Gemini closes after each response)
-      if Connected then
-        Disconnect;
-
-      // Make request
+      // Make request.  InternalRequest() owns the connection, see there.
       Result := InternalRequest(LCurrentURL);
 
       // Handle redirect if needed

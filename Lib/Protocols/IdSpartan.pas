@@ -181,7 +181,14 @@ begin
     LActualPath := EncodePath(Path);
 
     Host := LActualHost;
-    if not Connected then Connect;
+
+    // Connect unconditionally, for the same reason TIdGemini does:  one
+    // request per connection, and the connection is this request's to make.
+    if Connected then
+    begin
+      Disconnect;
+    end;
+    Connect;
 
     // Calculate content length
     if Assigned(Data) then
