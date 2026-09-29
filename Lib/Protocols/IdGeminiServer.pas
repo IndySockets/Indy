@@ -4,7 +4,7 @@ unit IdGeminiServer;
 interface
 
 uses
-  SysUtils, Classes, IdTCPServer, IdContext, IdGlobal, IdSSL, 
+  SysUtils, Classes, IdTCPServer, IdContext, IdGlobal, IdAssignedNumbers, IdSSL, 
   IdServerIOHandlerSSLOpenSSL, IdSSLOpenSSL, IdURI, IdIDN;
 
 type
@@ -34,7 +34,7 @@ type
     property SSLIOHandler: TIdServerIOHandlerSSLOpenSSL read FSSLIOHandler;
   published
     property OnGeminiRequest: TGeminiRequestEvent read FOnGeminiRequest write FOnGeminiRequest;
-    property DefaultPort default 1965;
+    property DefaultPort default IdPORT_GEMINI;
   end;
 
 implementation
@@ -44,7 +44,7 @@ implementation
 procedure TIdGeminiServer.InitComponent;
 begin
   inherited InitComponent;
-  DefaultPort := 1965;
+  DefaultPort := IdPORT_GEMINI;
   OnExecute := InternalExecute;
   
   // Create and configure a default SSL/TLS handler. Indy's own OpenSSL support

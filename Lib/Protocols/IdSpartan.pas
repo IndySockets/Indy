@@ -4,7 +4,7 @@ unit IdSpartan;
 interface
 
 uses
-  SysUtils, Classes, IdTCPClient, IdGlobal, IdException, IdIOHandler,
+  SysUtils, Classes, IdTCPClient, IdGlobal, IdAssignedNumbers, IdException, IdIOHandler,
   IdExceptionCore, IdURI, IdIDN;
 
 type
@@ -44,7 +44,7 @@ type
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default True;
     property RedirectMax: Integer read FRedirectMax write FRedirectMax default 5;
     property OnRedirect: TIdSpartanOnRedirectEvent read FOnRedirect write FOnRedirect;
-    property Port default 300;
+    property Port default IdPORT_SPARTAN;
   end;
 
 implementation
@@ -77,7 +77,7 @@ begin
   inherited InitComponent;
   FHandleRedirects := True;
   FRedirectMax := 5;
-  Port := 300; // Default Spartan port
+  Port := IdPORT_SPARTAN; // Default Spartan port
   InitIDNLibrary
 end;
 
@@ -369,7 +369,7 @@ LCurrentHost := AHost;
                 // Absolute Spartan URL
                 LCurrentHost := LURI.Host;
                 if LURI.Port <> '' then
-                  Port := IndyStrToInt(LURI.Port, 300);
+                  Port := IndyStrToInt(LURI.Port, IdPORT_SPARTAN);
                 LCurrentPath := LURI.Path;
               end
               else

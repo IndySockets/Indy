@@ -4,7 +4,7 @@ unit IdSpartanServer;
 interface
 
 uses
-  SysUtils, Classes, IdTCPServer, IdContext, IdGlobal, IdSpartan, IdURI, IdGlobalProtocols, IdIDN;
+  SysUtils, Classes, IdTCPServer, IdContext, IdGlobal, IdAssignedNumbers, IdSpartan, IdURI, IdGlobalProtocols, IdIDN;
 
 type
   TSpartanRequestEvent = procedure(AContext: TIdContext; const Host, Path: string;
@@ -20,7 +20,7 @@ type
   public
   published
     property OnSpartanRequest: TSpartanRequestEvent read FOnSpartanRequest write FOnSpartanRequest;
-    property DefaultPort default 300;
+    property DefaultPort default IdPORT_SPARTAN;
   end;
 
 implementation
@@ -30,7 +30,7 @@ implementation
 procedure TIdSpartanServer.InitComponent;
 begin
   inherited InitComponent;
-  DefaultPort := 300;
+  DefaultPort := IdPORT_SPARTAN;
   OnExecute := InternalExecute;
   InitIDNLibrary;
 end;

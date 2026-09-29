@@ -4,7 +4,7 @@ unit IdGemini;
 interface
 
 uses
-  SysUtils, Classes, IdTCPClient, IdGlobal, IdException, IdSSL,
+  SysUtils, Classes, IdTCPClient, IdGlobal, IdAssignedNumbers, IdException, IdSSL,
   IdSSLOpenSSL, IdSSLOpenSSLHeaders, IdURI, IdIDN;
 
 type
@@ -50,7 +50,7 @@ type
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default True;
     property RedirectMax: Integer read FRedirectMax write FRedirectMax default 5;
     property OnRedirect: TIdGeminiOnRedirectEvent read FOnRedirect write FOnRedirect;
-    property Port default 1965;
+    property Port default IdPORT_GEMINI;
   end;
 
 implementation
@@ -81,7 +81,7 @@ begin
   inherited InitComponent;
   FHandleRedirects := True;
   FRedirectMax := 5;
-  Port := 1965;
+  Port := IdPORT_GEMINI;
   
   // Create and configure a default SSL/TLS handler. Indy's own OpenSSL support
   // stops at 1.0.x, so this is only a default: an application that wants a
@@ -249,9 +249,9 @@ begin
     // Set connection parameters
     Host := LURI.Host;
     if LURI.Port <> '' then
-      Port := IndyStrToInt(LURI.Port, 1965)
+      Port := IndyStrToInt(LURI.Port, IdPORT_GEMINI)
     else
-      Port := 1965;
+      Port := IdPORT_GEMINI;
 
     // Connect if not already connected
     if not Connected then
