@@ -220,14 +220,22 @@ begin
   Assert(AYarn<>nil);
   LYarn := TIdYarnOfThread(AYarn);
   LThread := LYarn.Thread;
-  if (LThread <> nil) and (not LThread.Suspended) then begin
+  // A thread that has already FINISHED will never free its Yarn. That happens when
+  // the thread is terminated after StartYarn() resumes it but before it reaches
+  // the loop in TIdThread.Execute() - the RTL does not even call Execute() when
+  // Terminated is already set - so TIdThread.Cleanup() never runs. Treating it as
+  // running left the Yarn in ActiveYarns for ever, and TerminateAllYarns() (so
+  // TIdCustomTCPServer's shutdown) looped for ever. Free the Yarn here instead,
+  // as for a thread that never started; ReleaseYarn() then frees the thread.
+  if (LThread <> nil) and (not LThread.Suspended) and (not LThread.Finished) then begin
     // Is still running and will free itself
     LThread.Stop;
     // Dont free the yarn. The thread frees it (IdThread.pas)
   end else
   begin
     // If suspended, was created but never started
-    // ie waiting on connection accept
+    // ie waiting on connection accept.
+    // If finished, it ended without freeing the Yarn (see above).
 
     // RLebeau: free the yarn here as well. This allows TIdSchedulerOfThreadPool
     // to put the suspended thread, if present, back in the pool.
