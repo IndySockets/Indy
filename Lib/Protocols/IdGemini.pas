@@ -29,7 +29,6 @@ type
 
   TIdGemini = class(TIdTCPClient)
   private
-    FSSLIOHandler: TIdSSLIOHandlerSocketOpenSSL;
     FRedirectCount: Integer;
     FRedirectMax: Integer;
     FHandleRedirects: Boolean;
@@ -40,12 +39,8 @@ type
     function InternalRequest(const AURL: string): TGeminiResponse;
     procedure InitComponent; override;
   public
-    destructor Destroy; override;
     function Request(const AURL: string): TGeminiResponse; overload;
     function Request(const AURL, AInput: string): TGeminiResponse; overload;
-    // The default TLS handler, created by this component. Assigning IOHandler
-    // replaces it; configure your own handler, not this property, in that case.
-    property SSLIOHandler: TIdSSLIOHandlerSocketOpenSSL read FSSLIOHandler;
   published
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default True;
     property RedirectMax: Integer read FRedirectMax write FRedirectMax default 5;
@@ -77,36 +72,35 @@ end;
 { TIdGemini }
 
 procedure TIdGemini.InitComponent;
+var
+  LHandler: TIdSSLIOHandlerSocketOpenSSL;
 begin
   inherited InitComponent;
   FHandleRedirects := True;
   FRedirectMax := 5;
   Port := IdPORT_GEMINI;
   
-  // Create and configure a default SSL/TLS handler. Indy's own OpenSSL support
-  // stops at 1.0.x, so this is only a default: an application that wants a
-  // different TLS stack, or different TLS options, replaces IOHandler with its
-  // own handler and configures that instead.
-  FSSLIOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(Self);
-  FSSLIOHandler.SSLOptions.Method := sslvTLSv1_2;
-  FSSLIOHandler.SSLOptions.Mode := sslmClient;
+  // Gemini requires TLS, so a handler is created here rather than left to the
+  // application to supply. Indy's own OpenSSL support stops at 1.0.x, so this
+  // is only a default: an application that wants a different TLS stack, or
+  // different TLS options, assigns its own handler to IOHandler and configures
+  // that instead. Nothing here keeps a reference to the handler, and nothing
+  // else in this unit assumes it is Indy's OpenSSL one.
+  LHandler := TIdSSLIOHandlerSocketOpenSSL.Create(Self);
+  LHandler.SSLOptions.Method := sslvTLSv1_2;
+  LHandler.SSLOptions.Mode := sslmClient;
   // Do not validate the server certificate by default. Gemini servers are
   // commonly self-signed, and indy's OpenSSL layer does not check the host
   // name against the certificate, so validating the chain would reject
   // self-signed servers without proving the host matches anyway. An
-  // application that cares should set VerifyMode to [sslvrfPeer] and decide
-  // in OnVerifyPeer, typically by pinning the SHA256 fingerprint of a
-  // certificate the user has confirmed once.
-  FSSLIOHandler.SSLOptions.VerifyMode := [];
-  FSSLIOHandler.SSLOptions.VerifyDepth := 0;
-  IOHandler := FSSLIOHandler;
+  // application that cares should assign its own handler, set VerifyMode to
+  // [sslvrfPeer] on it and decide in OnVerifyPeer, typically by pinning the
+  // SHA256 fingerprint of a certificate the user has confirmed once.
+  LHandler.SSLOptions.VerifyMode := [];
+  LHandler.SSLOptions.VerifyDepth := 0;
+  IOHandler := LHandler;
   
   InitIDNLibrary;
-end;
-
-destructor TIdGemini.Destroy;
-begin
-  inherited Destroy;
 end;
 
 function TIdGemini.StatusCodeToEnum(Code: Integer): TGeminiStatus;
