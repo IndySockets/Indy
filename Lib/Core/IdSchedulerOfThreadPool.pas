@@ -179,7 +179,9 @@ begin
     LThread.Yarn := nil; // Yarn is being destroyed, de-couple it from the thread
     LList := FThreadPool.LockList;
     try
-      if (LList.Count < PoolSize) and (not LThread.Terminated) then begin
+      // A Finished thread cannot run again, so never pool it: the next
+      // connection given to it would hang. See TIdSchedulerOfThread.TerminateYarn().
+      if (LList.Count < PoolSize) and (not LThread.Terminated) and (not LThread.Finished) then begin
         LList.Add(LThread);
         Exit;
       end;
