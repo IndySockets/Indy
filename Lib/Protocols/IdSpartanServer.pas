@@ -4,18 +4,25 @@ unit IdSpartanServer;
 interface
 
 uses
-  SysUtils, Classes, IdTCPServer, IdContext, IdGlobal, IdAssignedNumbers, IdSpartan, IdURI, IdGlobalProtocols, IdIDN;
+  SysUtils, Classes, IdCustomTCPServer, IdContext, IdGlobal, IdAssignedNumbers,
+  IdSpartan, IdURI, IdGlobalProtocols, IdIDN;
 
 type
+  // Response is owned by the server, not by the handler: write the body into
+  // it and leave it alone afterwards. The server sends it when Status is
+  // ssSuccess and frees it once the connection is done, so a handler must
+  // neither free it nor keep using it after it returns. Meta becomes the
+  // remainder of the status line, so it has to stay on one line and free of
+  // any CR or LF.
   TSpartanRequestEvent = procedure(AContext: TIdContext; const Host, Path: string;
     Content: TStream; out Status: TSpartanStatus; out Meta: string; var Response: TStream) of object;
 
-  TIdSpartanServer = class(TIdTCPServer)
+  TIdSpartanServer = class(TIdCustomTCPServer)
   private
     FOnSpartanRequest: TSpartanRequestEvent;
-    procedure InternalExecute(AContext: TIdContext);
     function PunycodeToUnicode(const AHost: string): string;
   protected
+    function DoExecute(AContext: TIdContext): Boolean; override;
     procedure InitComponent; override;
   public
   published
@@ -31,7 +38,6 @@ procedure TIdSpartanServer.InitComponent;
 begin
   inherited InitComponent;
   DefaultPort := IdPORT_SPARTAN;
-  OnExecute := InternalExecute;
   InitIDNLibrary;
 end;
 
@@ -61,7 +67,7 @@ begin
   Result := AHost;
 end;
 
-procedure TIdSpartanServer.InternalExecute(AContext: TIdContext);
+function TIdSpartanServer.DoExecute(AContext: TIdContext): Boolean;
 var
   ReqLine, LTemp: string;
   Host, Path: string;
@@ -75,6 +81,10 @@ var
 begin
   ContentStream := nil;
   ResponseStream := nil;
+  // Spartan closes the connection after every request, so this never reports
+  // the context as still connected. See the Disconnect in the finally block
+  // for why that is done explicitly rather than left to this value.
+  Result := False;
 
   try
     // Read request line
@@ -162,11 +172,14 @@ begin
       AContext.Connection.IOHandler.Write(ResponseStream, 0, False);
     end;
   finally
-    // Cleanup
+    // Cleanup. The response stream was handed to the event handler and is
+    // freed here rather than by the handler; see TSpartanRequestEvent.
     FreeAndNil(ContentStream);
     FreeAndNil(ResponseStream);
 
-    // Disconnect after processing request (Spartan requires connection close)
+    // Disconnect after processing request (Spartan requires connection close).
+    // Returning False above only stops the context thread, so the socket is
+    // disconnected explicitly to actually close it.
     if AContext.Connection.Connected then
     begin
       AContext.Connection.Disconnect;

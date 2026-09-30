@@ -4,37 +4,49 @@ unit IdGeminiServer;
 interface
 
 uses
-  SysUtils, Classes, IdTCPServer, IdContext, IdGlobal, IdAssignedNumbers, IdSSL,
-  IdException, IdExceptionCore, IdServerIOHandlerSSLOpenSSL, IdSSLOpenSSL, IdURI, IdIDN;
+  SysUtils, Classes, IdCustomTCPServer, IdContext, IdGlobal, IdAssignedNumbers,
+  IdSSL, IdIOHandler, IdException, IdExceptionCore, IdServerIOHandlerSSLOpenSSL,
+  IdSSLOpenSSL, IdURI, IdIDN;
 
 type
   TGeminiStatus = (gsUnknown, gsInput, gsSensitiveInput, gsSuccess, 
     gsRedirectTemporary, gsRedirectPermanent, gsTempFailure, gsPermFailure, 
     gsCertRequired, gsCertNotAuthorized, gsCertNotValid);
 
+  // Response is owned by the server, not by the handler: write the body into
+  // it and leave it alone afterwards. The server sends it when Status is
+  // gsSuccess and frees it once the connection is done, so a handler must
+  // neither free it nor keep using it after it returns. Meta becomes the
+  // remainder of the status line, so it has to stay on one line and free of
+  // any CR or LF.
   TGeminiRequestEvent = procedure(AContext: TIdContext; const AURL: string;
     out Status: TGeminiStatus; out Meta: string; var Response: TStream) of object;
 
-  TIdGeminiServer = class(TIdTCPServer)
+  // Reports whatever identifies the client certificate for AContext, typically
+  // the SHA256 fingerprint of a self-signed certificate that the user has
+  // confirmed once. The server does not look at the certificate itself: the
+  // handler on AContext belongs to whichever TLS stack the application
+  // assigned, and only that application knows how to read a peer certificate
+  // out of it.
+  TIdGeminiOnGetClientCertEvent = function(Sender: TObject;
+    AContext: TIdContext): string of object;
+
+  TIdGeminiServer = class(TIdCustomTCPServer)
   private
     FOnGeminiRequest: TGeminiRequestEvent;
-    FSSLIOHandler: TIdServerIOHandlerSSLOpenSSL;
-    procedure InternalExecute(AContext: TIdContext);
+    FOnGetClientCertificate: TIdGeminiOnGetClientCertEvent;
     procedure WriteStatus(AContext: TIdContext; const AStatus: string);
     function StatusToCode(Status: TGeminiStatus): string;
     function VerifyPeer(ACertificate: TIdX509; AOk: Boolean;
       ADepth, AError: Integer): Boolean;
   protected
+    function DoExecute(AContext: TIdContext): Boolean; override;
     procedure InitComponent; override;
   public
-    destructor Destroy; override;
     function GetClientCertificate(AContext: TIdContext): string;
-    // The default TLS handler, created by this component. Assigning IOHandler
-    // replaces it, in which case set the certificate and key on your own
-    // handler, not on this property.
-    property SSLIOHandler: TIdServerIOHandlerSSLOpenSSL read FSSLIOHandler;
   published
     property OnGeminiRequest: TGeminiRequestEvent read FOnGeminiRequest write FOnGeminiRequest;
+    property OnGetClientCertificate: TIdGeminiOnGetClientCertEvent read FOnGetClientCertificate write FOnGetClientCertificate;
     property DefaultPort default IdPORT_GEMINI;
   end;
 
@@ -43,27 +55,31 @@ implementation
 { TIdGeminiServer }
 
 procedure TIdGeminiServer.InitComponent;
+var
+  LHandler: TIdServerIOHandlerSSLOpenSSL;
 begin
   inherited InitComponent;
   DefaultPort := IdPORT_GEMINI;
-  OnExecute := InternalExecute;
   
-  // Create and configure a default SSL/TLS handler. Indy's own OpenSSL support
-  // stops at 1.0.x, so this is only a default: an application that wants a
-  // different TLS stack replaces IOHandler with its own handler and sets the
-  // certificate and key on that handler instead.
-  FSSLIOHandler := TIdServerIOHandlerSSLOpenSSL.Create(Self);
-  FSSLIOHandler.SSLOptions.Method := sslvTLSv1_2;
-  FSSLIOHandler.SSLOptions.Mode := sslmServer;
+  // Gemini requires TLS, so a handler is created here rather than left to the
+  // application to supply. Indy's own OpenSSL support stops at 1.0.x, so this
+  // is only a default: an application that wants a different TLS stack assigns
+  // its own handler to IOHandler and sets the certificate and key on that
+  // instead. Nothing here keeps a reference to the handler, and the request
+  // handling below does not assume it is Indy's OpenSSL one.
+  LHandler := TIdServerIOHandlerSSLOpenSSL.Create(Self);
+  LHandler.SSLOptions.Method := sslvTLSv1_2;
+  LHandler.SSLOptions.Mode := sslmServer;
   // Gemini clients present self-signed client certificates by default.
   // Whether such a certificate is trusted is a purely application-level
   // decision (e.g. by checking the fingerprint reported by
   // GetClientCertificate()), so accept any certificate that is presented.
-  // Servers that need strict chain validation can override OnVerifyPeer.
-  FSSLIOHandler.SSLOptions.VerifyMode := [sslvrfPeer];
-  FSSLIOHandler.SSLOptions.VerifyDepth := 0;
-  FSSLIOHandler.OnVerifyPeer := VerifyPeer;
-  IOHandler := FSSLIOHandler;
+  // Servers that need strict chain validation assign their own handler and
+  // wire OnVerifyPeer on that.
+  LHandler.SSLOptions.VerifyMode := [sslvrfPeer];
+  LHandler.SSLOptions.VerifyDepth := 0;
+  LHandler.OnVerifyPeer := VerifyPeer;
+  IOHandler := LHandler;
 
   InitIDNLibrary;
 end;
@@ -85,11 +101,6 @@ begin
   Result := True;
 end;
 
-destructor TIdGeminiServer.Destroy;
-begin
-  inherited Destroy;
-end;
-
 function TIdGeminiServer.StatusToCode(Status: TGeminiStatus): string;
 begin
   case Status of
@@ -109,24 +120,20 @@ begin
 end;
 
 function TIdGeminiServer.GetClientCertificate(AContext: TIdContext): string;
-var
-  LIO: TIdSSLIOHandlerSocketOpenSSL;
-  LCert: TIdX509;
 begin
+  // The peer certificate belongs to the TLS handler the application assigned,
+  // and only the application knows how to read it back out of the stack it
+  // chose. So this reports what that application reports, rather than
+  // hard-casting to one stack's handler and returning nothing for all the
+  // others. What an absent certificate should report is the application's
+  // call too, so an event is free to return an empty string for one.
   Result := '';
-  if AContext = nil then begin
-    Exit;
-  end;
-  LIO := TIdSSLIOHandlerSocketOpenSSL(AContext.Connection.IOHandler);
-  if (LIO <> nil) and (LIO.SSLSocket <> nil) then begin
-    LCert := LIO.SSLSocket.PeerCert;
-    if (LCert <> nil) and (LCert.Fingerprints <> nil) then begin
-      Result := LCert.Fingerprints.SHA256AsString;
-    end;
+  if Assigned(FOnGetClientCertificate) then begin
+    Result := FOnGetClientCertificate(Self, AContext);
   end;
 end;
 
-procedure TIdGeminiServer.InternalExecute(AContext: TIdContext);
+function TIdGeminiServer.DoExecute(AContext: TIdContext): Boolean;
 var
   RequestURL: string;
   ResponseStream: TMemoryStream;
@@ -134,15 +141,26 @@ var
   Meta: string;
   StatusCode: string;
   LURI: TIdURI;
+  LIOHandler: TIdIOHandler;
 begin
   ResponseStream := nil;
   LURI := nil;
+  // Gemini closes the connection after every request, so this never reports
+  // the context as still connected. See the Disconnect in the finally block
+  // for why that is done explicitly rather than left to this value.
+  Result := False;
 
   try
+    LIOHandler := AContext.Connection.IOHandler;
+
     // TIdServerIOHandlerSSLOpenSSL.Accept() leaves the accepted socket in
     // PassThrough mode. Flip it here so the TLS handshake (and client-cert
-    // negotiation) actually runs against the shared server SSL context.
-    TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := False;
+    // negotiation) actually runs against the shared server SSL context. The
+    // test guards against an application that replaced IOHandler with a
+    // handler that has no PassThrough to flip.
+    if LIOHandler is TIdSSLIOHandlerSocketBase then begin
+      TIdSSLIOHandlerSocketBase(LIOHandler).PassThrough := False;
+    end;
 
     // Read the request line (URL + CRLF).  The spec allows 1024 bytes for the
     // URL itself, and ReadLn() does not count the terminator when it validates
@@ -154,7 +172,7 @@ begin
     // own configuration and fight with whatever else the application is doing
     // with it.
     try
-      RequestURL := AContext.Connection.IOHandler.ReadLn(EOL, -1, 1024);
+      RequestURL := LIOHandler.ReadLn(EOL, -1, 1024);
     except
       // An over-long request line is the client's mistake and gets a 59; a
       // read timeout or a dead socket is not something a status line can be
@@ -181,7 +199,7 @@ begin
     // Validate request
     if RequestURL = '' then
     begin
-      AContext.Connection.IOHandler.WriteLn('59 Empty request');
+      WriteStatus(AContext, '59 Empty request');
       Exit;
     end;
 
@@ -192,27 +210,27 @@ begin
       // Reject requests with userinfo
       if LURI.Username <> '' then
       begin
-        AContext.Connection.IOHandler.WriteLn('59 Userinfo not allowed');
+        WriteStatus(AContext, '59 Userinfo not allowed');
         Exit;
       end;
 
       // Reject requests with fragments
       if LURI.Bookmark <> '' then
       begin
-        AContext.Connection.IOHandler.WriteLn('59 Fragments not allowed');
+        WriteStatus(AContext, '59 Fragments not allowed');
         Exit;
       end;
 
       // A Gemini request has to be a valid gemini:// URL
       if (LURI.Host = '') or not SameText(LURI.Protocol, 'gemini') then
       begin
-        AContext.Connection.IOHandler.WriteLn('59 Invalid URL');
+        WriteStatus(AContext, '59 Invalid URL');
         Exit;
       end;
     except
       on E: Exception do
       begin
-        AContext.Connection.IOHandler.WriteLn('59 Invalid URL format');
+        WriteStatus(AContext, '59 Invalid URL format');
         Exit;
       end;
     end;
@@ -230,21 +248,25 @@ begin
     StatusCode := StatusToCode(Status);
 
     // Send response header
-    AContext.Connection.IOHandler.WriteLn(StatusCode + ' ' + Meta);
+    LIOHandler.WriteLn(StatusCode + ' ' + Meta);
 
     // Send response body for successful requests
     if (Status = gsSuccess) and Assigned(ResponseStream) then
     begin
       ResponseStream.Position := 0;
-      AContext.Connection.IOHandler.Write(ResponseStream, 0, False);
+      LIOHandler.Write(ResponseStream, 0, False);
     end;
     
   finally
-    // Cleanup
+    // Cleanup. The response stream was handed to the event handler and is
+    // freed here rather than by the handler; see TGeminiRequestEvent.
     FreeAndNil(LURI);
     FreeAndNil(ResponseStream);
 
-    // Gemini requires connection close after each request
+    // Gemini requires connection close after each request. Returning False
+    // above only stops the context thread, so the socket is disconnected
+    // explicitly to actually close it, and in the right order relative to the
+    // finally block so the response has been written first.
     if AContext.Connection.Connected then
     begin
       AContext.Connection.Disconnect;
