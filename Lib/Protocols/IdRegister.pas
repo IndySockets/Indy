@@ -228,6 +228,10 @@ uses
   IdFTPServer,
   IdGopher,
   IdGopherServer,
+  IdSpartan,
+  IdSpartanServer,
+  IdGemini,
+  IdGeminiServer,
   IdHL7,
   IdHTTP,
   IdHTTPProxyServer,
@@ -332,7 +336,7 @@ uses
   {$R IconsDotNet\TIdDayTimeServer.bmp}
   {$R IconsDotNet\TIdDayTimeUDP.bmp}
   {$R IconsDotNet\TIdDayTimeUDPServer.bmp}
-  {$R IconsDotNET\TIdDecoderBinHex4.bmp}  
+  {$R IconsDotNET\TIdDecoderBinHex4.bmp}
   {$R IconsDotNet\TIdDecoderMIME.bmp}
   {$R IconsDotNet\TIdDecoderQuotedPrintable.bmp}
   {$R IconsDotNet\TIdDecoderUUE.bmp}
@@ -478,6 +482,8 @@ begin
    TIdFSP,
    TIdFTP,
    TIdGopher,
+   TIdSpartan,
+   TIdGemini,
    TIdHTTP,
    TIdIdent,
    TIdIMAP4,
@@ -523,6 +529,8 @@ begin
    TIdFingerServer,
    TIdFTPServer,
    TIdGopherServer,
+   TIdSpartanServer,
+   TIdGeminiServer,
    TIdHTTPProxyServer,
    TIdHTTPServer,
    TIdIdentServer,
@@ -644,6 +652,8 @@ begin
    TIdFSP,
    TIdFTP,
    TIdGopher,
+   TIdSpartan,
+   TIdGemini,
    TIdHTTP,
    TIdIdent,
    TIdIMAP4,
@@ -688,6 +698,8 @@ begin
    TIdFingerServer,
    TIdFTPServer,
    TIdGopherServer,
+   TIdSpartanServer,
+   TIdGeminiServer,
    TIdHTTPProxyServer,
    TIdHTTPServer,
    TIdIdentServer,

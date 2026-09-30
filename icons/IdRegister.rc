@@ -9,6 +9,11 @@ TIDFINGER                              BITMAP "TIDFINGER.BMP"
 TIDFTP                                 BITMAP "TIDFTP.BMP"
 TIdFSP                                 BITMAP "TIdFSP.bmp"
 TIDGOPHER                              BITMAP "TIDGOPHER.BMP"
+TIDSPARTAN                             BITMAP "TIDSPARTAN.BMP"
+TIDSPARTANSERVER                       BITMAP "TIDSPARTAN.BMP"
+TIDGEMINI                             BITMAP "TIDGEMINI.BMP"
+TIDGEMINISERVER                       BITMAP "TIDGEMINI.BMP"
+
 TIDHTTP                                BITMAP "TIDHTTP.BMP"
 TIDIDENT                               BITMAP "TIDIDENT.BMP"
 
