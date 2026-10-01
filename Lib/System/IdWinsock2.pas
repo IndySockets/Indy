@@ -135,9 +135,9 @@
 
 unit IdWinsock2;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 {
 Important!!!

@@ -85,9 +85,9 @@ unit IdTelnet;
   There is no real terminal emulation other than dumb terminal
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

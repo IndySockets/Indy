@@ -22,9 +22,9 @@
 
 unit IdFTPListParseChameleonNewt;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

@@ -67,9 +67,9 @@ REFERENCES
             http://www.ietf.org/id/draft-pettersen-cookie-v2-05.txt
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

@@ -56,9 +56,9 @@ unit IdEcho;
 {                                                       }
 {*******************************************************}
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal,

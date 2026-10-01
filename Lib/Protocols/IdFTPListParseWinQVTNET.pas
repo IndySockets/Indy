@@ -37,9 +37,9 @@
 
 unit IdFTPListParseWinQVTNET;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

@@ -45,9 +45,9 @@ unit IdAuthenticationDigest;
   Copyright: (c) Chad Z. Hower and The Winshoes Working Group.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

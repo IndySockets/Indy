@@ -1,8 +1,8 @@
 unit IdHeaderCoderBig5;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal, IdHeaderCoderBase;

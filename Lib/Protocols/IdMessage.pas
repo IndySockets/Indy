@@ -297,9 +297,9 @@ unit IdMessage;
     is the encoded raw message part.  Otherwise, it is the (decoded) text.
     }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

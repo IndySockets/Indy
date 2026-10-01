@@ -248,11 +248,10 @@ unit IdCustomTCPServer;
   Original Author and Maintainer:
   - Chad Z. Hower a.k.a Kudzu
 }
-
-interface
-
 {$I IdCompilerDefines.inc}
 //here to flip FPC into Delphi mode
+
+interface
 
 uses
   Classes,

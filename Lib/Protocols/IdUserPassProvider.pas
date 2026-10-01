@@ -27,9 +27,9 @@
 }
 unit IdUserPassProvider;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdBaseComponent;

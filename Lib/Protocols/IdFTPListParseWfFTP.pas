@@ -29,9 +29,9 @@ unit IdFTPListParseWfFTP;
   Wellfleet router.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

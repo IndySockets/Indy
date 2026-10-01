@@ -1,8 +1,8 @@
 unit IdHeaderCoder2022JP;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 {RLebeau: TODO - move this logic into an IIdTextEncoding implementation}
 

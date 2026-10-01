@@ -31,8 +31,9 @@
 
 unit IdMIMETypes;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 const
   MIMESplit = '/';    {Do not Localize}

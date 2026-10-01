@@ -34,9 +34,9 @@ History:
 
 unit IdZLib;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   SysUtils,

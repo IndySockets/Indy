@@ -43,9 +43,9 @@
 
 unit IdDsnRegister;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

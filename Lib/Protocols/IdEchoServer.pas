@@ -55,9 +55,9 @@ unit IdEchoServer;
 {
 Original Author: Ozz Nixon
 }
+{$i IdCompilerDefines.inc}
 
 interface
-{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers,

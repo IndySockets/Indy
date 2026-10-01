@@ -59,9 +59,9 @@ unit IdFTPListParseVM;
   IBM VM and z/VM parser
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

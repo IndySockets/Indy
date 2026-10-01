@@ -76,10 +76,9 @@ unit IdDsnPropEdBinding;
   TODO:  Maybe there might be a way to find the location in a more elegant
   manner than what I described.
 }
+{$I IdCompilerDefines.inc}
 
 interface
-
-{$I IdCompilerDefines.inc}
 
 {$IFDEF WIDGET_WINFORMS}
 {$R 'IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources' 'IdDsnPropEdBindingNET.resx'}

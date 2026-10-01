@@ -44,6 +44,8 @@
 
 unit IdIPAddrMon;
 
+{$i IdCompilerDefines.inc}
+
 {
   TIdIPAddrMon
 
@@ -87,8 +89,6 @@ unit IdIPAddrMon;
 }
 
 interface
-
-{$i IdCompilerDefines.inc}
 
 uses
   Classes,

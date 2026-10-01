@@ -26,9 +26,9 @@
 
 unit IdSASLAnonymous;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdSASL;

@@ -125,9 +125,9 @@
 
 unit IdSocketHandle;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

@@ -94,10 +94,9 @@ unit IdCmdTCPClient;
   Original author: Sergio Perry
   Description: TCP client that uses CommandHandlers
 }
+{$I IdCompilerDefines.inc}
 
 interface
-
-{$I IdCompilerDefines.inc}
 
 uses
   IdContext,

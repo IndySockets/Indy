@@ -97,9 +97,9 @@
 
 unit IdHTTPProxyServer;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 {
  Indy HTTP proxy Server

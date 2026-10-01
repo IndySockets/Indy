@@ -126,8 +126,9 @@
 
 unit IdSchedulerOfThread;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

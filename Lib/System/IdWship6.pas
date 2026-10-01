@@ -30,9 +30,9 @@
 
 unit IdWship6;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 {$IFDEF FPC}
   {$IFDEF WIN32}

@@ -28,9 +28,9 @@
 
 unit IdGlobalCore;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

@@ -594,9 +594,9 @@ TODO:
     Change events to use DoXXXX
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

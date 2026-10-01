@@ -1,8 +1,8 @@
 unit IdStackVCLPosix;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 {IMPORTANT!!!
 

@@ -144,10 +144,9 @@
 
 unit IdNNTP;
 
-interface
-
 {$i IdCompilerDefines.inc}
 
+interface
 uses
   Classes,
   IdAssignedNumbers, IdExplicitTLSClientServerBase, IdException, IdGlobal,

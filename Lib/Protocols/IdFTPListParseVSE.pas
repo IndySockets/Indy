@@ -40,9 +40,9 @@
 
 unit IdFTPListParseVSE;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

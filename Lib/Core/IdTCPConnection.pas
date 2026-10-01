@@ -308,9 +308,9 @@
 }
 unit IdTCPConnection;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 {
 2003-12-14 - Ciaran Costelloe

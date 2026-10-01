@@ -114,9 +114,9 @@
 
 unit IdIOHandlerStream;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

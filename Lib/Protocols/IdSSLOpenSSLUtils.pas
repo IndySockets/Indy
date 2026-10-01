@@ -1,8 +1,8 @@
 unit IdSSLOpenSSLUtils;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   IdCTypes,
