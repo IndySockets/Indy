@@ -226,6 +226,8 @@ uses
   IdFSP,
   IdFTP,
   IdFTPServer,
+  IdGemini,
+  IdGeminiServer,
   IdGopher,
   IdGopherServer,
   IdHL7,
@@ -285,6 +287,8 @@ uses
   IdSNPP,
   IdSNTP,
   IdSocksServer,
+  IdSpartan,
+  IdSpartanServer,
   {$IFDEF DOTNET_2_OR_ABOVE}
   IdSSLDotNET,
   {$ENDIF}
@@ -332,7 +336,7 @@ uses
   {$R IconsDotNet\TIdDayTimeServer.bmp}
   {$R IconsDotNet\TIdDayTimeUDP.bmp}
   {$R IconsDotNet\TIdDayTimeUDPServer.bmp}
-  {$R IconsDotNET\TIdDecoderBinHex4.bmp}  
+  {$R IconsDotNET\TIdDecoderBinHex4.bmp}
   {$R IconsDotNet\TIdDecoderMIME.bmp}
   {$R IconsDotNet\TIdDecoderQuotedPrintable.bmp}
   {$R IconsDotNet\TIdDecoderUUE.bmp}
@@ -477,6 +481,7 @@ begin
    TIdFinger,
    TIdFSP,
    TIdFTP,
+   TIdGemini,
    TIdGopher,
    TIdHTTP,
    TIdIdent,
@@ -496,6 +501,7 @@ begin
    {$ENDIF}
    TIdSNPP,
    TIdSNTP,
+   TIdSpartan,
 
    TIdSysLog,
    TIdSystat,
@@ -522,6 +528,7 @@ begin
    TIdEchoUDPServer,
    TIdFingerServer,
    TIdFTPServer,
+   TIdGeminiServer,
    TIdGopherServer,
    TIdHTTPProxyServer,
    TIdHTTPServer,
@@ -541,6 +548,7 @@ begin
    TIdRSHServer,
    TIdSMTPServer,
    TIdSocksServer,
+   TIdSpartanServer,
    TIdSyslogServer,
    TIdSystatServer,
    TIdSystatUDPServer,
@@ -643,6 +651,7 @@ begin
    TIdFinger,
    TIdFSP,
    TIdFTP,
+   TIdGemini,
    TIdGopher,
    TIdHTTP,
    TIdIdent,
@@ -662,6 +671,7 @@ begin
    TIdSNMP,
    TIdSNPP,
    TIdSNTP,
+   TIdSpartan,
    TIdSysLog,
    TIdSystat,
    TIdSystatUDP,
@@ -687,6 +697,7 @@ begin
    TIdEchoUDPServer,
    TIdFingerServer,
    TIdFTPServer,
+   TIdGeminiServer,
    TIdGopherServer,
    TIdHTTPProxyServer,
    TIdHTTPServer,
@@ -703,6 +714,7 @@ begin
    TIdRSHServer,
    TIdSMTPServer,
    TIdSocksServer,
+   TIdSpartanServer,
    TIdSyslogServer,
    TIdSystatServer,
    TIdSystatUDPServer,
