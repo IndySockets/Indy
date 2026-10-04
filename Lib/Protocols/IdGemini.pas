@@ -5,7 +5,7 @@ interface
 
 uses
   SysUtils, Classes, IdTCPClient, IdGlobal, IdAssignedNumbers, IdException, IdSSL,
-  IdSSLOpenSSL, IdSSLOpenSSLHeaders, IdURI, IdIDN;
+  IdURI, IdIDN;
 
 type
   TGeminiStatus = (gsUnknown, gsInput, gsSensitiveInput, gsSuccess, 
@@ -32,15 +32,22 @@ type
     FRedirectCount: Integer;
     FRedirectMax: Integer;
     FHandleRedirects: Boolean;
+    FResponse: TGeminiResponse;
     FOnRedirect: TIdGeminiOnRedirectEvent;
     function StatusCodeToEnum(Code: Integer): TGeminiStatus;
     function ResolveURL(const ABaseURL, ARelative: string): string;
+    procedure CheckTLSHandler;
   protected
     function InternalRequest(const AURL: string): TGeminiResponse;
     procedure InitComponent; override;
   public
-    function Request(const AURL: string): TGeminiResponse; overload;
-    function Request(const AURL, AInput: string): TGeminiResponse; overload;
+    destructor Destroy; override;
+    { Request() returns True when a response is available.  The response itself
+      is held in Response and belongs to this component, so a caller that needs
+      to keep the data past the next Request() makes its own copy of it. }
+    function Request(const AURL: string): Boolean; overload;
+    function Request(const AURL, AInput: string): Boolean; overload;
+    property Response: TGeminiResponse read FResponse;
   published
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default True;
     property RedirectMax: Integer read FRedirectMax write FRedirectMax default 5;
@@ -72,35 +79,42 @@ end;
 { TIdGemini }
 
 procedure TIdGemini.InitComponent;
-var
-  LHandler: TIdSSLIOHandlerSocketOpenSSL;
 begin
   inherited InitComponent;
   FHandleRedirects := True;
   FRedirectMax := 5;
   Port := IdPORT_GEMINI;
-  
-  // Gemini requires TLS, so a handler is created here rather than left to the
-  // application to supply. Indy's own OpenSSL support stops at 1.0.x, so this
-  // is only a default: an application that wants a different TLS stack, or
-  // different TLS options, assigns its own handler to IOHandler and configures
-  // that instead. Nothing here keeps a reference to the handler, and nothing
-  // else in this unit assumes it is Indy's OpenSSL one.
-  LHandler := TIdSSLIOHandlerSocketOpenSSL.Create(Self);
-  LHandler.SSLOptions.Method := sslvTLSv1_2;
-  LHandler.SSLOptions.Mode := sslmClient;
-  // Do not validate the server certificate by default. Gemini servers are
-  // commonly self-signed, and indy's OpenSSL layer does not check the host
-  // name against the certificate, so validating the chain would reject
-  // self-signed servers without proving the host matches anyway. An
-  // application that cares should assign its own handler, set VerifyMode to
-  // [sslvrfPeer] on it and decide in OnVerifyPeer, typically by pinning the
-  // SHA256 fingerprint of a certificate the user has confirmed once.
-  LHandler.SSLOptions.VerifyMode := [];
-  LHandler.SSLOptions.VerifyDepth := 0;
-  IOHandler := LHandler;
-  
+
+  // Gemini requires TLS, but no handler is created here on purpose.  Indy's own
+  // OpenSSL handler is only one of the possible TLS stacks: building it would
+  // drag IdSSLOpenSSL into every project that uses this component, and would
+  // stop an application that wants TaurusTLS, or anything else, from speaking
+  // its own stack.  So the application assigns its own handler to IOHandler and
+  // CheckTLSHandler() refuses to go out without one, rather than quietly
+  // falling back to plaintext, which Gemini must never use.
+  //
+  // Certificate verification belongs to that handler too.  Indy's OpenSSL layer
+  // does not check the host name against the certificate, and Gemini servers
+  // are commonly self-signed, so a client that wants to pin a server sets
+  // VerifyMode to [sslvrfPeer] on its own handler and decides in OnVerifyPeer,
+  // typically against the SHA256 fingerprint of a certificate the user has
+  // confirmed once.
   InitIDNLibrary;
+end;
+
+procedure TIdGemini.CheckTLSHandler;
+begin
+  if not (IOHandler is TIdSSLIOHandlerSocketBase) then
+    raise EIdException.Create(
+      'Gemini requires TLS: assign a TLS handler to IOHandler before making a ' +
+      'request, for example TTaurusTLSIOHandlerSocket or ' +
+      'TIdSSLIOHandlerSocketOpenSSL.');
+end;
+
+destructor TIdGemini.Destroy;
+begin
+  FreeAndNil(FResponse);
+  inherited Destroy;
 end;
 
 function TIdGemini.StatusCodeToEnum(Code: Integer): TGeminiStatus;
@@ -250,6 +264,9 @@ var
   LURI: TIdURI;
   ParamPos: Integer;
 begin
+  // Fail before anything is allocated rather than after a plaintext request has
+  // already been answered as though it were valid Gemini.
+  CheckTLSHandler;
   Result := TGeminiResponse.Create;
   LURI := nil;
 
@@ -361,7 +378,7 @@ begin
   FreeAndNil(LURI);
 end;
 
-function TIdGemini.Request(const AURL: string): TGeminiResponse;
+function TIdGemini.Request(const AURL: string): Boolean;
 var
   LCurrentURL: string;
   LNewLocation: string;
@@ -370,80 +387,79 @@ var
 begin
   FRedirectCount := 0;
   LCurrentURL := AURL;
-  Result := nil;
 
-  try
-    repeat
-      // Free previous response if redirecting
-      if Result <> nil then
-        FreeAndNil(Result);
+  repeat
+    // The response belongs to this component rather than to the caller, so the
+    // previous one goes before each new one is adopted.  Doing it here rather
+    // than once up front also covers the redirects further round the loop.
+    FreeAndNil(FResponse);
 
-      // Make request.  InternalRequest() owns the connection, see there.
-      Result := InternalRequest(LCurrentURL);
+    // Make request.  InternalRequest() owns the connection, see there.
+    FResponse := InternalRequest(LCurrentURL);
 
-      // Handle redirect if needed
-      if ((Result.Status = gsRedirectTemporary) or (Result.Status = gsRedirectPermanent)) 
-         and FHandleRedirects and (FRedirectCount < FRedirectMax) then
+    // Handle redirect if needed
+    if ((FResponse.Status = gsRedirectTemporary) or (FResponse.Status = gsRedirectPermanent)) 
+       and FHandleRedirects and (FRedirectCount < FRedirectMax) then
+    begin
+      Inc(FRedirectCount);
+      LNewLocation := FResponse.Meta;
+      LHandled := False;
+
+      // Fire redirect event
+      if Assigned(FOnRedirect) then
+        FOnRedirect(Self, LNewLocation, FRedirectCount, LHandled);
+
+      if not LHandled then
       begin
-        Inc(FRedirectCount);
-        LNewLocation := Result.Meta;
-        LHandled := False;
-
-        // Fire redirect event
-        if Assigned(FOnRedirect) then
-          FOnRedirect(Self, LNewLocation, FRedirectCount, LHandled);
-
-        if not LHandled then
-        begin
-          // Parse the new location
-          LURI := TIdURI.Create(LNewLocation);
-          try
-            if LURI.Protocol = '' then
-            begin
-              // Relative URL - resolve it against the current URL
-              LCurrentURL := ResolveURL(LCurrentURL, LNewLocation);
-            end
-            else if SameText(LURI.Protocol, 'gemini') then
-            begin
-              // Absolute Gemini URL
-              LCurrentURL := LNewLocation;
-            end
-            else
-            begin
-              // Different protocol - stop redirecting
-              Break;
-            end;
-          finally
-            LURI.Free;
+        // Parse the new location
+        LURI := TIdURI.Create(LNewLocation);
+        try
+          if LURI.Protocol = '' then
+          begin
+            // Relative URL - resolve it against the current URL
+            LCurrentURL := ResolveURL(LCurrentURL, LNewLocation);
+          end
+          else if SameText(LURI.Protocol, 'gemini') then
+          begin
+            // Absolute Gemini URL
+            LCurrentURL := LNewLocation;
+          end
+          else
+          begin
+            // Different protocol - stop redirecting
+            Break;
           end;
-        end
-        else
-        begin
-          // Event handler marked redirect as handled
-          Break;
+        finally
+          LURI.Free;
         end;
       end
       else
       begin
-        // Not a redirect or redirect handling disabled
+        // Event handler marked redirect as handled
         Break;
       end;
-    until False;
-  except
-    FreeAndNil(Result);
-    raise;
-  end;
+    end
+    else
+    begin
+      // Not a redirect or redirect handling disabled
+      Break;
+    end;
+  until False;
+
+  Result := FResponse <> nil;
 end;
 
-function TIdGemini.Request(const AURL, AInput: string): TGeminiResponse;
+function TIdGemini.Request(const AURL, AInput: string): Boolean;
 var
   LURL: string;
 begin
-  Result := Request(AURL);
+  Request(AURL);
 
   // If the server asks for input (status 10 or 11), re-issue the request
-  // with the input submitted as a query parameter, as the spec requires.
-  if (Result <> nil) and ((Result.Status = gsInput) or (Result.Status = gsSensitiveInput)) then
+  // with the input submitted as a query parameter, as the spec requires.  The
+  // status is tested before the second call, because that call frees the
+  // response the status came from.
+  if (FResponse <> nil) and ((FResponse.Status = gsInput) or (FResponse.Status = gsSensitiveInput)) then
   begin
     LURL := AURL;
     if Pos('?', LURL) > 0 then
@@ -451,9 +467,10 @@ begin
     else
       LURL := LURL + '?';  {Do not Localize}
     LURL := LURL + TIdURI.ParamsEncode(AInput, IndyTextEncoding(encUTF8));
-    FreeAndNil(Result);
-    Result := Request(LURL);
+    Request(LURL);
   end;
+
+  Result := FResponse <> nil;
 end;
 
 end.

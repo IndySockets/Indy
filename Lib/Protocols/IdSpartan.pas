@@ -30,6 +30,7 @@ type
     FRedirectCount: Integer;
     FRedirectMax: Integer;
     FHandleRedirects: Boolean;
+    FResponse: TSpartanResponse;
     FOnRedirect: TIdSpartanOnRedirectEvent;
   protected
     function InternalRequest(const AHost, Path: string; const Data: TStream): TSpartanResponse;
@@ -38,8 +39,13 @@ type
     function ToPunycode(const ADomain: string): string; // Fallback implementation
     function HasNonASCII(const AStr: string): Boolean;
   public
-    function Request(const AHost, Path: string; const Data: TStream = nil): TSpartanResponse; overload;
-    function Request(const AHost, Path: string; const AInput: string): TSpartanResponse; overload;
+    destructor Destroy; override;
+    { Request() returns True when a response is available.  The response itself
+      is held in Response and belongs to this component, so a caller that needs
+      to keep the data past the next Request() makes its own copy of it. }
+    function Request(const AHost, Path: string; const Data: TStream = nil): Boolean; overload;
+    function Request(const AHost, Path: string; const AInput: string): Boolean; overload;
+    property Response: TSpartanResponse read FResponse;
   published
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default True;
     property RedirectMax: Integer read FRedirectMax write FRedirectMax default 5;
@@ -79,6 +85,12 @@ begin
   FRedirectMax := 5;
   Port := IdPORT_SPARTAN; // Default Spartan port
   InitIDNLibrary
+end;
+
+destructor TIdSpartan.Destroy;
+begin
+  FreeAndNil(FResponse);
+  inherited Destroy;
 end;
 
 function TIdSpartan.ToPunycode(const ADomain: string): string;
@@ -137,30 +149,33 @@ begin
   Result := TIdURI.ParamsEncode(APath);
 end;
 
-function TIdSpartan.Request(const AHost, Path: string; const AInput: string): TSpartanResponse;
+function TIdSpartan.Request(const AHost, Path: string; const AInput: string): Boolean;
 var
   Data: TMemoryStream;
   Line: string;
 begin
   if AInput = '' then
   begin
-    Result := Request(AHost, Path, TStream(nil));
-    Exit;
+    Request(AHost, Path, TStream(nil));
+  end
+  else
+  begin
+    // the body is a line, and it has to be kept in a variable of its own, the
+    // temporary of the expression is gone before the write happens
+    Line := AInput + EOL;
+    Data := TMemoryStream.Create;
+    try
+      // written through IdGlobal rather than by hand, because a string is a
+      // sequence of WideChars under {$H+} and Length counts characters while
+      // Write counts bytes, so the hand-written form would send half of
+      // everything past the first non-ASCII character
+      WriteStringToStream(Data, Line);
+      Request(AHost, Path, Data);
+    finally
+      Data.Free;
+    end;
   end;
-  // the body is a line, and it has to be kept in a variable of its own, the
-  // temporary of the expression is gone before the write happens
-  Line := AInput + EOL;
-  Data := TMemoryStream.Create;
-  try
-    // written through IdGlobal rather than by hand, because a string is a
-    // sequence of WideChars under {$H+} and Length counts characters while
-    // Write counts bytes, so the hand-written form would send half of
-    // everything past the first non-ASCII character
-    WriteStringToStream(Data, Line);
-    Result := Request(AHost, Path, Data);
-  finally
-    Data.Free;
-  end;
+  Result := FResponse <> nil;
 end;
 
 function TIdSpartan.InternalRequest(const AHost, Path: string; const Data: TStream): TSpartanResponse;
@@ -282,7 +297,7 @@ begin
   end;
 end;
 
-function TIdSpartan.Request(const AHost, Path: string; const Data: TStream = nil): TSpartanResponse;
+function TIdSpartan.Request(const AHost, Path: string; const Data: TStream = nil): Boolean;
 var
   LCurrentHost, LCurrentPath: string;
   LNewLocation: string;
@@ -326,88 +341,86 @@ begin
 
   try
     LCurrentPath := LActualPath;
-    Result := nil;
 
-    try
-      repeat
-        // Free previous response if we're redirecting
-        if Result <> nil then
-          FreeAndNil(Result);
+    repeat
+      // The response belongs to this component rather than to the caller, so the
+      // previous one goes before each new one is adopted.  Doing it here rather
+      // than once up front also covers the redirects further round the loop.
+      FreeAndNil(FResponse);
 
-        // Make request
-        Result := InternalRequest(LCurrentHost, LCurrentPath, LTempData);
+      // Make request
+      FResponse := InternalRequest(LCurrentHost, LCurrentPath, LTempData);
 
-        // Handle redirect if needed
-        if (Result.Status = ssRedirect) and FHandleRedirects and (FRedirectCount < FRedirectMax) then
+      // Handle redirect if needed
+      if (FResponse.Status = ssRedirect) and FHandleRedirects and (FRedirectCount < FRedirectMax) then
+      begin
+        Inc(FRedirectCount);
+        LNewLocation := FResponse.Meta;
+        LHandled := False;
+
+        // Fire redirect event
+        if Assigned(FOnRedirect) then
+          FOnRedirect(Self, LNewLocation, FRedirectCount, LHandled);
+
+        if not LHandled then
         begin
-          Inc(FRedirectCount);
-          LNewLocation := Result.Meta;
-          LHandled := False;
-
-          // Fire redirect event
-          if Assigned(FOnRedirect) then
-            FOnRedirect(Self, LNewLocation, FRedirectCount, LHandled);
-
-          if not LHandled then
-          begin
-            // Parse the new location
-            LURI := TIdURI.Create(LNewLocation);
-            try
-              // Handle relative URLs
-              if LURI.Protocol = '' then
-              begin
-                // Relative path - keep current host and port
-LCurrentHost := AHost;
-                if LURI.Path <> '' then
-                  LCurrentPath := LURI.Path
-                else
-                  LCurrentPath := LNewLocation;
-              end
-              else if SameText(LURI.Protocol, 'spartan') then
-              begin
-                // Enforce same-host redirect (Spartan spec requirement)
-                if not TextIsSame(LURI.Host, LCurrentHost) then
-                begin
-                  // Protocol violation - break redirect loop
-                  Break;
-                end;
-
-                // Absolute Spartan URL
-                LCurrentHost := LURI.Host;
-                if LURI.Port <> '' then
-                  Port := IndyStrToInt(LURI.Port, IdPORT_SPARTAN);
-                LCurrentPath := LURI.Path;
-              end
+          // Parse the new location
+          LURI := TIdURI.Create(LNewLocation);
+          try
+            // Handle relative URLs
+            if LURI.Protocol = '' then
+            begin
+              // Relative path - keep current host and port
+              LCurrentHost := AHost;
+              if LURI.Path <> '' then
+                LCurrentPath := LURI.Path
               else
+                LCurrentPath := LNewLocation;
+            end
+            else if SameText(LURI.Protocol, 'spartan') then
+            begin
+              // Enforce same-host redirect (Spartan spec requirement)
+              if not TextIsSame(LURI.Host, LCurrentHost) then
               begin
-                // Unsupported protocol - treat as normal response
+                // Protocol violation - break redirect loop
                 Break;
               end;
-            finally
-              LURI.Free;
+
+              // Absolute Spartan URL
+              LCurrentHost := LURI.Host;
+              if LURI.Port <> '' then
+                Port := IndyStrToInt(LURI.Port, IdPORT_SPARTAN);
+              LCurrentPath := LURI.Path;
+            end
+            else
+            begin
+              // Unsupported protocol - treat as normal response
+              Break;
             end;
-          end
-          else
-          begin
-            // Event handler marked redirect as handled - return current response
-            Break;
+          finally
+            LURI.Free;
           end;
         end
         else
         begin
-          // Not a redirect or redirect handling disabled - return response
+          // Event handler marked redirect as handled - leave the current
+          // response in place
           Break;
         end;
-      until False;
-    except
-      FreeAndNil(Result);
-      raise;
-    end;
+      end
+      else
+      begin
+        // Not a redirect or redirect handling disabled
+        Break;
+      end;
+    until False;
   finally
     // Free the query stream if we created it
     if Assigned(LQueryStream) then
       LQueryStream.Free;
   end;
+
+  Result := FResponse <> nil;
 end;
 
 end.

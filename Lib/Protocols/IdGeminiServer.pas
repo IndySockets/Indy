@@ -5,8 +5,7 @@ interface
 
 uses
   SysUtils, Classes, IdCustomTCPServer, IdContext, IdGlobal, IdAssignedNumbers,
-  IdSSL, IdIOHandler, IdException, IdExceptionCore, IdServerIOHandlerSSLOpenSSL,
-  IdSSLOpenSSL, IdURI, IdIDN;
+  IdSSL, IdIOHandler, IdException, IdExceptionCore, IdURI, IdIDN;
 
 type
   TGeminiStatus = (gsUnknown, gsInput, gsSensitiveInput, gsSuccess, 
@@ -37,10 +36,9 @@ type
     FOnGetClientCertificate: TIdGeminiOnGetClientCertEvent;
     procedure WriteStatus(AContext: TIdContext; const AStatus: string);
     function StatusToCode(Status: TGeminiStatus): string;
-    function VerifyPeer(ACertificate: TIdX509; AOk: Boolean;
-      ADepth, AError: Integer): Boolean;
   protected
     function DoExecute(AContext: TIdContext): Boolean; override;
+    procedure CheckOkToBeActive; override;
     procedure InitComponent; override;
   public
     function GetClientCertificate(AContext: TIdContext): string;
@@ -55,33 +53,33 @@ implementation
 { TIdGeminiServer }
 
 procedure TIdGeminiServer.InitComponent;
-var
-  LHandler: TIdServerIOHandlerSSLOpenSSL;
 begin
   inherited InitComponent;
   DefaultPort := IdPORT_GEMINI;
-  
-  // Gemini requires TLS, so a handler is created here rather than left to the
-  // application to supply. Indy's own OpenSSL support stops at 1.0.x, so this
-  // is only a default: an application that wants a different TLS stack assigns
-  // its own handler to IOHandler and sets the certificate and key on that
-  // instead. Nothing here keeps a reference to the handler, and the request
-  // handling below does not assume it is Indy's OpenSSL one.
-  LHandler := TIdServerIOHandlerSSLOpenSSL.Create(Self);
-  LHandler.SSLOptions.Method := sslvTLSv1_2;
-  LHandler.SSLOptions.Mode := sslmServer;
-  // Gemini clients present self-signed client certificates by default.
-  // Whether such a certificate is trusted is a purely application-level
-  // decision (e.g. by checking the fingerprint reported by
-  // GetClientCertificate()), so accept any certificate that is presented.
-  // Servers that need strict chain validation assign their own handler and
-  // wire OnVerifyPeer on that.
-  LHandler.SSLOptions.VerifyMode := [sslvrfPeer];
-  LHandler.SSLOptions.VerifyDepth := 0;
-  LHandler.OnVerifyPeer := VerifyPeer;
-  IOHandler := LHandler;
 
+  // Gemini requires TLS, but no handler is created here on purpose.  Indy's own
+  // OpenSSL handler is only one of the possible TLS stacks: building it would
+  // drag IdSSLOpenSSL into every project that uses this component, and would
+  // stop an application that wants TaurusTLS, or anything else, from speaking
+  // its own stack.  So the application assigns its own handler to IOHandler, and
+  // CheckOkToBeActive() refuses to listen without one, rather than serving
+  // plaintext on a port that is supposed to be Gemini.
+  //
+  // That handler also owns certificate verification.  Gemini clients commonly
+  // present self-signed client certificates, and whether such a certificate is
+  // trusted is an application-level decision, e.g. by checking the fingerprint
+  // reported by GetClientCertificate().  A server that wants strict chain
+  // validation configures that on its own handler.
   InitIDNLibrary;
+end;
+
+procedure TIdGeminiServer.CheckOkToBeActive;
+begin
+  inherited CheckOkToBeActive;
+  if not (IOHandler is TIdServerIOHandlerSSLBase) then
+    raise EIdException.Create(
+      'Gemini requires TLS: assign a TLS handler to IOHandler before listening, ' +
+      'for example TTaurusTLSServerIOHandler or TIdServerIOHandlerSSLOpenSSL.');
 end;
 
 procedure TIdGeminiServer.WriteStatus(AContext: TIdContext; const AStatus: string);
@@ -93,12 +91,6 @@ begin
   if AContext.Connection.Connected then begin
     AContext.Connection.IOHandler.WriteLn(AStatus);
   end;
-end;
-
-function TIdGeminiServer.VerifyPeer(ACertificate: TIdX509; AOk: Boolean;
-  ADepth, AError: Integer): Boolean;
-begin
-  Result := True;
 end;
 
 function TIdGeminiServer.StatusToCode(Status: TGeminiStatus): string;
