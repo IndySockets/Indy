@@ -182,6 +182,10 @@ begin
   end;
 
   // Remove dot segments (RFC 3986 section 5.2.4)
+  // LStack is grown one segment at a time below, so its first read is the
+  // Length() test that decides whether to SetLength. SetLength does not count
+  // as initialisation to the compiler, hence the explicit nil.
+  LStack := nil;
   LCount := 0;
   LSeg := '';
   LStart := (Length(LPath) > 0) and (LPath[1] = '/');
