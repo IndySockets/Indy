@@ -191,109 +191,87 @@ begin
   Result := TSpartanResponse.Create;
 
   try
-    // Handle IDN domains
-    LActualHost := ToPunycode(AHost);
-    LActualPath := EncodePath(Path);
+    try
+      LActualHost := ToPunycode(AHost);
+      LActualPath := EncodePath(Path);
+      Host := LActualHost;
 
-    Host := LActualHost;
+      // Spartan allows one request per connection.
+      Disconnect(False);
+      if Assigned(IOHandler) then IOHandler.InputBuffer.Clear;
+      Connect;
 
-    // Connect unconditionally, for the same reason TIdGemini does:  one
-    // request per connection, and the connection is this request's to make.
-    if Connected then
-    begin
-      Disconnect;
-    end;
-    Connect;
+      if Assigned(Data) then
+        Len := Data.Size
+      else
+        Len := 0;
 
-    // Calculate content length
-    if Assigned(Data) then
-      Len := Data.Size
-    else
-      Len := 0;
+      ReqLine := LActualHost + ' ' + LActualPath + ' ' + IntToStr(Len);
+      IOHandler.WriteLn(ReqLine);
 
-    // Send request line: "host path length"
-    ReqLine := LActualHost + ' ' + LActualPath + ' ' + IntToStr(Len);
-    IOHandler.WriteLn(ReqLine);
+      // The defaults (0, False) send the whole stream and rewind it.
+      if Assigned(Data) then
+        IOHandler.Write(Data);
 
-    // Send data if present
-    // ASize of 0 means "all of it", and Write() rewinds the stream itself in
-    // that case, so setting Position here would only duplicate what it does
-    if Assigned(Data) then
-      IOHandler.Write(Data);
+      StatusLine := IOHandler.ReadLn;
+      if Length(StatusLine) < 3 then Exit;
 
-    // Read status line
-    StatusLine := IOHandler.ReadLn;
-    if Length(StatusLine) < 3 then Exit;
-
-    // 2 to 5 are one digit, 10 and 11 are two, then a space and the meta
-    if StatusLine[1] = '1' then
-    begin
-      StatusCode := StrToIntDef(Copy(StatusLine, 1, 2), -1);
-      MetaStart := 4;
-    end
-    else
-    begin
-      StatusCode := StrToIntDef(Copy(StatusLine, 1, 1), -1);
-      MetaStart := 3;
-    end;
-
-    // Parse meta (everything after the status code and the space)
-    if Length(StatusLine) >= MetaStart then
-      Result.Meta := Trim(Copy(StatusLine, MetaStart, MaxInt))
-    else
-      Result.Meta := '';
-
-    // Set status based on code
-    case StatusCode of
-      2: Result.Status := ssSuccess;
-      3: Result.Status := ssRedirect;
-      4: Result.Status := ssClientError;
-      5: Result.Status := ssServerError;
-      10: Result.Status := ssInput;
-      11: Result.Status := ssSensitiveInput;
-    else
-      Result.Status := ssUnknown;
-    end;
-
-    // Parse MIME type for success responses
-    if Result.Status = ssSuccess then
-    begin
-      // Extract content type and charset
-      ParamPos := Pos(';', Result.Meta);
-      if ParamPos > 0 then
+      // 2 to 5 are one digit, 10 and 11 are two, then a space and the meta.
+      if StatusLine[1] = '1' then
       begin
-        Result.ContentType := Copy(Result.Meta, 1, ParamPos - 1);
-        Result.Charset := Trim(Copy(Result.Meta, ParamPos + 1, MaxInt));
-        // Remove charset= prefix if present
-        if Pos('charset=', LowerCase(Result.Charset)) = 1 then
-          Result.Charset := Copy(Result.Charset, 9, MaxInt);
+        StatusCode := StrToIntDef(Copy(StatusLine, 1, 2), -1);
+        MetaStart := 4;
       end
       else
       begin
-        Result.ContentType := Result.Meta;
-        Result.Charset := '';
+        StatusCode := StrToIntDef(Copy(StatusLine, 1, 1), -1);
+        MetaStart := 3;
       end;
 
-      // Read content
-      Result.Content := TMemoryStream.Create;
-      try
-        // Read raw content
+      if Length(StatusLine) >= MetaStart then
+        Result.Meta := Trim(Copy(StatusLine, MetaStart, MaxInt))
+      else
+        Result.Meta := '';
+
+      case StatusCode of
+        2: Result.Status := ssSuccess;
+        3: Result.Status := ssRedirect;
+        4: Result.Status := ssClientError;
+        5: Result.Status := ssServerError;
+        10: Result.Status := ssInput;
+        11: Result.Status := ssSensitiveInput;
+      else
+        Result.Status := ssUnknown;
+      end;
+
+      if Result.Status = ssSuccess then
+      begin
+        ParamPos := Pos(';', Result.Meta);
+        if ParamPos > 0 then
+        begin
+          Result.ContentType := Copy(Result.Meta, 1, ParamPos - 1);
+          Result.Charset := Trim(Copy(Result.Meta, ParamPos + 1, MaxInt));
+          if Pos('charset=', LowerCase(Result.Charset)) = 1 then
+            Result.Charset := Copy(Result.Charset, 9, MaxInt);
+        end
+        else
+        begin
+          Result.ContentType := Result.Meta;
+          Result.Charset := '';
+        end;
+
+        // ReadStream handles the normal disconnect that terminates the body.
+        Result.Content := TMemoryStream.Create;
         IOHandler.ReadStream(Result.Content, -1, True);
         Result.Content.Position := 0;
-      except
-        on E: EIdSilentException do
-        begin
-          // Connection closed gracefully - this is expected for Spartan
-        end;
       end;
+    finally
+      Disconnect(False);
+      if Assigned(IOHandler) then IOHandler.InputBuffer.Clear;
     end;
-
   except
-    on E: Exception do
-    begin
-      FreeAndNil(Result);
-      raise;
-    end;
+    FreeAndNil(Result);
+    raise;
   end;
 end;
 

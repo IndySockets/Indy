@@ -198,33 +198,31 @@ begin
     // Parse and validate URL
     try
       LURI := TIdURI.Create(RequestURL);
-      
-      // Reject requests with userinfo
-      if LURI.Username <> '' then
-      begin
-        WriteStatus(AContext, '59 Userinfo not allowed');
-        Exit;
-      end;
-
-      // Reject requests with fragments
-      if LURI.Bookmark <> '' then
-      begin
-        WriteStatus(AContext, '59 Fragments not allowed');
-        Exit;
-      end;
-
-      // A Gemini request has to be a valid gemini:// URL
-      if (LURI.Host = '') or not SameText(LURI.Protocol, 'gemini') then
-      begin
-        WriteStatus(AContext, '59 Invalid URL');
-        Exit;
-      end;
     except
       on E: Exception do
       begin
         WriteStatus(AContext, '59 Invalid URL format');
         Exit;
       end;
+    end;
+
+    // Keep writes outside the parser's exception handler so I/O errors propagate.
+    if LURI.Username <> '' then
+    begin
+      WriteStatus(AContext, '59 Userinfo not allowed');
+      Exit;
+    end;
+
+    if LURI.Bookmark <> '' then
+    begin
+      WriteStatus(AContext, '59 Fragments not allowed');
+      Exit;
+    end;
+
+    if (LURI.Host = '') or not SameText(LURI.Protocol, 'gemini') then
+    begin
+      WriteStatus(AContext, '59 Invalid URL');
+      Exit;
     end;
 
     // Prepare response

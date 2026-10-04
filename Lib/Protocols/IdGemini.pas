@@ -271,111 +271,73 @@ begin
   LURI := nil;
 
   try
-    // Parse URL to set host and port
-    LURI := TIdURI.Create(AURL);
-    
-    // Set connection parameters
-    Host := LURI.Host;
-    if LURI.Port <> '' then
-      Port := IndyStrToInt(LURI.Port, IdPORT_GEMINI)
-    else
-      Port := IdPORT_GEMINI;
+    try
+      // Parse URL to set host and port
+      LURI := TIdURI.Create(AURL);
 
-    // Connect unconditionally.  Gemini allows one request per connection and
-    // the server closes after answering, so being connected here is the
-    // exception rather than the rule, and testing for it only risks talking on
-    // somebody else's connection.
-    //
-    // One request per connection, so the connection belongs to this request.
-    // Leaving it to the caller to manage means a second request can land on a
-    // connection the server is about to close, so it is dropped and made here.
-    if Connected then
-    begin
-      Disconnect;
-    end;
-
-    // TIdTCPClient does not start TLS by itself; flip PassThrough so the
-    // handler's ConnectClient() runs the handshake.  Done through the base
-    // class so it works with whichever handler is in use.
-    if IOHandler is TIdSSLIOHandlerSocketBase then
-      TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
-    Connect;
-
-    // Send request (URL + CRLF)
-    IOHandler.WriteLn(AURL);
-
-    // Read the status line, which is a status code, a space, and the meta
-    // string, and is limited to 1024 bytes by the spec.  ReadLn() does not
-    // count the terminator when it validates, so 1024 is the number to pass.
-    // The limit goes in as an argument rather than into IOHandler.MaxLineLength
-    // so the application's own handler configuration is left alone.  EOL is
-    // given explicitly because ReadLn()'s default terminator is LF and a
-    // Gemini response ends with CRLF.
-    StatusLine := IOHandler.ReadLn(EOL, -1, 1024);
-    
-    if Length(StatusLine) < 3 then
-    begin
-      Result.Status := gsUnknown;
-      Result.Meta := 'Invalid response';
-      Exit;
-    end;
-
-    // Parse status code (first two characters)
-    StatusCode := StrToIntDef(Copy(StatusLine, 1, 2), -1);
-    Result.StatusCode := StatusCode;
-    Result.Status := StatusCodeToEnum(StatusCode);
-
-    // Parse meta (everything after "XX " where XX is status code)
-    if Length(StatusLine) > 3 then
-      Result.Meta := Trim(Copy(StatusLine, 4, MaxInt))
-    else
-      Result.Meta := '';
-
-    // Read content for success responses
-    if Result.Status = gsSuccess then
-    begin
-      // Parse MIME type and charset from meta
-      ParamPos := Pos(';', Result.Meta);
-      if ParamPos > 0 then
-      begin
-        Result.ContentType := Trim(Copy(Result.Meta, 1, ParamPos - 1));
-        Result.Charset := Trim(Copy(Result.Meta, ParamPos + 1, MaxInt));
-        // Remove charset= prefix if present
-        if Pos('charset=', LowerCase(Result.Charset)) = 1 then
-          Result.Charset := Trim(Copy(Result.Charset, 9, MaxInt));
-      end
+      Host := LURI.Host;
+      if LURI.Port <> '' then
+        Port := IndyStrToInt(LURI.Port, IdPORT_GEMINI)
       else
+        Port := IdPORT_GEMINI;
+
+      // Gemini allows one request per connection.
+      Disconnect(False);
+      IOHandler.InputBuffer.Clear;
+      TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
+      Connect;
+
+      IOHandler.WriteLn(AURL);
+
+      // Pass the line limit per call, leaving the handler's settings alone.
+      StatusLine := IOHandler.ReadLn(EOL, -1, 1024);
+
+      if Length(StatusLine) < 3 then
       begin
-        Result.ContentType := Trim(Result.Meta);
-        Result.Charset := '';
+        Result.Status := gsUnknown;
+        Result.Meta := 'Invalid response';
+        Exit;
       end;
 
-      // Read content until the server closes the connection, which is how a
-      // Gemini response ends.  A graceful close part way through is the normal
-      // way this loop ends rather than a failure, so it is caught; anything
-      // else is a real error and is left to propagate.
-      Result.Content := TMemoryStream.Create;
-      try
+      StatusCode := StrToIntDef(Copy(StatusLine, 1, 2), -1);
+      Result.StatusCode := StatusCode;
+      Result.Status := StatusCodeToEnum(StatusCode);
+
+      if Length(StatusLine) > 3 then
+        Result.Meta := Trim(Copy(StatusLine, 4, MaxInt))
+      else
+        Result.Meta := '';
+
+      if Result.Status = gsSuccess then
+      begin
+        ParamPos := Pos(';', Result.Meta);
+        if ParamPos > 0 then
+        begin
+          Result.ContentType := Trim(Copy(Result.Meta, 1, ParamPos - 1));
+          Result.Charset := Trim(Copy(Result.Meta, ParamPos + 1, MaxInt));
+          if Pos('charset=', LowerCase(Result.Charset)) = 1 then
+            Result.Charset := Trim(Copy(Result.Charset, 9, MaxInt));
+        end
+        else
+        begin
+          Result.ContentType := Trim(Result.Meta);
+          Result.Charset := '';
+        end;
+
+        // ReadStream handles the normal disconnect that terminates the body.
+        Result.Content := TMemoryStream.Create;
         IOHandler.ReadStream(Result.Content, -1, True);
         Result.Content.Position := 0;
-      except
-        on EIdConnClosedGracefully do
-        begin
-          // expected: the server closed after the body
-        end;
       end;
-    end;
-
-  except
-    on E: Exception do
-    begin
+    finally
       FreeAndNil(LURI);
-      FreeAndNil(Result);
-      raise;
+      Disconnect(False);
+      IOHandler.InputBuffer.Clear;
     end;
+  except
+    FreeAndNil(Result);
+    raise;
   end;
-  
-  FreeAndNil(LURI);
 end;
 
 function TIdGemini.Request(const AURL: string): Boolean;
