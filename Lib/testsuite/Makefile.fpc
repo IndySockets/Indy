@@ -1,5 +1,5 @@
 [target]
-dirs=testhash
+dirs=testhash testftplistparseunix
 
 [require]
 packages=indy
@@ -16,3 +16,5 @@ fpcpackage=y
 runtests:
 	$(MAKE) -C testhash
 	testhash/testhash$(SRCEXEEXT)
+	$(MAKE) -C testftplistparseunix
+	testftplistparseunix/testftplistparseunix$(SRCEXEEXT)
