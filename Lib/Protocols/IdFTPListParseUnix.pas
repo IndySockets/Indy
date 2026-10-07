@@ -558,7 +558,7 @@ begin
             wMSec := 999;
             LStep := pusName
         end;
-        if IndyPos(ChineseDay, LData) > 0 then begin
+        if (IndyPos(ChineseDay, LData) > 0) and (IndyPos(ChineseMonth, LData) > 0) then begin
             wMonth := IndyStrToInt(Fetch(LData, ChineseMonth));
             LData := TrimLeft(LData);
             wDay := IndyStrToInt(Fetch(LData, ChineseDay));
