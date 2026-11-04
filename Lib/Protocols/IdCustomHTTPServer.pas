@@ -2202,63 +2202,66 @@ end;
 
 procedure TIdHTTPResponseInfo.WriteContent;
 begin
-  if not HeaderHasBeenWritten then begin
-    WriteHeader;
-  end;
-
-  // RLebeau 11/23/2014: Per RFC 2616 Section 4.3:
-  //
-  // For response messages, whether or not a message-body is included with
-  // a message is dependent on both the request method and the response
-  // status code (section 6.1.1). All responses to the HEAD request method
-  // MUST NOT include a message-body, even though the presence of entity-
-  // header fields might lead one to believe they do. All 1xx
-  // (informational), 204 (no content), and 304 (not modified) responses
-  // MUST NOT include a message-body. All other responses do include a
-  // message-body, although it MAY be of zero length.
-
-  if not (
-    (FRequestInfo.CommandType = hcHEAD) or
-    ((ResponseNo div 100) = 1) or   // informational
-    (ResponseNo = 204) or           // no content
-    (ResponseNo = 304)              // not modified
-    ) then
-  begin
-    // Always check ContentText first
-    if ContentText <> '' then begin
-      FConnection.IOHandler.Write(ContentText, CharsetToEncoding(CharSet));
-    end
-    else if Assigned(ContentStream) then begin
-      // If ContentLength has been assigned then do not send the entire file,
-      // in case it grew after WriteHeader() generated the 'Content-Length'
-      // header.  We cannot exceed the byte count that we told the client
-      // we will be sending...
-
-      // TODO: apply this rule to ContentText as well...
-
-      // TODO: do not seek here.  Leave the Position where the user left it,
-      // in case the user decides to use a custom stream that does not start
-      // at Position 0.  Send from the current Position onwards.
-
-      if HasContentLength then begin
-        if ContentLength > 0 then begin
-          ContentStream.Position := 0;
-          FConnection.IOHandler.Write(ContentStream, ContentLength, False);
-        end;
-      end else begin
-        ContentStream.Position := 0;
-        FConnection.IOHandler.Write(ContentStream);
-      end;
-    end
-    else begin
-      FConnection.IOHandler.Write('<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
-       + '</B></BODY></HTML>', CharsetToEncoding(CharSet));    {Do not Localize}
+  try
+    if not HeaderHasBeenWritten then begin
+      WriteHeader;
     end;
-  end;
 
-  // Clear All - This signifies that WriteConent has been called.
-  ContentText := '';    {Do not Localize}
-  ReleaseContentStream;
+    // RLebeau 11/23/2014: Per RFC 2616 Section 4.3:
+    //
+    // For response messages, whether or not a message-body is included with
+    // a message is dependent on both the request method and the response
+    // status code (section 6.1.1). All responses to the HEAD request method
+    // MUST NOT include a message-body, even though the presence of entity-
+    // header fields might lead one to believe they do. All 1xx
+    // (informational), 204 (no content), and 304 (not modified) responses
+    // MUST NOT include a message-body. All other responses do include a
+    // message-body, although it MAY be of zero length.
+
+    if not (
+      (FRequestInfo.CommandType = hcHEAD) or
+      ((ResponseNo div 100) = 1) or   // informational
+      (ResponseNo = 204) or           // no content
+      (ResponseNo = 304)              // not modified
+      ) then
+    begin
+      // Always check ContentText first
+      if ContentText <> '' then begin
+        FConnection.IOHandler.Write(ContentText, CharsetToEncoding(CharSet));
+      end
+      else if Assigned(ContentStream) then begin
+        // If ContentLength has been assigned then do not send the entire file,
+        // in case it grew after WriteHeader() generated the 'Content-Length'
+        // header.  We cannot exceed the byte count that we told the client
+        // we will be sending...
+
+        // TODO: apply this rule to ContentText as well...
+
+        // TODO: do not seek here.  Leave the Position where the user left it,
+        // in case the user decides to use a custom stream that does not start
+        // at Position 0.  Send from the current Position onwards.
+
+        if HasContentLength then begin
+          if ContentLength > 0 then begin
+            ContentStream.Position := 0;
+            FConnection.IOHandler.Write(ContentStream, ContentLength, False);
+          end;
+        end else begin
+          ContentStream.Position := 0;
+          FConnection.IOHandler.Write(ContentStream);
+        end;
+      end
+      else begin
+        FConnection.IOHandler.Write('<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
+         + '</B></BODY></HTML>', CharsetToEncoding(CharSet));    {Do not Localize}
+      end;
+    end;
+  finally
+    // Clear All - This signifies that WriteConent has been called,
+    // even when it failed part-way...
+    ContentText := '';    {Do not Localize}
+    ReleaseContentStream;
+  end;
 end;
 
 procedure TIdHTTPResponseInfo.WriteHeader;
