@@ -148,6 +148,7 @@ type
     procedure SetIntegerVariable(Index: Integer; Value: {$IFDEF WBB_BIG_INTS}Int64{$ELSE}Integer{$ENDIF}); override;
     procedure SetLogMessage(const Value: string); override;
     procedure MoveCookiesAndCustomHeaders;
+    function GetResponseCharSet: string;
   public
     constructor Create(AHTTPRequest: TWebRequest; AThread: TIdContext;
      ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
@@ -602,13 +603,15 @@ end;
 function TIdHTTPAppResponse.GetContent: {$IFDEF WBB_ANSI}AnsiString{$ELSE}string{$ENDIF};
 {$IFDEF CONVERT_UNICODE_TO_ANSI}
 var
+  LCharSet: string;
   LBytes: TIdBytes;
 {$ENDIF}
 begin
   {$IFDEF CONVERT_UNICODE_TO_ANSI}
   // RLebeau 2/21/2009: encode the content using the specified charset.
   Result := '';
-  LBytes := CharsetToEncoding(FResponseInfo.CharSet).GetBytes(FResponseInfo.ContentText);
+  LCharSet := GetResponseCharSet;
+  LBytes := CharsetToEncoding(LCharSet).GetBytes(FResponseInfo.ContentText);
     {$IFDEF DOTNET}
   // RLebeau: how to handle this correctly in .NET?
   Result := AnsiString(BytesToStringRaw(LBytes));
@@ -618,7 +621,7 @@ begin
   // RLebeau 2/21/2009: for D2009+, the AnsiString payload should have
   // the proper codepage assigned to it as well so it can be converted
   // correctly if assigned to other string variables later on...
-  SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(FResponseInfo.CharSet), False);
+  SetCodePage(PRawByteString(@Result)^, CharsetToCodePage(LCharSet), False);
       {$ENDIF}
     {$ENDIF}
   {$ELSE}
@@ -767,6 +770,10 @@ begin
 end;
 
 procedure TIdHTTPAppResponse.SendResponse;
+{$IFDEF VCL_10_1_OR_ABOVE}
+var
+  LCharSet: string;
+{$ENDIF}
 begin
   FSent := True;
 
@@ -779,14 +786,15 @@ begin
   //FResponseInfo.ContentLength := -1;
 
   MoveCookiesAndCustomHeaders;
+
   {$IFDEF VCL_10_1_OR_ABOVE}
   // TODO: This code may not be in the correct location.
   if (FResponseInfo.ContentType = '') and
-    ((FResponseInfo.ContentText <> '') or (Assigned(FResponseInfo.ContentStream))) and
-    (HTTPApp.DefaultCharSet <> '') then
+    ((FResponseInfo.ContentText <> '') or (Assigned(FResponseInfo.ContentStream))) then
   begin
     // Indicate how to convert UTF16 when write.
-    ContentType := Format('text/html; charset=%s', [HTTPApp.DefaultCharSet]); {Do not Localize}
+    LCharSet := GetResponseCharSet;
+    ContentType := Format('text/html; charset=%s', [LCharSet]); {Do not Localize}
   end;
   {$ENDIF}
 
@@ -821,17 +829,13 @@ begin
   // AValue contains Encoded bytes
   if AValue <> '' then begin
     // RLebeau 3/28/2013: decode the content using the specified charset.
-    if FResponseInfo.CharSet <> '' then begin
-      LValue := CharsetToEncoding(FResponseInfo.CharSet).GetString(
-        {$IFDEF DOTNET}
-        RawToBytes(PAnsiChar(AValue)^, Length(AValue))
-        {$ELSE}
-        PByte(PAnsiChar(AValue)), Length(AValue)
-        {$ENDIF}
-      );
-    end else begin
-      LValue := string(AValue);
-    end;
+    LValue := CharsetToEncoding(GetResponseCharSet).GetString(
+      {$IFDEF DOTNET}
+      RawToBytes(PAnsiChar(AValue)^, Length(AValue))
+      {$ELSE}
+      PByte(PAnsiChar(AValue)), Length(AValue)
+      {$ENDIF}
+    );
   end;
 
   FResponseInfo.ContentText := LValue;
@@ -843,7 +847,12 @@ begin
   {$ELSE}
 
   FResponseInfo.ContentText := AValue;
+  // TODO: set ContentLength to -1 and let Indy calculate it later...
+    {$IFDEF STRING_IS_UNICODE}
+  FResponseInfo.ContentLength := CharsetToEncoding(GetResponseCharSet).GetByteCount(AValue);
+    {$ELSE}
   FResponseInfo.ContentLength := Length(AValue);
+    {$ENDIF}
 
   {$ENDIF}
 end;
@@ -897,6 +906,19 @@ begin
   end;
   FResponseInfo.CustomHeaders.Clear;
   FResponseInfo.CustomHeaders.AddStdValues(CustomHeaders);
+end;
+
+function TIdHTTPAppResponse.GetResponseCharSet: string;
+begin
+  Result := FResponseInfo.CharSet;
+  {$IFDEF VCL_10_1_OR_ABOVE}
+  if Result = '' then begin
+    Result := HTTPApp.DefaultCharSet;
+  end;
+  {$ENDIF}
+  if Result = '' then begin
+    Result := {$IFDEF STRING_IS_UNICODE}'utf-8'{$ELSE}'ISO-8859-1'{$ENDIF}; {Do not Localize}
+  end;
 end;
 
 {$IFDEF VCL_13_OR_ABOVE}
