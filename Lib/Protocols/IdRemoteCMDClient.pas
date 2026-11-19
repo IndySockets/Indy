@@ -52,8 +52,9 @@ unit IdRemoteCMDClient;
   2001-February-15
 }              
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdException,  IdTCPClient;

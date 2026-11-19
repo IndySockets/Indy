@@ -40,9 +40,9 @@
 
 unit IdDsnSASLListEditor;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 uses
   {$IFDEF DOTNET}

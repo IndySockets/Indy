@@ -126,9 +126,9 @@ unit IdSMTPRelay;
     to keep track of the status as the sending is in progress.
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

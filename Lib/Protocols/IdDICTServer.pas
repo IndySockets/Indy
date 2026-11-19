@@ -65,8 +65,9 @@ unit IdDICTServer;
   Original Author: Ozz Nixon
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols,

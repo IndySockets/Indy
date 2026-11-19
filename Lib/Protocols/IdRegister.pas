@@ -172,10 +172,9 @@
 
 unit IdRegister;
 
+{$i IdCompilerDefines.inc}
 
 interface
-
-{$i IdCompilerDefines.inc}
 
 uses
   Classes;

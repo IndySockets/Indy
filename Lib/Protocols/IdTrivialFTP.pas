@@ -42,9 +42,9 @@
 
 unit IdTrivialFTP;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

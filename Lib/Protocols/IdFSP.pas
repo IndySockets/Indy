@@ -77,9 +77,9 @@
 }
 unit IdFSP;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

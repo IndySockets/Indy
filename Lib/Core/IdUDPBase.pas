@@ -70,10 +70,10 @@
 
 unit IdUDPBase;
 
-interface
-
 {$I IdCompilerDefines.inc}
 //here to flip FPC into Delphi mode
+
+interface
 
 uses
   IdComponent,

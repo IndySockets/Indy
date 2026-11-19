@@ -1,8 +1,8 @@
 unit IdHeaderCoderBase;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes, IdGlobal, IdException;

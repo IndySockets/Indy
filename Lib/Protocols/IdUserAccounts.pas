@@ -43,8 +43,9 @@ unit IdUserAccounts;
    - universal TIdUserManagerAuthenticationEvent> Sender: TObject
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

@@ -137,10 +137,11 @@ unit IdCommandHandlers;
 	Separate Unit  : Sergio Perry
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
+interface
+
 
 uses
   Classes,

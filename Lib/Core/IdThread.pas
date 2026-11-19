@@ -144,9 +144,9 @@ unit IdThread;
   -TIdThreadOptions
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 // RLebeau: On OSX/iOS, an auto-release object pool should be used to clean up
 // Objective-C objects that are created within a thread. On Android, any thread

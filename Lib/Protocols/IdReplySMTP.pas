@@ -97,9 +97,9 @@
 
 unit IdReplySMTP;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

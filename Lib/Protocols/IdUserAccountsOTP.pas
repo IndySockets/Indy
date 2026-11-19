@@ -51,9 +51,9 @@ during the authentication process.
 
 unit IdUserAccountsOTP;
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

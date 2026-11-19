@@ -43,8 +43,10 @@ unit IdSystat;
   Note that this protocol is officially called Active User
 }
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
+
 uses
   Classes,
   IdAssignedNumbers,

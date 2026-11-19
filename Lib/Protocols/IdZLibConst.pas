@@ -9,9 +9,9 @@
 
 unit IdZLibConst;
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 {$UNDEF STATICLOAD_ZLIB}
 {$IFNDEF FPC}

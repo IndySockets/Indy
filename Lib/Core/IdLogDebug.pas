@@ -33,9 +33,11 @@
 
 unit IdLogDebug;
 
-interface
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
+interface
+
 uses
   IdLogBase;
 

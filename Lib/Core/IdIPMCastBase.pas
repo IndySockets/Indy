@@ -33,10 +33,11 @@
 
 unit IdIPMCastBase;
 
-interface
-
 {$I IdCompilerDefines.inc}
 //here to flip FPC into Delphi mode
+
+interface
+
 
 uses
   {$IFDEF WORKAROUND_INLINE_CONSTRUCTORS}

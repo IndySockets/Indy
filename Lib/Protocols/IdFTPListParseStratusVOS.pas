@@ -32,9 +32,9 @@ unit IdFTPListParseStratusVOS;
   FTP server (OS TCP/IP)
 }
 
-interface
-
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   Classes,

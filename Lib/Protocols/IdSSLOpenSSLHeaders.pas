@@ -187,9 +187,9 @@ CFLAG= /MD /Ox /W3 /Gs0 /GF /Gy /nologo
 
 }
 
-interface
-
 {$I IdCompilerDefines.inc}
+
+interface
 
 {$IFNDEF USE_OPENSSL}
   {$message error Should not compile if USE_OPENSSL is not defined!!!}
