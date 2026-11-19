@@ -255,6 +255,7 @@ irc             194/udp    Internet Relay Chat Protocol
   Id_PORT_inbusiness  = 244;//tcp    inbusiness
   IdPORT_link         = 245;// LINK
   IdPORT_dsp3270      = 246;// Display Systems Protocol
+  IdPORT_SPARTAN     = 300;//tcp    Spartan, the Gemini precursor
   IdPORT_pdap         = 344;// Prospero Data Access Protocol
   IdPORT_pawserv      = 345;// Perf Analysis Workbench
   IdPORT_zserv        = 346;//Zebra server
@@ -720,6 +721,7 @@ irc             194/udp    Internet Relay Chat Protocol
 
   {These were added simply for compatibility and were not listed in RFC 1700}
   IdPORT_SOCKS   = 1080;
+  IdPORT_GEMINI  = 1965;//tcp    Gemini
   IdPORT_DICT    = 2628;
   IdPORT_IRC     = 6667;
 

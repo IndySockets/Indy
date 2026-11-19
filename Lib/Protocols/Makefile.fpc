@@ -141,6 +141,10 @@ implicitunits=IdASN1Util \
   IdGopher \
   IdGopherConsts \
   IdGopherServer \
+  IdSpartan \
+  IdSpartanServer \
+  IdGemini \
+  IdGeminiServer \
   IdHMAC \
   IdHMACMD5 \
   IdHMACSHA1 \
@@ -319,12 +323,12 @@ units_solaris=IdCompressorZLib IdSSLOpenSSL \
 implicitunits_watcom=
 units_watcom=
 implicitunits_win32=IdSSLOpenSSLHeaders IdZLibHeaders \
-             IdZLib IdZLibConst IdNTLM IdSSPI 
+             IdZLib IdZLibConst IdNTLM IdSSPI
 units_win32=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM \
              IdAuthenticationSSPI
 implicitunits_win64=IdSSLOpenSSLHeaders IdZLibHeaders \
-             IdZLib IdZLibConst IdNTLM IdSSPI 
+             IdZLib IdZLibConst IdNTLM IdSSPI
 units_win64=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM \
              IdAuthenticationSSPI
@@ -342,5 +346,5 @@ packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)/:../Core/lib/$(CPU_TARGET)-$
 fpcpackage=y
 fpcsubdir=packages/extra
 
-[shared]	
+[shared]
 build=n
